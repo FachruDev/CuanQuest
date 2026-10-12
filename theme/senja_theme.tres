@@ -1679,6 +1679,57 @@ corner_radius_bottom_right = 20
 corner_radius_bottom_left = 20
 anti_aliasing_size = 1.0
 
+[sub_resource type="StyleBoxFlat" id="stat_tile"]
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.9333, 0.8667, 0.7608, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+anti_aliasing_size = 1.0
+
+[sub_resource type="StyleBoxFlat" id="stat_tile_pos"]
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+bg_color = Color(0.8745, 0.949, 0.9059, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.6196, 0.8392, 0.702, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+anti_aliasing_size = 1.0
+
+[sub_resource type="StyleBoxFlat" id="stat_tile_neg"]
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+bg_color = Color(0.9843, 0.8784, 0.8471, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.9412, 0.702, 0.6353, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+anti_aliasing_size = 1.0
+
 [resource]
 default_font = ExtResource("5_fredoka_regular")
 default_font_size = 22
@@ -2438,3 +2489,17 @@ LegalBodyLabel/base_type = &"Label"
 LegalBodyLabel/colors/font_color = Color(0.3686, 0.2941, 0.2196, 1)
 LegalBodyLabel/fonts/font = ExtResource("5_fredoka_regular")
 LegalBodyLabel/font_sizes/font_size = 19
+StatTile/base_type = &"PanelContainer"
+StatTile/styles/panel = SubResource("stat_tile")
+StatTilePositive/base_type = &"PanelContainer"
+StatTilePositive/styles/panel = SubResource("stat_tile_pos")
+StatTileNegative/base_type = &"PanelContainer"
+StatTileNegative/styles/panel = SubResource("stat_tile_neg")
+TileCapsLabel/base_type = &"Label"
+TileCapsLabel/colors/font_color = Color(0.5412, 0.4314, 0.3059, 1)
+TileCapsLabel/fonts/font = ExtResource("3_fredoka_semibold")
+TileCapsLabel/font_sizes/font_size = 15
+TileValueLabel/base_type = &"Label"
+TileValueLabel/colors/font_color = Color(0.1686, 0.1294, 0.2784, 1)
+TileValueLabel/fonts/font = ExtResource("6_fredoka_bold")
+TileValueLabel/font_sizes/font_size = 22

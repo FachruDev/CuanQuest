@@ -4,6 +4,7 @@ extends Control
 ## Data: Array of { "label": String, "value": float, "color": Color }.
 
 @export var empty_text_key := "ALLOC_EMPTY"
+@export var empty_color := Color("#f4eadb")  ## cincin abu saat belum ada aset
 
 var _slices: Array[Dictionary] = []
 
@@ -25,7 +26,7 @@ func _draw() -> void:
 	var radius := minf(size.x, size.y) / 2.0 - 4.0
 	var thickness := radius * 0.42
 	if total <= 0.0:
-		draw_arc(center, radius - thickness / 2.0, 0, TAU, 64, Color(1, 1, 1, 0.1), thickness, true)
+		draw_arc(center, radius - thickness / 2.0, 0, TAU, 64, empty_color, thickness, true)
 		return
 
 	var angle := -PI / 2.0  # mulai dari jam 12

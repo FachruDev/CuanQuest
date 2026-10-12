@@ -450,7 +450,7 @@ ALLOC_EMPTY,Belum ada aset.,No assets yet.
 PORT_CONCENTRATION_WARNING,Peringatan: %s investasimu ada di satu aset. Pertimbangkan diversifikasi.,Warning: %s of your investments sit in one asset. Consider diversifying.
 PORT_TRANSACTIONS,Riwayat Transaksi,Transaction History
 TX_EMPTY,Belum ada transaksi.,No transactions yet.
-TX_ROW,%s | %s %s | %s (fee %s),%s | %s %s | %s (fee %s)
+TX_META,%s · fee %s,%s · fee %s
 TX_BUY,Beli,Buy
 TX_SELL,Jual,Sell
 TX_FORCED,Jual paksa,Forced sale

@@ -1,13 +1,15 @@
 extends ScrollContainer
-## Tab Portofolio: ringkasan kekayaan, grafik net worth, alokasi aset, daftar kepemilikan,
-## laporan terakhir, riwayat transaksi.
+## Tab Portofolio (tema "Senja Cuan"): ringkasan kekayaan, grafik net worth, alokasi aset,
+## daftar kepemilikan, laporan terakhir, riwayat transaksi.
 
 const TX_SHOWN := 30
 ## Warna per kelas aset untuk grafik alokasi (urutan = urutan legenda).
 const CLASS_COLORS := {
-	"cash": Color("#95a5a6"), "savings": Color("#5dade2"), "deposit": Color("#48c9b0"),
-	"mutual_fund": Color("#f4d03f"), "stock": Color("#eb984e"), "crypto": Color("#af7ac5"),
+	"cash": Color("#b5a089"), "savings": Color("#4a6fb0"), "deposit": Color("#23877b"),
+	"mutual_fund": Color("#f6b93b"), "stock": Color("#f07a5f"), "crypto": Color("#7a4fb0"),
 }
+## Chip jenis transaksi: beli hijau, jual emas, jual paksa/panik merah.
+const TX_CHIPS := {"buy": &"MoodGreen", "sell": &"MoodGold", "forced": &"MoodRed", "panic": &"MoodRed"}
 
 
 func _ready() -> void:
@@ -25,12 +27,16 @@ func _refresh() -> void:
 	var pnl := invested - cost
 
 	%CashValue.text = Fmt.rupiah(GameState.cash)
+	%CashValue.add_theme_color_override("font_color", Palette.LOSS if GameState.cash < 0 else Palette.INK)
 	%InvestedValue.text = Fmt.rupiah(invested)
 	%CostValue.text = Fmt.rupiah(cost)
 	%PnlValue.text = Fmt.signed_rupiah(pnl)
 	if cost > 0:
 		%PnlValue.text += " (%s)" % Fmt.percent(pnl / cost)
-	%PnlValue.modulate = MonthReport.color_of(pnl)
+	var pnl_color := MonthReport.signed_color(pnl)
+	%PnlValue.add_theme_color_override("font_color", pnl_color)
+	%PnlName.add_theme_color_override("font_color", pnl_color if pnl != 0 else Palette.MUTED)
+	%PnlTile.theme_type_variation = &"StatTileNegative" if pnl < 0 else (&"StatTilePositive" if pnl > 0 else &"StatTile")
 
 	%NetWorthChart.set_data(GameState.net_worth_history)
 	_build_allocation()
@@ -56,72 +62,96 @@ func _build_allocation() -> void:
 		if value <= 0:
 			continue
 		slices.append({"label": asset_class, "value": value, "color": CLASS_COLORS[asset_class]})
-		var label := Label.new()
 		var name_key := "LBL_CASH" if asset_class == "cash" else "CLASS_" + asset_class.to_upper()
-		label.text = "%s  %s" % [tr(name_key).capitalize(), Fmt.percent_plain(value / grand_total)]
-		label.modulate = CLASS_COLORS[asset_class]
-		label.add_theme_font_size_override("font_size", 21)
-		%AllocLegend.add_child(label)
+		%AllocLegend.add_child(_legend_row(CLASS_COLORS[asset_class], tr(name_key).capitalize(),
+				Fmt.percent_plain(value / grand_total)))
 	%AllocationChart.set_slices(slices)
+	if slices.is_empty():
+		%AllocLegend.add_child(_label(tr("ALLOC_EMPTY"), &"MutedLabel"))
 
 	# Peringatan konsentrasi (GDD 5.8): satu aset > 70% dari investasi.
 	var share := EndAnalysis.largest_holding_share(GameState)
-	if share > 0.7 and GameState.investments_value() > 5_000_000:
-		var warning := Label.new()
-		warning.text = tr("PORT_CONCENTRATION_WARNING") % Fmt.percent_plain(share)
-		warning.modulate = MonthReport.RED
-		warning.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		warning.add_theme_font_size_override("font_size", 18)
-		%AllocLegend.add_child(warning)
+	var concentrated := share > 0.7 and GameState.investments_value() > 5_000_000
+	%ConcentrationWarning.visible = concentrated
+	if concentrated:
+		%ConcentrationLabel.text = tr("PORT_CONCENTRATION_WARNING") % Fmt.percent_plain(share)
 
 
+## Satu baris legenda: kotak warna, nama kelas, persentase.
+func _legend_row(color: Color, text: String, percent: String) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	var swatch := Panel.new()
+	swatch.custom_minimum_size = Vector2(14, 14)
+	swatch.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var style := StyleBoxFlat.new()
+	style.bg_color = color
+	style.set_corner_radius_all(4)
+	swatch.add_theme_stylebox_override("panel", style)
+	var name_label := _label(text, &"RowLabel")
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(swatch)
+	row.add_child(name_label)
+	row.add_child(_label(percent, &"RowValueLabel"))
+	return row
+
+
+## Riwayat transaksi: chip jenis | nama aset + tanggal & fee | nominal. Dipisah garis tipis.
 func _build_transactions() -> void:
 	_clear(%TxList)
 	if GameState.transactions.is_empty():
-		var empty := Label.new()
-		empty.text = tr("TX_EMPTY")
-		empty.modulate = MonthReport.MUTED
-		empty.add_theme_font_size_override("font_size", 20)
-		%TxList.add_child(empty)
+		%TxList.add_child(_label(tr("TX_EMPTY"), &"MutedLabel"))
 		return
 	for i in mini(TX_SHOWN, GameState.transactions.size()):
 		var t: Dictionary = GameState.transactions[i]
-		var label := Label.new()
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		label.add_theme_font_size_override("font_size", 19)
-		label.text = tr("TX_ROW") % [Fmt.game_date(t["month"]), tr("TX_" + str(t["kind"]).to_upper()),
-			tr(t["asset_key"]), Fmt.rupiah(t["amount"]), Fmt.rupiah(t["fee"])]
-		if t["kind"] != "buy":
-			label.text += " | " + tr("TX_PNL") % Fmt.signed_rupiah(t["pnl"])
-			label.modulate = MonthReport.color_of(t["pnl"])
-		%TxList.add_child(label)
+		var kind := str(t["kind"])
+		if i > 0:
+			var line := Panel.new()
+			line.theme_type_variation = &"Divider"
+			line.custom_minimum_size = Vector2(0, 2)
+			%TxList.add_child(line)
 
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 12)
+		var chip := PanelContainer.new()
+		chip.theme_type_variation = TX_CHIPS.get(kind, &"MoodNeutral")
+		chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		chip.add_child(_label(tr("TX_" + kind.to_upper()), &"MoodLabel"))
 
-func _clear(box: Node) -> void:
-	for child in box.get_children():
-		box.remove_child(child)
-		child.queue_free()
+		var middle := VBoxContainer.new()
+		middle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		middle.add_theme_constant_override("separation", 0)
+		var name_label := _label(tr(t["asset_key"]), &"AssetNameLabel")
+		name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		var meta := _label(tr("TX_META") % [Fmt.game_date(t["month"]), Fmt.rupiah(t["fee"])], &"SmallMutedLabel")
+		meta.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		middle.add_child(name_label)
+		middle.add_child(meta)
+		if kind != "buy":
+			var pnl := _label(tr("TX_PNL") % Fmt.signed_rupiah(t["pnl"]), &"AssetSubLabel")
+			pnl.add_theme_color_override("font_color", MonthReport.signed_color(t["pnl"]))
+			middle.add_child(pnl)
+
+		var amount := _label(Fmt.rupiah(t["amount"]), &"AssetValueLabel")
+		amount.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		row.add_child(chip)
+		row.add_child(middle)
+		row.add_child(amount)
+		%TxList.add_child(row)
 
 
 func _build_holdings() -> void:
-	for child in %HoldingsList.get_children():
-		%HoldingsList.remove_child(child)
-		child.queue_free()
-
+	_clear(%HoldingsList)
 	if GameState.holdings.is_empty():
-		var empty := Label.new()
-		empty.text = tr("PORT_EMPTY")
-		empty.modulate = MonthReport.MUTED
+		var empty := _label(tr("PORT_EMPTY"), &"MutedLabel")
 		empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		empty.add_theme_font_size_override("font_size", 22)
 		%HoldingsList.add_child(empty)
 		return
-
 	for asset_id: String in GameState.holdings:
 		%HoldingsList.add_child(_make_holding_card(asset_id))
 
 
-## Satu kartu kepemilikan: nama, unit @ harga rata-rata, nilai, untung/rugi.
+## Satu kartu kepemilikan: ikon kelas | nama + unit @ harga rata-rata | nilai + untung/rugi.
 func _make_holding_card(asset_id: String) -> PanelContainer:
 	var asset := GameState.market.get_asset(asset_id)
 	var units := GameState.units_of(asset_id)
@@ -129,34 +159,53 @@ func _make_holding_card(asset_id: String) -> PanelContainer:
 	var value := GameState.holding_value(asset_id)
 
 	var card := PanelContainer.new()
-	var box := VBoxContainer.new()
-	card.add_child(box)
-
-	var name_label := Label.new()
-	name_label.text = tr(asset.name_key)
-	name_label.add_theme_font_size_override("font_size", 24)
-	box.add_child(name_label)
-
-	var detail := Label.new()
-	if asset.is_interest():
-		detail.text = tr("FMT_RATE_PA") % Fmt.percent_plain(GameState.market.rate_for(asset))
-		if GameState.is_locked(asset_id):
-			detail.text += " | " + tr("LBL_LOCKED_UNTIL") % Fmt.game_date(GameState.locked_until(asset_id))
-	else:
-		detail.text = tr("PORT_HOLDING_DETAIL") % [Fmt.units(units), asset.price_text(cost / units)]
-	detail.modulate = MonthReport.MUTED
-	detail.add_theme_font_size_override("font_size", 20)
-	box.add_child(detail)
-
+	card.theme_type_variation = &"HomeCard"
 	var row := HBoxContainer.new()
-	var value_label := Label.new()
-	value_label.text = Fmt.rupiah(value)
-	value_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var pnl_label := Label.new()
-	pnl_label.text = "%s (%s)" % [Fmt.signed_rupiah(value - cost), Fmt.percent((value - cost) / cost)]
-	pnl_label.modulate = MonthReport.color_of(value - cost)
-	pnl_label.add_theme_font_size_override("font_size", 22)
-	row.add_child(value_label)
-	row.add_child(pnl_label)
-	box.add_child(row)
+	row.add_theme_constant_override("separation", 14)
+	card.add_child(row)
+	row.add_child(UiText.class_tile(asset.asset_class, 44.0))
+
+	var middle := VBoxContainer.new()
+	middle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	middle.add_theme_constant_override("separation", 0)
+	var name_label := _label(tr(asset.name_key), &"AssetNameLabel")
+	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	middle.add_child(name_label)
+	var detail_text: String
+	if asset.is_interest():
+		detail_text = tr("FMT_RATE_PA") % Fmt.percent_plain(GameState.market.rate_for(asset))
+		if GameState.is_locked(asset_id):
+			detail_text += " | " + tr("LBL_LOCKED_UNTIL") % Fmt.game_date(GameState.locked_until(asset_id))
+	else:
+		detail_text = tr("PORT_HOLDING_DETAIL") % [Fmt.units(units), asset.price_text(cost / units)]
+	var detail := _label(detail_text, &"SmallMutedLabel")
+	detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	middle.add_child(detail)
+	row.add_child(middle)
+
+	var right := VBoxContainer.new()
+	right.alignment = BoxContainer.ALIGNMENT_CENTER
+	right.add_theme_constant_override("separation", 0)
+	var value_label := _label(Fmt.rupiah(value), &"AssetValueLabel")
+	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	var pnl_label := _label("%s (%s)" % [Fmt.signed_rupiah(value - cost), Fmt.percent((value - cost) / cost)],
+			&"AssetSubLabel")
+	pnl_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	pnl_label.add_theme_color_override("font_color", MonthReport.signed_color(value - cost))
+	right.add_child(value_label)
+	right.add_child(pnl_label)
+	row.add_child(right)
 	return card
+
+
+func _label(text: String, variation: StringName) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.theme_type_variation = variation
+	return label
+
+
+func _clear(box: Node) -> void:
+	for child in box.get_children():
+		box.remove_child(child)
+		child.queue_free()

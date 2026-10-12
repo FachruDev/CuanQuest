@@ -64,6 +64,9 @@ func _draw() -> void:
 		hi = lo + 1.0
 
 	var area := Rect2(Vector2(PADDING, PADDING), size - Vector2(PADDING, PADDING) * 2)
+	var label_size := 20 if not light_style else 16
+	if light_style:  # sisakan ruang di atas & bawah agar label harga tidak menimpa garis
+		area = area.grow_individual(0, -label_size - 4, 0, -label_size - 4)
 
 	for i in 5:  # garis bantu horizontal
 		var y := area.position.y + area.size.y * i / 4.0
@@ -87,8 +90,12 @@ func _draw() -> void:
 	draw_circle(points[-1], 7.0 if not light_style else 6.0, color)
 
 	var font := get_theme_default_font()
-	var font_size := 20 if not light_style else 16
-	draw_string(font, Vector2(area.position.x + 4, area.position.y + font_size),
-			Fmt.rupiah(hi), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, text_color)
-	draw_string(font, Vector2(area.position.x + 4, area.end.y - 4),
-			Fmt.rupiah(lo), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, text_color)
+	var hi_y := area.position.y + label_size  # gaya gelap: label di dalam area
+	var lo_y := area.end.y - 4
+	if light_style:  # gaya terang: label di luar area garis
+		hi_y = area.position.y - 6
+		lo_y = area.end.y + label_size + 2
+	draw_string(font, Vector2(area.position.x + 4, hi_y),
+			Fmt.rupiah(hi), HORIZONTAL_ALIGNMENT_LEFT, -1, label_size, text_color)
+	draw_string(font, Vector2(area.position.x + 4, lo_y),
+			Fmt.rupiah(lo), HORIZONTAL_ALIGNMENT_LEFT, -1, label_size, text_color)

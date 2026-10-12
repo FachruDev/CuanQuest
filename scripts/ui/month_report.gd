@@ -1,73 +1,66 @@
 class_name MonthReport
 extends RefCounted
-## Mengisi sebuah VBoxContainer dengan baris-baris laporan bulanan.
+## Mengisi sebuah VBoxContainer dengan baris-baris laporan bulanan (tema "Senja Cuan").
 ## Dipakai di popup ringkasan dan di tab Portofolio (seperti komponen yang di-reuse).
-## `themed` = gaya terang "Senja Cuan" (variasi tema + warna Palette); false = gaya gelap lama.
 
+## Warna gaya gelap lama, masih dipakai layar yang belum didesain ulang.
 const GREEN := Color("#2ecc71")
 const RED := Color("#e74c3c")
 const MUTED := Color(1, 1, 1, 0.6)
-const FONT_SIZE := 24
 
 
-static func fill(box: VBoxContainer, r: Dictionary, themed := false) -> void:
+static func fill(box: VBoxContainer, r: Dictionary) -> void:
 	for child in box.get_children():
 		box.remove_child(child)
 		child.queue_free()
 
 	if r.is_empty():
-		_add_text(box, "REPORT_EMPTY", _muted(themed), themed)
+		_add_text(box, TranslationServer.translate("REPORT_EMPTY"), Palette.MUTED)
 		return
 
-	_add_header(box, "REPORT_INCOME", themed)
+	_add_header(box, "REPORT_INCOME")
 	if r.get("unemployed", false):
-		_add_row(box, "REPORT_SALARY_UNEMPLOYED", Fmt.rupiah(0), _red(themed), themed)
+		_add_row(box, "REPORT_SALARY_UNEMPLOYED", Fmt.rupiah(0), Palette.LOSS)
 	else:
-		_add_row(box, "REPORT_SALARY", Fmt.signed_rupiah(r["salary"]), _green(themed), themed)
+		_add_row(box, "REPORT_SALARY", Fmt.signed_rupiah(r["salary"]), Palette.GAIN)
 
-	_add_header(box, "REPORT_EXPENSES", themed)
-	_add_row(box, "REPORT_FOOD", Fmt.signed_rupiah(-r["food_cost"]), _red(themed), themed)
-	_add_row(box, "REPORT_HOUSING", Fmt.signed_rupiah(-r["housing_cost"]), _red(themed), themed)
+	_add_header(box, "REPORT_EXPENSES")
+	_add_row(box, "REPORT_FOOD", Fmt.signed_rupiah(-r["food_cost"]), Palette.LOSS)
+	_add_row(box, "REPORT_HOUSING", Fmt.signed_rupiah(-r["housing_cost"]), Palette.LOSS)
 
-	_add_header(box, "REPORT_INVESTMENT", themed)
+	_add_header(box, "REPORT_INVESTMENT")
 	if r.get("interest", 0.0) > 0.0:
-		_add_row(box, "REPORT_INTEREST", Fmt.signed_rupiah(r["interest"]), _green(themed), themed)
-	_add_row(box, "REPORT_INVEST_CHANGE", Fmt.signed_rupiah(r["invest_change"]),
-			_color_of(r["invest_change"], themed), themed)
+		_add_row(box, "REPORT_INTEREST", Fmt.signed_rupiah(r["interest"]), Palette.GAIN)
+	_add_row(box, "REPORT_INVEST_CHANGE", Fmt.signed_rupiah(r["invest_change"]), signed_color(r["invest_change"]))
 
 	var delayed: Array = r.get("delayed", [])
 	if not delayed.is_empty():
-		_add_header(box, "REPORT_EVENTS", themed)
+		_add_header(box, "REPORT_EVENTS")
 		for text: String in delayed:
-			_add_bullet(box, "- " + TranslationServer.translate(text), themed)
+			_add_bullet(box, "- " + TranslationServer.translate(text))
 
 	var news: Array = r.get("news", [])
 	if not news.is_empty():
-		_add_header(box, "REPORT_NEWS", themed)
+		_add_header(box, "REPORT_NEWS")
 		for item: Dictionary in news:
-			_add_bullet(box, "- " + news_text(item), themed)
+			_add_bullet(box, "- " + news_text(item))
 
-	_add_header(box, "REPORT_WELLBEING", themed)
-	_add_row(box, "STAT_HEALTH", "%+d" % r["health_delta"], _color_of(r["health_delta"], themed), themed)
-	_add_row(box, "STAT_HAPPINESS", "%+d" % r["happiness_delta"], _color_of(r["happiness_delta"], themed), themed)
+	_add_header(box, "REPORT_WELLBEING")
+	_add_row(box, "STAT_HEALTH", "%+d" % r["health_delta"], signed_color(r["health_delta"]))
+	_add_row(box, "STAT_HAPPINESS", "%+d" % r["happiness_delta"], signed_color(r["happiness_delta"]))
 
 	var before: float = r["net_worth_before"]
 	var after: float = r["net_worth_after"]
 	var change_text := Fmt.signed_rupiah(after - before)
 	if before > 0:
 		change_text += " (%s)" % Fmt.percent((after - before) / before)
-	if themed:
-		_add_net_worth_box(box, after, change_text, after - before)
-	else:
-		box.add_child(HSeparator.new())
-		_add_row(box, "LBL_NET_WORTH", Fmt.rupiah(after), Color.WHITE, false)
-		_add_row(box, "REPORT_NET_WORTH_CHANGE", change_text, color_of(after - before), false)
+	_add_net_worth_box(box, after, change_text, after - before)
 
 	for sale: Dictionary in r.get("forced_sales", []):
-		_add_text_raw(box, TranslationServer.translate("REPORT_FORCED_SALE") % [
-			TranslationServer.translate(sale["asset_key"]), Fmt.rupiah(sale["proceeds"])], _red(themed), themed)
+		_add_text(box, TranslationServer.translate("REPORT_FORCED_SALE") % [
+			TranslationServer.translate(sale["asset_key"]), Fmt.rupiah(sale["proceeds"])], Palette.LOSS)
 	for warning: String in r.get("warnings", []):
-		_add_text_raw(box, warning, _red(themed), themed)
+		_add_text(box, warning, Palette.LOSS)
 
 
 ## Teks berita yang sudah diterjemahkan, mis. "PT Bank Sentosa Tbk mencatat laba melonjak".
@@ -78,6 +71,7 @@ static func news_text(item: Dictionary) -> String:
 	return text
 
 
+## Warna gaya gelap lama (hijau/merah terang) untuk layar yang belum didesain ulang.
 static func color_of(value: float) -> Color:
 	if value > 0:
 		return GREEN
@@ -86,9 +80,8 @@ static func color_of(value: float) -> Color:
 	return MUTED
 
 
-static func _color_of(value: float, themed: bool) -> Color:
-	if not themed:
-		return color_of(value)
+## Warna "Senja Cuan": hijau untung, merah rugi, cokelat redup jika nol.
+static func signed_color(value: float) -> Color:
 	if value > 0:
 		return Palette.GAIN
 	if value < 0:
@@ -96,44 +89,23 @@ static func _color_of(value: float, themed: bool) -> Color:
 	return Palette.MUTED
 
 
-static func _green(themed: bool) -> Color:
-	return Palette.GAIN if themed else GREEN
-
-
-static func _red(themed: bool) -> Color:
-	return Palette.LOSS if themed else RED
-
-
-static func _muted(themed: bool) -> Color:
-	return Palette.MUTED if themed else MUTED
-
-
-static func _add_header(box: VBoxContainer, key: String, themed: bool) -> void:
+static func _add_header(box: VBoxContainer, key: String) -> void:
 	var label := Label.new()
 	label.text = TranslationServer.translate(key)
-	if themed:
-		label.theme_type_variation = &"ReportHeaderLabel"
-	else:
-		label.add_theme_font_size_override("font_size", 20)
-		label.modulate = MUTED
+	label.theme_type_variation = &"ReportHeaderLabel"
 	box.add_child(label)
 
 
-static func _add_row(box: VBoxContainer, key: String, value: String, color: Color, themed: bool) -> void:
+static func _add_row(box: VBoxContainer, key: String, value: String, color: Color) -> void:
 	var row := HBoxContainer.new()
 	var name_label := Label.new()
 	name_label.text = TranslationServer.translate(key)
+	name_label.theme_type_variation = &"RowLabel"
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var value_label := Label.new()
 	value_label.text = value
-	if themed:
-		name_label.theme_type_variation = &"RowLabel"
-		value_label.theme_type_variation = &"RowValueLabel"
-		value_label.add_theme_color_override("font_color", color)
-	else:
-		name_label.add_theme_font_size_override("font_size", FONT_SIZE)
-		value_label.modulate = color
-		value_label.add_theme_font_size_override("font_size", FONT_SIZE)
+	value_label.theme_type_variation = &"RowValueLabel"
+	value_label.add_theme_color_override("font_color", color)
 	row.add_child(name_label)
 	row.add_child(value_label)
 	box.add_child(row)
@@ -164,7 +136,7 @@ static func _add_net_worth_box(box: VBoxContainer, after: float, change_text: St
 	var change_label := Label.new()
 	change_label.text = change_text
 	change_label.theme_type_variation = &"RowValueLabel"
-	change_label.add_theme_color_override("font_color", _color_of(change, true))
+	change_label.add_theme_color_override("font_color", signed_color(change))
 	bottom.add_child(change_name)
 	bottom.add_child(change_label)
 	vbox.add_child(top)
@@ -173,29 +145,18 @@ static func _add_net_worth_box(box: VBoxContainer, after: float, change_text: St
 	box.add_child(panel)
 
 
-static func _add_bullet(box: VBoxContainer, text: String, themed: bool) -> void:
+static func _add_bullet(box: VBoxContainer, text: String) -> void:
 	var label := Label.new()
 	label.text = text
+	label.theme_type_variation = &"SmallMutedLabel"
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	if themed:
-		label.theme_type_variation = &"SmallMutedLabel"
-	else:
-		label.add_theme_font_size_override("font_size", 20)
 	box.add_child(label)
 
 
-static func _add_text(box: VBoxContainer, key: String, color: Color, themed: bool) -> void:
-	_add_text_raw(box, TranslationServer.translate(key), color, themed)
-
-
-static func _add_text_raw(box: VBoxContainer, text: String, color: Color, themed: bool) -> void:
+static func _add_text(box: VBoxContainer, text: String, color: Color) -> void:
 	var label := Label.new()
 	label.text = text
+	label.theme_type_variation = &"InfoLabel"
+	label.add_theme_color_override("font_color", color)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	if themed:
-		label.theme_type_variation = &"InfoLabel"
-		label.add_theme_color_override("font_color", color)
-	else:
-		label.modulate = color
-		label.add_theme_font_size_override("font_size", 22)
 	box.add_child(label)

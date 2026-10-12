@@ -8,11 +8,6 @@ const QUICK_PERCENTS := [0.25, 0.5, 1.0]
 const CLASS_ORDER := ["savings", "deposit", "mutual_fund", "stock", "crypto"]
 ## Warna teks risiko 1-5 (cukup gelap agar terbaca di kartu putih).
 const RISK_COLORS := [Color("#1e7f5c"), Color("#1e7f5c"), Color("#a86a12"), Color("#c25a1e"), Color("#c2452d")]
-const CLASS_TILES := {
-	"savings": &"IconTileBlue", "deposit": &"IconTileMint", "mutual_fund": &"IconTileGold",
-	"stock": &"IconTileCoral", "crypto": &"IconTilePurple",
-}
-const CLASS_ICON := "res://assets/icons/classes/%s.svg"
 const REGIME_CHIPS := {"bull": &"MoodGreen", "sideways": &"MoodNeutral", "bear": &"MoodRed"}
 const NEWS_SHOWN := 4
 
@@ -39,7 +34,7 @@ func _ready() -> void:
 	%BackButton.pressed.connect(_show_list)
 
 	_build_asset_list()
-	UiText.build_period_buttons(%PeriodRow, %Chart, 12, &"PeriodButton")
+	UiText.build_period_buttons(%PeriodRow, %Chart, 12)
 	GameState.changed.connect(_refresh)
 	_show_list()
 
@@ -85,22 +80,7 @@ func _make_asset_row(asset: MarketAsset) -> Button:
 	row.add_theme_constant_override("separation", 14)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	var tile := PanelContainer.new()
-	tile.theme_type_variation = CLASS_TILES.get(asset.asset_class, &"IconTileGold")
-	tile.custom_minimum_size = Vector2(48, 48)
-	tile.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	tile.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var icon_path := CLASS_ICON % asset.asset_class
-	if ResourceLoader.exists(icon_path):
-		var icon := TextureRect.new()
-		icon.texture = load(icon_path)
-		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icon.custom_minimum_size = Vector2(26, 26)
-		icon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		tile.add_child(icon)
+	var tile := UiText.class_tile(asset.asset_class)
 
 	var left := VBoxContainer.new()
 	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -148,7 +128,7 @@ func _refresh_list() -> void:
 		else:
 			labels["price"].text = asset.price_text()
 			labels["change"].text = Fmt.percent(asset.change_ratio())
-			labels["change"].add_theme_color_override("font_color", _signed_color(asset.change_ratio()))
+			labels["change"].add_theme_color_override("font_color", MonthReport.signed_color(asset.change_ratio()))
 
 	_refresh_mood(market)
 	_refresh_news(market)
@@ -227,7 +207,7 @@ func _refresh_detail() -> void:
 		%PriceLabel.text = asset.price_text()
 		var change := asset.change_ratio()
 		%ChangeLabel.text = Fmt.percent(change)
-		%ChangeLabel.add_theme_color_override("font_color", _signed_color(change))
+		%ChangeLabel.add_theme_color_override("font_color", MonthReport.signed_color(change))
 		%ChangeChip.theme_type_variation = &"ChangeUp" if change > 0 else (&"ChangeDown" if change < 0 else &"ChangeFlat")
 		%ChangeChip.show()
 		%ChartCard.show()
@@ -319,14 +299,6 @@ func _make_chip(text: String, variation: StringName) -> PanelContainer:
 	chip.theme_type_variation = variation
 	chip.add_child(_make_label(text, &"MoodLabel"))
 	return chip
-
-
-func _signed_color(value: float) -> Color:
-	if value > 0:
-		return Palette.GAIN
-	if value < 0:
-		return Palette.LOSS
-	return Palette.MUTED
 
 
 ## "1.500.000" atau "1500000" -> 1500000
