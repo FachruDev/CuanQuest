@@ -21,6 +21,7 @@ func _ready() -> void:
 	%TermsButton.pressed.connect(_show_legal.bind("terms"))
 	%ResetButton.pressed.connect(_on_reset)
 	_setup_settings()
+	_setup_risk_profile()
 	_build_slots()
 	_build_history()
 	GameState.changed.connect(_refresh)
@@ -57,6 +58,22 @@ func _refresh() -> void:
 
 	for slot: String in _slot_labels:
 		_slot_labels[slot].text = SaveManager.slot_summary(slot)
+
+
+# --- Profil risiko (bisa diubah kapan saja, GDD 5.8) ---------------------------
+
+func _setup_risk_profile() -> void:
+	%RiskOption.clear()
+	var profiles := GameState.risk_profiles()
+	for p: Dictionary in profiles:
+		%RiskOption.add_item(tr(p["name"]))
+	for i in profiles.size():
+		if profiles[i]["id"] == GameState.risk_profile_id:
+			%RiskOption.selected = i
+	%RiskDesc.text = tr(GameState.risk_profile()["desc"])
+	%RiskOption.item_selected.connect(func(index: int) -> void:
+		GameState.set_risk_profile(profiles[index]["id"])
+		%RiskDesc.text = tr(GameState.risk_profile()["desc"]))
 
 
 # --- Pengaturan ---------------------------------------------------------------

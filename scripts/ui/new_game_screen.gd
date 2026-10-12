@@ -10,6 +10,7 @@ var _avatar := 0
 var _background_id := ""
 var _difficulty_id := ""
 var _avatar_views: Array[AvatarView] = []
+var _risk_scores: Array[int] = []  # skor jawaban per pertanyaan profil risiko
 
 
 func _ready() -> void:
@@ -23,6 +24,50 @@ func _ready() -> void:
 			func(id: String) -> void: _background_id = id, true)
 	_build_options(%DifficultyOptions, GameState.economy["difficulties"], _difficulty_id,
 			func(id: String) -> void: _difficulty_id = id, false)
+	_build_risk_questions()
+
+
+## Kuesioner profil risiko (GDD 5.8): tiap pertanyaan punya 3 jawaban berskor 0-2.
+## Jawaban tengah dipilih sebagai default.
+func _build_risk_questions() -> void:
+	var questions := GameState.risk_questions()
+	for qi in questions.size():
+		var question: Dictionary = questions[qi]
+		_risk_scores.append(1)
+		var label := Label.new()
+		label.text = "%d. %s" % [qi + 1, tr(question["q"])]
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.add_theme_font_size_override("font_size", 21)
+		%RiskQuestions.add_child(label)
+		var group := ButtonGroup.new()
+		for option: Dictionary in question["options"]:
+			var button := Button.new()
+			button.toggle_mode = true
+			button.button_group = group
+			button.text = tr(option["text"])
+			button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			button.custom_minimum_size = Vector2(0, 60)
+			button.add_theme_font_size_override("font_size", 20)
+			button.button_pressed = int(option["score"]) == 1
+			button.pressed.connect(func() -> void:
+				_risk_scores[qi] = int(option["score"])
+				_update_risk_result())
+			%RiskQuestions.add_child(button)
+	_update_risk_result()
+
+
+func _risk_profile_id() -> String:
+	var total := 0
+	for score in _risk_scores:
+		total += score
+	return GameState.profile_from_score(total)
+
+
+func _update_risk_result() -> void:
+	var id := _risk_profile_id()
+	for p: Dictionary in GameState.risk_profiles():
+		if p["id"] == id:
+			%RiskResult.text = tr("NG_RISK_RESULT") % [tr(p["name"]), tr(p["desc"])]
 
 
 func _build_avatars() -> void:
@@ -80,6 +125,7 @@ func _on_start() -> void:
 		"avatar": _avatar,
 		"background": _background_id,
 		"difficulty": _difficulty_id,
+		"risk_profile": _risk_profile_id(),
 	})
 	SaveManager.save_slot(SaveManager.AUTO_SLOT)
 	if GameState.tutorial_done:

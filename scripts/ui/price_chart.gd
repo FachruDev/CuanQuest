@@ -5,14 +5,16 @@ extends Control
 
 const PADDING := 16.0
 
-@export var max_points := 24
+@export var max_points := 24   ## batas titik saat periode = 0 ("Semua")
+@export var period := 0        ## jumlah bulan yang ditampilkan; 0 = semua (dibatasi max_points)
 @export var up_color := Color("#2ecc71")
 @export var down_color := Color("#e74c3c")
 @export var background_color := Color("#182030")
 @export var grid_color := Color(1, 1, 1, 0.08)
 @export var empty_text_key := "CHART_EMPTY"
 
-var _data: Array[float] = []
+var _all: Array[float] = []   # semua data dari pemanggil
+var _data: Array[float] = []  # bagian yang sedang digambar (sesuai periode)
 
 
 func _ready() -> void:
@@ -20,7 +22,19 @@ func _ready() -> void:
 
 
 func set_data(values: Array[float]) -> void:
-	_data.assign(values.slice(-max_points))
+	_all.assign(values)
+	_apply_period()
+
+
+## Periode N bulan butuh N+1 titik (harga awal + N perubahan bulanan).
+func set_period(months: int) -> void:
+	period = months
+	_apply_period()
+
+
+func _apply_period() -> void:
+	var count := period + 1 if period > 0 else max_points
+	_data.assign(_all.slice(-count))
 	queue_redraw()  # minta Godot memanggil _draw() di frame berikutnya
 
 

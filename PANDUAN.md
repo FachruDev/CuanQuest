@@ -32,6 +32,8 @@ data/
   quiz.json                   39 soal kuis (4 topik)
   glossary.json               31 istilah glosarium
   legal.json                  Kebijakan privasi & syarat penggunaan (tampil di game)
+  activities.json             6 aktivitas bulanan & aturan energi
+  risk_profile.json           Kuesioner & 3 profil risiko
   unlocks.json                Syarat membuka tiap tahap instrumen
 localization/strings.csv      Semua teks UI (kolom id & en)
 theme/main_theme.tres         Font global, warna tombol aktif, panel, progress bar
@@ -108,7 +110,10 @@ scenes/
 - [x] **M4: Event hidup, kuis, unlock.** 33 event (termasuk efek tertunda & PHK), 39 soal kuis (3/minggu nyata + iklan stub), XP & level, 4 tahap unlock, antrean popup
 - [x] **M5: Save/load, layar judul, buat karakter, tutorial & glosarium.** 3 latar belakang, 3 tingkat kesulitan, simpan otomatis + 3 slot manual, petunjuk saat tab pertama dibuka, tab Profil
 - [x] **M6: Menang/kalah + layar akhir, pengaturan, kebijakan privasi.** 2 cara menang + pensiun, 3 cara kalah, penjualan paksa, layar akhir dengan analisis, statistik & riwayat, efek suara buatan kode, getar, bahasa, format angka ringkas, reset data
-- [ ] **M7: Export Android, playtest, balancing**
+- [x] **M6.5: Melengkapi isi draft.** Energi & 6 aktivitas bulanan, lompat waktu (+6 Bln / +1 Thn), riwayat transaksi, periode grafik 1B/6B/1T/Semua, grafik alokasi aset + peringatan konsentrasi, profil risiko (kuesioner + peringatan di Pasar)
+- [ ] **Redesain UI** (tema cozy; aset dari Anda, lihat `docs/KEBUTUHAN_ASET.md`)
+- [ ] **M7: Export Android, AdMob, playtest, balancing, rilis v1**
+- [ ] **v1.5 / v2** (lihat dokumen MVP v1.5 & v2)
 
 ## Cara Kerja Simulasi Pasar (M3)
 
@@ -155,6 +160,20 @@ Setiap bulan `Market.step()` menjalankan:
 - **Efek suara** (`Sfx`) dibangkitkan dari gelombang sinus, tanpa file audio. Semua tombol otomatis berbunyi lewat signal `SceneTree.node_added`. Musik belum ada, karena butuh aset audio.
 - **Bahasa Inggris** baru mencakup tampilan; isi event/kuis/glosarium masih Bahasa Indonesia.
 - **Kebijakan privasi** untuk Play Store ada di `docs/kebijakan-privasi.md`. Isi `[EMAIL KONTAK]` & `[NAMA PENGEMBANG]` (juga di `data/legal.json`), lalu unggah ke URL publik.
+
+## Energi, Lompat Waktu & Portofolio (M6.5)
+
+- **Energi:** 3 per bulan, +1 jika kesehatan >= 70, -1 jika < 30. Kapasitasnya dikunci di awal bulan; energi yang tidak terpakai hangus. Aktivitas ada di `data/activities.json` dan memakai format efek yang sama dengan event.
+- **Lompat waktu** (`GameState.fast_forward`): maju hingga 6/12 bulan, tapi **berhenti otomatis** saat ada event, peringatan bahaya, penjualan paksa, instrumen baru terbuka, target tercapai, atau game berakhir. Laporan semua bulan digabung menjadi satu. Selama lompat waktu, peluang event dikali `fast_forward_event_mult` (0,15) di `economy.json`, agar lompatan tidak terus terpotong (rata-rata sekitar 5-6 bulan per tekan; THR setiap April selalu menghentikan lompatan).
+- **Signal yang ditunda:** selama lompat waktu, signal seperti `event_triggered` disimpan dulu (`_emit_later`), lalu dikirim setelah laporan gabungan. Dengan begitu urutan popup tetap sama: laporan, lalu unlock/event.
+- **Riwayat transaksi** menyimpan 200 transaksi terakhir (beli, jual, jual paksa, panik jual) beserta untung/rugi terealisasi.
+- **Profil risiko:** skor kuesioner 0-6 dipetakan ke Konservatif/Moderat/Agresif. Detail aset di Pasar menampilkan peringatan jika risikonya di atas profil. Profil bisa diubah di tab Profil.
+
+## Latihan M6.5 (opsional)
+
+1. Tambah aktivitas baru di `data/activities.json`, misalnya "Masak di rumah" (energi 1, kebahagiaan +2).
+2. Ubah `fast_forward_event_mult` menjadi `1.0`, lalu bandingkan seberapa sering tombol "+1 Thn" berhenti.
+3. Ubah `base_energy` menjadi `5`, lalu rasakan bedanya pada pilihan aktivitas tiap bulan.
 
 ## Latihan M6 (opsional)
 

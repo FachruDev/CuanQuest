@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ui/screens/portfolio_screen.gd" id="1_portfolio"]
 [ext_resource type="Script" path="res://scripts/ui/price_chart.gd" id="2_chart"]
+[ext_resource type="Script" path="res://scripts/ui/allocation_chart.gd" id="3_alloc"]
 
 [node name="PortfolioScreen" type="ScrollContainer"]
 anchors_preset = 15
@@ -83,7 +84,32 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 220)
 layout_mode = 2
 script = ExtResource("2_chart")
-max_points = 60
+max_points = 600
+
+
+[node name="PeriodRow" type="HBoxContainer" parent="VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="AllocTitle" type="Label" parent="VBox"]
+layout_mode = 2
+text = "PORT_ALLOCATION"
+
+[node name="AllocRow" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="AllocationChart" type="Control" parent="VBox/AllocRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 220)
+layout_mode = 2
+script = ExtResource("3_alloc")
+
+[node name="AllocLegend" type="VBoxContainer" parent="VBox/AllocRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
 
 [node name="HoldingsTitle" type="Label" parent="VBox"]
 layout_mode = 2
@@ -104,3 +130,12 @@ layout_mode = 2
 [node name="ReportBox" type="VBoxContainer" parent="VBox/ReportPanel"]
 unique_name_in_owner = true
 layout_mode = 2
+
+[node name="TxTitle" type="Label" parent="VBox"]
+layout_mode = 2
+text = "PORT_TRANSACTIONS"
+
+[node name="TxList" type="VBoxContainer" parent="VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6

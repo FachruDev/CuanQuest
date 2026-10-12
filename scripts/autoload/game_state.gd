@@ -24,6 +24,9 @@ const NEWS_PATH := "res://data/news.json"
 const UNLOCKS_PATH := "res://data/unlocks.json"
 const EVENTS_PATH := "res://data/events.json"
 const QUIZ_PATH := "res://data/quiz.json"
+const ACTIVITIES_PATH := "res://data/activities.json"
+const RISK_PROFILE_PATH := "res://data/risk_profile.json"
+const MAX_TRANSACTIONS := 200
 
 var economy: Dictionary = {}       # isi data/economy.json
 var stage_defs: Array = []         # isi data/unlocks.json
@@ -66,6 +69,17 @@ var goals_reached: Array[String] = []
 var is_over := false
 var end_result: Dictionary = {}
 
+# --- M6.5: energi, aktivitas, transaksi, profil risiko, lompat waktu ---
+var activity_data: Dictionary = {}           # isi data/activities.json
+var risk_data: Dictionary = {}               # isi data/risk_profile.json
+var energy := 0
+var energy_capacity := 0                     # energi maksimal bulan ini (dikunci di awal bulan)
+var activity_counts: Dictionary = {}         # activity_id -> berapa kali bulan ini
+var transactions: Array[Dictionary] = []     # riwayat transaksi, terbaru di depan
+var risk_profile_id := "moderate"
+var _fast_forwarding := false
+var _deferred: Array[Callable] = []          # signal yang ditunda selama lompat waktu
+
 # --- Data global pemain (user://player.json), TIDAK di-reset saat game baru ---
 ## Kuis: jatahnya mengikuti minggu nyata, jadi tidak boleh ikut slot save.
 var quiz := QuizManager.new()
@@ -78,6 +92,8 @@ func _ready() -> void:
 	economy = DataLoader.load_json(ECONOMY_PATH)
 	stage_defs = DataLoader.load_json(UNLOCKS_PATH).get("stages", [])
 	quiz.setup(DataLoader.load_json(QUIZ_PATH).get("questions", []), economy["quiz"])
+	activity_data = DataLoader.load_json(ACTIVITIES_PATH)
+	risk_data = DataLoader.load_json(RISK_PROFILE_PATH)
 
 
 ## `profile`: { "name", "avatar", "background", "difficulty" } (semua opsional).
@@ -89,6 +105,8 @@ func new_game(profile: Dictionary = {}, seed_value: int = -1) -> void:
 	if player_name.strip_edges() == "":
 		player_name = tr("DEFAULT_PLAYER_NAME")
 	avatar = int(profile.get("avatar", 0))
+	risk_profile_id = profile.get("risk_profile", "moderate")
+	transactions.clear()
 	background = _find_option(economy["backgrounds"], profile.get("background", economy["default_background"]))
 	difficulty = _find_option(economy["difficulties"], profile.get("difficulty", economy["default_difficulty"]))
 
@@ -168,7 +186,8 @@ func advance_month() -> void:
 		"cash_after": cash,
 	})
 	changed.emit()
-	month_advanced.emit(last_report)
+	if not _fast_forwarding:
+		month_advanced.emit(last_report)
 	if _check_end():
 		return
 	_check_goals()
@@ -207,6 +226,10 @@ func _start_month() -> Dictionary:
 	if unemployed_months > 0:
 		paid = 0
 		unemployed_months -= 1
+
+	energy_capacity = energy_max()
+	energy = energy_capacity
+	activity_counts.clear()
 
 	var food_cost := option_cost(food)
 	var housing_cost := option_cost(housing)
@@ -307,7 +330,7 @@ func _check_unlocks(notify: bool) -> void:
 			unlocked_stages.append(stage)
 			any = true
 			if notify:
-				stage_unlocked.emit(def)
+				_emit_later(stage_unlocked, def)
 	if any:
 		changed.emit()
 
@@ -320,14 +343,17 @@ func has_pending_event() -> bool:
 
 func _roll_event() -> void:
 	var event := events.pick_guaranteed(self)
-	if event.is_empty() and rng.randf() < float(difficulty["event_chance"]):
+	var chance := float(difficulty["event_chance"])
+	if _fast_forwarding:
+		chance *= float(economy.get("fast_forward_event_mult", 1.0))  # lompat waktu tetap bermakna
+	if event.is_empty() and rng.randf() < chance:
 		event = events.pick_random(self, rng, float(difficulty["bad_event_mult"]))
 	if event.is_empty():
 		return
 	events.mark_shown(event, month)
 	pending_event = event
 	changed.emit()
-	event_triggered.emit(event)
+	_emit_later(event_triggered, event)
 
 
 ## Pilihan dengan biaya di muka hanya bisa dipilih jika kas cukup.
@@ -388,7 +414,7 @@ func _apply_effects(e: Dictionary) -> void:
 	if e.get("sell_all", false):
 		stats["panic_sell"] = true
 		for asset_id: String in holdings.keys():
-			sell(asset_id, ceili(holding_value(asset_id)))
+			sell(asset_id, ceili(holding_value(asset_id)), "panic")
 
 
 ## Efek tertunda yang jatuh tempo bulan ini. Mengembalikan teks-teksnya untuk laporan.
@@ -552,13 +578,15 @@ func buy(asset_id: String, amount: int) -> Dictionary:
 	holdings[asset_id] = h
 	cash -= amount
 	stats["total_fees"] += fee
+	_log_transaction("buy", asset, amount, units, fee, 0.0)
 
 	changed.emit()
 	return {"ok": true, "units": units, "fee": fee}
 
 
 ## Jual aset senilai `amount` Rupiah (berdasarkan harga pasar sebelum fee).
-func sell(asset_id: String, amount: int) -> Dictionary:
+## `kind`: sell (manual) | forced (jual paksa saat kas minus) | panic (event panik jual).
+func sell(asset_id: String, amount: int, kind: String = "sell") -> Dictionary:
 	var held := units_of(asset_id)
 	if amount <= 0:
 		return {"ok": false, "error": "ERR_AMOUNT_INVALID"}
@@ -586,6 +614,7 @@ func sell(asset_id: String, amount: int) -> Dictionary:
 	cash += proceeds
 	stats["total_fees"] += fee
 	_record_extreme("best_trade", "worst_trade", proceeds - cost_sold, {"asset_key": asset.name_key})
+	_log_transaction(kind, asset, proceeds, units, fee, proceeds - cost_sold)
 
 	changed.emit()
 	return {"ok": true, "units": units, "fee": fee, "proceeds": proceeds, "penalty": penalty}
@@ -651,6 +680,8 @@ func to_dict() -> Dictionary:
 		"stats": stats,
 		"danger": [negative_cash_months, zero_health_months, zero_happiness_months],
 		"goals_reached": goals_reached,
+		"energy": energy, "energy_capacity": energy_capacity, "activity_counts": activity_counts,
+		"transactions": transactions, "risk_profile": risk_profile_id,
 	}
 
 
@@ -701,6 +732,16 @@ func load_from_dict(d: Dictionary) -> bool:
 	zero_health_months = int(danger[1])
 	zero_happiness_months = int(danger[2])
 	goals_reached.assign(d.get("goals_reached", []))
+	energy_capacity = int(d.get("energy_capacity", energy_max()))
+	energy = int(d.get("energy", energy_capacity))
+	activity_counts.clear()
+	for id: String in d.get("activity_counts", {}):
+		activity_counts[id] = int(d["activity_counts"][id])
+	transactions.clear()
+	for t: Dictionary in d.get("transactions", []):
+		t["month"] = int(t["month"])
+		transactions.append(t)
+	risk_profile_id = d.get("risk_profile", "moderate")
 	is_over = false
 	end_result = {}
 
@@ -757,7 +798,7 @@ func _cover_negative_cash() -> Array[Dictionary]:
 		var asset := market.get_asset(asset_id)
 		var fee_rate := asset.sell_fee + (asset.early_penalty if is_locked(asset_id) else 0.0)
 		var needed := ceili(-cash / (1.0 - fee_rate)) + 1000
-		var result := sell(asset_id, mini(needed, ceili(holding_value(asset_id))))
+		var result := sell(asset_id, mini(needed, ceili(holding_value(asset_id))), "forced")
 		if result["ok"]:
 			sales.append({"asset_key": asset.name_key, "proceeds": result["proceeds"]})
 	stats["forced_sales"] += sales.size()
@@ -796,10 +837,10 @@ func _check_end() -> bool:
 func _check_goals() -> void:
 	if net_worth() >= float(economy["end"]["win_net_worth"]) and not "millionaire" in goals_reached:
 		goals_reached.append("millionaire")
-		goal_reached.emit("millionaire")
+		_emit_later(goal_reached, "millionaire")
 	if is_financially_free() and not "freedom" in goals_reached:
 		goals_reached.append("freedom")
-		goal_reached.emit("freedom")
+		_emit_later(goal_reached, "freedom")
 
 
 ## Aturan 4%: investasi bisa "menggaji" pemain sebesar 4% per tahun tanpa habis.
@@ -832,4 +873,159 @@ func finish_game(result_type: String, reason: String) -> void:
 	history.resize(mini(history.size(), 10))
 	player_changed.emit()
 	changed.emit()
-	game_ended.emit(end_result)
+	_emit_later(game_ended, end_result)
+
+
+# --- Energi & aktivitas bulanan (M6.5, GDD 4.2) --------------------------------
+
+func energy_max() -> int:
+	var value := int(activity_data.get("base_energy", 3))
+	if health >= int(activity_data.get("health_bonus_at", 70)):
+		value += 1
+	if health < int(activity_data.get("health_penalty_below", 30)):
+		value -= 1
+	return maxi(value, 1)
+
+
+func activity_defs() -> Array:
+	return activity_data.get("activities", [])
+
+
+## "" jika aktivitas bisa dilakukan, atau key pesan error.
+func activity_block_reason(def: Dictionary) -> String:
+	if is_over or has_pending_event():
+		return "ERR_ACTIVITY_BUSY"
+	if energy < int(def["energy"]):
+		return "ERR_NO_ENERGY"
+	if activity_counts.get(def["id"], 0) >= int(def.get("max_per_month", 1)):
+		return "ERR_ACTIVITY_LIMIT"
+	if int(def.get("cost", 0)) > cash:
+		return "ERR_NOT_ENOUGH_CASH"
+	return ""
+
+
+## Mengembalikan { "ok", "error", "changes" }.
+func do_activity(activity_id: String) -> Dictionary:
+	var def: Dictionary = {}
+	for d: Dictionary in activity_defs():
+		if d["id"] == activity_id:
+			def = d
+	var reason := activity_block_reason(def)
+	if reason != "":
+		return {"ok": false, "error": reason}
+	var before := _snapshot()
+	energy -= int(def["energy"])
+	activity_counts[activity_id] = activity_counts.get(activity_id, 0) + 1
+	cash -= int(def.get("cost", 0))
+	_apply_effects(def["effects"])
+	stats["activities"] = stats.get("activities", 0) + 1
+	changed.emit()
+	_check_unlocks(true)
+	return {"ok": true, "changes": _diff(before)}
+
+
+# --- Lompat waktu (M6.5) ---------------------------------------------------------
+
+## Maju beberapa bulan sekaligus. Berhenti lebih awal jika ada event, peringatan,
+## penjualan paksa, instrumen baru, target tercapai, atau game berakhir.
+## Laporan bulanan digabung menjadi satu; signal lain ditunda agar popup tampil
+## SETELAH laporan gabungan (urutan sama seperti saat maju satu bulan).
+func fast_forward(months: int) -> void:
+	if has_pending_event() or is_over:
+		return
+	_fast_forwarding = true
+	var reports: Array[Dictionary] = []
+	for i in months:
+		var goals_before := goals_reached.size()
+		var stages_before := unlocked_stages.size()
+		advance_month()
+		reports.append(last_report)
+		var interrupted: bool = is_over or has_pending_event() \
+				or goals_reached.size() != goals_before or unlocked_stages.size() != stages_before \
+				or not last_report["warnings"].is_empty() or not last_report["forced_sales"].is_empty()
+		if interrupted:
+			break
+	_fast_forwarding = false
+	last_report = _merge_reports(reports)
+	month_advanced.emit(last_report)
+	var pending := _deferred.duplicate()
+	_deferred.clear()
+	for emit_later: Callable in pending:
+		emit_later.call()
+
+
+func _emit_later(sig: Signal, arg: Variant) -> void:
+	if _fast_forwarding:
+		_deferred.append(func() -> void: sig.emit(arg))
+	else:
+		sig.emit(arg)
+
+
+func _merge_reports(reports: Array[Dictionary]) -> Dictionary:
+	var merged: Dictionary = reports[-1].duplicate(true)
+	if reports.size() == 1:
+		return merged
+	for key: String in ["salary", "food_cost", "housing_cost", "invest_change", "interest",
+			"health_delta", "happiness_delta"]:
+		var total := 0.0
+		for r: Dictionary in reports:
+			total += float(r.get(key, 0))
+		merged[key] = total
+	var news: Array = []
+	var delayed: Array = []
+	var forced: Array = []
+	for r: Dictionary in reports:
+		news.append_array(r.get("news", []))
+		delayed.append_array(r.get("delayed", []))
+		forced.append_array(r.get("forced_sales", []))
+	merged["news"] = news.slice(-5)  # cukup 5 berita terakhir agar laporan tidak terlalu panjang
+	merged["delayed"] = delayed
+	merged["forced_sales"] = forced
+	merged["from_month"] = reports[0]["from_month"]
+	merged["net_worth_before"] = reports[0]["net_worth_before"]
+	merged["unemployed"] = merged["salary"] == 0
+	merged["months"] = reports.size()
+	return merged
+
+
+# --- Riwayat transaksi (M6.5) ----------------------------------------------------
+
+## `kind`: buy | sell | forced | panic. `pnl` = untung/rugi terealisasi (khusus jual).
+func _log_transaction(kind: String, asset: MarketAsset, amount: float, units: float,
+		fee: float, pnl: float) -> void:
+	transactions.push_front({"month": month, "kind": kind, "asset_key": asset.name_key,
+		"amount": amount, "units": units, "fee": fee, "pnl": pnl})
+	if transactions.size() > MAX_TRANSACTIONS:
+		transactions.resize(MAX_TRANSACTIONS)
+
+
+# --- Profil risiko (M6.5, GDD 5.8) -------------------------------------------------
+
+func risk_questions() -> Array:
+	return risk_data.get("questions", [])
+
+
+func risk_profiles() -> Array:
+	return risk_data.get("profiles", [])
+
+
+## Skor total kuesioner -> id profil (profil pertama dengan max_score >= skor).
+func profile_from_score(score: int) -> String:
+	for p: Dictionary in risk_profiles():
+		if score <= int(p["max_score"]):
+			return p["id"]
+	return risk_profiles()[-1]["id"]
+
+
+func risk_profile() -> Dictionary:
+	return _find_option(risk_profiles(), risk_profile_id)
+
+
+func set_risk_profile(id: String) -> void:
+	risk_profile_id = id
+	changed.emit()
+
+
+## true jika risiko aset melebihi profil risiko pemain.
+func exceeds_risk_profile(asset: MarketAsset) -> bool:
+	return asset.risk > int(risk_profile()["max_asset_risk"])

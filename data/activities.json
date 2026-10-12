@@ -1,0 +1,43 @@
+{
+	"_comment": [
+		"Aktivitas bulanan (GDD 4.2). Energi diisi ulang setiap awal bulan dan tidak bisa ditabung.",
+		"Energi maksimal = base_energy, +1 jika kesehatan >= health_bonus_at, -1 jika kesehatan < health_penalty_below (minimal 1).",
+		"effects memakai format yang sama dengan event (cash, cash_salary, health, happiness, xp, salary_pct).",
+		"Teks ditampilkan lewat tr() sehingga bisa diterjemahkan nanti."
+	],
+	"base_energy": 3,
+	"health_bonus_at": 70,
+	"health_penalty_below": 30,
+	"activities": [
+		{
+			"id": "side_job", "name": "Kerja Sampingan", "desc": "Ambil proyek lepas di akhir pekan. Penghasilan tambahan seperempat gaji, tapi melelahkan.",
+			"energy": 2, "cost": 0, "max_per_month": 1,
+			"effects": { "cash_salary": 0.25, "health": -2, "happiness": -1, "xp": 5 }
+		},
+		{
+			"id": "course", "name": "Kursus Online", "desc": "Tingkatkan keahlian kerja. Setiap kursus menaikkan gaji 2%.",
+			"energy": 2, "cost": 1000000, "max_per_month": 1,
+			"effects": { "salary_pct": 0.02, "xp": 20 }
+		},
+		{
+			"id": "self_study", "name": "Belajar Investasi Mandiri", "desc": "Baca buku dan artikel keuangan. Menambah XP.",
+			"energy": 1, "cost": 0, "max_per_month": 1,
+			"effects": { "xp": 10 }
+		},
+		{
+			"id": "exercise", "name": "Olahraga", "desc": "Lari pagi atau senam. Menjaga kesehatan tetap prima.",
+			"energy": 1, "cost": 0, "max_per_month": 2,
+			"effects": { "health": 4, "happiness": 1 }
+		},
+		{
+			"id": "hangout", "name": "Nongkrong dengan Teman", "desc": "Jaga hubungan sosial dan semangat hidup.",
+			"energy": 1, "cost": 300000, "max_per_month": 2,
+			"effects": { "happiness": 5 }
+		},
+		{
+			"id": "rest", "name": "Istirahat Total", "desc": "Tidur cukup dan rebahan tanpa rasa bersalah.",
+			"energy": 1, "cost": 0, "max_per_month": 2,
+			"effects": { "health": 2, "happiness": 3 }
+		}
+	]
+}

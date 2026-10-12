@@ -60,5 +60,23 @@ static func stage_assets_text(stage: int) -> String:
 	return ", ".join(names)
 
 
+## Mengisi `row` dengan tombol periode grafik (GDD 5.6: 1, 6, 12 bulan + Semua).
+## 0 = semua data. Tombol `default_period` aktif di awal.
+static func build_period_buttons(row: HBoxContainer, chart: PriceChart, default_period: int) -> void:
+	var group := ButtonGroup.new()
+	for months: int in [1, 6, 12, 0]:
+		var button := Button.new()
+		button.toggle_mode = true
+		button.button_group = group
+		button.text = _t("PERIOD_%d" % months)
+		button.custom_minimum_size = Vector2(0, 52)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.add_theme_font_size_override("font_size", 19)
+		button.button_pressed = months == default_period
+		button.pressed.connect(chart.set_period.bind(months))
+		row.add_child(button)
+	chart.set_period(default_period)
+
+
 static func _t(key: String) -> String:
 	return TranslationServer.translate(key)

@@ -1,0 +1,43 @@
+{
+	"_comment": "Kuesioner profil risiko (GDD 5.8). Skor total dicocokkan ke profil pertama dengan max_score >= skor. max_asset_risk = risiko aset tertinggi yang masih sesuai profil.",
+	"questions": [
+		{
+			"q": "Jika investasimu turun 20% dalam sebulan, apa yang kamu lakukan?",
+			"options": [
+				{ "text": "Jual semua, takut turun lagi", "score": 0 },
+				{ "text": "Tunggu dan pantau dulu", "score": 1 },
+				{ "text": "Beli lagi selagi murah", "score": 2 }
+			]
+		},
+		{
+			"q": "Apa tujuan utama kamu berinvestasi?",
+			"options": [
+				{ "text": "Menjaga uang tetap aman", "score": 0 },
+				{ "text": "Tumbuh stabil dalam jangka panjang", "score": 1 },
+				{ "text": "Untung sebesar-besarnya", "score": 2 }
+			]
+		},
+		{
+			"q": "Berapa lama uang investasimu bisa tidak dipakai?",
+			"options": [
+				{ "text": "Kurang dari 1 tahun", "score": 0 },
+				{ "text": "1 sampai 5 tahun", "score": 1 },
+				{ "text": "Lebih dari 5 tahun", "score": 2 }
+			]
+		}
+	],
+	"profiles": [
+		{
+			"id": "conservative", "name": "Konservatif", "max_score": 2, "max_asset_risk": 2,
+			"desc": "Mengutamakan keamanan modal. Cocok: tabungan, deposito, reksa dana pasar uang."
+		},
+		{
+			"id": "moderate", "name": "Moderat", "max_score": 4, "max_asset_risk": 4,
+			"desc": "Siap menerima naik-turun sedang demi pertumbuhan. Cocok: campuran instrumen aman, reksa dana saham, dan saham."
+		},
+		{
+			"id": "aggressive", "name": "Agresif", "max_score": 6, "max_asset_risk": 5,
+			"desc": "Siap menanggung naik-turun besar demi potensi untung tinggi, termasuk kripto. Tetap jaga dana darurat!"
+		}
+	]
+}

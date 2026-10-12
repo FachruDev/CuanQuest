@@ -33,6 +33,8 @@ func _ready() -> void:
 	%NextButton.pressed.connect(func() -> void:
 		Sfx.play("coin")
 		GameState.advance_month())
+	%Skip6Button.pressed.connect(_fast_forward.bind(6))
+	%Skip12Button.pressed.connect(_fast_forward.bind(12))
 	%GlossaryButton.pressed.connect(func() -> void: _enqueue(%GlossaryPopup.open))
 	%ProfileScreen.glossary_requested.connect(func() -> void: _enqueue(%GlossaryPopup.open))
 	GameState.changed.connect(_refresh_top_bar)
@@ -77,8 +79,18 @@ func _refresh_top_bar() -> void:
 	%CashValue.text = Fmt.rupiah(GameState.cash)
 	%CashValue.modulate = MonthReport.RED if GameState.cash < 0 else Color.WHITE
 	%NetWorthValue.text = Fmt.rupiah(GameState.net_worth())
-	%DateLabel.text = tr("TOPBAR_INFO") % [Fmt.game_date(GameState.month), GameState.age(), GameState.level()]
-	%NextButton.disabled = GameState.has_pending_event()
+	%DateLabel.text = tr("TOPBAR_INFO") % [Fmt.game_date(GameState.month), GameState.age(),
+		GameState.level(), GameState.energy, GameState.energy_capacity]
+	var busy := GameState.has_pending_event() or GameState.is_over
+	%NextButton.disabled = busy
+	%Skip6Button.disabled = busy
+	%Skip12Button.disabled = busy
+
+
+## Lompat beberapa bulan. Berhenti otomatis jika ada event/peringatan (lihat GameState.fast_forward).
+func _fast_forward(months: int) -> void:
+	Sfx.play("coin")
+	GameState.fast_forward(months)
 
 
 func _enqueue(show_popup: Callable) -> void:

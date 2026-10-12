@@ -32,6 +32,8 @@
 		"retirement_age": 60,
 		"danger_months": 3
 	},
+	"_fast_forward_comment": "Pengali peluang event saat lompat waktu (+6 Bln / +1 Thn). 1.0 = sama seperti maju per bulan.",
+	"fast_forward_event_mult": 0.15,
 	"xp_per_month": 2,
 	"xp_per_level": 60,
 	"quiz": {

@@ -82,6 +82,15 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 
+
+[node name="RiskWarning" type="Label" parent="DetailView/VBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+modulate = Color(0.95, 0.6, 0.2, 1)
+theme_override_font_sizes/font_size = 20
+autowrap_mode = 3
+
 [node name="PriceRow" type="HBoxContainer" parent="DetailView/VBox"]
 layout_mode = 2
 theme_override_constants/separation = 16
@@ -103,6 +112,11 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 240)
 layout_mode = 2
 script = ExtResource("2_chart")
+
+
+[node name="PeriodRow" type="HBoxContainer" parent="DetailView/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
 
 [node name="InfoLabel" type="Label" parent="DetailView/VBox"]
 unique_name_in_owner = true

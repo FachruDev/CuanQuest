@@ -32,6 +32,7 @@ func _ready() -> void:
 	%BackButton.pressed.connect(_show_list)
 
 	_build_asset_list()
+	UiText.build_period_buttons(%PeriodRow, %Chart, 12)
 	GameState.changed.connect(_refresh)
 	_show_list()
 
@@ -155,12 +156,15 @@ func _refresh_detail() -> void:
 	%ClassLabel.text = "%s | %s" % [tr("CLASS_" + asset.asset_class.to_upper()), tr("RISK_%d" % asset.risk)]
 	%ClassLabel.modulate = RISK_COLORS[asset.risk - 1]
 	%DescLabel.text = tr("DESC_" + asset.asset_class.to_upper())
+	%RiskWarning.visible = GameState.exceeds_risk_profile(asset)
+	%RiskWarning.text = tr("MARKET_RISK_WARNING") % tr(GameState.risk_profile()["name"])
 
 	if asset.is_interest():
 		var rate := GameState.market.rate_for(asset)
 		%PriceLabel.text = tr("FMT_RATE_PA") % Fmt.percent_plain(rate)
 		%ChangeLabel.text = ""
 		%Chart.hide()
+		%PeriodRow.hide()
 		var info := tr("INFO_INTEREST") % Fmt.percent_plain(rate * (1.0 - asset.interest_tax))
 		if asset.interest_tax > 0:
 			info += "\n" + tr("INFO_INTEREST_TAX") % Fmt.percent_plain(asset.interest_tax)
@@ -173,6 +177,7 @@ func _refresh_detail() -> void:
 		%ChangeLabel.text = Fmt.percent(change)
 		%ChangeLabel.modulate = MonthReport.color_of(change)
 		%Chart.show()
+		%PeriodRow.show()
 		%Chart.set_data(asset.history)
 		%InfoLabel.text = tr("INFO_TRADED") % [
 			Fmt.percent_plain(asset.volatility),

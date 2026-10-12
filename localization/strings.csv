@@ -198,7 +198,7 @@ REPORT_SALARY_UNEMPLOYED,Gaji (menganggur),Salary (unemployed)
 REPORT_EVENTS,KEJADIAN,EVENTS
 HOME_UNEMPLOYED,Menganggur: tanpa gaji %d bulan lagi,Unemployed: no salary for %d more months
 DEFAULT_PLAYER_NAME,Pemain,Player
-TOPBAR_INFO,%s  |  %d th  |  Level %d,%s  |  age %d  |  Level %d
+TOPBAR_INFO,%s | %d th | Lv %d | Energi %d/%d,%s | age %d | Lv %d | Energy %d/%d
 BTN_CLOSE,Tutup,Close
 TITLE_TAGLINE,Simulasi kehidupan finansial & investasi,A personal finance & investing life sim
 TITLE_CONTINUE,Lanjutkan,Continue
@@ -347,7 +347,7 @@ INSIGHT_HEALTH,Menghemat dengan mengorbankan kesehatan terlalu jauh justru merug
 INSIGHT_HAPPINESS,Hidup terlalu hemat tanpa hiburan membuatmu kehabisan semangat. Anggarkan sedikit untuk kebahagiaan.,Living too frugally with no fun drained you. Budget a little for happiness.
 INSIGHT_SCAM,"Kamu kehilangan %s karena penipuan. Ingat: untung tinggi, pasti, dan tanpa risiko adalah tanda bahaya. Selalu cek izin OJK.","You lost %s to scams. High, guaranteed, risk-free returns are a red flag. Always check OJK licenses."
 INSIGHT_PANIC,Kamu pernah menjual semua investasi karena panik. Keputusan karena takut sering mengunci kerugian di harga terendah.,You once sold everything in a panic. Fear-driven decisions often lock in losses at the bottom.
-INSIGHT_EMERGENCY,"Sebanyak %d kali kas tidak cukup: pilihan event jadi terbatas atau aset harus dijual paksa. Dana darurat 3-6 bulan pengeluaran akan sangat membantu.","%d times your cash fell short: event options were limited or assets were force-sold. A 3-6 month emergency fund would have helped."
+INSIGHT_EMERGENCY,Sebanyak %d kali kas tidak cukup: pilihan event jadi terbatas atau aset harus dijual paksa. Dana darurat 3-6 bulan pengeluaran akan sangat membantu.,%d times your cash fell short: event options were limited or assets were force-sold. A 3-6 month emergency fund would have helped.
 INSIGHT_CASH_IDLE,Sebagian besar kekayaanmu lama mengendap di kas tanpa bunga. Bahkan tabungan atau RD pasar uang memberi imbal hasil lebih baik.,Most of your wealth sat idle in cash for long. Even savings or a money market fund would have earned more.
 INSIGHT_LIFESTYLE,"Lebih dari separuh waktu kamu memilih gaya hidup mewah. Nyaman, tapi memperlambat pertumbuhan kekayaan.","More than half the time you chose a luxury lifestyle. Comfortable, but it slowed your wealth growth."
 INSIGHT_FEES,"Biaya transaksimu mencapai %s, lebih besar dari bunga yang diterima. Terlalu sering jual-beli menggerus keuntungan.","Your transaction fees reached %s, more than the interest you earned. Frequent trading eats into returns."
@@ -384,3 +384,36 @@ SETTINGS_PRIVACY,Kebijakan Privasi,Privacy Policy
 SETTINGS_TERMS,Syarat Penggunaan,Terms of Use
 SETTINGS_RESET,Reset Data (hapus semua simpanan),Reset Data (delete all saves)
 SETTINGS_RESET_CONFIRM,Yakin? Semua simpanan & progres kuis akan dihapus permanen. Tekan lagi untuk menghapus.,Sure? All saves & quiz progress will be permanently deleted. Tap again to delete.
+BTN_SKIP_6,+6 Bln,+6 Mo
+BTN_SKIP_12,+1 Thn,+1 Yr
+SUMMARY_TITLE_MULTI,Laporan %d Bulan,%d-Month Report
+ACT_ENERGY_TITLE,Aktivitas Bulan Ini,This Month's Activities
+ACT_ENERGY,Energi: %d / %d. Terisi ulang setiap awal bulan dan tidak bisa ditabung.,Energy: %d / %d. Refills every month and can't be saved up.
+ACT_ITEM_HEADER,%s | Energi %d,%s | Energy %d
+ACT_ITEM_USED,%d/%d kali,%d/%d times
+ACT_DONE,Selesai! %s,Done! %s
+ERR_ACTIVITY_BUSY,Selesaikan kejadian bulan ini dulu,Resolve this month's event first
+ERR_NO_ENERGY,Energi tidak cukup,Not enough energy
+ERR_ACTIVITY_LIMIT,Batas bulan ini tercapai,Monthly limit reached
+PERIOD_1,1B,1M
+PERIOD_6,6B,6M
+PERIOD_12,1T,1Y
+PERIOD_0,Semua,All
+MARKET_RISK_WARNING,Risiko instrumen ini di atas profil risikomu (%s). Pertimbangkan porsinya baik-baik.,This instrument is riskier than your risk profile (%s). Size your position carefully.
+PORT_ALLOCATION,Alokasi Aset,Asset Allocation
+ALLOC_EMPTY,Belum ada aset.,No assets yet.
+PORT_CONCENTRATION_WARNING,Peringatan: %s investasimu ada di satu aset. Pertimbangkan diversifikasi.,Warning: %s of your investments sit in one asset. Consider diversifying.
+PORT_TRANSACTIONS,Riwayat Transaksi,Transaction History
+TX_EMPTY,Belum ada transaksi.,No transactions yet.
+TX_ROW,%s | %s %s | %s (fee %s),%s | %s %s | %s (fee %s)
+TX_BUY,Beli,Buy
+TX_SELL,Jual,Sell
+TX_FORCED,Jual paksa,Forced sale
+TX_PANIC,Panik jual,Panic sale
+TX_PNL,untung/rugi %s,P/L %s
+NG_RISK,Profil Risiko,Risk Profile
+NG_RISK_HINT,Jawab 3 pertanyaan singkat. Profil bisa diubah kapan saja di tab Profil.,Answer 3 quick questions. You can change it anytime in the Profile tab.
+NG_RISK_RESULT,"Profilmu: %s
+%s","Your profile: %s
+%s"
+PROFILE_RISK_TITLE,Profil Risiko,Risk Profile

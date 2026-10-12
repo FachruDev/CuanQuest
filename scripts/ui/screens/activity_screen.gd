@@ -1,15 +1,19 @@
 extends ScrollContainer
-## Tab Aktivitas: level & XP, kuis (jatah mingguan + iklan), dan progres unlock instrumen.
+## Tab Aktivitas: aktivitas bulanan (energi), level & XP, kuis (jatah mingguan + iklan),
+## dan progres unlock instrumen.
 
 ## Main yang menampilkan popup kuis (lewat antrean popup), screen ini hanya meminta.
 signal quiz_requested(question: Dictionary)
 
 const TOPICS := ["basics", "risk", "scam", "instruments"]
 
+var _activity_buttons: Dictionary = {}  # activity_id -> Button
+
 
 func _ready() -> void:
 	%StartQuizButton.pressed.connect(_on_start_quiz)
 	%AdButton.pressed.connect(_on_watch_ad)
+	_build_activities()
 	GameState.changed.connect(_refresh)
 	visibility_changed.connect(_refresh)  # jatah kuis bisa reset karena waktu nyata berjalan
 	_refresh()
@@ -18,6 +22,7 @@ func _ready() -> void:
 func _refresh() -> void:
 	if not is_visible_in_tree():
 		return
+	_refresh_activities()
 	var per_level := int(GameState.economy["xp_per_level"])
 	%LevelLabel.text = tr("ACT_LEVEL") % [GameState.level(), GameState.xp]
 	%XpBar.max_value = per_level
@@ -80,3 +85,45 @@ func _on_start_quiz() -> void:
 
 func _on_watch_ad() -> void:
 	AdService.show_rewarded(GameState.grant_quiz_credit)
+
+
+# --- Aktivitas bulanan (energi) ---------------------------------------------
+
+func _build_activities() -> void:
+	for def: Dictionary in GameState.activity_defs():
+		var button := Button.new()
+		button.custom_minimum_size = Vector2(0, 92)
+		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		button.add_theme_font_size_override("font_size", 20)
+		button.pressed.connect(_on_activity.bind(def["id"]))
+		%ActivityList.add_child(button)
+		_activity_buttons[def["id"]] = button
+
+
+func _refresh_activities() -> void:
+	%EnergyLabel.text = tr("ACT_ENERGY") % [GameState.energy, GameState.energy_capacity]
+	for def: Dictionary in GameState.activity_defs():
+		var button: Button = _activity_buttons[def["id"]]
+		var cost := int(def.get("cost", 0))
+		var header := tr("ACT_ITEM_HEADER") % [tr(def["name"]), int(def["energy"])]
+		if cost > 0:
+			header += " | " + Fmt.rupiah(cost)
+		var used: int = GameState.activity_counts.get(def["id"], 0)
+		header += " | " + tr("ACT_ITEM_USED") % [used, int(def.get("max_per_month", 1))]
+		var reason := GameState.activity_block_reason(def)
+		button.text = header + "\n" + tr(def["desc"])
+		if reason != "":
+			button.text += "\n(" + tr(reason) + ")"
+		button.disabled = reason != ""
+
+
+func _on_activity(activity_id: String) -> void:
+	var result := GameState.do_activity(activity_id)
+	if result["ok"]:
+		Sfx.play("success")
+		%ActivityFeedback.text = tr("ACT_DONE") % UiText.changes_text(result["changes"])
+		%ActivityFeedback.modulate = MonthReport.GREEN
+	else:
+		%ActivityFeedback.text = tr(result["error"])
+		%ActivityFeedback.modulate = MonthReport.RED

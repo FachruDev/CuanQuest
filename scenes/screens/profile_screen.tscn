@@ -47,6 +47,29 @@ modulate = Color(1, 1, 1, 0.7)
 theme_override_font_sizes/font_size = 20
 autowrap_mode = 3
 
+[node name="RiskTitle" type="Label" parent="VBox"]
+layout_mode = 2
+text = "PROFILE_RISK_TITLE"
+
+[node name="RiskPanel" type="PanelContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="RiskBox" type="VBoxContainer" parent="VBox/RiskPanel"]
+layout_mode = 2
+
+[node name="RiskOption" type="OptionButton" parent="VBox/RiskPanel/RiskBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+
+[node name="RiskDesc" type="Label" parent="VBox/RiskPanel/RiskBox"]
+unique_name_in_owner = true
+layout_mode = 2
+modulate = Color(1, 1, 1, 0.7)
+theme_override_font_sizes/font_size = 19
+autowrap_mode = 3
+
 [node name="GoalTitle" type="Label" parent="VBox"]
 layout_mode = 2
 text = "PROFILE_GOALS_TITLE"
