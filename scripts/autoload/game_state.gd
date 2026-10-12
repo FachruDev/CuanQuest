@@ -8,6 +8,8 @@ signal month_advanced(report: Dictionary)
 
 const ASSETS_PATH := "res://data/assets.json"
 const ECONOMY_PATH := "res://data/economy.json"
+const MARKET_PATH := "res://data/market.json"
+const NEWS_PATH := "res://data/news.json"
 
 var economy: Dictionary = {}       # isi data/economy.json
 
@@ -18,7 +20,7 @@ var health: int = 0                # 0..100
 var happiness: int = 0             # 0..100
 var food_id: String = ""
 var housing_id: String = ""
-var holdings: Dictionary = {}      # asset_id -> { "units": float, "cost": float }
+var holdings: Dictionary = {}      # asset_id -> { "units": float, "cost": float, "locked_until": int }
 var market := Market.new()
 var net_worth_history: Array[float] = []
 var last_report: Dictionary = {}
@@ -42,7 +44,11 @@ func new_game(seed_value: int = -1) -> void:
 	housing_id = economy["default_housing"]
 	holdings.clear()
 	market = Market.new()
-	market.setup(DataLoader.load_json(ASSETS_PATH).get("assets", []), seed_value)
+	market.setup(
+		DataLoader.load_json(ASSETS_PATH).get("assets", []),
+		DataLoader.load_json(MARKET_PATH),
+		DataLoader.load_json(NEWS_PATH).get("news", []),
+		seed_value)
 	_start_month()
 	net_worth_history = [net_worth()]
 	last_report = {}
@@ -53,7 +59,8 @@ func new_game(seed_value: int = -1) -> void:
 func advance_month() -> void:
 	var net_worth_before := net_worth()
 	var invest_before := investments_value()
-	market.step()
+	var interest := _pay_interest()
+	var news := market.step(month + 1)
 	var invest_change := investments_value() - invest_before
 
 	var from_month := month
@@ -65,12 +72,28 @@ func advance_month() -> void:
 		"from_month": from_month,
 		"to_month": month,
 		"invest_change": invest_change,
+		"interest": interest,
+		"news": news,
 		"net_worth_before": net_worth_before,
 		"net_worth_after": net_worth(),
 		"cash_after": cash,
 	})
 	changed.emit()
 	month_advanced.emit(last_report)
+
+
+## Bunga bulanan tabungan & deposito (setelah pajak) ditambahkan ke saldo. Mengembalikan totalnya.
+func _pay_interest() -> float:
+	var total := 0.0
+	for asset_id: String in holdings:
+		var asset := market.get_asset(asset_id)
+		if not asset.is_interest():
+			continue
+		var monthly_rate := market.rate_for(asset) * (1.0 - asset.interest_tax) / 12.0
+		var gain: float = holdings[asset_id]["units"] * monthly_rate
+		holdings[asset_id]["units"] += gain
+		total += gain
+	return total
 
 
 ## Awal bulan: gaji masuk, biaya hidup terpotong, kesehatan & kebahagiaan berubah.
@@ -170,9 +193,11 @@ func buy(asset_id: String, amount: int) -> Dictionary:
 	var fee := amount * asset.buy_fee
 	var units := (amount - fee) / asset.price
 
-	var h: Dictionary = holdings.get(asset_id, {"units": 0.0, "cost": 0.0})
+	var h: Dictionary = holdings.get(asset_id, {"units": 0.0, "cost": 0.0, "locked_until": 0})
 	h["units"] += units
 	h["cost"] += amount
+	if asset.lock_months > 0:
+		h["locked_until"] = month + asset.lock_months  # setoran baru memperpanjang tenor
 	holdings[asset_id] = h
 	cash -= amount
 
@@ -195,8 +220,9 @@ func sell(asset_id: String, amount: int) -> Dictionary:
 	if units >= held * 0.999:
 		units = held  # jual semua, hindari sisa "debu" 0.0001 unit
 
+	var penalty := is_locked(asset_id)
 	var gross := units * asset.price
-	var fee := gross * asset.sell_fee
+	var fee := gross * (asset.sell_fee + (asset.early_penalty if penalty else 0.0))
 	var proceeds := floori(gross - fee)
 
 	var h: Dictionary = holdings[asset_id]
@@ -207,4 +233,13 @@ func sell(asset_id: String, amount: int) -> Dictionary:
 	cash += proceeds
 
 	changed.emit()
-	return {"ok": true, "units": units, "fee": fee, "proceeds": proceeds}
+	return {"ok": true, "units": units, "fee": fee, "proceeds": proceeds, "penalty": penalty}
+
+
+## Deposito yang belum jatuh tempo kena penalti jika dicairkan.
+func is_locked(asset_id: String) -> bool:
+	return holdings.get(asset_id, {}).get("locked_until", 0) > month
+
+
+func locked_until(asset_id: String) -> int:
+	return holdings.get(asset_id, {}).get("locked_until", 0)

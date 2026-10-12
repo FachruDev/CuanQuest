@@ -24,7 +24,7 @@ func _ready() -> void:
 
 
 func _show_screen(index: int) -> void:
-	_nav_buttons[index].set_pressed_no_signal(true)
+	_nav_buttons[index].button_pressed = true  # lewat ButtonGroup: tombol lain otomatis lepas
 	for i in _screens.size():
 		_screens[i].visible = i == index
 

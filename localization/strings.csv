@@ -15,7 +15,6 @@ ERR_NOT_ENOUGH_CASH,Kas tidak cukup.,Not enough cash.
 ERR_NOT_ENOUGH_UNITS,Kepemilikan tidak cukup.,Not enough holdings.
 MSG_BUY_OK,"Berhasil beli %s unit (fee %s).","Bought %s units (fee %s)."
 MSG_SELL_OK,"Berhasil jual %s unit, uang masuk %s (fee %s).","Sold %s units, received %s (fee %s)."
-MSG_NEW_MONTH,"Bulan baru! Harga %s bergerak %s.","New month! %s moved %s."
 FMT_DATE,%s Tahun %d,%s Year %d
 MONTH_1,Januari,January
 MONTH_2,Februari,February
@@ -29,7 +28,6 @@ MONTH_9,September,September
 MONTH_10,Oktober,October
 MONTH_11,November,November
 MONTH_12,Desember,December
-ASSET_NUSA,PT Nusa Karya Tbk (NUSA),PT Nusa Karya Tbk (NUSA)
 DISCLAIMER,"Simulasi untuk edukasi, bukan saran keuangan. Uang virtual.","Educational simulation, not financial advice. Virtual money."
 CHART_EMPTY,Belum cukup data. Tekan Lanjut.,Not enough data yet. Press Next.
 NAV_HOME,Beranda,Home
@@ -77,3 +75,70 @@ REPORT_INVEST_CHANGE,Perubahan nilai,Value change
 REPORT_WELLBEING,KONDISI,WELLBEING
 REPORT_NET_WORTH_CHANGE,Perubahan kekayaan,Net worth change
 REPORT_WARN_NEGATIVE_CASH,Kas kamu minus! Kurangi pengeluaran atau jual aset.,Your cash is negative! Cut spending or sell assets.
+ASSET_TAB,Tabungan Bank Sentosa,Bank Sentosa Savings
+ASSET_DEP,Deposito 3 Bulan,3-Month Time Deposit
+ASSET_RDPU,RD Pasar Uang Amanah,Amanah Money Market Fund
+ASSET_RDS,RD Saham Nusantara,Nusantara Equity Fund
+ASSET_BSNT,PT Bank Sentosa Tbk (BSNT),PT Bank Sentosa Tbk (BSNT)
+ASSET_MPGN,PT Mitra Pangan Tbk (MPGN),PT Mitra Pangan Tbk (MPGN)
+ASSET_NUSA,PT Nusa Karya Tbk (NUSA),PT Nusa Karya Tbk (NUSA)
+ASSET_BARA,PT Bara Jaya Tbk (BARA),PT Bara Jaya Tbk (BARA)
+ASSET_GRD,Garuda Coin (GRD),Garuda Coin (GRD)
+ASSET_MRP,Merapi Token (MRP),Merapi Token (MRP)
+CLASS_SAVINGS,TABUNGAN,SAVINGS
+CLASS_DEPOSIT,DEPOSITO,TIME DEPOSIT
+CLASS_MUTUAL_FUND,REKSA DANA,MUTUAL FUNDS
+CLASS_STOCK,SAHAM,STOCKS
+CLASS_CRYPTO,KRIPTO,CRYPTO
+DESC_SAVINGS,"Uang bisa diambil kapan saja, bunganya kecil. Cocok untuk dana darurat.","Withdraw anytime, low interest. Good for an emergency fund."
+DESC_DEPOSIT,"Bunga lebih tinggi dari tabungan, tapi uang dikunci selama tenor.","Higher interest than savings, but money is locked for the term."
+DESC_MUTUAL_FUND,"Dana dikelola manajer investasi. Pasar uang sangat stabil, reksa dana saham ikut naik-turun pasar saham.","Managed by a fund manager. Money market is very stable; equity funds follow the stock market."
+DESC_STOCK,"Kepemilikan sebagian perusahaan. Harga bisa naik-turun tajam karena kinerja dan berita.","Partial ownership of a company. Prices swing with performance and news."
+DESC_CRYPTO,"Aset digital dengan volatilitas sangat tinggi. Bisa naik berlipat, bisa juga anjlok separuh dalam sebulan.","Digital asset with very high volatility. Can multiply or halve within a month."
+RISK_1,Risiko sangat rendah,Very low risk
+RISK_2,Risiko rendah,Low risk
+RISK_3,Risiko sedang,Medium risk
+RISK_4,Risiko tinggi,High risk
+RISK_5,Risiko sangat tinggi,Very high risk
+FMT_RATE_PA,%s / tahun,%s / year
+LBL_INTEREST,Bunga,Interest
+LBL_BALANCE,Saldo: %s | Bunga terkumpul %s,Balance: %s | Interest earned %s
+LBL_LOCKED_UNTIL,Jatuh tempo: %s,Matures: %s
+INFO_INTEREST,"Bunga bersih %s per tahun, dibayar tiap bulan.","Net interest %s per year, paid monthly."
+INFO_INTEREST_TAX,Pajak bunga %s sudah dipotong.,Interest tax of %s already deducted.
+INFO_LOCK,Tenor %d bulan. Cair sebelum jatuh tempo kena penalti %s.,Term %d months. Early withdrawal penalty %s.
+INFO_TRADED,Volatilitas %s/tahun | Fee beli %s | Fee jual %s,Volatility %s/yr | Buy fee %s | Sell fee %s
+MSG_PENALTY,Kena penalti karena dicairkan sebelum jatuh tempo.,Early withdrawal penalty applied.
+BTN_BACK,< Kembali,< Back
+MARKET_NEWS,Berita Pasar,Market News
+MARKET_MOOD,Tren saham: %s | Tren kripto: %s | Suku bunga acuan: %s,Stocks: %s | Crypto: %s | Policy rate: %s
+REGIME_BULL,Naik,Bull
+REGIME_SIDEWAYS,Datar,Sideways
+REGIME_BEAR,Turun,Bear
+NEWS_NONE,Belum ada berita. Tekan Lanjut untuk melihat pergerakan pasar.,No news yet. Press Next to see the market move.
+REPORT_INTEREST,Bunga diterima,Interest received
+REPORT_NEWS,BERITA,NEWS
+NEWS_EARNINGS_UP,%s melaporkan laba di atas ekspektasi.,%s reports earnings above expectations.
+NEWS_EARNINGS_DOWN,Laba %s turun tajam dibanding tahun lalu.,%s earnings drop sharply year over year.
+NEWS_SCANDAL,%s diterpa skandal laporan keuangan!,%s hit by an accounting scandal!
+NEWS_BIG_CONTRACT,%s memenangkan kontrak proyek jalan tol senilai triliunan.,%s wins a trillion-rupiah toll road contract.
+NEWS_COMMODITY_BOOM,Harga batu bara dunia melonjak. Saham %s ikut terangkat.,Global coal prices surge. %s rallies.
+NEWS_COMMODITY_SLUMP,Harga batu bara dunia anjlok. %s tertekan.,Global coal prices slump. %s under pressure.
+NEWS_CONSUMER_STRONG,Daya beli masyarakat kuat. Penjualan %s naik.,Strong consumer demand lifts %s sales.
+NEWS_BANK_NPL,Kredit macet %s meningkat.,%s reports rising bad loans.
+NEWS_FOREIGN_INFLOW,Investor asing ramai masuk ke bursa saham Indonesia.,Foreign investors pour into Indonesian stocks.
+NEWS_GLOBAL_SELLOFF,Bursa global berguguran. Saham domestik ikut melemah.,Global markets sell off. Local stocks follow.
+NEWS_CRYPTO_HYPE,Kripto viral di media sosial. Semua orang membicarakannya.,Crypto goes viral on social media. Everyone is talking about it.
+NEWS_CRYPTO_REGULATION,Regulator memperketat aturan perdagangan kripto.,Regulators tighten crypto trading rules.
+NEWS_CRYPTO_HACK,Bursa kripto diretas! %s anjlok.,Crypto exchange hacked! %s plunges.
+NEWS_RATE_UP,Bank sentral menaikkan suku bunga acuan 0.25%.,Central bank raises the policy rate by 0.25%.
+NEWS_RATE_DOWN,Bank sentral menurunkan suku bunga acuan 0.25%.,Central bank cuts the policy rate by 0.25%.
+NEWS_QUIET,Pasar relatif tenang bulan ini.,Markets were relatively quiet this month.
+NEWS_REGIME_STOCK_BULL,Analis: pasar saham memasuki tren naik.,Analysts: stocks enter an uptrend.
+NEWS_REGIME_STOCK_SIDEWAYS,Analis: pasar saham bergerak datar tanpa arah jelas.,Analysts: stocks move sideways.
+NEWS_REGIME_STOCK_BEAR,Analis: pasar saham memasuki tren turun.,Analysts: stocks enter a downtrend.
+NEWS_REGIME_CRYPTO_BULL,Pasar kripto memasuki musim naik.,Crypto enters a bull season.
+NEWS_REGIME_CRYPTO_SIDEWAYS,Pasar kripto lesu dan bergerak datar.,Crypto goes quiet and sideways.
+NEWS_REGIME_CRYPTO_BEAR,Pasar kripto memasuki musim dingin (crypto winter).,Crypto enters a winter.
+MSG_DEPOSIT_OK,Berhasil setor %s.,Deposited %s.
+MSG_WITHDRAW_OK,"Berhasil cairkan, uang masuk %s (biaya %s).","Withdrawn, received %s (fee %s)."

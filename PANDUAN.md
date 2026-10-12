@@ -26,6 +26,8 @@
 data/
   assets.json                 Parameter aset (drift, volatilitas, fee)
   economy.json                Gaji, modal awal, pilihan makan & tempat tinggal (untuk balancing)
+  market.json                 Siklus pasar, suku bunga acuan, peluang berita
+  news.json                   Template berita pasar & dampaknya ke harga
 localization/strings.csv      Semua teks UI (kolom id & en)
 theme/main_theme.tres         Font global, warna tombol aktif, panel, progress bar
 scripts/
@@ -68,10 +70,10 @@ scenes/
 | 2 | Tutorial singkat dan glosarium | M5 | ⬜ |
 | 3 | Loop bulanan dengan tombol Lanjut | M2 | ✅ |
 | 4 | Gaji dan biaya hidup (makan, sewa) | M2 | ✅ |
-| 5 | Tabungan, deposito, reksa dana, saham, kripto | M3 | ⬜ |
-| 6 | Dashboard dengan grafik harga dan tombol beli/jual | M1 + M3 | 🟨 1 aset; daftar aset di M3 |
+| 5 | Tabungan, deposito, reksa dana, saham, kripto | M3 | ✅ |
+| 6 | Dashboard dengan grafik harga dan tombol beli/jual | M1 + M3 | ✅ |
 | 7 | Portofolio dasar dan ringkasan bulanan | M2 | ✅ |
-| 8 | Simulasi harga dengan siklus pasar sederhana | M3 | 🟨 GBM ada; siklus bull/bear di M3 |
+| 8 | Simulasi harga dengan siklus pasar sederhana | M3 | ✅ |
 | 9 | Event hidup (minimal 30 event) | M4 | ⬜ |
 | 10 | Kuis 3 per minggu + iklan rewarded (minimal 30 soal) | M4 | ⬜ |
 | 11 | Sistem unlock instrumen | M4 | ⬜ |
@@ -84,11 +86,27 @@ scenes/
 
 - [x] **M1: Prototipe.** 1 aset, grafik, beli/jual + fee, saldo, tombol Lanjut
 - [x] **M2: Loop bulanan.** Gaji, biaya hidup, kesehatan/kebahagiaan, laporan bulanan, tab Portofolio, navigasi bawah
-- [ ] **M3: Pasar lengkap.** 5 kelas instrumen, daftar aset, siklus bull/bear, berita pasar, bunga deposito
+- [x] **M3: Pasar lengkap.** 10 aset di 5 kelas, siklus bull/sideways/bear, korelasi, suku bunga acuan, 16 berita pasar, bunga & penalti deposito
 - [ ] **M4: Event hidup (30+), kuis (30+ soal, 3/minggu nyata + stub iklan), sistem unlock**
 - [ ] **M5: Save/load, layar judul, onboarding (profil, kesulitan), tutorial & glosarium**
 - [ ] **M6: Menang/kalah + layar akhir, profil & pengaturan, kebijakan privasi**
 - [ ] **M7: Export Android, playtest, balancing**
+
+## Cara Kerja Simulasi Pasar (M3)
+
+Setiap bulan `Market.step()` menjalankan:
+1. **Siklus pasar.** Saham dan kripto masing-masing berada di fase *bull*, *sideways*, atau *bear* selama beberapa bulan acak. Saat fase berganti, muncul berita "Analis: ...".
+2. **Berita** (peluang 50%). Satu template dipilih dari `news.json` berdasarkan bobot, lalu memberi guncangan harga ke satu aset, satu kelas aset, atau suku bunga.
+3. **Harga baru:** `harga × exp(drift_bulanan − ½σ² + σ·z) × (1 + guncangan)`, dengan `z = rho·z_pasar + √(1−rho²)·z_acak`. Bagian `z_pasar` yang sama untuk semua aset membuat saham cenderung naik-turun bersamaan (korelasi).
+4. **Tabungan & deposito** tidak bergerak harganya. Bunganya (`suku bunga acuan + spread`, dipotong pajak) dibayar di `GameState._pay_interest()`.
+
+**Hasil kalibrasi** (300 simulasi × 10 tahun, median imbal hasil per tahun): RD Pasar Uang +4,6% · RD Saham +8,7% · Saham +4,5% s.d. +8,6% · Kripto +7,5% s.d. +12% (peluang rugi kripto sekitar 38%).
+
+## Latihan M3 (opsional)
+
+1. Tambah saham baru: salin blok `NUSA` di `data/assets.json`, ganti `id`, `name_key`, dan harganya, lalu tambahkan `ASSET_xxx` di CSV. Saham itu otomatis muncul di daftar Pasar.
+2. Tambah berita baru di `data/news.json` dengan target `asset:ID_SAHAM_ANDA`.
+3. Ubah `news_chance` di `data/market.json` menjadi `1.0` untuk melihat pasar yang penuh berita.
 
 ## Latihan M2 (opsional)
 

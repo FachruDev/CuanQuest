@@ -1,0 +1,21 @@
+{
+	"_comment": "target: random_stock | random_crypto | asset:ID | factor:stock | factor:crypto | rate. shock = [min, max] perubahan harga sekali.",
+	"news": [
+		{ "id": "earnings_up", "text_key": "NEWS_EARNINGS_UP", "target": "random_stock", "shock": [0.05, 0.14], "weight": 3 },
+		{ "id": "earnings_down", "text_key": "NEWS_EARNINGS_DOWN", "target": "random_stock", "shock": [-0.12, -0.04], "weight": 3 },
+		{ "id": "scandal", "text_key": "NEWS_SCANDAL", "target": "random_stock", "shock": [-0.25, -0.12], "weight": 1 },
+		{ "id": "big_contract", "text_key": "NEWS_BIG_CONTRACT", "target": "asset:NUSA", "shock": [0.08, 0.18], "weight": 1 },
+		{ "id": "commodity_boom", "text_key": "NEWS_COMMODITY_BOOM", "target": "asset:BARA", "shock": [0.10, 0.25], "weight": 1 },
+		{ "id": "commodity_slump", "text_key": "NEWS_COMMODITY_SLUMP", "target": "asset:BARA", "shock": [-0.20, -0.08], "weight": 1 },
+		{ "id": "consumer_strong", "text_key": "NEWS_CONSUMER_STRONG", "target": "asset:MPGN", "shock": [0.04, 0.10], "weight": 1 },
+		{ "id": "bank_npl", "text_key": "NEWS_BANK_NPL", "target": "asset:BSNT", "shock": [-0.12, -0.05], "weight": 1 },
+		{ "id": "foreign_inflow", "text_key": "NEWS_FOREIGN_INFLOW", "target": "factor:stock", "shock": [0.03, 0.07], "weight": 2 },
+		{ "id": "global_selloff", "text_key": "NEWS_GLOBAL_SELLOFF", "target": "factor:stock", "shock": [-0.09, -0.04], "weight": 2 },
+		{ "id": "crypto_hype", "text_key": "NEWS_CRYPTO_HYPE", "target": "factor:crypto", "shock": [0.10, 0.30], "weight": 2 },
+		{ "id": "crypto_regulation", "text_key": "NEWS_CRYPTO_REGULATION", "target": "factor:crypto", "shock": [-0.20, -0.08], "weight": 1 },
+		{ "id": "crypto_hack", "text_key": "NEWS_CRYPTO_HACK", "target": "random_crypto", "shock": [-0.35, -0.15], "weight": 1 },
+		{ "id": "rate_up", "text_key": "NEWS_RATE_UP", "target": "rate", "rate_delta": 0.0025, "shock": [-0.04, -0.01], "weight": 1 },
+		{ "id": "rate_down", "text_key": "NEWS_RATE_DOWN", "target": "rate", "rate_delta": -0.0025, "shock": [0.01, 0.04], "weight": 1 },
+		{ "id": "quiet", "text_key": "NEWS_QUIET", "target": "none", "shock": [0, 0], "weight": 2 }
+	]
+}

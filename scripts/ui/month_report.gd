@@ -26,7 +26,19 @@ static func fill(box: VBoxContainer, r: Dictionary) -> void:
 	_add_row(box, "REPORT_HOUSING", Fmt.signed_rupiah(-r["housing_cost"]), RED)
 
 	_add_header(box, "REPORT_INVESTMENT")
+	if r.get("interest", 0.0) > 0.0:
+		_add_row(box, "REPORT_INTEREST", Fmt.signed_rupiah(r["interest"]), GREEN)
 	_add_row(box, "REPORT_INVEST_CHANGE", Fmt.signed_rupiah(r["invest_change"]), color_of(r["invest_change"]))
+
+	var news: Array = r.get("news", [])
+	if not news.is_empty():
+		_add_header(box, "REPORT_NEWS")
+		for item: Dictionary in news:
+			var label := Label.new()
+			label.text = "- " + news_text(item)
+			label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			label.add_theme_font_size_override("font_size", 20)
+			box.add_child(label)
 
 	_add_header(box, "REPORT_WELLBEING")
 	_add_row(box, "STAT_HEALTH", "%+d" % r["health_delta"], color_of(r["health_delta"]))
@@ -43,6 +55,14 @@ static func fill(box: VBoxContainer, r: Dictionary) -> void:
 
 	if r["cash_after"] < 0:
 		_add_text(box, "REPORT_WARN_NEGATIVE_CASH", RED)
+
+
+## Teks berita yang sudah diterjemahkan, mis. "PT Bank Sentosa Tbk mencatat laba melonjak".
+static func news_text(item: Dictionary) -> String:
+	var text := TranslationServer.translate(item["key"])
+	if item["asset_key"] != "":
+		text = text % TranslationServer.translate(item["asset_key"])
+	return text
 
 
 static func color_of(value: float) -> Color:

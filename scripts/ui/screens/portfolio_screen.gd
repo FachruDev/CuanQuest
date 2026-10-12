@@ -60,7 +60,12 @@ func _make_holding_card(asset_id: String) -> PanelContainer:
 	box.add_child(name_label)
 
 	var detail := Label.new()
-	detail.text = tr("PORT_HOLDING_DETAIL") % [Fmt.number(units), Fmt.rupiah(cost / units)]
+	if asset.is_interest():
+		detail.text = tr("FMT_RATE_PA") % Fmt.percent_plain(GameState.market.rate_for(asset))
+		if GameState.is_locked(asset_id):
+			detail.text += " | " + tr("LBL_LOCKED_UNTIL") % Fmt.game_date(GameState.locked_until(asset_id))
+	else:
+		detail.text = tr("PORT_HOLDING_DETAIL") % [Fmt.units(units), asset.price_text(cost / units)]
 	detail.modulate = MonthReport.MUTED
 	detail.add_theme_font_size_override("font_size", 20)
 	box.add_child(detail)

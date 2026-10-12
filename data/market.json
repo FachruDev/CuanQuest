@@ -1,0 +1,16 @@
+{
+	"start_policy_rate": 0.0575,
+	"min_policy_rate": 0.03,
+	"max_policy_rate": 0.10,
+	"news_chance": 0.5,
+	"news_log_size": 30,
+	"factors": {
+		"stock": { "drift_scale": 1.0 },
+		"crypto": { "drift_scale": 3.0 }
+	},
+	"regimes": {
+		"bull": { "drift": 0.12, "vol_mult": 0.9, "min_months": 8, "max_months": 24, "next": { "sideways": 0.6, "bear": 0.4 } },
+		"sideways": { "drift": 0.0, "vol_mult": 1.0, "min_months": 6, "max_months": 18, "next": { "bull": 0.55, "bear": 0.45 } },
+		"bear": { "drift": -0.18, "vol_mult": 1.35, "min_months": 4, "max_months": 14, "next": { "sideways": 0.5, "bull": 0.5 } }
+	}
+}

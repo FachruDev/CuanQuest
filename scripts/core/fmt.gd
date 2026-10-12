@@ -21,8 +21,22 @@ static func number(value: float, decimals: int = 2) -> String:
 	return ("-" if value < 0 else "") + text
 
 
+## Jumlah unit: kripto bisa 0,000123 unit, saham ratusan unit.
+static func units(value: float) -> String:
+	if value < 1.0:
+		return number(value, 6)
+	if value < 100.0:
+		return number(value, 4)
+	return number(value, 2)
+
+
 static func percent(ratio: float) -> String:
 	return ("%+.2f%%" % (ratio * 100.0)).replace(".", ",")
+
+
+## Tanpa tanda +, untuk suku bunga/fee: 4,50%
+static func percent_plain(ratio: float) -> String:
+	return ("%.2f%%" % (ratio * 100.0)).replace(".", ",")
 
 
 ## month_index 0 = Jan tahun 1.
