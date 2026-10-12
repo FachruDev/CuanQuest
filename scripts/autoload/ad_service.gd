@@ -24,14 +24,18 @@ func show_rewarded(on_reward: Callable) -> void:
 	var layer := CanvasLayer.new()
 	layer.layer = 100  # di atas semua UI
 	var background := ColorRect.new()
-	background.color = Color(0, 0, 0, 0.92)
+	background.color = Color(Palette.INK, 0.96)
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	background.mouse_filter = Control.MOUSE_FILTER_STOP  # blok klik selama iklan
 	var label := Label.new()
 	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	label.offset_left = 48
+	label.offset_right = -48
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.add_theme_color_override("font_color", Color("#fff8ec"))  # tema default berteks gelap
+	label.add_theme_font_size_override("font_size", 28)
 	background.add_child(label)
 	layer.add_child(background)
 	add_child(layer)

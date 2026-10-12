@@ -35,7 +35,7 @@ window/handheld/orientation=1
 
 [gui]
 
-theme/custom="res://theme/main_theme.tres"
+theme/custom="res://theme/senja_theme.tres"
 
 [internationalization]
 
