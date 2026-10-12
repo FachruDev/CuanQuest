@@ -16,7 +16,7 @@ func open(title: String, body: String, secondary_text: String = "", on_secondary
 	%BodyLabel.text = body
 	_on_secondary = on_secondary
 	%SecondaryButton.visible = secondary_text != ""
-	%SecondaryButton.text = secondary_text
+	%SecondaryButton.get_child(0).text = secondary_text
 	show()
 	Sfx.play("success")
 

@@ -19,9 +19,10 @@ func open(event: Dictionary) -> void:
 	for i in choices.size():
 		var choice: Dictionary = choices[i]
 		var button := Button.new()
-		button.custom_minimum_size = Vector2(0, 80)
+		button.theme_type_variation = &"ChoiceCardButton"
+		button.custom_minimum_size = Vector2(0, 84)
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		button.add_theme_font_size_override("font_size", 24)
 		var text := tr(choice["label"])
 		if int(choice.get("cost", 0)) > 0:
 			text += " (%s)" % Fmt.rupiah(choice["cost"])

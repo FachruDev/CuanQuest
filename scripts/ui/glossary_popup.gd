@@ -10,6 +10,7 @@ func _ready() -> void:
 	super()
 	_terms = DataLoader.load_json(GLOSSARY_PATH).get("terms", [])
 	%CloseButton.pressed.connect(close)
+	%CloseXButton.pressed.connect(close)
 	%SearchEdit.text_changed.connect(_filter)
 
 
@@ -29,20 +30,24 @@ func _filter(query: String) -> void:
 		var definition := tr(entry["definition"])
 		if query != "" and not (query in term.to_lower() or query in definition.to_lower()):
 			continue
+		var card := PanelContainer.new()
+		card.theme_type_variation = &"InfoCard"
 		var box := VBoxContainer.new()
+		box.add_theme_constant_override("separation", 4)
 		var term_label := Label.new()
 		term_label.text = term
-		term_label.modulate = Color("#5dade2")
-		term_label.add_theme_font_size_override("font_size", 24)
+		term_label.theme_type_variation = &"TermLabel"
 		var def_label := Label.new()
 		def_label.text = definition
+		def_label.theme_type_variation = &"InfoLabel"
 		def_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		def_label.add_theme_font_size_override("font_size", 20)
 		box.add_child(term_label)
 		box.add_child(def_label)
-		%TermList.add_child(box)
+		card.add_child(box)
+		%TermList.add_child(card)
 	if %TermList.get_child_count() == 0:
 		var empty := Label.new()
 		empty.text = tr("GLOSSARY_NOT_FOUND")
-		empty.modulate = MonthReport.MUTED
+		empty.theme_type_variation = &"MutedLabel"
+		empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		%TermList.add_child(empty)

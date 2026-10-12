@@ -1,6 +1,11 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/glossary_popup.gd" id="1_glossary"]
+[ext_resource type="Theme" path="res://theme/senja_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://scripts/ui/chunky_button.gd" id="3_chunky"]
+[ext_resource type="Texture2D" path="res://assets/icons/book.svg" id="4_book"]
+[ext_resource type="Texture2D" path="res://assets/icons/close.svg" id="5_close"]
+[ext_resource type="Texture2D" path="res://assets/icons/search.svg" id="6_search"]
 
 [node name="GlossaryPopup" type="Control"]
 layout_mode = 3
@@ -9,6 +14,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("2_theme")
 script = ExtResource("1_glossary")
 
 [node name="Dim" type="ColorRect" parent="."]
@@ -18,7 +24,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.7)
+color = Color(0.169, 0.129, 0.278, 0.62)
 
 [node name="Margin" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -27,43 +33,106 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 60
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 60
+mouse_filter = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 64
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 64
 
-[node name="Panel" type="PanelContainer" parent="Margin"]
+[node name="Dialog" type="PanelContainer" parent="Margin"]
+unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"DialogFullPanel"
 
-[node name="VBox" type="VBoxContainer" parent="Margin/Panel"]
+[node name="VBox" type="VBoxContainer" parent="Margin/Dialog"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 16
 
-[node name="Title" type="Label" parent="Margin/Panel/VBox"]
+[node name="Header" type="HBoxContainer" parent="Margin/Dialog/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 34
+theme_override_constants/separation = 14
+
+[node name="Tile" type="PanelContainer" parent="Margin/Dialog/VBox/Header"]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"IconTileTeal"
+
+[node name="Icon" type="TextureRect" parent="Margin/Dialog/VBox/Header/Tile"]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("4_book")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Title" type="Label" parent="Margin/Dialog/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"PopupTitleLabel"
 text = "GLOSSARY_TITLE"
 
-[node name="SearchEdit" type="LineEdit" parent="Margin/Panel/VBox"]
+[node name="CloseXButton" type="Button" parent="Margin/Dialog/VBox/Header"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
+custom_minimum_size = Vector2(62, 66)
 layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "BTN_CLOSE"
+theme_type_variation = &"RoundButton"
+icon = ExtResource("5_close")
+icon_alignment = 1
+
+[node name="SearchEdit" type="LineEdit" parent="Margin/Dialog/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 66)
+layout_mode = 2
+theme_type_variation = &"SearchLineEdit"
 placeholder_text = "GLOSSARY_SEARCH"
 clear_button_enabled = true
 
-[node name="Scroll" type="ScrollContainer" parent="Margin/Panel/VBox"]
+[node name="Icon" type="TextureRect" parent="Margin/Dialog/VBox/SearchEdit"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 18.0
+offset_top = -12.0
+offset_right = 42.0
+offset_bottom = 12.0
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("6_search")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Scroll" type="ScrollContainer" parent="Margin/Dialog/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="TermList" type="VBoxContainer" parent="Margin/Panel/VBox/Scroll"]
+[node name="TermList" type="VBoxContainer" parent="Margin/Dialog/VBox/Scroll"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 16
+theme_override_constants/separation = 12
 
-[node name="CloseButton" type="Button" parent="Margin/Panel/VBox"]
+[node name="CloseButton" type="Button" parent="Margin/Dialog/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 76)
+custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
+theme_type_variation = &"NeutralButton"
+script = ExtResource("3_chunky")
+
+[node name="Content" type="Label" parent="Margin/Dialog/VBox/CloseButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"NeutralButtonLabel"
 text = "BTN_CLOSE"
+horizontal_alignment = 1
+vertical_alignment = 1

@@ -113,7 +113,9 @@ INFO_TRADED,Volatilitas %s/tahun | Fee beli %s | Fee jual %s,Volatility %s/yr | 
 MSG_PENALTY,Kena penalti karena dicairkan sebelum jatuh tempo.,Early withdrawal penalty applied.
 BTN_BACK,< Kembali,< Back
 MARKET_NEWS,Berita Pasar,Market News
-MARKET_MOOD,Tren saham: %s | Tren kripto: %s | Suku bunga acuan: %s,Stocks: %s | Crypto: %s | Policy rate: %s
+MARKET_MOOD_STOCK,Saham: %s,Stocks: %s
+MARKET_MOOD_CRYPTO,Kripto: %s,Crypto: %s
+MARKET_MOOD_RATE,Suku bunga acuan %s,Policy rate %s
 REGIME_BULL,Naik,Bull
 REGIME_SIDEWAYS,Datar,Sideways
 REGIME_BEAR,Turun,Bear

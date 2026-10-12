@@ -1,6 +1,8 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/quiz_popup.gd" id="1_quiz"]
+[ext_resource type="Theme" path="res://theme/senja_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://scripts/ui/chunky_button.gd" id="3_chunky"]
 
 [node name="QuizPopup" type="Control"]
 layout_mode = 3
@@ -9,6 +11,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("2_theme")
 script = ExtResource("1_quiz")
 
 [node name="Dim" type="ColorRect" parent="."]
@@ -18,7 +21,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.7)
+color = Color(0.169, 0.129, 0.278, 0.62)
 
 [node name="Center" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -27,53 +30,106 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
-[node name="Panel" type="PanelContainer" parent="Center"]
-custom_minimum_size = Vector2(640, 0)
+[node name="Dialog" type="VBoxContainer" parent="Center"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(632, 0)
 layout_mode = 2
+theme_override_constants/separation = -64
 
-[node name="VBox" type="VBoxContainer" parent="Center/Panel"]
+[node name="BadgeHolder" type="CenterContainer" parent="Center/Dialog"]
+z_index = 1
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Badge" type="PanelContainer" parent="Center/Dialog/BadgeHolder"]
+custom_minimum_size = Vector2(122, 129)
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"BadgeTealPanel"
+
+[node name="Mark" type="Label" parent="Center/Dialog/BadgeHolder/Badge"]
+layout_mode = 2
+theme_type_variation = &"PopupBadgeLabel"
+text = "?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Panel" type="PanelContainer" parent="Center/Dialog"]
+layout_mode = 2
+theme_type_variation = &"DialogPanel"
+
+[node name="VBox" type="VBoxContainer" parent="Center/Dialog/Panel"]
 layout_mode = 2
 theme_override_constants/separation = 14
 
-[node name="TopicLabel" type="Label" parent="Center/Panel/VBox"]
-unique_name_in_owner = true
+[node name="TopicHolder" type="CenterContainer" parent="Center/Dialog/Panel/VBox"]
 layout_mode = 2
-modulate = Color(0.36, 0.68, 0.98, 1)
-theme_override_font_sizes/font_size = 20
 
-[node name="QuestionLabel" type="Label" parent="Center/Panel/VBox"]
+[node name="Chip" type="PanelContainer" parent="Center/Dialog/Panel/VBox/TopicHolder"]
+layout_mode = 2
+theme_type_variation = &"TopicChip"
+
+[node name="TopicLabel" type="Label" parent="Center/Dialog/Panel/VBox/TopicHolder/Chip"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
+theme_type_variation = &"TopicChipLabel"
+
+[node name="QuestionLabel" type="Label" parent="Center/Dialog/Panel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"QuestionTitleLabel"
+horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="Options" type="VBoxContainer" parent="Center/Panel/VBox"]
+[node name="Options" type="VBoxContainer" parent="Center/Dialog/Panel/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="ResultBox" type="VBoxContainer" parent="Center/Panel/VBox"]
+[node name="ResultBox" type="VBoxContainer" parent="Center/Dialog/Panel/VBox"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 16
 
-[node name="ResultLabel" type="Label" parent="Center/Panel/VBox/ResultBox"]
+[node name="ResultCard" type="PanelContainer" parent="Center/Dialog/Panel/VBox/ResultBox"]
+layout_mode = 2
+theme_type_variation = &"InfoCard"
+
+[node name="VBox" type="VBoxContainer" parent="Center/Dialog/Panel/VBox/ResultBox/ResultCard"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ResultLabel" type="Label" parent="Center/Dialog/Panel/VBox/ResultBox/ResultCard/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_type_variation = &"ResultLabel"
 autowrap_mode = 3
 
-[node name="ExplainLabel" type="Label" parent="Center/Panel/VBox/ResultBox"]
+[node name="ExplainLabel" type="Label" parent="Center/Dialog/Panel/VBox/ResultBox/ResultCard/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-modulate = Color(1, 1, 1, 0.8)
-theme_override_font_sizes/font_size = 21
+theme_type_variation = &"InfoLabel"
 autowrap_mode = 3
 
-[node name="CloseButton" type="Button" parent="Center/Panel/VBox/ResultBox"]
+[node name="CloseButton" type="Button" parent="Center/Dialog/Panel/VBox/ResultBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 76)
+custom_minimum_size = Vector2(0, 92)
 layout_mode = 2
+theme_type_variation = &"PrimaryButton"
+script = ExtResource("3_chunky")
+
+[node name="Content" type="Label" parent="Center/Dialog/Panel/VBox/ResultBox/CloseButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"PrimaryButtonLabel"
 text = "BTN_OK"
+horizontal_alignment = 1
+vertical_alignment = 1

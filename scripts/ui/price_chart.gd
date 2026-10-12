@@ -12,6 +12,18 @@ const PADDING := 16.0
 @export var background_color := Color("#182030")
 @export var grid_color := Color(1, 1, 1, 0.08)
 @export var empty_text_key := "CHART_EMPTY"
+## Gaya terang "Senja Cuan": tanpa latar, area di bawah garis diwarnai, teks cokelat.
+@export var light_style := false:
+	set(value):
+		light_style = value
+		if value:
+			up_color = Palette.GAIN
+			down_color = Palette.LOSS
+			background_color = Color(0, 0, 0, 0)
+			grid_color = Color("#f4eadb")
+		queue_redraw()
+
+const LIGHT_TEXT := Color("#8a6e4e")
 
 var _all: Array[float] = []   # semua data dari pemanggil
 var _data: Array[float] = []  # bagian yang sedang digambar (sesuai periode)
@@ -40,9 +52,10 @@ func _apply_period() -> void:
 
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), background_color)
+	var text_color := LIGHT_TEXT if light_style else Color(1, 1, 1, 0.6)
 	if _data.size() < 2:
 		draw_string(get_theme_default_font(), Vector2(0, size.y / 2.0), tr(empty_text_key),
-				HORIZONTAL_ALIGNMENT_CENTER, size.x, 22, Color(1, 1, 1, 0.5))
+				HORIZONTAL_ALIGNMENT_CENTER, size.x, 22, text_color)
 		return
 
 	var lo: float = _data.min()
@@ -63,12 +76,19 @@ func _draw() -> void:
 		points.append(Vector2(x, y))
 
 	var color := up_color if _data[-1] >= _data[0] else down_color
+	if light_style:  # area lembut di bawah garis
+		var fill := points.duplicate()
+		fill.append(Vector2(area.end.x, area.end.y))
+		fill.append(Vector2(area.position.x, area.end.y))
+		draw_colored_polygon(fill, Color(color, 0.15))
 	draw_polyline(points, color, 4.0, true)
-	draw_circle(points[-1], 7.0, color)
+	if light_style:
+		draw_circle(points[-1], 9.0, Color.WHITE)
+	draw_circle(points[-1], 7.0 if not light_style else 6.0, color)
 
 	var font := get_theme_default_font()
-	var font_size := 20
+	var font_size := 20 if not light_style else 16
 	draw_string(font, Vector2(area.position.x + 4, area.position.y + font_size),
-			Fmt.rupiah(hi), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color(1, 1, 1, 0.6))
+			Fmt.rupiah(hi), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, text_color)
 	draw_string(font, Vector2(area.position.x + 4, area.end.y - 4),
-			Fmt.rupiah(lo), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color(1, 1, 1, 0.6))
+			Fmt.rupiah(lo), HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, text_color)

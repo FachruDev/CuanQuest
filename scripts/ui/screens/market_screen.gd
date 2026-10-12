@@ -1,12 +1,19 @@
 extends MarginContainer
-## Tab Pasar. Dua "view" dalam satu scene (mirip route /market dan /market/:id):
+## Tab Pasar (tema "Senja Cuan"). Dua "view" dalam satu scene (mirip route /market dan /market/:id):
 ## - ListView  : berita terbaru, kondisi pasar, daftar aset per kelas
 ## - DetailView: grafik/info bunga + beli/jual untuk satu aset
 ## Node yang diawali "%" adalah "unique name" di scene (mirip document.getElementById).
 
 const QUICK_PERCENTS := [0.25, 0.5, 1.0]
 const CLASS_ORDER := ["savings", "deposit", "mutual_fund", "stock", "crypto"]
-const RISK_COLORS := [Color("#2ecc71"), Color("#2ecc71"), Color("#f1c40f"), Color("#e67e22"), Color("#e74c3c")]
+## Warna teks risiko 1-5 (cukup gelap agar terbaca di kartu putih).
+const RISK_COLORS := [Color("#1e7f5c"), Color("#1e7f5c"), Color("#a86a12"), Color("#c25a1e"), Color("#c2452d")]
+const CLASS_TILES := {
+	"savings": &"IconTileBlue", "deposit": &"IconTileMint", "mutual_fund": &"IconTileGold",
+	"stock": &"IconTileCoral", "crypto": &"IconTilePurple",
+}
+const CLASS_ICON := "res://assets/icons/classes/%s.svg"
+const REGIME_CHIPS := {"bull": &"MoodGreen", "sideways": &"MoodNeutral", "bear": &"MoodRed"}
 const NEWS_SHOWN := 4
 
 enum Mode { BUY, SELL }
@@ -32,7 +39,7 @@ func _ready() -> void:
 	%BackButton.pressed.connect(_show_list)
 
 	_build_asset_list()
-	UiText.build_period_buttons(%PeriodRow, %Chart, 12)
+	UiText.build_period_buttons(%PeriodRow, %Chart, 12, &"PeriodButton")
 	GameState.changed.connect(_refresh)
 	_show_list()
 
@@ -55,46 +62,69 @@ func _show_list() -> void:
 ## Dibuat sekali: header per kelas aset + satu tombol per aset.
 func _build_asset_list() -> void:
 	for asset_class: String in CLASS_ORDER:
-		var header := Label.new()
-		header.text = tr("CLASS_" + asset_class.to_upper())
-		header.modulate = MonthReport.MUTED
-		header.add_theme_font_size_override("font_size", 20)
+		var header := _make_label(tr("CLASS_" + asset_class.to_upper()), &"ClassHeaderLabel")
 		%AssetList.add_child(header)
 		for asset: MarketAsset in GameState.market.assets.values():
 			if asset.asset_class == asset_class:
 				%AssetList.add_child(_make_asset_row(asset))
 
 
+## Satu baris aset: ikon kelas | nama + risiko | harga/bunga + perubahan. Tombol "tebal" yang bisa ditekan.
 func _make_asset_row(asset: MarketAsset) -> Button:
-	var button := Button.new()
-	button.custom_minimum_size = Vector2(0, 88)
+	var button := ChunkyButton.new()
+	button.theme_type_variation = &"AssetRowButton"
+	button.press_depth = 5.0
+	button.custom_minimum_size = Vector2(0, 84)
 	button.pressed.connect(_show_detail.bind(asset.id))
 
 	var row := HBoxContainer.new()
 	row.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	row.offset_left = 16
 	row.offset_right = -16
+	row.offset_bottom = -5  # bibir bawah tombol
+	row.add_theme_constant_override("separation", 14)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	var tile := PanelContainer.new()
+	tile.theme_type_variation = CLASS_TILES.get(asset.asset_class, &"IconTileGold")
+	tile.custom_minimum_size = Vector2(48, 48)
+	tile.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	tile.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var icon_path := CLASS_ICON % asset.asset_class
+	if ResourceLoader.exists(icon_path):
+		var icon := TextureRect.new()
+		icon.texture = load(icon_path)
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.custom_minimum_size = Vector2(26, 26)
+		icon.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		tile.add_child(icon)
 
 	var left := VBoxContainer.new()
 	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	left.alignment = BoxContainer.ALIGNMENT_CENTER
+	left.add_theme_constant_override("separation", 0)
 	left.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	left.add_child(_make_label(tr(asset.name_key), 22))
-	var risk := _make_label(tr("RISK_%d" % asset.risk), 17)
-	risk.modulate = RISK_COLORS[asset.risk - 1]
+	var name_label := _make_label(tr(asset.name_key), &"AssetNameLabel")
+	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	left.add_child(name_label)
+	var risk := _make_label(tr("RISK_%d" % asset.risk), &"AssetSubLabel")
 	left.add_child(risk)
 
 	var right := VBoxContainer.new()
 	right.alignment = BoxContainer.ALIGNMENT_CENTER
+	right.add_theme_constant_override("separation", 0)
 	right.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var price := _make_label("", 22)
+	var price := _make_label("", &"AssetValueLabel")
 	price.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	var change := _make_label("", 18)
+	var change := _make_label("", &"AssetSubLabel")
 	change.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	right.add_child(price)
 	right.add_child(change)
 
+	row.add_child(tile)
 	row.add_child(left)
 	row.add_child(right)
 	button.add_child(row)
@@ -108,33 +138,56 @@ func _refresh_list() -> void:
 		var asset := market.get_asset(asset_id)
 		var labels: Dictionary = _rows[asset_id]
 		var unlocked := GameState.is_asset_unlocked(asset_id)
-		labels["button"].modulate = Color.WHITE if unlocked else Color(1, 1, 1, 0.45)
+		labels["button"].modulate = Color.WHITE if unlocked else Color(1, 1, 1, 0.5)
 		labels["risk"].text = tr("RISK_%d" % asset.risk) if unlocked else tr("MARKET_LOCKED_ROW") % asset.stage
+		labels["risk"].add_theme_color_override("font_color", RISK_COLORS[asset.risk - 1] if unlocked else Palette.MUTED)
 		if asset.is_interest():
 			labels["price"].text = tr("FMT_RATE_PA") % Fmt.percent_plain(market.rate_for(asset))
 			labels["change"].text = tr("LBL_INTEREST")
-			labels["change"].modulate = MonthReport.MUTED
+			labels["change"].add_theme_color_override("font_color", Palette.MUTED)
 		else:
 			labels["price"].text = asset.price_text()
 			labels["change"].text = Fmt.percent(asset.change_ratio())
-			labels["change"].modulate = MonthReport.color_of(asset.change_ratio())
+			labels["change"].add_theme_color_override("font_color", _signed_color(asset.change_ratio()))
 
-	%MoodLabel.text = tr("MARKET_MOOD") % [
-		tr("REGIME_" + market.regime_of("stock").to_upper()),
-		tr("REGIME_" + market.regime_of("crypto").to_upper()),
-		Fmt.percent_plain(market.policy_rate)]
+	_refresh_mood(market)
+	_refresh_news(market)
 
+
+## Chip kondisi pasar: tren saham, tren kripto, suku bunga acuan.
+func _refresh_mood(market: Market) -> void:
+	for child in %MoodRow.get_children():
+		%MoodRow.remove_child(child)
+		child.queue_free()
+	for kind: String in ["stock", "crypto"]:
+		var regime := market.regime_of(kind)
+		var text := tr("MARKET_MOOD_" + kind.to_upper()) % tr("REGIME_" + regime.to_upper())
+		%MoodRow.add_child(_make_chip(text, REGIME_CHIPS.get(regime, &"MoodNeutral")))
+	%MoodRow.add_child(_make_chip(tr("MARKET_MOOD_RATE") % Fmt.percent_plain(market.policy_rate), &"MoodGold"))
+
+
+func _refresh_news(market: Market) -> void:
 	for child in %NewsList.get_children():
 		%NewsList.remove_child(child)
 		child.queue_free()
 	if market.news_log.is_empty():
-		%NewsList.add_child(_make_label(tr("NEWS_NONE"), 20))
+		var empty := _make_label(tr("NEWS_NONE"), &"NewsTextLabel")
+		empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		%NewsList.add_child(empty)
 	for i in mini(NEWS_SHOWN, market.news_log.size()):
 		var item: Dictionary = market.news_log[i]
-		var label := _make_label("%s  %s" % [Fmt.game_date(item["month"]), MonthReport.news_text(item)], 20)
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-		%NewsList.add_child(label)
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 10)
+		var chip := PanelContainer.new()
+		chip.theme_type_variation = &"NewsDateChip"
+		chip.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		chip.add_child(_make_label(Fmt.game_date(item["month"]), &"NewsDateLabel"))
+		var text := _make_label(MonthReport.news_text(item), &"NewsTextLabel")
+		text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(chip)
+		row.add_child(text)
+		%NewsList.add_child(row)
 
 
 # --- Detail view --------------------------------------------------------------
@@ -153,18 +206,17 @@ func _show_detail(asset_id: String) -> void:
 func _refresh_detail() -> void:
 	var asset := GameState.market.get_asset(_selected_id)
 	%AssetName.text = tr(asset.name_key)
-	%ClassLabel.text = "%s | %s" % [tr("CLASS_" + asset.asset_class.to_upper()), tr("RISK_%d" % asset.risk)]
-	%ClassLabel.modulate = RISK_COLORS[asset.risk - 1]
+	%ClassLabel.text = "%s · %s" % [tr("CLASS_" + asset.asset_class.to_upper()), tr("RISK_%d" % asset.risk)]
+	%ClassLabel.add_theme_color_override("font_color", RISK_COLORS[asset.risk - 1])
 	%DescLabel.text = tr("DESC_" + asset.asset_class.to_upper())
 	%RiskWarning.visible = GameState.exceeds_risk_profile(asset)
-	%RiskWarning.text = tr("MARKET_RISK_WARNING") % tr(GameState.risk_profile()["name"])
+	%RiskWarningLabel.text = tr("MARKET_RISK_WARNING") % tr(GameState.risk_profile()["name"])
 
 	if asset.is_interest():
 		var rate := GameState.market.rate_for(asset)
 		%PriceLabel.text = tr("FMT_RATE_PA") % Fmt.percent_plain(rate)
-		%ChangeLabel.text = ""
-		%Chart.hide()
-		%PeriodRow.hide()
+		%ChangeChip.hide()
+		%ChartCard.hide()
 		var info := tr("INFO_INTEREST") % Fmt.percent_plain(rate * (1.0 - asset.interest_tax))
 		if asset.interest_tax > 0:
 			info += "\n" + tr("INFO_INTEREST_TAX") % Fmt.percent_plain(asset.interest_tax)
@@ -175,9 +227,10 @@ func _refresh_detail() -> void:
 		%PriceLabel.text = asset.price_text()
 		var change := asset.change_ratio()
 		%ChangeLabel.text = Fmt.percent(change)
-		%ChangeLabel.modulate = MonthReport.color_of(change)
-		%Chart.show()
-		%PeriodRow.show()
+		%ChangeLabel.add_theme_color_override("font_color", _signed_color(change))
+		%ChangeChip.theme_type_variation = &"ChangeUp" if change > 0 else (&"ChangeDown" if change < 0 else &"ChangeFlat")
+		%ChangeChip.show()
+		%ChartCard.show()
 		%Chart.set_data(asset.history)
 		%InfoLabel.text = tr("INFO_TRADED") % [
 			Fmt.percent_plain(asset.volatility),
@@ -188,7 +241,7 @@ func _refresh_detail() -> void:
 	%TradeBox.visible = unlocked
 	%LockedBox.visible = not unlocked
 	if not unlocked:
-		UiText.fill_requirements(%LockedReqs, GameState.stage_def(asset.stage))
+		UiText.fill_requirements(%LockedReqs, GameState.stage_def(asset.stage), true)
 
 	var units := GameState.units_of(_selected_id)
 	if units > 0.0:
@@ -208,7 +261,7 @@ func _refresh_detail() -> void:
 
 func _set_mode(new_mode: Mode) -> void:
 	mode = new_mode
-	%ConfirmButton.text = tr("BTN_CONFIRM_BUY" if mode == Mode.BUY else "BTN_CONFIRM_SELL")
+	%ConfirmLabel.text = tr("BTN_CONFIRM_BUY" if mode == Mode.BUY else "BTN_CONFIRM_SELL")
 	%AmountEdit.text = ""
 
 
@@ -250,14 +303,30 @@ func _on_confirm_pressed() -> void:
 
 func _show_message(text: String, is_error := false) -> void:
 	%FeedbackLabel.text = text
-	%FeedbackLabel.modulate = MonthReport.RED if is_error else Color(1, 1, 1, 0.85)
+	%FeedbackLabel.add_theme_color_override("font_color", Palette.LOSS if is_error else Palette.GAIN)
 
 
-func _make_label(text: String, font_size: int) -> Label:
+func _make_label(text: String, variation: StringName) -> Label:
 	var label := Label.new()
 	label.text = text
-	label.add_theme_font_size_override("font_size", font_size)
+	label.theme_type_variation = variation
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return label
+
+
+func _make_chip(text: String, variation: StringName) -> PanelContainer:
+	var chip := PanelContainer.new()
+	chip.theme_type_variation = variation
+	chip.add_child(_make_label(text, &"MoodLabel"))
+	return chip
+
+
+func _signed_color(value: float) -> Color:
+	if value > 0:
+		return Palette.GAIN
+	if value < 0:
+		return Palette.LOSS
+	return Palette.MUTED
 
 
 ## "1.500.000" atau "1500000" -> 1500000

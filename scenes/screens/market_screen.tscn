@@ -2,6 +2,11 @@
 
 [ext_resource type="Script" path="res://scripts/ui/screens/market_screen.gd" id="1_market"]
 [ext_resource type="Script" path="res://scripts/ui/price_chart.gd" id="2_chart"]
+[ext_resource type="Theme" path="res://theme/senja_theme.tres" id="3_theme"]
+[ext_resource type="Script" path="res://scripts/ui/chunky_button.gd" id="4_chunky"]
+[ext_resource type="Texture2D" path="res://assets/icons/news.svg" id="5_news"]
+[ext_resource type="Texture2D" path="res://assets/icons/chevron_left.svg" id="6_back"]
+[ext_resource type="Texture2D" path="res://assets/icons/warning_small.svg" id="7_warn"]
 
 [node name="MarketScreen" type="MarginContainer"]
 anchors_preset = 15
@@ -9,6 +14,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("3_theme")
 script = ExtResource("1_market")
 
 [node name="ListView" type="ScrollContainer" parent="."]
@@ -19,26 +25,43 @@ horizontal_scroll_mode = 0
 [node name="VBox" type="VBoxContainer" parent="ListView"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
-
-[node name="NewsTitle" type="Label" parent="ListView/VBox"]
-layout_mode = 2
-text = "MARKET_NEWS"
+theme_override_constants/separation = 14
 
 [node name="NewsPanel" type="PanelContainer" parent="ListView/VBox"]
 layout_mode = 2
+theme_type_variation = &"NewsPanel"
 
-[node name="NewsList" type="VBoxContainer" parent="ListView/VBox/NewsPanel"]
+[node name="VBox" type="VBoxContainer" parent="ListView/VBox/NewsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Head" type="HBoxContainer" parent="ListView/VBox/NewsPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Icon" type="TextureRect" parent="ListView/VBox/NewsPanel/VBox/Head"]
+custom_minimum_size = Vector2(24, 22)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("5_news")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Title" type="Label" parent="ListView/VBox/NewsPanel/VBox/Head"]
+layout_mode = 2
+theme_type_variation = &"NewsTitleLabel"
+text = "MARKET_NEWS"
+
+[node name="NewsList" type="VBoxContainer" parent="ListView/VBox/NewsPanel/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="MoodLabel" type="Label" parent="ListView/VBox"]
+[node name="MoodRow" type="HFlowContainer" parent="ListView/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-modulate = Color(1, 1, 1, 0.75)
-theme_override_font_sizes/font_size = 20
-autowrap_mode = 3
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
 
 [node name="AssetList" type="VBoxContainer" parent="ListView/VBox"]
 unique_name_in_owner = true
@@ -47,8 +70,7 @@ theme_override_constants/separation = 8
 
 [node name="Disclaimer" type="Label" parent="ListView/VBox"]
 layout_mode = 2
-modulate = Color(1, 1, 1, 0.45)
-theme_override_font_sizes/font_size = 18
+theme_type_variation = &"SmallMutedLabel"
 text = "DISCLAIMER"
 horizontal_alignment = 1
 autowrap_mode = 3
@@ -64,159 +86,251 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 12
 
-[node name="BackButton" type="Button" parent="DetailView/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 56)
+[node name="HeaderRow" type="HBoxContainer" parent="DetailView/VBox"]
 layout_mode = 2
-size_flags_horizontal = 0
-theme_override_font_sizes/font_size = 22
-text = "BTN_BACK"
+theme_override_constants/separation = 14
 
-[node name="AssetName" type="Label" parent="DetailView/VBox"]
+[node name="BackButton" type="Button" parent="DetailView/VBox/HeaderRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(62, 66)
+layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "NG_BACK"
+theme_type_variation = &"RoundButton"
+icon = ExtResource("6_back")
+icon_alignment = 1
+
+[node name="TitleBox" type="VBoxContainer" parent="DetailView/VBox/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="AssetName" type="Label" parent="DetailView/VBox/HeaderRow/TitleBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"DetailTitleLabel"
 autowrap_mode = 3
 
-[node name="ClassLabel" type="Label" parent="DetailView/VBox"]
+[node name="ClassChip" type="PanelContainer" parent="DetailView/VBox/HeaderRow/TitleBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+size_flags_horizontal = 0
+theme_type_variation = &"MoodNeutral"
 
-
-[node name="RiskWarning" type="Label" parent="DetailView/VBox"]
+[node name="ClassLabel" type="Label" parent="DetailView/VBox/HeaderRow/TitleBox/ClassChip"]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
-modulate = Color(0.95, 0.6, 0.2, 1)
-theme_override_font_sizes/font_size = 20
+theme_type_variation = &"RiskChipLabel"
+
+[node name="RiskWarning" type="PanelContainer" parent="DetailView/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"WarningBanner"
+
+[node name="HBox" type="HBoxContainer" parent="DetailView/VBox/RiskWarning"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Icon" type="TextureRect" parent="DetailView/VBox/RiskWarning/HBox"]
+custom_minimum_size = Vector2(22, 20)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("7_warn")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="RiskWarningLabel" type="Label" parent="DetailView/VBox/RiskWarning/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"WarningLabel"
 autowrap_mode = 3
 
 [node name="PriceRow" type="HBoxContainer" parent="DetailView/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 12
 
 [node name="PriceLabel" type="Label" parent="DetailView/VBox/PriceRow"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 40
+theme_type_variation = &"PriceLabel"
 text = "Rp0"
 
-[node name="ChangeLabel" type="Label" parent="DetailView/VBox/PriceRow"]
+[node name="ChangeChip" type="PanelContainer" parent="DetailView/VBox/PriceRow"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 4
+theme_type_variation = &"ChangeUp"
+
+[node name="ChangeLabel" type="Label" parent="DetailView/VBox/PriceRow/ChangeChip"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ChangeLabel"
 text = "+0,00%"
 
-[node name="Chart" type="Control" parent="DetailView/VBox"]
+[node name="ChartCard" type="PanelContainer" parent="DetailView/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 240)
+layout_mode = 2
+theme_type_variation = &"ChartCard"
+
+[node name="VBox" type="VBoxContainer" parent="DetailView/VBox/ChartCard"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Chart" type="Control" parent="DetailView/VBox/ChartCard/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 170)
 layout_mode = 2
 script = ExtResource("2_chart")
+light_style = true
 
-
-[node name="PeriodRow" type="HBoxContainer" parent="DetailView/VBox"]
+[node name="PeriodRow" type="HBoxContainer" parent="DetailView/VBox/ChartCard/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/separation = 8
 
 [node name="InfoLabel" type="Label" parent="DetailView/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_type_variation = &"SmallMutedLabel"
 autowrap_mode = 3
 
 [node name="DescLabel" type="Label" parent="DetailView/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-modulate = Color(1, 1, 1, 0.6)
-theme_override_font_sizes/font_size = 20
+theme_type_variation = &"SmallMutedLabel"
 autowrap_mode = 3
 
-[node name="HoldingLabel" type="Label" parent="DetailView/VBox"]
+[node name="HoldingCard" type="PanelContainer" parent="DetailView/VBox"]
+layout_mode = 2
+theme_type_variation = &"HomeCard"
+
+[node name="HoldingLabel" type="Label" parent="DetailView/VBox/HoldingCard"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
-autowrap_mode = 3
+theme_type_variation = &"RowLabel"
 text = "LBL_NO_HOLDING"
+autowrap_mode = 3
 
-[node name="LockedBox" type="VBoxContainer" parent="DetailView/VBox"]
+[node name="LockedBox" type="PanelContainer" parent="DetailView/VBox"]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
+theme_type_variation = &"LockedCard"
 
-[node name="LockedTitle" type="Label" parent="DetailView/VBox/LockedBox"]
+[node name="VBox" type="VBoxContainer" parent="DetailView/VBox/LockedBox"]
 layout_mode = 2
-modulate = Color(0.95, 0.77, 0.06, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_constants/separation = 8
+
+[node name="LockedTitle" type="Label" parent="DetailView/VBox/LockedBox/VBox"]
+layout_mode = 2
+theme_type_variation = &"StatNameLabel"
+theme_override_colors/font_color = Color(0.5412, 0.3529, 0.0627, 1)
 text = "MARKET_LOCKED_TITLE"
 autowrap_mode = 3
 
-[node name="LockedReqs" type="VBoxContainer" parent="DetailView/VBox/LockedBox"]
+[node name="LockedReqs" type="VBoxContainer" parent="DetailView/VBox/LockedBox/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/separation = 4
 
-[node name="TradeBox" type="VBoxContainer" parent="DetailView/VBox"]
+[node name="TradeBox" type="PanelContainer" parent="DetailView/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_type_variation = &"TradeCard"
 
-[node name="ModeRow" type="HBoxContainer" parent="DetailView/VBox/TradeBox"]
+[node name="VBox" type="VBoxContainer" parent="DetailView/VBox/TradeBox"]
 layout_mode = 2
+theme_override_constants/separation = 10
 
-[node name="ModeBuy" type="Button" parent="DetailView/VBox/TradeBox/ModeRow"]
+[node name="ModeTrack" type="PanelContainer" parent="DetailView/VBox/TradeBox/VBox"]
+layout_mode = 2
+theme_type_variation = &"ModeTrack"
+
+[node name="ModeRow" type="HBoxContainer" parent="DetailView/VBox/TradeBox/VBox/ModeTrack"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ModeBuy" type="Button" parent="DetailView/VBox/TradeBox/VBox/ModeTrack/ModeRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 68)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_type_variation = &"ModeButton"
 toggle_mode = true
+button_pressed = true
 text = "BTN_MODE_BUY"
 
-[node name="ModeSell" type="Button" parent="DetailView/VBox/TradeBox/ModeRow"]
+[node name="ModeSell" type="Button" parent="DetailView/VBox/TradeBox/VBox/ModeTrack/ModeRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 68)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 size_flags_horizontal = 3
+theme_type_variation = &"ModeButton"
 toggle_mode = true
 text = "BTN_MODE_SELL"
 
-[node name="AmountEdit" type="LineEdit" parent="DetailView/VBox/TradeBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 68)
+[node name="AmountRow" type="HBoxContainer" parent="DetailView/VBox/TradeBox/VBox"]
 layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="AmountEdit" type="LineEdit" parent="DetailView/VBox/TradeBox/VBox/AmountRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"AmountLineEdit"
 placeholder_text = "HINT_AMOUNT"
 
-[node name="QuickRow" type="HBoxContainer" parent="DetailView/VBox/TradeBox"]
-layout_mode = 2
-
-[node name="Quick25" type="Button" parent="DetailView/VBox/TradeBox/QuickRow"]
+[node name="Quick25" type="Button" parent="DetailView/VBox/TradeBox/VBox/AmountRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 60)
+custom_minimum_size = Vector2(68, 58)
 layout_mode = 2
-size_flags_horizontal = 3
+theme_type_variation = &"QuickButton"
 text = "25%"
 
-[node name="Quick50" type="Button" parent="DetailView/VBox/TradeBox/QuickRow"]
+[node name="Quick50" type="Button" parent="DetailView/VBox/TradeBox/VBox/AmountRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 60)
+custom_minimum_size = Vector2(68, 58)
 layout_mode = 2
-size_flags_horizontal = 3
+theme_type_variation = &"QuickButton"
 text = "50%"
 
-[node name="Quick100" type="Button" parent="DetailView/VBox/TradeBox/QuickRow"]
+[node name="Quick100" type="Button" parent="DetailView/VBox/TradeBox/VBox/AmountRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 60)
+custom_minimum_size = Vector2(68, 58)
 layout_mode = 2
-size_flags_horizontal = 3
+theme_type_variation = &"QuickButton"
 text = "100%"
 
-[node name="ConfirmButton" type="Button" parent="DetailView/VBox/TradeBox"]
+[node name="ConfirmButton" type="Button" parent="DetailView/VBox/TradeBox/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 76)
+custom_minimum_size = Vector2(0, 78)
 layout_mode = 2
-text = "BTN_CONFIRM_BUY"
+theme_type_variation = &"PrimaryButton"
+script = ExtResource("4_chunky")
 
-[node name="FeedbackLabel" type="Label" parent="DetailView/VBox/TradeBox"]
+[node name="ConfirmLabel" type="Label" parent="DetailView/VBox/TradeBox/VBox/ConfirmButton"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 56)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"NextButtonLabel"
+text = "BTN_CONFIRM_BUY"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="FeedbackLabel" type="Label" parent="DetailView/VBox/TradeBox/VBox"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_type_variation = &"SmallMutedLabel"
 autowrap_mode = 3
+
+[node name="BottomGap" type="Control" parent="DetailView/VBox"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+mouse_filter = 2

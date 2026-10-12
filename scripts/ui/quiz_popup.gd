@@ -23,10 +23,11 @@ func open(question: Dictionary) -> void:
 	var options: Array = question["options"]
 	for i in options.size():
 		var button := Button.new()
-		button.custom_minimum_size = Vector2(0, 76)
+		button.theme_type_variation = &"QuizOptionButton"
+		button.custom_minimum_size = Vector2(0, 70)
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		button.add_theme_font_size_override("font_size", 22)
-		button.text = "%s. %s" % [char(65 + i), tr(options[i])]  # A. B. C. D.
+		button.text = "%s.  %s" % [char(65 + i), tr(options[i])]  # A. B. C. D.
 		button.pressed.connect(_on_answer.bind(i))
 		%Options.add_child(button)
 		_buttons.append(button)
@@ -41,16 +42,16 @@ func _on_answer(index: int) -> void:
 	for i in _buttons.size():
 		_buttons[i].disabled = true
 		if i == correct_index:
-			_buttons[i].modulate = MonthReport.GREEN
+			_buttons[i].theme_type_variation = &"QuizCorrectButton"
 		elif i == index:
-			_buttons[i].modulate = MonthReport.RED
+			_buttons[i].theme_type_variation = &"QuizWrongButton"
 
 	Sfx.play("success" if result["correct"] else "fail")
 	if result["correct"]:
 		%ResultLabel.text = tr("QUIZ_CORRECT") % [Fmt.rupiah(result["reward"]), result["xp"]]
-		%ResultLabel.modulate = MonthReport.GREEN
+		%ResultLabel.add_theme_color_override("font_color", Palette.GAIN)
 	else:
 		%ResultLabel.text = tr("QUIZ_WRONG") % result["xp"]
-		%ResultLabel.modulate = MonthReport.RED
+		%ResultLabel.add_theme_color_override("font_color", Palette.LOSS)
 	%ExplainLabel.text = tr(_question["explain"])
 	%ResultBox.show()

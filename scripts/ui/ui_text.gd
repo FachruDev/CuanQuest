@@ -22,7 +22,8 @@ static func changes_text(changes: Dictionary) -> String:
 
 
 ## Mengisi `box` dengan satu label per syarat unlock: hijau jika terpenuhi, merah jika belum.
-static func fill_requirements(box: VBoxContainer, stage: Dictionary) -> void:
+## `themed` = gaya terang "Senja Cuan" (warna teks lewat tema, bukan modulate).
+static func fill_requirements(box: VBoxContainer, stage: Dictionary, themed := false) -> void:
 	for child in box.get_children():
 		box.remove_child(child)
 		child.queue_free()
@@ -30,9 +31,13 @@ static func fill_requirements(box: VBoxContainer, stage: Dictionary) -> void:
 		var status := GameState.requirement_status(req)
 		var label := Label.new()
 		label.text = ("%s  %s" % [_t("REQ_DONE") if status["met"] else _t("REQ_TODO"), requirement_text(req, status)])
-		label.modulate = MonthReport.GREEN if status["met"] else MonthReport.RED
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		label.add_theme_font_size_override("font_size", 20)
+		if themed:
+			label.theme_type_variation = &"ReqLabel"
+			label.add_theme_color_override("font_color", Palette.GAIN if status["met"] else Palette.LOSS)
+		else:
+			label.modulate = MonthReport.GREEN if status["met"] else MonthReport.RED
+			label.add_theme_font_size_override("font_size", 20)
 		box.add_child(label)
 
 
@@ -62,16 +67,22 @@ static func stage_assets_text(stage: int) -> String:
 
 ## Mengisi `row` dengan tombol periode grafik (GDD 5.6: 1, 6, 12 bulan + Semua).
 ## 0 = semua data. Tombol `default_period` aktif di awal.
-static func build_period_buttons(row: HBoxContainer, chart: PriceChart, default_period: int) -> void:
+## `variation` = variasi tema tombol (mis. &"PeriodButton"); kosong = gaya lama.
+static func build_period_buttons(row: HBoxContainer, chart: PriceChart, default_period: int,
+		variation: StringName = &"") -> void:
 	var group := ButtonGroup.new()
 	for months: int in [1, 6, 12, 0]:
 		var button := Button.new()
 		button.toggle_mode = true
 		button.button_group = group
 		button.text = _t("PERIOD_%d" % months)
-		button.custom_minimum_size = Vector2(0, 52)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		button.add_theme_font_size_override("font_size", 19)
+		if variation != &"":
+			button.theme_type_variation = variation
+			button.custom_minimum_size = Vector2(0, 44)
+		else:
+			button.custom_minimum_size = Vector2(0, 52)
+			button.add_theme_font_size_override("font_size", 19)
 		button.button_pressed = months == default_period
 		button.pressed.connect(chart.set_period.bind(months))
 		row.add_child(button)
