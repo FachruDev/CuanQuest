@@ -1,6 +1,8 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/screens/activity_screen.gd" id="1_activity"]
+[ext_resource type="Theme" path="res://theme/senja_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://scripts/ui/chunky_button.gd" id="3_chunky"]
 
 [node name="ActivityScreen" type="ScrollContainer"]
 anchors_preset = 15
@@ -8,6 +10,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("2_theme")
 horizontal_scroll_mode = 0
 script = ExtResource("1_activity")
 
@@ -16,87 +19,214 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 12
 
-[node name="EnergyTitle" type="Label" parent="VBox"]
+[node name="EnergyCard" type="PanelContainer" parent="VBox"]
 layout_mode = 2
-text = "ACT_ENERGY_TITLE"
+theme_type_variation = &"NewsPanel"
 
-[node name="EnergyLabel" type="Label" parent="VBox"]
+[node name="HBox" type="HBoxContainer" parent="VBox/EnergyCard"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="EnergyIcons" type="HBoxContainer" parent="VBox/EnergyCard/HBox"]
 unique_name_in_owner = true
 layout_mode = 2
-modulate = Color(0.95, 0.77, 0.06, 1)
-theme_override_font_sizes/font_size = 24
+size_flags_vertical = 4
+theme_override_constants/separation = 4
+
+[node name="Text" type="VBoxContainer" parent="VBox/EnergyCard/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="EnergyTitle" type="Label" parent="VBox/EnergyCard/HBox/Text"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"NewsTitleLabel"
+autowrap_mode = 3
+
+[node name="Note" type="Label" parent="VBox/EnergyCard/HBox/Text"]
+layout_mode = 2
+theme_type_variation = &"EnergyNoteLabel"
+text = "ACT_ENERGY_NOTE"
+autowrap_mode = 3
+
+[node name="FeedbackBox" type="PanelContainer" parent="VBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"FeedbackGood"
+
+[node name="ActivityFeedback" type="Label" parent="VBox/FeedbackBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"FeedbackLabel"
 autowrap_mode = 3
 
 [node name="ActivityList" type="VBoxContainer" parent="VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 10
 
-[node name="ActivityFeedback" type="Label" parent="VBox"]
+[node name="LevelCard" type="PanelContainer" parent="VBox"]
+layout_mode = 2
+theme_type_variation = &"HomeCard"
+
+[node name="HBox" type="HBoxContainer" parent="VBox/LevelCard"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Badge" type="PanelContainer" parent="VBox/LevelCard/HBox"]
+custom_minimum_size = Vector2(52, 52)
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"LevelBadge"
+
+[node name="LevelNumber" type="Label" parent="VBox/LevelCard/HBox/Badge"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
-autowrap_mode = 3
+theme_type_variation = &"LevelBadgeLabel"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="HSeparatorTop" type="HSeparator" parent="VBox"]
+[node name="Stat" type="VBoxContainer" parent="VBox/LevelCard/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="Head" type="HBoxContainer" parent="VBox/LevelCard/HBox/Stat"]
 layout_mode = 2
 
-[node name="LevelLabel" type="Label" parent="VBox"]
+[node name="LevelLabel" type="Label" parent="VBox/LevelCard/HBox/Stat/Head"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StatNameLabel"
 
-[node name="XpBar" type="ProgressBar" parent="VBox"]
+[node name="XpLabel" type="Label" parent="VBox/LevelCard/HBox/Stat/Head"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
+theme_type_variation = &"MutedLabel"
+
+[node name="XpBar" type="ProgressBar" parent="VBox/LevelCard/HBox/Stat"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+theme_type_variation = &"XpBar"
 step = 1.0
 show_percentage = false
 
-[node name="HSeparator" type="HSeparator" parent="VBox"]
+[node name="Gap1" type="Control" parent="VBox"]
+custom_minimum_size = Vector2(0, 4)
 layout_mode = 2
+mouse_filter = 2
 
 [node name="QuizTitle" type="Label" parent="VBox"]
 layout_mode = 2
+theme_type_variation = &"SubSectionLabel"
 text = "ACT_QUIZ_TITLE"
 
-[node name="QuizPanel" type="PanelContainer" parent="VBox"]
+[node name="QuizCard" type="PanelContainer" parent="VBox"]
 layout_mode = 2
+theme_type_variation = &"HomeCard"
 
-[node name="QuizBox" type="VBoxContainer" parent="VBox/QuizPanel"]
+[node name="VBox" type="VBoxContainer" parent="VBox/QuizCard"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="QuizInfo" type="Label" parent="VBox/QuizPanel/QuizBox"]
+[node name="Head" type="HBoxContainer" parent="VBox/QuizCard/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Tile" type="PanelContainer" parent="VBox/QuizCard/VBox/Head"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"IconTileTeal"
+
+[node name="Mark" type="Label" parent="VBox/QuizCard/VBox/Head/Tile"]
+layout_mode = 2
+theme_type_variation = &"TileMarkLabel"
+text = "?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="QuizInfo" type="Label" parent="VBox/QuizCard/VBox/Head"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+size_flags_horizontal = 3
+theme_type_variation = &"InfoLabel"
 autowrap_mode = 3
 
-[node name="StartQuizButton" type="Button" parent="VBox/QuizPanel/QuizBox"]
+[node name="StartQuizButton" type="Button" parent="VBox/QuizCard/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 76)
+custom_minimum_size = Vector2(0, 84)
 layout_mode = 2
+theme_type_variation = &"PrimaryButton"
+script = ExtResource("3_chunky")
+
+[node name="Content" type="Label" parent="VBox/QuizCard/VBox/StartQuizButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"NeutralButtonLabel"
 text = "ACT_START_QUIZ"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="AdButton" type="Button" parent="VBox/QuizPanel/QuizBox"]
+[node name="AdButton" type="Button" parent="VBox/QuizCard/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 72)
+custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_type_variation = &"NeutralButton"
+script = ExtResource("3_chunky")
+
+[node name="AdLabel" type="Label" parent="VBox/QuizCard/VBox/AdButton"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_right = -16.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"StatNameLabel"
+horizontal_alignment = 1
+vertical_alignment = 1
 autowrap_mode = 3
 
-[node name="TopicLabel" type="Label" parent="VBox/QuizPanel/QuizBox"]
+[node name="TopicTitle" type="Label" parent="VBox/QuizCard/VBox"]
+layout_mode = 2
+theme_type_variation = &"TileCapsLabel"
+text = "ACT_TOPIC_TITLE"
+
+[node name="TopicChips" type="HFlowContainer" parent="VBox/QuizCard/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-modulate = Color(1, 1, 1, 0.6)
-theme_override_font_sizes/font_size = 19
-autowrap_mode = 3
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="Gap2" type="Control" parent="VBox"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+mouse_filter = 2
 
 [node name="UnlockTitle" type="Label" parent="VBox"]
 layout_mode = 2
+theme_type_variation = &"SubSectionLabel"
 text = "ACT_UNLOCK_TITLE"
 
 [node name="UnlockList" type="VBoxContainer" parent="VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 10
+
+[node name="BottomGap" type="Control" parent="VBox"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+mouse_filter = 2

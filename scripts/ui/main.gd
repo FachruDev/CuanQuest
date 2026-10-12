@@ -15,7 +15,7 @@ const BOLT_FULL := Color("#ffc95c")
 const BOLT_EMPTY := Color("#5a4e78")
 const NAV_MUTED := Color("#7a6650")
 ## Tab yang belum didesain ulang (teks putih) ditaruh di panel gelap sementara.
-const REDESIGNED_TABS := [0, 1, 2]
+const REDESIGNED_TABS := [0, 1, 2, 3]
 
 @onready var _screens: Array[Control] = [
 	%HomeScreen, %MarketScreen, %PortfolioScreen, %ActivityScreen, %ProfileScreen]

@@ -221,7 +221,7 @@ func _refresh_detail() -> void:
 	%TradeBox.visible = unlocked
 	%LockedBox.visible = not unlocked
 	if not unlocked:
-		UiText.fill_requirements(%LockedReqs, GameState.stage_def(asset.stage), true)
+		UiText.fill_requirements(%LockedReqs, GameState.stage_def(asset.stage))
 
 	var units := GameState.units_of(_selected_id)
 	if units > 0.0:

@@ -179,13 +179,13 @@ Iklan sungguhan akan dipasang menjelang rilis.
 Real ads will be added before release.
 
 %d"
-ACT_LEVEL,Level %d  (total %d XP),Level %d  (%d XP total)
+ACT_LEVEL,Level %d,Level %d
 ACT_QUIZ_TITLE,Kuis Finansial,Financial Quiz
 ACT_QUIZ_INFO,Kuis gratis minggu ini: %d / %d tersisa. Jatah di-reset setiap Senin.,Free quizzes this week: %d / %d left. Resets every Monday.
 ACT_QUIZ_BONUS,Kuis tambahan dari iklan: %d,Bonus quizzes from ads: %d
 ACT_START_QUIZ,Mulai Kuis,Start Quiz
 ACT_WATCH_AD,Tonton iklan untuk +1 kuis (sisa %d hari ini),Watch an ad for +1 quiz (%d left today)
-ACT_TOPIC_PROGRESS,Soal benar per topik: %s,Correct answers by topic: %s
+ACT_TOPIC_TITLE,Soal benar per topik,Correct answers by topic
 ACT_UNLOCK_TITLE,Membuka Instrumen Baru,Unlocking Instruments
 UNLOCK_OPEN,Terbuka,Unlocked
 UNLOCK_LOCKED,Terkunci,Locked
@@ -433,8 +433,10 @@ BTN_SKIP_6,+6 Bln,+6 Mo
 BTN_SKIP_12,+1 Thn,+1 Yr
 SUMMARY_TITLE_MULTI,Laporan %d Bulan,%d-Month Report
 ACT_ENERGY_TITLE,Aktivitas Bulan Ini,This Month's Activities
-ACT_ENERGY,Energi: %d / %d. Terisi ulang setiap awal bulan dan tidak bisa ditabung.,Energy: %d / %d. Refills every month and can't be saved up.
-ACT_ITEM_HEADER,%s | Energi %d,%s | Energy %d
+ACT_ENERGY_COUNT,Energi %d / %d,Energy %d / %d
+ACT_ENERGY_NOTE,Terisi ulang setiap awal bulan dan tidak bisa ditabung.,Refills every month and can't be saved up.
+ACT_FREE,Gratis,Free
+ACT_XP_DETAIL,total %d XP · %d / %d,%d XP total · %d / %d
 ACT_ITEM_USED,%d/%d kali,%d/%d times
 ACT_DONE,Selesai! %s,Done! %s
 ERR_ACTIVITY_BUSY,Selesaikan kejadian bulan ini dulu,Resolve this month's event first

@@ -206,7 +206,7 @@ func _build_background_cards() -> void:
 		card.pressed.connect(func() -> void: _background_id = id)
 		%BackgroundOptions.add_child(card)
 		card.button_pressed = id == _background_id
-		_fit_to_content(card, margin)
+		UiText.fit_to_content(card, margin)
 
 
 func _build_difficulty() -> void:
@@ -341,10 +341,3 @@ func _label(text: String, variation: StringName) -> Label:
 	label.text = text
 	label.theme_type_variation = variation
 	return label
-
-
-## Button tidak ikut membesar mengikuti anaknya; samakan tingginya dengan isi (teks bisa membungkus).
-func _fit_to_content(button: Control, content: Control) -> void:
-	var fit := func() -> void: button.custom_minimum_size.y = content.get_combined_minimum_size().y
-	content.minimum_size_changed.connect(fit)
-	fit.call_deferred()

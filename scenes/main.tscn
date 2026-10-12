@@ -310,16 +310,16 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
+[node name="ActivityScreen" parent="Sheet/Content" instance=ExtResource("7_activity")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
 [node name="LegacyFrame" type="PanelContainer" parent="Sheet/Content"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_legacy")
-
-[node name="ActivityScreen" parent="Sheet/Content/LegacyFrame" instance=ExtResource("7_activity")]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
 
 [node name="ProfileScreen" parent="Sheet/Content/LegacyFrame" instance=ExtResource("5_profile")]
 unique_name_in_owner = true

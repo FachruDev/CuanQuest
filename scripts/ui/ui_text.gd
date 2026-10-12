@@ -29,8 +29,7 @@ static func changes_text(changes: Dictionary) -> String:
 
 
 ## Mengisi `box` dengan satu label per syarat unlock: hijau jika terpenuhi, merah jika belum.
-## `themed` = gaya terang "Senja Cuan" (warna teks lewat tema, bukan modulate).
-static func fill_requirements(box: VBoxContainer, stage: Dictionary, themed := false) -> void:
+static func fill_requirements(box: VBoxContainer, stage: Dictionary) -> void:
 	for child in box.get_children():
 		box.remove_child(child)
 		child.queue_free()
@@ -39,13 +38,17 @@ static func fill_requirements(box: VBoxContainer, stage: Dictionary, themed := f
 		var label := Label.new()
 		label.text = ("%s  %s" % [_t("REQ_DONE") if status["met"] else _t("REQ_TODO"), requirement_text(req, status)])
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		if themed:
-			label.theme_type_variation = &"ReqLabel"
-			label.add_theme_color_override("font_color", Palette.GAIN if status["met"] else Palette.LOSS)
-		else:
-			label.modulate = MonthReport.GREEN if status["met"] else MonthReport.RED
-			label.add_theme_font_size_override("font_size", 20)
+		label.theme_type_variation = &"ReqLabel"
+		label.add_theme_color_override("font_color", Palette.GAIN if status["met"] else Palette.LOSS)
 		box.add_child(label)
+
+
+## Button tidak ikut membesar mengikuti anaknya; samakan tingginya dengan isi (teks bisa membungkus).
+## `extra` = ruang tambahan di luar isi, mis. bibir bawah tombol tebal.
+static func fit_to_content(button: Control, content: Control, extra := 0.0) -> void:
+	var fit := func() -> void: button.custom_minimum_size.y = content.get_combined_minimum_size().y + extra
+	content.minimum_size_changed.connect(fit)
+	fit.call_deferred()
 
 
 static func requirement_text(req: Dictionary, status: Dictionary) -> String:
@@ -92,12 +95,16 @@ static func build_period_buttons(row: HBoxContainer, chart: PriceChart, default_
 
 ## Kotak ikon berwarna untuk satu kelas aset (tabungan, deposito, reksa dana, saham, kripto).
 static func class_tile(asset_class: String, tile_size := 48.0) -> PanelContainer:
+	return icon_tile(CLASS_ICON % asset_class, CLASS_TILES.get(asset_class, &"IconTileGold"), tile_size)
+
+
+## Kotak berwarna (variasi tema `variation`) berisi ikon SVG di tengah. Ikon dilewati jika filenya belum ada.
+static func icon_tile(icon_path: String, variation: StringName, tile_size := 48.0) -> PanelContainer:
 	var tile := PanelContainer.new()
-	tile.theme_type_variation = CLASS_TILES.get(asset_class, &"IconTileGold")
+	tile.theme_type_variation = variation
 	tile.custom_minimum_size = Vector2(tile_size, tile_size)
 	tile.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	tile.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var icon_path := CLASS_ICON % asset_class
 	if ResourceLoader.exists(icon_path):
 		var icon := TextureRect.new()
 		icon.texture = load(icon_path)
