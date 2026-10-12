@@ -10,6 +10,7 @@ const PADDING := 16.0
 @export var down_color := Color("#e74c3c")
 @export var background_color := Color("#182030")
 @export var grid_color := Color(1, 1, 1, 0.08)
+@export var empty_text_key := "CHART_EMPTY"
 
 var _data: Array[float] = []
 
@@ -26,6 +27,8 @@ func set_data(values: Array[float]) -> void:
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), background_color)
 	if _data.size() < 2:
+		draw_string(get_theme_default_font(), Vector2(0, size.y / 2.0), tr(empty_text_key),
+				HORIZONTAL_ALIGNMENT_CENTER, size.x, 22, Color(1, 1, 1, 0.5))
 		return
 
 	var lo: float = _data.min()

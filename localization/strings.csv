@@ -8,6 +8,7 @@ BTN_MODE_SELL,Jual,Sell
 BTN_CONFIRM_BUY,Konfirmasi Beli,Confirm Buy
 BTN_CONFIRM_SELL,Konfirmasi Jual,Confirm Sell
 BTN_NEXT_MONTH,Lanjut ke Bulan Berikutnya,Next Month
+BTN_OK,Oke,OK
 HINT_AMOUNT,Nominal (Rp),Amount (Rp)
 ERR_AMOUNT_INVALID,Masukkan nominal yang valid.,Enter a valid amount.
 ERR_NOT_ENOUGH_CASH,Kas tidak cukup.,Not enough cash.
@@ -30,3 +31,49 @@ MONTH_11,November,November
 MONTH_12,Desember,December
 ASSET_NUSA,PT Nusa Karya Tbk (NUSA),PT Nusa Karya Tbk (NUSA)
 DISCLAIMER,"Simulasi untuk edukasi, bukan saran keuangan. Uang virtual.","Educational simulation, not financial advice. Virtual money."
+CHART_EMPTY,Belum cukup data. Tekan Lanjut.,Not enough data yet. Press Next.
+NAV_HOME,Beranda,Home
+NAV_MARKET,Pasar,Market
+NAV_PORTFOLIO,Portofolio,Portfolio
+NAV_ACTIVITY,Aktivitas,Activity
+NAV_PROFILE,Profil,Profile
+PLACEHOLDER_ACTIVITY,"Aktivitas (kerja sampingan, kursus, kuis) hadir di Milestone 4.","Activities (side jobs, courses, quizzes) arrive in Milestone 4."
+PLACEHOLDER_PROFILE,"Profil & pengaturan hadir di Milestone 5.","Profile & settings arrive in Milestone 5."
+HOME_WELLBEING,Kondisi,Wellbeing
+STAT_HEALTH,Kesehatan,Health
+STAT_HAPPINESS,Kebahagiaan,Happiness
+HOME_MONTHLY,Arus Kas Bulanan,Monthly Cash Flow
+HOME_SALARY,Gaji: %s,Salary: %s
+HOME_EXPENSES,Biaya hidup: %s,Living costs: %s
+HOME_SURPLUS,Sisa untuk ditabung/investasi: %s,Left to save/invest: %s
+HOME_FOOD,Makan,Food
+HOME_HOUSING,Tempat Tinggal,Housing
+HOME_EFFECT,"%s: kesehatan %+d, kebahagiaan %+d per bulan","%s: health %+d, happiness %+d per month"
+HOME_CHOICE_HINT,Perubahan pilihan berlaku saat awal bulan berikutnya.,Changes apply at the start of next month.
+FOOD_FRUGAL,Hemat,Frugal
+FOOD_STANDARD,Standar,Standard
+FOOD_LUXURY,Mewah,Luxury
+HOUSING_FAMILY,Menumpang,With Family
+HOUSING_KOS,Kos,Boarding
+HOUSING_APARTMENT,Apartemen,Apartment
+PORT_SUMMARY,Ringkasan,Summary
+PORT_INVESTED,Nilai investasi,Investment value
+PORT_COST,Total modal,Total cost
+PORT_PNL,Untung/rugi,Profit/loss
+PORT_NETWORTH_CHART,Kekayaan bersih dari waktu ke waktu,Net worth over time
+PORT_HOLDINGS,Kepemilikan,Holdings
+PORT_EMPTY,Belum ada investasi. Mulai dari tab Pasar.,No investments yet. Start from the Market tab.
+PORT_HOLDING_DETAIL,%s unit | rata-rata %s,%s units | avg %s
+PORT_LAST_REPORT,Laporan Bulan Terakhir,Last Monthly Report
+SUMMARY_TITLE,Laporan Bulanan,Monthly Report
+REPORT_EMPTY,Belum ada laporan. Tekan Lanjut untuk memulai bulan berikutnya.,No report yet. Press Next to start the next month.
+REPORT_INCOME,PEMASUKAN,INCOME
+REPORT_SALARY,Gaji,Salary
+REPORT_EXPENSES,PENGELUARAN,EXPENSES
+REPORT_FOOD,Makan,Food
+REPORT_HOUSING,Tempat tinggal,Housing
+REPORT_INVESTMENT,INVESTASI,INVESTMENTS
+REPORT_INVEST_CHANGE,Perubahan nilai,Value change
+REPORT_WELLBEING,KONDISI,WELLBEING
+REPORT_NET_WORTH_CHANGE,Perubahan kekayaan,Net worth change
+REPORT_WARN_NEGATIVE_CASH,Kas kamu minus! Kurangi pengeluaran atau jual aset.,Your cash is negative! Cut spending or sell assets.

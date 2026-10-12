@@ -1,7 +1,11 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/main.gd" id="1_main"]
-[ext_resource type="Script" path="res://scripts/ui/price_chart.gd" id="2_chart"]
+[ext_resource type="PackedScene" path="res://scenes/screens/home_screen.tscn" id="2_home"]
+[ext_resource type="PackedScene" path="res://scenes/screens/market_screen.tscn" id="3_market"]
+[ext_resource type="PackedScene" path="res://scenes/screens/portfolio_screen.tscn" id="4_portfolio"]
+[ext_resource type="PackedScene" path="res://scenes/screens/placeholder_screen.tscn" id="5_placeholder"]
+[ext_resource type="PackedScene" path="res://scenes/ui/month_summary_popup.tscn" id="6_popup"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -29,13 +33,13 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 48
+theme_override_constants/margin_top = 40
 theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 32
+theme_override_constants/margin_bottom = 16
 
 [node name="VBox" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 12
 
 [node name="TopBar" type="HBoxContainer" parent="Margin/VBox"]
 layout_mode = 2
@@ -80,113 +84,91 @@ text = "Jan"
 [node name="HSeparator" type="HSeparator" parent="Margin/VBox"]
 layout_mode = 2
 
-[node name="AssetName" type="Label" parent="Margin/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Aset"
-
-[node name="PriceRow" type="HBoxContainer" parent="Margin/VBox"]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="PriceLabel" type="Label" parent="Margin/VBox/PriceRow"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 44
-text = "Rp0"
-
-[node name="ChangeLabel" type="Label" parent="Margin/VBox/PriceRow"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 4
-text = "+0,00%"
-
-[node name="Chart" type="Control" parent="Margin/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 240)
+[node name="Content" type="MarginContainer" parent="Margin/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-script = ExtResource("2_chart")
 
-[node name="HoldingLabel" type="Label" parent="Margin/VBox"]
+[node name="HomeScreen" parent="Margin/VBox/Content" instance=ExtResource("2_home")]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
-autowrap_mode = 3
-text = "LBL_NO_HOLDING"
 
-[node name="ModeRow" type="HBoxContainer" parent="Margin/VBox"]
-layout_mode = 2
-
-[node name="ModeBuy" type="Button" parent="Margin/VBox/ModeRow"]
+[node name="MarketScreen" parent="Margin/VBox/Content" instance=ExtResource("3_market")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 72)
+visible = false
 layout_mode = 2
-size_flags_horizontal = 3
-toggle_mode = true
-text = "BTN_MODE_BUY"
 
-[node name="ModeSell" type="Button" parent="Margin/VBox/ModeRow"]
+[node name="PortfolioScreen" parent="Margin/VBox/Content" instance=ExtResource("4_portfolio")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 72)
+visible = false
 layout_mode = 2
-size_flags_horizontal = 3
-toggle_mode = true
-text = "BTN_MODE_SELL"
 
-[node name="AmountEdit" type="LineEdit" parent="Margin/VBox"]
+[node name="ActivityScreen" parent="Margin/VBox/Content" instance=ExtResource("5_placeholder")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 72)
+visible = false
 layout_mode = 2
-placeholder_text = "HINT_AMOUNT"
+message_key = "PLACEHOLDER_ACTIVITY"
 
-[node name="QuickRow" type="HBoxContainer" parent="Margin/VBox"]
-layout_mode = 2
-
-[node name="Quick25" type="Button" parent="Margin/VBox/QuickRow"]
+[node name="ProfileScreen" parent="Margin/VBox/Content" instance=ExtResource("5_placeholder")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
+visible = false
 layout_mode = 2
-size_flags_horizontal = 3
-text = "25%"
-
-[node name="Quick50" type="Button" parent="Margin/VBox/QuickRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
-layout_mode = 2
-size_flags_horizontal = 3
-text = "50%"
-
-[node name="Quick100" type="Button" parent="Margin/VBox/QuickRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
-layout_mode = 2
-size_flags_horizontal = 3
-text = "100%"
-
-[node name="ConfirmButton" type="Button" parent="Margin/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 80)
-layout_mode = 2
-text = "BTN_CONFIRM_BUY"
-
-[node name="FeedbackLabel" type="Label" parent="Margin/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 60)
-layout_mode = 2
-theme_override_font_sizes/font_size = 22
-autowrap_mode = 3
+message_key = "PLACEHOLDER_PROFILE"
 
 [node name="NextButton" type="Button" parent="Margin/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 96)
+custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
 text = "BTN_NEXT_MONTH"
 
-[node name="Disclaimer" type="Label" parent="Margin/VBox"]
+[node name="BottomNav" type="HBoxContainer" parent="Margin/VBox"]
 layout_mode = 2
-modulate = Color(1, 1, 1, 0.45)
-theme_override_font_sizes/font_size = 18
-text = "DISCLAIMER"
-horizontal_alignment = 1
-autowrap_mode = 3
+theme_override_constants/separation = 4
+
+[node name="NavHome" type="Button" parent="Margin/VBox/BottomNav"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 19
+toggle_mode = true
+text = "NAV_HOME"
+
+[node name="NavMarket" type="Button" parent="Margin/VBox/BottomNav"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 19
+toggle_mode = true
+text = "NAV_MARKET"
+
+[node name="NavPortfolio" type="Button" parent="Margin/VBox/BottomNav"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 19
+toggle_mode = true
+text = "NAV_PORTFOLIO"
+
+[node name="NavActivity" type="Button" parent="Margin/VBox/BottomNav"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 19
+toggle_mode = true
+text = "NAV_ACTIVITY"
+
+[node name="NavProfile" type="Button" parent="Margin/VBox/BottomNav"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 19
+toggle_mode = true
+text = "NAV_PROFILE"
+
+[node name="SummaryPopup" parent="." instance=ExtResource("6_popup")]
+unique_name_in_owner = true
+layout_mode = 1

@@ -8,6 +8,11 @@ static func rupiah(value: float) -> String:
 	return ("-" if n < 0 else "") + "Rp" + _group_thousands(absi(n))
 
 
+## Selalu dengan tanda: +Rp1.000 / -Rp1.000
+static func signed_rupiah(value: float) -> String:
+	return ("+" if roundi(value) >= 0 else "") + rupiah(value)
+
+
 static func number(value: float, decimals: int = 2) -> String:
 	var parts := ("%.*f" % [decimals, absf(value)]).split(".")  # "1234.50" -> ["1234", "50"]
 	var text := _group_thousands(parts[0].to_int())

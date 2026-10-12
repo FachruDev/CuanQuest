@@ -1,0 +1,106 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/screens/portfolio_screen.gd" id="1_portfolio"]
+[ext_resource type="Script" path="res://scripts/ui/price_chart.gd" id="2_chart"]
+
+[node name="PortfolioScreen" type="ScrollContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+script = ExtResource("1_portfolio")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="SummaryTitle" type="Label" parent="VBox"]
+layout_mode = 2
+text = "PORT_SUMMARY"
+
+[node name="SummaryGrid" type="GridContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/v_separation = 6
+columns = 2
+
+[node name="CashName" type="Label" parent="VBox/SummaryGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "LBL_CASH"
+
+[node name="CashValue" type="Label" parent="VBox/SummaryGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 2
+
+[node name="InvestedName" type="Label" parent="VBox/SummaryGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "PORT_INVESTED"
+
+[node name="InvestedValue" type="Label" parent="VBox/SummaryGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 2
+
+[node name="CostName" type="Label" parent="VBox/SummaryGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "PORT_COST"
+
+[node name="CostValue" type="Label" parent="VBox/SummaryGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 2
+
+[node name="PnlName" type="Label" parent="VBox/SummaryGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "PORT_PNL"
+
+[node name="PnlValue" type="Label" parent="VBox/SummaryGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 2
+
+[node name="ChartTitle" type="Label" parent="VBox"]
+layout_mode = 2
+text = "PORT_NETWORTH_CHART"
+
+[node name="NetWorthChart" type="Control" parent="VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 220)
+layout_mode = 2
+script = ExtResource("2_chart")
+max_points = 60
+
+[node name="HoldingsTitle" type="Label" parent="VBox"]
+layout_mode = 2
+text = "PORT_HOLDINGS"
+
+[node name="HoldingsList" type="VBoxContainer" parent="VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ReportTitle" type="Label" parent="VBox"]
+layout_mode = 2
+text = "PORT_LAST_REPORT"
+
+[node name="ReportPanel" type="PanelContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="ReportBox" type="VBoxContainer" parent="VBox/ReportPanel"]
+unique_name_in_owner = true
+layout_mode = 2

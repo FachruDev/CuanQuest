@@ -1,0 +1,18 @@
+{
+	"start_cash": 2000000,
+	"salary": 5500000,
+	"start_health": 70,
+	"start_happiness": 70,
+	"default_food": "standard",
+	"default_housing": "kos",
+	"food": [
+		{ "id": "frugal", "name_key": "FOOD_FRUGAL", "cost": 1200000, "health": -2, "happiness": -2 },
+		{ "id": "standard", "name_key": "FOOD_STANDARD", "cost": 2000000, "health": 1, "happiness": 0 },
+		{ "id": "luxury", "name_key": "FOOD_LUXURY", "cost": 3500000, "health": 2, "happiness": 3 }
+	],
+	"housing": [
+		{ "id": "family", "name_key": "HOUSING_FAMILY", "cost": 500000, "health": 0, "happiness": -3 },
+		{ "id": "kos", "name_key": "HOUSING_KOS", "cost": 1300000, "health": 0, "happiness": 0 },
+		{ "id": "apartment", "name_key": "HOUSING_APARTMENT", "cost": 3500000, "health": 1, "happiness": 3 }
+	]
+}

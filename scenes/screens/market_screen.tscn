@@ -1,0 +1,124 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/screens/market_screen.gd" id="1_market"]
+[ext_resource type="Script" path="res://scripts/ui/price_chart.gd" id="2_chart"]
+
+[node name="MarketScreen" type="ScrollContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+script = ExtResource("1_market")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="AssetName" type="Label" parent="VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Aset"
+
+[node name="PriceRow" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="PriceLabel" type="Label" parent="VBox/PriceRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 44
+text = "Rp0"
+
+[node name="ChangeLabel" type="Label" parent="VBox/PriceRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+text = "+0,00%"
+
+[node name="Chart" type="Control" parent="VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 240)
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("2_chart")
+
+[node name="HoldingLabel" type="Label" parent="VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+autowrap_mode = 3
+text = "LBL_NO_HOLDING"
+
+[node name="ModeRow" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="ModeBuy" type="Button" parent="VBox/ModeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 68)
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "BTN_MODE_BUY"
+
+[node name="ModeSell" type="Button" parent="VBox/ModeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 68)
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "BTN_MODE_SELL"
+
+[node name="AmountEdit" type="LineEdit" parent="VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 68)
+layout_mode = 2
+placeholder_text = "HINT_AMOUNT"
+
+[node name="QuickRow" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="Quick25" type="Button" parent="VBox/QuickRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "25%"
+
+[node name="Quick50" type="Button" parent="VBox/QuickRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "50%"
+
+[node name="Quick100" type="Button" parent="VBox/QuickRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "100%"
+
+[node name="ConfirmButton" type="Button" parent="VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 76)
+layout_mode = 2
+text = "BTN_CONFIRM_BUY"
+
+[node name="FeedbackLabel" type="Label" parent="VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+autowrap_mode = 3
+
+[node name="Disclaimer" type="Label" parent="VBox"]
+layout_mode = 2
+modulate = Color(1, 1, 1, 0.45)
+theme_override_font_sizes/font_size = 18
+text = "DISCLAIMER"
+horizontal_alignment = 1
+autowrap_mode = 3
