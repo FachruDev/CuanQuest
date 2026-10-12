@@ -14,8 +14,6 @@ const BOLT_ICON := preload("res://assets/icons/bolt.svg")
 const BOLT_FULL := Color("#ffc95c")
 const BOLT_EMPTY := Color("#5a4e78")
 const NAV_MUTED := Color("#7a6650")
-## Tab yang belum didesain ulang (teks putih) ditaruh di panel gelap sementara.
-const REDESIGNED_TABS := [0, 1, 2, 3]
 
 @onready var _screens: Array[Control] = [
 	%HomeScreen, %MarketScreen, %PortfolioScreen, %ActivityScreen, %ProfileScreen]
@@ -81,7 +79,6 @@ func _show_screen(index: int) -> void:
 	_nav_buttons[index].button_pressed = true  # lewat ButtonGroup: tombol lain otomatis lepas
 	for i in _screens.size():
 		_screens[i].visible = i == index
-	%LegacyFrame.visible = index not in REDESIGNED_TABS
 	if TAB_HINTS.has(index) and GameState.consume_hint(TAB_HINTS[index]):
 		_enqueue(%InfoPopup.open.bind(tr("HINT_TITLE"), tr(TAB_HINTS[index])))
 

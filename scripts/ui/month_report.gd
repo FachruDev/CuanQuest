@@ -3,11 +3,6 @@ extends RefCounted
 ## Mengisi sebuah VBoxContainer dengan baris-baris laporan bulanan (tema "Senja Cuan").
 ## Dipakai di popup ringkasan dan di tab Portofolio (seperti komponen yang di-reuse).
 
-## Warna gaya gelap lama, masih dipakai layar yang belum didesain ulang.
-const GREEN := Color("#2ecc71")
-const RED := Color("#e74c3c")
-const MUTED := Color(1, 1, 1, 0.6)
-
 
 static func fill(box: VBoxContainer, r: Dictionary) -> void:
 	for child in box.get_children():
@@ -69,15 +64,6 @@ static func news_text(item: Dictionary) -> String:
 	if item["asset_key"] != "":
 		text = text % TranslationServer.translate(item["asset_key"])
 	return text
-
-
-## Warna gaya gelap lama (hijau/merah terang) untuk layar yang belum didesain ulang.
-static func color_of(value: float) -> Color:
-	if value > 0:
-		return GREEN
-	if value < 0:
-		return RED
-	return MUTED
 
 
 ## Warna "Senja Cuan": hijau untung, merah rugi, cokelat redup jika nol.

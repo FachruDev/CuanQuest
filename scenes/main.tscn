@@ -34,18 +34,6 @@ corner_radius_top_left = 36
 corner_radius_top_right = 36
 anti_aliasing_size = 1.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_legacy"]
-content_margin_left = 16.0
-content_margin_top = 16.0
-content_margin_right = 16.0
-content_margin_bottom = 16.0
-bg_color = Color(0.169, 0.129, 0.278, 1)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-anti_aliasing_size = 1.0
-
 [node name="Main" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -315,13 +303,7 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="LegacyFrame" type="PanelContainer" parent="Sheet/Content"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_legacy")
-
-[node name="ProfileScreen" parent="Sheet/Content/LegacyFrame" instance=ExtResource("5_profile")]
+[node name="ProfileScreen" parent="Sheet/Content" instance=ExtResource("5_profile")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2

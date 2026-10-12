@@ -3,6 +3,11 @@
 [ext_resource type="Script" path="res://scripts/ui/end_screen.gd" id="1_end"]
 [ext_resource type="Script" path="res://scripts/ui/avatar_view.gd" id="2_avatar"]
 [ext_resource type="Script" path="res://scripts/ui/price_chart.gd" id="3_chart"]
+[ext_resource type="Theme" path="res://theme/senja_theme.tres" id="4_theme"]
+[ext_resource type="Script" path="res://scripts/ui/chunky_button.gd" id="5_chunky"]
+[ext_resource type="Texture2D" path="res://assets/illustrations/end_bg.svg" id="6_bg"]
+[ext_resource type="Texture2D" path="res://assets/icons/badge_trophy.svg" id="7_trophy"]
+[ext_resource type="Texture2D" path="res://assets/icons/play_badge.svg" id="8_play"]
 
 [node name="EndScreen" type="Control"]
 layout_mode = 3
@@ -11,138 +16,311 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("4_theme")
 script = ExtResource("1_end")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Sky" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.067, 0.086, 0.13, 1)
+mouse_filter = 2
+color = Color(0.9922, 0.8902, 0.749, 1)
 
-[node name="Margin" type="MarginContainer" parent="."]
+[node name="Art" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 420.0
+grow_horizontal = 2
+mouse_filter = 2
+texture = ExtResource("6_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Scroll" type="ScrollContainer" parent="."]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_bottom = -150.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 24
+horizontal_scroll_mode = 0
+
+[node name="Page" type="VBoxContainer" parent="Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 0
+
+[node name="Hero" type="MarginContainer" parent="Scroll/Page"]
+layout_mode = 2
+theme_override_constants/margin_left = 48
 theme_override_constants/margin_top = 40
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 16
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 30
 
-[node name="VBox" type="VBoxContainer" parent="Margin"]
+[node name="VBox" type="VBoxContainer" parent="Scroll/Page/Hero"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="BadgeHolder" type="CenterContainer" parent="Scroll/Page/Hero/VBox"]
+layout_mode = 2
+
+[node name="Badge" type="PanelContainer" parent="Scroll/Page/Hero/VBox/BadgeHolder"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(128, 135)
+layout_mode = 2
+theme_type_variation = &"BadgeGoldPanel"
+
+[node name="BadgeIcon" type="TextureRect" parent="Scroll/Page/Hero/VBox/BadgeHolder/Badge"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("7_trophy")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ResultTitle" type="Label" parent="Scroll/Page/Hero/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ResultTitleLabel"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="ReasonLabel" type="Label" parent="Scroll/Page/Hero/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"PopupBodyLabel"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Sheet" type="PanelContainer" parent="Scroll/Page"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"SheetPanel"
+
+[node name="Margin" type="MarginContainer" parent="Scroll/Page/Sheet"]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 26
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 24
+
+[node name="Content" type="VBoxContainer" parent="Scroll/Page/Sheet/Margin"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Scroll" type="ScrollContainer" parent="Margin/VBox"]
+[node name="PlayerCard" type="PanelContainer" parent="Scroll/Page/Sheet/Margin/Content"]
 layout_mode = 2
-size_flags_vertical = 3
-horizontal_scroll_mode = 0
+theme_type_variation = &"PlayerCard"
 
-[node name="Content" type="VBoxContainer" parent="Margin/VBox/Scroll"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 14
-
-[node name="ResultTitle" type="Label" parent="Margin/VBox/Scroll/Content"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 46
-horizontal_alignment = 1
-autowrap_mode = 3
-
-[node name="ReasonLabel" type="Label" parent="Margin/VBox/Scroll/Content"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 23
-horizontal_alignment = 1
-autowrap_mode = 3
-
-[node name="PlayerCard" type="PanelContainer" parent="Margin/VBox/Scroll/Content"]
-layout_mode = 2
-
-[node name="Row" type="HBoxContainer" parent="Margin/VBox/Scroll/Content/PlayerCard"]
+[node name="Row" type="HBoxContainer" parent="Scroll/Page/Sheet/Margin/Content/PlayerCard"]
 layout_mode = 2
 theme_override_constants/separation = 18
 
-[node name="Avatar" type="Control" parent="Margin/VBox/Scroll/Content/PlayerCard/Row"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(90, 90)
+[node name="AvatarFrame" type="PanelContainer" parent="Scroll/Page/Sheet/Margin/Content/PlayerCard/Row"]
+custom_minimum_size = Vector2(112, 117)
 layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"AvatarFrameSmall"
+
+[node name="Avatar" type="Control" parent="Scroll/Page/Sheet/Margin/Content/PlayerCard/Row/AvatarFrame"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(104, 104)
+layout_mode = 2
+mouse_filter = 2
 script = ExtResource("2_avatar")
 
-[node name="Texts" type="VBoxContainer" parent="Margin/VBox/Scroll/Content/PlayerCard/Row"]
+[node name="Texts" type="VBoxContainer" parent="Scroll/Page/Sheet/Margin/Content/PlayerCard/Row"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_constants/separation = 8
 alignment = 1
 
-[node name="PlayerLabel" type="Label" parent="Margin/VBox/Scroll/Content/PlayerCard/Row/Texts"]
+[node name="NameLabel" type="Label" parent="Scroll/Page/Sheet/Margin/Content/PlayerCard/Row/Texts"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
-autowrap_mode = 3
+theme_type_variation = &"PlayerCardName"
+text_overrun_behavior = 3
 
-[node name="ScoreLabel" type="Label" parent="Margin/VBox/Scroll/Content/PlayerCard/Row/Texts"]
+[node name="InfoChips" type="HFlowContainer" parent="Scroll/Page/Sheet/Margin/Content/PlayerCard/Row/Texts"]
 unique_name_in_owner = true
 layout_mode = 2
-modulate = Color(0.95, 0.77, 0.06, 1)
-theme_override_font_sizes/font_size = 26
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
 
-[node name="StatsTitle" type="Label" parent="Margin/VBox/Scroll/Content"]
+[node name="ScoreChip" type="PanelContainer" parent="Scroll/Page/Sheet/Margin/Content/PlayerCard/Row/Texts"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 0
+theme_type_variation = &"CategoryChip"
+
+[node name="ScoreLabel" type="Label" parent="Scroll/Page/Sheet/Margin/Content/PlayerCard/Row/Texts/ScoreChip"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ScoreLabel"
+
+[node name="Gap1" type="Control" parent="Scroll/Page/Sheet/Margin/Content"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="StatsTitle" type="Label" parent="Scroll/Page/Sheet/Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"SubSectionLabel"
 text = "END_STATS"
 
-[node name="StatsGrid" type="GridContainer" parent="Margin/VBox/Scroll/Content"]
+[node name="StatsGrid" type="GridContainer" parent="Scroll/Page/Sheet/Margin/Content"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/v_separation = 6
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
 columns = 2
 
-[node name="ChartTitle" type="Label" parent="Margin/VBox/Scroll/Content"]
+[node name="Gap2" type="Control" parent="Scroll/Page/Sheet/Margin/Content"]
+custom_minimum_size = Vector2(0, 4)
 layout_mode = 2
-text = "END_CHART"
+mouse_filter = 2
 
-[node name="LifeChart" type="Control" parent="Margin/VBox/Scroll/Content"]
+[node name="ChartTitle" type="Label" parent="Scroll/Page/Sheet/Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"SubSectionLabel"
+text = "END_CHART"
+autowrap_mode = 3
+
+[node name="ChartCard" type="PanelContainer" parent="Scroll/Page/Sheet/Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"ChartCard"
+
+[node name="LifeChart" type="Control" parent="Scroll/Page/Sheet/Margin/Content/ChartCard"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 260)
+custom_minimum_size = Vector2(0, 180)
 layout_mode = 2
 script = ExtResource("3_chart")
 max_points = 1000
+light_style = true
 
-[node name="HighlightTitle" type="Label" parent="Margin/VBox/Scroll/Content"]
+[node name="Gap3" type="Control" parent="Scroll/Page/Sheet/Margin/Content"]
+custom_minimum_size = Vector2(0, 4)
 layout_mode = 2
+mouse_filter = 2
+
+[node name="HighlightTitle" type="Label" parent="Scroll/Page/Sheet/Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"SubSectionLabel"
 text = "END_HIGHLIGHTS"
 
-[node name="HighlightList" type="VBoxContainer" parent="Margin/VBox/Scroll/Content"]
-unique_name_in_owner = true
+[node name="HighlightCard" type="PanelContainer" parent="Scroll/Page/Sheet/Margin/Content"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_type_variation = &"HomeCard"
 
-[node name="InsightTitle" type="Label" parent="Margin/VBox/Scroll/Content"]
-layout_mode = 2
-text = "END_INSIGHTS"
-
-[node name="InsightPanel" type="PanelContainer" parent="Margin/VBox/Scroll/Content"]
-layout_mode = 2
-
-[node name="InsightList" type="VBoxContainer" parent="Margin/VBox/Scroll/Content/InsightPanel"]
+[node name="HighlightList" type="VBoxContainer" parent="Scroll/Page/Sheet/Margin/Content/HighlightCard"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="PlayAgainButton" type="Button" parent="Margin/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 84)
+[node name="Gap4" type="Control" parent="Scroll/Page/Sheet/Margin/Content"]
+custom_minimum_size = Vector2(0, 4)
 layout_mode = 2
-text = "END_PLAY_AGAIN"
+mouse_filter = 2
 
-[node name="TitleButton" type="Button" parent="Margin/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 68)
+[node name="InsightTitle" type="Label" parent="Scroll/Page/Sheet/Margin/Content"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
-text = "PROFILE_TO_TITLE"
+theme_type_variation = &"SubSectionLabel"
+text = "END_INSIGHTS"
+
+[node name="InsightList" type="VBoxContainer" parent="Scroll/Page/Sheet/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="BottomBar" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -150.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_type_variation = &"BottomBar"
+
+[node name="Margin" type="MarginContainer" parent="BottomBar"]
+layout_mode = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 26
+
+[node name="Row" type="HBoxContainer" parent="BottomBar/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TitleButton" type="Button" parent="BottomBar/Margin/Row"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"NeutralButton"
+script = ExtResource("5_chunky")
+
+[node name="Content" type="Label" parent="BottomBar/Margin/Row/TitleButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_right = -10.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"NeutralButtonLabel"
+text = "END_TO_TITLE"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="PlayAgainButton" type="Button" parent="BottomBar/Margin/Row"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+theme_type_variation = &"PrimaryButton"
+script = ExtResource("5_chunky")
+
+[node name="Content" type="CenterContainer" parent="BottomBar/Margin/Row/PlayAgainButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="HBox" type="HBoxContainer" parent="BottomBar/Margin/Row/PlayAgainButton/Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 14
+
+[node name="Icon" type="TextureRect" parent="BottomBar/Margin/Row/PlayAgainButton/Content/HBox"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("8_play")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="BottomBar/Margin/Row/PlayAgainButton/Content/HBox"]
+layout_mode = 2
+theme_type_variation = &"PrimaryButtonLabel"
+text = "END_PLAY_AGAIN"

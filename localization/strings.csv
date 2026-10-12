@@ -315,9 +315,6 @@ REQ_TUTORIAL,Selesaikan tutorial,Complete the tutorial
 GLOSSARY_TITLE,Glosarium,Glossary
 GLOSSARY_SEARCH,Cari istilah...,Search terms...
 GLOSSARY_NOT_FOUND,Istilah tidak ditemukan.,No matching term.
-PROFILE_INFO,"%s | %d tahun
-Kesulitan: %s | Level %d","%s | age %d
-Difficulty: %s | Level %d"
 PROFILE_SAVE_TITLE,Simpan & Muat,Save & Load
 PROFILE_AUTOSAVE_INFO,Game tersimpan otomatis setiap bulan dan saat aplikasi ditutup. Gunakan slot di bawah untuk menyimpan cadangan.,The game autosaves every month and when the app closes. Use the slots below for backups.
 PROFILE_MENU_TITLE,Menu,Menu
@@ -365,9 +362,9 @@ END_REASON_SHORT_BANKRUPT,bangkrut,bankrupt
 END_REASON_SHORT_HEALTH,kesehatan habis,health depleted
 END_REASON_SHORT_HAPPINESS,kebahagiaan habis,happiness depleted
 END_REASON_SHORT_RETIRED,pensiun,retired
-END_PLAYER,"%s, usia %d
-Bermain %d tahun %d bulan","%s, age %d
-Played %d years %d months"
+END_AGE,Usia %d,Age %d
+END_PLAYED,Bermain %d tahun %d bulan,Played %d years %d months
+END_TO_TITLE,Menu Utama,Main Menu
 END_SCORE,Skor warisan: %d,Legacy score: %d
 END_STATS,Statistik,Statistics
 END_STAT_NET_WORTH,Kekayaan akhir,Final net worth
@@ -401,22 +398,22 @@ INSIGHT_GOOD_FREEDOM,Hebat! Investasimu sudah cukup untuk menutup biaya hidup de
 INSIGHT_GOOD_INTEREST,Kamu menerima total %s dari bunga. Uang yang bekerja untukmu itulah inti investasi.,You received %s in interest. Money working for you is the heart of investing.
 INSIGHT_DEFAULT,Perjalanan yang seimbang. Coba latar belakang atau tingkat kesulitan lain untuk tantangan baru!,A balanced journey. Try another background or difficulty for a new challenge!
 PROFILE_GOALS_TITLE,Target Kemenangan,Win Goals
-GOAL_MILLIONAIRE_PROGRESS,Kekayaan bersih: %s / %s,Net worth: %s / %s
-GOAL_FREEDOM_PROGRESS,Pendapatan pasif (aturan 4%%): %s / %s per bulan,Passive income (4%% rule): %s / %s per month
+GOAL_MILLIONAIRE_NAME,Kekayaan bersih,Net worth
+GOAL_PROGRESS_VALUE,%s / %s,%s / %s
+GOAL_FREEDOM_NAME,Pendapatan pasif (aturan 4%),Passive income (4% rule)
+GOAL_FREEDOM_VALUE,%s / %s per bulan,%s / %s per month
 GOAL_HINT,Capai salah satunya untuk menang. Atau bertahan hingga usia pensiun 60 tahun dengan skor warisan setinggi mungkin.,Reach either goal to win. Or survive to retirement at 60 with the highest legacy score you can.
 PROFILE_STATS_TITLE,Statistik,Statistics
-PROFILE_STATS,"Kekayaan tertinggi: %s
-Bulan bermain: %d
-Kejadian dihadapi: %d
-Soal kuis benar: %d
-Transaksi terbaik: %s","Peak net worth: %s
-Months played: %d
-Events faced: %d
-Quiz answers correct: %d
-Best trade: %s"
+PROFILE_STAT_PEAK,Kekayaan tertinggi,Peak net worth
+PROFILE_STAT_MONTHS,Bulan bermain,Months played
+PROFILE_STAT_EVENTS,Kejadian dihadapi,Events faced
+PROFILE_STAT_QUIZ,Soal kuis benar,Quiz answers correct
+PROFILE_STAT_BEST,Transaksi terbaik,Best trade
+PROFILE_AGE,%d tahun,age %d
+PROFILE_DIFFICULTY,Kesulitan: %s,Difficulty: %s
 PROFILE_HISTORY_TITLE,Riwayat Permainan,Game History
 HISTORY_EMPTY,Belum ada permainan yang selesai.,No finished games yet.
-HISTORY_ROW,"%s: %s (%s), %d bulan, %s","%s: %s (%s), %d months, %s"
+HISTORY_META,%s · %d bulan,%s · %d months
 SETTINGS_TITLE,Pengaturan,Settings
 SETTINGS_SFX,Efek suara,Sound effects
 SETTINGS_VIBRATION,Getar,Vibration

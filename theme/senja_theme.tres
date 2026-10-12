@@ -7,6 +7,8 @@
 [ext_resource type="FontVariation" path="res://theme/fonts/fredoka_regular.tres" id="5_fredoka_regular"]
 [ext_resource type="FontVariation" path="res://theme/fonts/fredoka_bold.tres" id="6_fredoka_bold"]
 [ext_resource type="FontVariation" path="res://theme/fonts/fredoka_medium.tres" id="7_fredoka_medium"]
+[ext_resource type="Texture2D" path="res://assets/icons/switch_on.svg" id="t1_switch_on"]
+[ext_resource type="Texture2D" path="res://assets/icons/switch_off.svg" id="t2_switch_off"]
 
 [sub_resource type="StyleBoxEmpty" id="empty"]
 
@@ -1858,6 +1860,23 @@ corner_radius_bottom_right = 20
 corner_radius_bottom_left = 20
 anti_aliasing_size = 1.0
 
+[sub_resource type="StyleBoxFlat" id="player_card"]
+content_margin_left = 18.0
+content_margin_top = 14.0
+content_margin_right = 18.0
+content_margin_bottom = 22.0
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 10
+border_color = Color(0.1686, 0.1294, 0.2784, 1)
+corner_radius_top_left = 26
+corner_radius_top_right = 26
+corner_radius_bottom_right = 26
+corner_radius_bottom_left = 26
+anti_aliasing_size = 1.0
+
 [resource]
 default_font = ExtResource("5_fredoka_regular")
 default_font_size = 22
@@ -2689,3 +2708,36 @@ TileMarkLabel/base_type = &"Label"
 TileMarkLabel/colors/font_color = Color(1, 0.9725, 0.9255, 1)
 TileMarkLabel/fonts/font = ExtResource("1_lilita")
 TileMarkLabel/font_sizes/font_size = 28
+PlayerCard/base_type = &"PanelContainer"
+PlayerCard/styles/panel = SubResource("player_card")
+PlayerCardName/base_type = &"Label"
+PlayerCardName/colors/font_color = Color(0.1686, 0.1294, 0.2784, 1)
+PlayerCardName/fonts/font = ExtResource("1_lilita")
+PlayerCardName/font_sizes/font_size = 34
+SenjaSwitch/base_type = &"CheckButton"
+SenjaSwitch/styles/normal = SubResource("empty")
+SenjaSwitch/styles/hover = SubResource("empty")
+SenjaSwitch/styles/pressed = SubResource("empty")
+SenjaSwitch/styles/hover_pressed = SubResource("empty")
+SenjaSwitch/styles/focus = SubResource("empty")
+SenjaSwitch/styles/disabled = SubResource("empty")
+SenjaSwitch/icons/checked = ExtResource("t1_switch_on")
+SenjaSwitch/icons/unchecked = ExtResource("t2_switch_off")
+SenjaSwitch/icons/checked_disabled = ExtResource("t1_switch_on")
+SenjaSwitch/icons/unchecked_disabled = ExtResource("t2_switch_off")
+SenjaSwitch/colors/font_color = Color(0.1686, 0.1294, 0.2784, 1)
+SenjaSwitch/colors/font_hover_color = Color(0.1686, 0.1294, 0.2784, 1)
+SenjaSwitch/colors/font_pressed_color = Color(0.1686, 0.1294, 0.2784, 1)
+SenjaSwitch/colors/font_hover_pressed_color = Color(0.1686, 0.1294, 0.2784, 1)
+SenjaSwitch/colors/font_focus_color = Color(0.1686, 0.1294, 0.2784, 1)
+SenjaSwitch/fonts/font = ExtResource("5_fredoka_regular")
+SenjaSwitch/font_sizes/font_size = 19
+SenjaSwitch/constants/h_separation = 12
+ResultTitleLabel/base_type = &"Label"
+ResultTitleLabel/colors/font_color = Color(0.1686, 0.1294, 0.2784, 1)
+ResultTitleLabel/fonts/font = ExtResource("1_lilita")
+ResultTitleLabel/font_sizes/font_size = 50
+ScoreLabel/base_type = &"Label"
+ScoreLabel/colors/font_color = Color(0.1686, 0.1294, 0.2784, 1)
+ScoreLabel/fonts/font = ExtResource("6_fredoka_bold")
+ScoreLabel/font_sizes/font_size = 18

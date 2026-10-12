@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ui/screens/profile_screen.gd" id="1_profile"]
 [ext_resource type="Script" path="res://scripts/ui/avatar_view.gd" id="2_avatar"]
+[ext_resource type="Theme" path="res://theme/senja_theme.tres" id="3_theme"]
 
 [node name="ProfileScreen" type="ScrollContainer"]
 anchors_preset = 15
@@ -9,6 +10,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("3_theme")
 horizontal_scroll_mode = 0
 script = ExtResource("1_profile")
 
@@ -19,123 +21,195 @@ theme_override_constants/separation = 12
 
 [node name="PlayerCard" type="PanelContainer" parent="VBox"]
 layout_mode = 2
+theme_type_variation = &"PlayerCard"
 
 [node name="Row" type="HBoxContainer" parent="VBox/PlayerCard"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 18
 
-[node name="Avatar" type="Control" parent="VBox/PlayerCard/Row"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(110, 110)
+[node name="AvatarFrame" type="PanelContainer" parent="VBox/PlayerCard/Row"]
+custom_minimum_size = Vector2(112, 117)
 layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"AvatarFrameSmall"
+
+[node name="Avatar" type="Control" parent="VBox/PlayerCard/Row/AvatarFrame"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(104, 104)
+layout_mode = 2
+mouse_filter = 2
 script = ExtResource("2_avatar")
 
 [node name="Texts" type="VBoxContainer" parent="VBox/PlayerCard/Row"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_constants/separation = 8
 alignment = 1
 
 [node name="NameLabel" type="Label" parent="VBox/PlayerCard/Row/Texts"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 32
+theme_type_variation = &"PlayerCardName"
+text_overrun_behavior = 3
 
-[node name="InfoLabel" type="Label" parent="VBox/PlayerCard/Row/Texts"]
+[node name="InfoChips" type="HFlowContainer" parent="VBox/PlayerCard/Row/Texts"]
 unique_name_in_owner = true
 layout_mode = 2
-modulate = Color(1, 1, 1, 0.7)
-theme_override_font_sizes/font_size = 20
-autowrap_mode = 3
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+
+[node name="Gap1" type="Control" parent="VBox"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+mouse_filter = 2
 
 [node name="RiskTitle" type="Label" parent="VBox"]
 layout_mode = 2
+theme_type_variation = &"SubSectionLabel"
 text = "PROFILE_RISK_TITLE"
 
-[node name="RiskPanel" type="PanelContainer" parent="VBox"]
+[node name="RiskTrack" type="PanelContainer" parent="VBox"]
 layout_mode = 2
+theme_type_variation = &"SegmentTrack"
 
-[node name="RiskBox" type="VBoxContainer" parent="VBox/RiskPanel"]
-layout_mode = 2
-
-[node name="RiskOption" type="OptionButton" parent="VBox/RiskPanel/RiskBox"]
+[node name="RiskRow" type="HBoxContainer" parent="VBox/RiskTrack"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 60)
-layout_mode = 2
-theme_override_font_sizes/font_size = 22
-
-[node name="RiskDesc" type="Label" parent="VBox/RiskPanel/RiskBox"]
-unique_name_in_owner = true
-layout_mode = 2
-modulate = Color(1, 1, 1, 0.7)
-theme_override_font_sizes/font_size = 19
-autowrap_mode = 3
-
-[node name="GoalTitle" type="Label" parent="VBox"]
-layout_mode = 2
-text = "PROFILE_GOALS_TITLE"
-
-[node name="GoalPanel" type="PanelContainer" parent="VBox"]
-layout_mode = 2
-
-[node name="GoalBox" type="VBoxContainer" parent="VBox/GoalPanel"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="MillionaireLabel" type="Label" parent="VBox/GoalPanel/GoalBox"]
+[node name="RiskDesc" type="Label" parent="VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_type_variation = &"InfoLabel"
 autowrap_mode = 3
 
-[node name="MillionaireBar" type="ProgressBar" parent="VBox/GoalPanel/GoalBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 26)
+[node name="Gap2" type="Control" parent="VBox"]
+custom_minimum_size = Vector2(0, 4)
 layout_mode = 2
+mouse_filter = 2
 
-[node name="FreedomLabel" type="Label" parent="VBox/GoalPanel/GoalBox"]
+[node name="GoalTitle" type="Label" parent="VBox"]
+layout_mode = 2
+theme_type_variation = &"SubSectionLabel"
+text = "PROFILE_GOALS_TITLE"
+
+[node name="GoalCard" type="PanelContainer" parent="VBox"]
+layout_mode = 2
+theme_type_variation = &"HomeCard"
+
+[node name="VBox" type="VBoxContainer" parent="VBox/GoalCard"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Millionaire" type="VBoxContainer" parent="VBox/GoalCard/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Head" type="HBoxContainer" parent="VBox/GoalCard/VBox/Millionaire"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Name" type="Label" parent="VBox/GoalCard/VBox/Millionaire/Head"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StatNameLabel"
+text = "GOAL_MILLIONAIRE_NAME"
+
+[node name="MillionaireValue" type="Label" parent="VBox/GoalCard/VBox/Millionaire/Head"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_type_variation = &"SmallMutedLabel"
+
+[node name="MillionaireBar" type="ProgressBar" parent="VBox/GoalCard/VBox/Millionaire"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+theme_type_variation = &"HappinessBar"
+show_percentage = false
+
+[node name="Freedom" type="VBoxContainer" parent="VBox/GoalCard/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Head" type="HBoxContainer" parent="VBox/GoalCard/VBox/Freedom"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Name" type="Label" parent="VBox/GoalCard/VBox/Freedom/Head"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StatNameLabel"
+text = "GOAL_FREEDOM_NAME"
 autowrap_mode = 3
 
-[node name="FreedomBar" type="ProgressBar" parent="VBox/GoalPanel/GoalBox"]
+[node name="FreedomValue" type="Label" parent="VBox/GoalCard/VBox/Freedom/Head"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 26)
 layout_mode = 2
+size_flags_vertical = 0
+theme_type_variation = &"SmallMutedLabel"
 
-[node name="GoalHint" type="Label" parent="VBox/GoalPanel/GoalBox"]
+[node name="FreedomBar" type="ProgressBar" parent="VBox/GoalCard/VBox/Freedom"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 14)
 layout_mode = 2
-modulate = Color(1, 1, 1, 0.55)
-theme_override_font_sizes/font_size = 18
+theme_type_variation = &"XpBar"
+show_percentage = false
+
+[node name="GoalHint" type="Label" parent="VBox/GoalCard/VBox"]
+layout_mode = 2
+theme_type_variation = &"SmallMutedLabel"
 text = "GOAL_HINT"
 autowrap_mode = 3
 
+[node name="Gap3" type="Control" parent="VBox"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+mouse_filter = 2
+
 [node name="StatsTitle" type="Label" parent="VBox"]
 layout_mode = 2
+theme_type_variation = &"SubSectionLabel"
 text = "PROFILE_STATS_TITLE"
 
-[node name="StatsLabel" type="Label" parent="VBox"]
+[node name="StatsGrid" type="GridContainer" parent="VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
-autowrap_mode = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="Gap4" type="Control" parent="VBox"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+mouse_filter = 2
 
 [node name="HistoryTitle" type="Label" parent="VBox"]
 layout_mode = 2
+theme_type_variation = &"SubSectionLabel"
 text = "PROFILE_HISTORY_TITLE"
 
-[node name="HistoryList" type="VBoxContainer" parent="VBox"]
+[node name="HistoryCard" type="PanelContainer" parent="VBox"]
+layout_mode = 2
+theme_type_variation = &"HomeCard"
+
+[node name="HistoryList" type="VBoxContainer" parent="VBox/HistoryCard"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Gap5" type="Control" parent="VBox"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+mouse_filter = 2
 
 [node name="SaveTitle" type="Label" parent="VBox"]
 layout_mode = 2
+theme_type_variation = &"SubSectionLabel"
 text = "PROFILE_SAVE_TITLE"
 
 [node name="AutoInfo" type="Label" parent="VBox"]
 layout_mode = 2
-modulate = Color(1, 1, 1, 0.6)
-theme_override_font_sizes/font_size = 19
+theme_type_variation = &"SmallMutedLabel"
 text = "PROFILE_AUTOSAVE_INFO"
 autowrap_mode = 3
 
@@ -144,112 +218,106 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="SaveFeedback" type="Label" parent="VBox"]
+[node name="SaveFeedbackBox" type="PanelContainer" parent="VBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"FeedbackGood"
+
+[node name="SaveFeedback" type="Label" parent="VBox/SaveFeedbackBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_type_variation = &"FeedbackLabel"
+autowrap_mode = 3
+
+[node name="Gap6" type="Control" parent="VBox"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+mouse_filter = 2
 
 [node name="SettingsTitle" type="Label" parent="VBox"]
 layout_mode = 2
+theme_type_variation = &"SubSectionLabel"
 text = "SETTINGS_TITLE"
 
-[node name="SettingsPanel" type="PanelContainer" parent="VBox"]
+[node name="SettingsCard" type="PanelContainer" parent="VBox"]
 layout_mode = 2
+theme_type_variation = &"HomeCard"
 
-[node name="SettingsBox" type="VBoxContainer" parent="VBox/SettingsPanel"]
+[node name="VBox" type="VBoxContainer" parent="VBox/SettingsCard"]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="SfxToggle" type="CheckButton" parent="VBox/SettingsPanel/SettingsBox"]
+[node name="SfxToggle" type="CheckButton" parent="VBox/SettingsCard/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 60)
+custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_type_variation = &"SenjaSwitch"
 text = "SETTINGS_SFX"
 
-[node name="VibrationToggle" type="CheckButton" parent="VBox/SettingsPanel/SettingsBox"]
+[node name="VibrationToggle" type="CheckButton" parent="VBox/SettingsCard/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 60)
+custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_type_variation = &"SenjaSwitch"
 text = "SETTINGS_VIBRATION"
 
-[node name="CompactToggle" type="CheckButton" parent="VBox/SettingsPanel/SettingsBox"]
+[node name="CompactToggle" type="CheckButton" parent="VBox/SettingsCard/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 60)
+custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_type_variation = &"SenjaSwitch"
 text = "SETTINGS_COMPACT"
+autowrap_mode = 3
 
-[node name="LanguageRow" type="HBoxContainer" parent="VBox/SettingsPanel/SettingsBox"]
+[node name="Line" type="Panel" parent="VBox/SettingsCard/VBox"]
+custom_minimum_size = Vector2(0, 2)
 layout_mode = 2
+theme_type_variation = &"Divider"
 
-[node name="LanguageLabel" type="Label" parent="VBox/SettingsPanel/SettingsBox/LanguageRow"]
+[node name="LanguageLabel" type="Label" parent="VBox/SettingsCard/VBox"]
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 22
+theme_type_variation = &"StatNameLabel"
 text = "SETTINGS_LANGUAGE"
 
-[node name="LanguageOption" type="OptionButton" parent="VBox/SettingsPanel/SettingsBox/LanguageRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(260, 60)
+[node name="LanguageTrack" type="PanelContainer" parent="VBox/SettingsCard/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+theme_type_variation = &"SegmentTrack"
 
-[node name="LanguageNote" type="Label" parent="VBox/SettingsPanel/SettingsBox"]
+[node name="LanguageRow" type="HBoxContainer" parent="VBox/SettingsCard/VBox/LanguageTrack"]
+unique_name_in_owner = true
 layout_mode = 2
-modulate = Color(1, 1, 1, 0.55)
-theme_override_font_sizes/font_size = 17
+theme_override_constants/separation = 8
+
+[node name="LanguageNote" type="Label" parent="VBox/SettingsCard/VBox"]
+layout_mode = 2
+theme_type_variation = &"SmallMutedLabel"
 text = "SETTINGS_LANGUAGE_NOTE"
 autowrap_mode = 3
 
+[node name="Gap7" type="Control" parent="VBox"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+mouse_filter = 2
+
 [node name="MenuTitle" type="Label" parent="VBox"]
 layout_mode = 2
+theme_type_variation = &"SubSectionLabel"
 text = "PROFILE_MENU_TITLE"
 
-[node name="GlossaryButton" type="Button" parent="VBox"]
+[node name="MenuList" type="VBoxContainer" parent="VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 68)
 layout_mode = 2
-text = "PROFILE_GLOSSARY"
-
-[node name="TutorialButton" type="Button" parent="VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 68)
-layout_mode = 2
-text = "PROFILE_TUTORIAL"
-
-[node name="PrivacyButton" type="Button" parent="VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 68)
-layout_mode = 2
-text = "SETTINGS_PRIVACY"
-
-[node name="TermsButton" type="Button" parent="VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 68)
-layout_mode = 2
-text = "SETTINGS_TERMS"
-
-[node name="TitleButton" type="Button" parent="VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 68)
-layout_mode = 2
-text = "PROFILE_TO_TITLE"
-
-[node name="ResetButton" type="Button" parent="VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 68)
-layout_mode = 2
-modulate = Color(1, 0.55, 0.55, 1)
-theme_override_font_sizes/font_size = 22
-autowrap_mode = 3
-text = "SETTINGS_RESET"
+theme_override_constants/separation = 10
 
 [node name="Disclaimer" type="Label" parent="VBox"]
 layout_mode = 2
-modulate = Color(1, 1, 1, 0.45)
-theme_override_font_sizes/font_size = 18
+theme_type_variation = &"SmallMutedLabel"
 text = "DISCLAIMER"
 horizontal_alignment = 1
 autowrap_mode = 3
+
+[node name="BottomGap" type="Control" parent="VBox"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+mouse_filter = 2
