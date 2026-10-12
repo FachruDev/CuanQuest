@@ -28,19 +28,28 @@ data/
   economy.json                Gaji, modal awal, pilihan makan & tempat tinggal (untuk balancing)
   market.json                 Siklus pasar, suku bunga acuan, peluang berita
   news.json                   Template berita pasar & dampaknya ke harga
+  events.json                 33 event hidup: syarat muncul, pilihan, efek
+  quiz.json                   39 soal kuis (4 topik)
+  unlocks.json                Syarat membuka tiap tahap instrumen
 localization/strings.csv      Semua teks UI (kolom id & en)
 theme/main_theme.tres         Font global, warna tombol aktif, panel, progress bar
 scripts/
-  autoload/game_state.gd      STATE GLOBAL: kas, bulan, kondisi, portofolio, loop bulanan
+  autoload/game_state.gd      STATE GLOBAL: kas, bulan, kondisi, portofolio, loop bulanan, XP, unlock, event
+  autoload/ad_service.gd      Iklan rewarded (STUB, nanti diganti AdMob dengan interface sama)
   core/                       Logika murni tanpa UI (mudah dites)
     market.gd, market_asset.gd   Simulasi pasar (GBM, RNG ber-seed)
     fmt.gd                    Format Rp1.234.567, +2,35%, tanggal game
     data_loader.gd            Baca JSON
+    quiz_manager.gd           Bank soal + jatah mingguan (waktu nyata) + kredit iklan
+    event_manager.gd          Pemilihan event berdasarkan syarat & bobot
   ui/
     main.gd                   Shell: top bar, router tab, tombol Lanjut, popup
     price_chart.gd            Grafik garis (dipakai di Pasar & Portofolio)
     month_report.gd           Pembuat baris laporan (dipakai di popup & Portofolio)
+    modal_popup.gd            Base class popup (signal closed)
     month_summary_popup.gd    Modal laporan bulanan
+    event_popup.gd, quiz_popup.gd, info_popup.gd
+    ui_text.gd                Helper teks: perubahan efek, syarat unlock
     screens/                  Satu script per tab
 scenes/
   main.tscn                   Shell aplikasi
@@ -74,9 +83,9 @@ scenes/
 | 6 | Dashboard dengan grafik harga dan tombol beli/jual | M1 + M3 | ✅ |
 | 7 | Portofolio dasar dan ringkasan bulanan | M2 | ✅ |
 | 8 | Simulasi harga dengan siklus pasar sederhana | M3 | ✅ |
-| 9 | Event hidup (minimal 30 event) | M4 | ⬜ |
-| 10 | Kuis 3 per minggu + iklan rewarded (minimal 30 soal) | M4 | ⬜ |
-| 11 | Sistem unlock instrumen | M4 | ⬜ |
+| 9 | Event hidup (minimal 30 event) | M4 | ✅ 33 event |
+| 10 | Kuis 3 per minggu + iklan rewarded (minimal 30 soal) | M4 | ✅ 39 soal; iklan masih stub (AdMob di M7) |
+| 11 | Sistem unlock instrumen | M4 | ✅ |
 | 12 | Kondisi menang dan kalah serta layar akhir | M6 | ⬜ |
 | 13 | Save/load otomatis dan manual | M5 | ⬜ |
 | 14 | Pengaturan dan halaman profil | M6 | ⬜ |
@@ -87,7 +96,7 @@ scenes/
 - [x] **M1: Prototipe.** 1 aset, grafik, beli/jual + fee, saldo, tombol Lanjut
 - [x] **M2: Loop bulanan.** Gaji, biaya hidup, kesehatan/kebahagiaan, laporan bulanan, tab Portofolio, navigasi bawah
 - [x] **M3: Pasar lengkap.** 10 aset di 5 kelas, siklus bull/sideways/bear, korelasi, suku bunga acuan, 16 berita pasar, bunga & penalti deposito
-- [ ] **M4: Event hidup (30+), kuis (30+ soal, 3/minggu nyata + stub iklan), sistem unlock**
+- [x] **M4: Event hidup, kuis, unlock.** 33 event (termasuk efek tertunda & PHK), 39 soal kuis (3/minggu nyata + iklan stub), XP & level, 4 tahap unlock, antrean popup
 - [ ] **M5: Save/load, layar judul, onboarding (profil, kesulitan), tutorial & glosarium**
 - [ ] **M6: Menang/kalah + layar akhir, profil & pengaturan, kebijakan privasi**
 - [ ] **M7: Export Android, playtest, balancing**
@@ -101,6 +110,19 @@ Setiap bulan `Market.step()` menjalankan:
 4. **Tabungan & deposito** tidak bergerak harganya. Bunganya (`suku bunga acuan + spread`, dipotong pajak) dibayar di `GameState._pay_interest()`.
 
 **Hasil kalibrasi** (300 simulasi × 10 tahun, median imbal hasil per tahun): RD Pasar Uang +4,6% · RD Saham +8,7% · Saham +4,5% s.d. +8,6% · Kripto +7,5% s.d. +12% (peluang rugi kripto sekitar 38%).
+
+## Event, Kuis & Unlock (M4)
+
+- **Antrean popup** (`main.gd`): setelah Lanjut bisa muncul beberapa popup berurutan, yaitu laporan, lalu instrumen baru, lalu event. Popup berikutnya tampil setelah yang sebelumnya ditutup. Tombol Lanjut nonaktif selama ada event yang belum diputuskan.
+- **Teks event & kuis** ditulis langsung dalam bahasa Indonesia di JSON dan ditampilkan lewat `tr(teks)`. Untuk bahasa Inggris nanti, tambahkan file terjemahan dengan teks Indonesia sebagai key, tanpa perlu mengubah JSON atau kode.
+- **Jatah kuis memakai jam perangkat** (`QuizManager.current_week_id()`), sehingga menekan Lanjut tidak menambah jatah. Catatan: jatah ini akan hilang saat game ditutup, sampai fitur save/load selesai di M5.
+- **Tips testing unlock:** turunkan angka `min` di `data/unlocks.json` (misalnya `50000000` menjadi `5000000`) agar tahap saham dan kripto cepat terbuka. Jangan lupa kembalikan angkanya.
+
+## Latihan M4 (opsional)
+
+1. Tulis event baru di `data/events.json`: salin event `found_money`, ganti `id`, judul, dan efeknya. Coba pakai `outcomes` agar hasilnya acak.
+2. Tambah soal baru di `data/quiz.json` (ingat: `answer` dimulai dari 0).
+3. Ubah `event_chance` di `data/economy.json` menjadi `1.0`, lalu rasakan bedanya jika setiap bulan ada event.
 
 ## Latihan M3 (opsional)
 

@@ -16,6 +16,7 @@ var rho: float            # korelasi dengan faktor pasar (0 = jalan sendiri, 1 =
 var buy_fee: float
 var sell_fee: float
 var risk: int             # 1 (sangat rendah) .. 5 (sangat tinggi)
+var stage: int            # tahap unlock (lihat data/unlocks.json)
 
 # Khusus tabungan & deposito
 var rate_spread: float    # bunga = suku bunga acuan + spread
@@ -40,6 +41,7 @@ static func from_def(def: Dictionary) -> MarketAsset:
 	a.buy_fee = def.get("buy_fee", 0.0)
 	a.sell_fee = def.get("sell_fee", 0.0)
 	a.risk = int(def.get("risk", 1))
+	a.stage = int(def.get("stage", 1))
 	a.rate_spread = def.get("rate_spread", 0.0)
 	a.interest_tax = def.get("interest_tax", 0.0)
 	a.lock_months = int(def.get("lock_months", 0))

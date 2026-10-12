@@ -1,7 +1,7 @@
 keys,id,en
 LBL_CASH,Kas,Cash
 LBL_NET_WORTH,Kekayaan Bersih,Net Worth
-LBL_HOLDING,"Kepemilikan: %s unit | Nilai %s | %s","Holding: %s units | Value %s | %s"
+LBL_HOLDING,Kepemilikan: %s unit | Nilai %s | %s,Holding: %s units | Value %s | %s
 LBL_NO_HOLDING,Kamu belum punya aset ini.,You don't own this asset yet.
 BTN_MODE_BUY,Beli,Buy
 BTN_MODE_SELL,Jual,Sell
@@ -13,7 +13,7 @@ HINT_AMOUNT,Nominal (Rp),Amount (Rp)
 ERR_AMOUNT_INVALID,Masukkan nominal yang valid.,Enter a valid amount.
 ERR_NOT_ENOUGH_CASH,Kas tidak cukup.,Not enough cash.
 ERR_NOT_ENOUGH_UNITS,Kepemilikan tidak cukup.,Not enough holdings.
-MSG_BUY_OK,"Berhasil beli %s unit (fee %s).","Bought %s units (fee %s)."
+MSG_BUY_OK,Berhasil beli %s unit (fee %s).,Bought %s units (fee %s).
 MSG_SELL_OK,"Berhasil jual %s unit, uang masuk %s (fee %s).","Sold %s units, received %s (fee %s)."
 FMT_DATE,%s Tahun %d,%s Year %d
 MONTH_1,Januari,January
@@ -35,8 +35,7 @@ NAV_MARKET,Pasar,Market
 NAV_PORTFOLIO,Portofolio,Portfolio
 NAV_ACTIVITY,Aktivitas,Activity
 NAV_PROFILE,Profil,Profile
-PLACEHOLDER_ACTIVITY,"Aktivitas (kerja sampingan, kursus, kuis) hadir di Milestone 4.","Activities (side jobs, courses, quizzes) arrive in Milestone 4."
-PLACEHOLDER_PROFILE,"Profil & pengaturan hadir di Milestone 5.","Profile & settings arrive in Milestone 5."
+PLACEHOLDER_PROFILE,Profil & pengaturan hadir di Milestone 5.,Profile & settings arrive in Milestone 5.
 HOME_WELLBEING,Kondisi,Wellbeing
 STAT_HEALTH,Kesehatan,Health
 STAT_HAPPINESS,Kebahagiaan,Happiness
@@ -92,9 +91,9 @@ CLASS_STOCK,SAHAM,STOCKS
 CLASS_CRYPTO,KRIPTO,CRYPTO
 DESC_SAVINGS,"Uang bisa diambil kapan saja, bunganya kecil. Cocok untuk dana darurat.","Withdraw anytime, low interest. Good for an emergency fund."
 DESC_DEPOSIT,"Bunga lebih tinggi dari tabungan, tapi uang dikunci selama tenor.","Higher interest than savings, but money is locked for the term."
-DESC_MUTUAL_FUND,"Dana dikelola manajer investasi. Pasar uang sangat stabil, reksa dana saham ikut naik-turun pasar saham.","Managed by a fund manager. Money market is very stable; equity funds follow the stock market."
-DESC_STOCK,"Kepemilikan sebagian perusahaan. Harga bisa naik-turun tajam karena kinerja dan berita.","Partial ownership of a company. Prices swing with performance and news."
-DESC_CRYPTO,"Aset digital dengan volatilitas sangat tinggi. Bisa naik berlipat, bisa juga anjlok separuh dalam sebulan.","Digital asset with very high volatility. Can multiply or halve within a month."
+DESC_MUTUAL_FUND,"Dana dikelola manajer investasi. Pasar uang sangat stabil, reksa dana saham ikut naik-turun pasar saham.",Managed by a fund manager. Money market is very stable; equity funds follow the stock market.
+DESC_STOCK,Kepemilikan sebagian perusahaan. Harga bisa naik-turun tajam karena kinerja dan berita.,Partial ownership of a company. Prices swing with performance and news.
+DESC_CRYPTO,"Aset digital dengan volatilitas sangat tinggi. Bisa naik berlipat, bisa juga anjlok separuh dalam sebulan.",Digital asset with very high volatility. Can multiply or halve within a month.
 RISK_1,Risiko sangat rendah,Very low risk
 RISK_2,Risiko rendah,Low risk
 RISK_3,Risiko sedang,Medium risk
@@ -142,3 +141,61 @@ NEWS_REGIME_CRYPTO_SIDEWAYS,Pasar kripto lesu dan bergerak datar.,Crypto goes qu
 NEWS_REGIME_CRYPTO_BEAR,Pasar kripto memasuki musim dingin (crypto winter).,Crypto enters a winter.
 MSG_DEPOSIT_OK,Berhasil setor %s.,Deposited %s.
 MSG_WITHDRAW_OK,"Berhasil cairkan, uang masuk %s (biaya %s).","Withdrawn, received %s (fee %s)."
+ERR_LOCKED,Instrumen ini belum terbuka.,This instrument is still locked.
+STAGE_1,Tahap 1: Dasar,Stage 1: Basics
+STAGE_2,Tahap 2: Reksa Dana Saham,Stage 2: Equity Funds
+STAGE_3,Tahap 3: Saham,Stage 3: Stocks
+STAGE_4,Tahap 4: Kripto,Stage 4: Crypto
+REQ_DONE,[OK],[OK]
+REQ_TODO,[  ],[  ]
+REQ_EMERGENCY,Dana darurat %d bulan: %s / %s,Emergency fund %d months: %s / %s
+REQ_NET_WORTH,Kekayaan bersih: %s / %s,Net worth: %s / %s
+REQ_LEVEL,Level: %d / %d,Level: %d / %d
+REQ_QUIZ,Kuis %s dijawab benar: %d / %d,%s quiz correct answers: %d / %d
+TOPIC_BASICS,Dasar Keuangan,Financial Basics
+TOPIC_RISK,Risiko,Risk
+TOPIC_SCAM,Penipuan,Scams
+TOPIC_INSTRUMENTS,Instrumen,Instruments
+EVENT_CAT_FINANCE,KEUANGAN,FINANCE
+EVENT_CAT_WORK,PEKERJAAN,WORK
+EVENT_CAT_HEALTH,KESEHATAN,HEALTH
+EVENT_CAT_SOCIAL,SOSIAL,SOCIAL
+EVENT_CAT_MARKET,PASAR,MARKET
+EVENT_CAT_SCAM,WASPADA PENIPUAN,SCAM ALERT
+EVENT_NOT_ENOUGH_CASH,Kas tidak cukup,Not enough cash
+QUIZ_CORRECT,Benar! +%s dan +%d XP,Correct! +%s and +%d XP
+QUIZ_WRONG,Kurang tepat. Tetap dapat +%d XP karena sudah belajar.,Not quite. You still get +%d XP for learning.
+AD_STUB,"IKLAN (simulasi)
+
+Iklan sungguhan akan dipasang menjelang rilis.
+
+%d","AD (simulated)
+
+Real ads will be added before release.
+
+%d"
+ACT_LEVEL,Level %d  (total %d XP),Level %d  (%d XP total)
+ACT_QUIZ_TITLE,Kuis Finansial,Financial Quiz
+ACT_QUIZ_INFO,Kuis gratis minggu ini: %d / %d tersisa. Jatah di-reset setiap Senin.,Free quizzes this week: %d / %d left. Resets every Monday.
+ACT_QUIZ_BONUS,Kuis tambahan dari iklan: %d,Bonus quizzes from ads: %d
+ACT_START_QUIZ,Mulai Kuis,Start Quiz
+ACT_WATCH_AD,Tonton iklan untuk +1 kuis (sisa %d hari ini),Watch an ad for +1 quiz (%d left today)
+ACT_TOPIC_PROGRESS,Soal benar per topik: %s,Correct answers by topic: %s
+ACT_UNLOCK_TITLE,Membuka Instrumen Baru,Unlocking Instruments
+UNLOCK_OPEN,Terbuka,Unlocked
+UNLOCK_LOCKED,Terkunci,Locked
+MARKET_LOCKED_TITLE,Instrumen ini masih terkunci. Penuhi syarat berikut:,This instrument is locked. Meet these requirements:
+MARKET_LOCKED_ROW,Terkunci (Tahap %d),Locked (Stage %d)
+UNLOCK_POPUP_TITLE,Instrumen Baru Terbuka!,New Instrument Unlocked!
+UNLOCK_POPUP_BODY,"%s
+
+%s
+
+Lihat di tab Pasar.","%s
+
+%s
+
+Check the Market tab."
+REPORT_SALARY_UNEMPLOYED,Gaji (menganggur),Salary (unemployed)
+REPORT_EVENTS,KEJADIAN,EVENTS
+HOME_UNEMPLOYED,Menganggur: tanpa gaji %d bulan lagi,Unemployed: no salary for %d more months

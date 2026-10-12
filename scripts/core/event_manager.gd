@@ -1,0 +1,60 @@
+class_name EventManager
+extends RefCounted
+## Memilih event hidup yang memenuhi syarat, berdasarkan bobot.
+## Efek dari pilihan pemain diterapkan oleh GameState (karena menyentuh kas, gaji, dll).
+
+var defs: Array = []
+var counts: Dictionary = {}       # event_id -> berapa kali sudah muncul
+var last_month: Dictionary = {}   # event_id -> bulan terakhir muncul
+
+
+func setup(event_defs: Array) -> void:
+	defs = event_defs
+	counts.clear()
+	last_month.clear()
+
+
+## Event "guaranteed" (mis. THR) selalu muncul jika syaratnya terpenuhi.
+func pick_guaranteed(state: Node) -> Dictionary:
+	for def: Dictionary in defs:
+		if def.get("guaranteed", false) and _is_eligible(def, state):
+			return def
+	return {}
+
+
+func pick_random(state: Node, rng: RandomNumberGenerator) -> Dictionary:
+	var candidates: Array[Dictionary] = []
+	var weights := PackedFloat32Array()
+	for def: Dictionary in defs:
+		if not def.get("guaranteed", false) and _is_eligible(def, state):
+			candidates.append(def)
+			weights.append(def.get("weight", 1.0))
+	if candidates.is_empty():
+		return {}
+	return candidates[rng.rand_weighted(weights)]
+
+
+func mark_shown(def: Dictionary, month: int) -> void:
+	counts[def["id"]] = counts.get(def["id"], 0) + 1
+	last_month[def["id"]] = month
+
+
+## `state` adalah GameState (diakses secara duck-typing: state.month, state.holdings, ...).
+func _is_eligible(def: Dictionary, state: Node) -> bool:
+	var id: String = def["id"]
+	if state.month < int(def.get("min_month", 0)):
+		return false
+	if counts.get(id, 0) >= int(def.get("max_times", 99)):
+		return false
+	if last_month.has(id) and state.month - last_month[id] < int(def.get("cooldown", 12)):
+		return false
+	if def.has("month_of_year") and state.month % 12 != int(def["month_of_year"]):
+		return false
+	match def.get("requires", ""):
+		"employed":
+			return state.unemployed_months == 0
+		"has_investments":
+			return not state.holdings.is_empty()
+		"low_happiness":
+			return state.happiness < 40
+	return true

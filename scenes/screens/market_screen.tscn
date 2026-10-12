@@ -124,10 +124,31 @@ theme_override_font_sizes/font_size = 22
 autowrap_mode = 3
 text = "LBL_NO_HOLDING"
 
-[node name="ModeRow" type="HBoxContainer" parent="DetailView/VBox"]
+[node name="LockedBox" type="VBoxContainer" parent="DetailView/VBox"]
+unique_name_in_owner = true
+visible = false
 layout_mode = 2
 
-[node name="ModeBuy" type="Button" parent="DetailView/VBox/ModeRow"]
+[node name="LockedTitle" type="Label" parent="DetailView/VBox/LockedBox"]
+layout_mode = 2
+modulate = Color(0.95, 0.77, 0.06, 1)
+theme_override_font_sizes/font_size = 24
+text = "MARKET_LOCKED_TITLE"
+autowrap_mode = 3
+
+[node name="LockedReqs" type="VBoxContainer" parent="DetailView/VBox/LockedBox"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TradeBox" type="VBoxContainer" parent="DetailView/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ModeRow" type="HBoxContainer" parent="DetailView/VBox/TradeBox"]
+layout_mode = 2
+
+[node name="ModeBuy" type="Button" parent="DetailView/VBox/TradeBox/ModeRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 68)
 layout_mode = 2
@@ -135,7 +156,7 @@ size_flags_horizontal = 3
 toggle_mode = true
 text = "BTN_MODE_BUY"
 
-[node name="ModeSell" type="Button" parent="DetailView/VBox/ModeRow"]
+[node name="ModeSell" type="Button" parent="DetailView/VBox/TradeBox/ModeRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 68)
 layout_mode = 2
@@ -143,43 +164,43 @@ size_flags_horizontal = 3
 toggle_mode = true
 text = "BTN_MODE_SELL"
 
-[node name="AmountEdit" type="LineEdit" parent="DetailView/VBox"]
+[node name="AmountEdit" type="LineEdit" parent="DetailView/VBox/TradeBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 68)
 layout_mode = 2
 placeholder_text = "HINT_AMOUNT"
 
-[node name="QuickRow" type="HBoxContainer" parent="DetailView/VBox"]
+[node name="QuickRow" type="HBoxContainer" parent="DetailView/VBox/TradeBox"]
 layout_mode = 2
 
-[node name="Quick25" type="Button" parent="DetailView/VBox/QuickRow"]
+[node name="Quick25" type="Button" parent="DetailView/VBox/TradeBox/QuickRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "25%"
 
-[node name="Quick50" type="Button" parent="DetailView/VBox/QuickRow"]
+[node name="Quick50" type="Button" parent="DetailView/VBox/TradeBox/QuickRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "50%"
 
-[node name="Quick100" type="Button" parent="DetailView/VBox/QuickRow"]
+[node name="Quick100" type="Button" parent="DetailView/VBox/TradeBox/QuickRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "100%"
 
-[node name="ConfirmButton" type="Button" parent="DetailView/VBox"]
+[node name="ConfirmButton" type="Button" parent="DetailView/VBox/TradeBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 76)
 layout_mode = 2
 text = "BTN_CONFIRM_BUY"
 
-[node name="FeedbackLabel" type="Label" parent="DetailView/VBox"]
+[node name="FeedbackLabel" type="Label" parent="DetailView/VBox/TradeBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 56)
 layout_mode = 2

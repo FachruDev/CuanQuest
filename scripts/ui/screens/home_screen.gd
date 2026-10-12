@@ -17,8 +17,13 @@ func _refresh() -> void:
 	%HappinessBar.value = GameState.happiness
 
 	var expenses := GameState.monthly_expenses()
-	var surplus := GameState.salary - expenses
+	var income := GameState.salary if GameState.unemployed_months == 0 else 0
+	var surplus := income - expenses
 	%SalaryLabel.text = tr("HOME_SALARY") % Fmt.rupiah(GameState.salary)
+	%SalaryLabel.modulate = Color.WHITE
+	if GameState.unemployed_months > 0:
+		%SalaryLabel.text = tr("HOME_UNEMPLOYED") % GameState.unemployed_months
+		%SalaryLabel.modulate = MonthReport.RED
 	%ExpenseLabel.text = tr("HOME_EXPENSES") % Fmt.rupiah(expenses)
 	%SurplusLabel.text = tr("HOME_SURPLUS") % Fmt.signed_rupiah(surplus)
 	%SurplusLabel.modulate = MonthReport.GREEN if surplus >= 0 else MonthReport.RED

@@ -19,7 +19,10 @@ static func fill(box: VBoxContainer, r: Dictionary) -> void:
 		return
 
 	_add_header(box, "REPORT_INCOME")
-	_add_row(box, "REPORT_SALARY", Fmt.signed_rupiah(r["salary"]), GREEN)
+	if r.get("unemployed", false):
+		_add_row(box, "REPORT_SALARY_UNEMPLOYED", Fmt.rupiah(0), RED)
+	else:
+		_add_row(box, "REPORT_SALARY", Fmt.signed_rupiah(r["salary"]), GREEN)
 
 	_add_header(box, "REPORT_EXPENSES")
 	_add_row(box, "REPORT_FOOD", Fmt.signed_rupiah(-r["food_cost"]), RED)
@@ -29,6 +32,16 @@ static func fill(box: VBoxContainer, r: Dictionary) -> void:
 	if r.get("interest", 0.0) > 0.0:
 		_add_row(box, "REPORT_INTEREST", Fmt.signed_rupiah(r["interest"]), GREEN)
 	_add_row(box, "REPORT_INVEST_CHANGE", Fmt.signed_rupiah(r["invest_change"]), color_of(r["invest_change"]))
+
+	var delayed: Array = r.get("delayed", [])
+	if not delayed.is_empty():
+		_add_header(box, "REPORT_EVENTS")
+		for text: String in delayed:
+			var label := Label.new()
+			label.text = "- " + TranslationServer.translate(text)
+			label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			label.add_theme_font_size_override("font_size", 20)
+			box.add_child(label)
 
 	var news: Array = r.get("news", [])
 	if not news.is_empty():

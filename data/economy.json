@@ -5,6 +5,16 @@
 	"start_happiness": 70,
 	"default_food": "standard",
 	"default_housing": "kos",
+	"event_chance": 0.6,
+	"xp_per_month": 2,
+	"xp_per_level": 60,
+	"quiz": {
+		"free_per_week": 3,
+		"ads_per_day": 5,
+		"reward_correct": 100000,
+		"xp_correct": 20,
+		"xp_wrong": 5
+	},
 	"food": [
 		{ "id": "frugal", "name_key": "FOOD_FRUGAL", "cost": 1200000, "health": -2, "happiness": -2 },
 		{ "id": "standard", "name_key": "FOOD_STANDARD", "cost": 2000000, "health": 1, "happiness": 0 },

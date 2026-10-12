@@ -13,7 +13,7 @@ enum Mode { BUY, SELL }
 
 var mode := Mode.BUY
 var _selected_id := ""
-var _rows: Dictionary = {}  # asset_id -> { "price": Label, "change": Label }
+var _rows: Dictionary = {}  # asset_id -> { "button": Button, "risk": Label, "price": Label, "change": Label }
 
 
 func _ready() -> void:
@@ -97,7 +97,7 @@ func _make_asset_row(asset: MarketAsset) -> Button:
 	row.add_child(left)
 	row.add_child(right)
 	button.add_child(row)
-	_rows[asset.id] = {"price": price, "change": change}
+	_rows[asset.id] = {"button": button, "risk": risk, "price": price, "change": change}
 	return button
 
 
@@ -106,6 +106,9 @@ func _refresh_list() -> void:
 	for asset_id: String in _rows:
 		var asset := market.get_asset(asset_id)
 		var labels: Dictionary = _rows[asset_id]
+		var unlocked := GameState.is_asset_unlocked(asset_id)
+		labels["button"].modulate = Color.WHITE if unlocked else Color(1, 1, 1, 0.45)
+		labels["risk"].text = tr("RISK_%d" % asset.risk) if unlocked else tr("MARKET_LOCKED_ROW") % asset.stage
 		if asset.is_interest():
 			labels["price"].text = tr("FMT_RATE_PA") % Fmt.percent_plain(market.rate_for(asset))
 			labels["change"].text = tr("LBL_INTEREST")
@@ -175,6 +178,12 @@ func _refresh_detail() -> void:
 			Fmt.percent_plain(asset.volatility),
 			Fmt.percent_plain(asset.buy_fee),
 			Fmt.percent_plain(asset.sell_fee)]
+
+	var unlocked := GameState.is_asset_unlocked(_selected_id)
+	%TradeBox.visible = unlocked
+	%LockedBox.visible = not unlocked
+	if not unlocked:
+		UiText.fill_requirements(%LockedReqs, GameState.stage_def(asset.stage))
 
 	var units := GameState.units_of(_selected_id)
 	if units > 0.0:

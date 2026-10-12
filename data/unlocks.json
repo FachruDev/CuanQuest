@@ -1,0 +1,27 @@
+{
+	"_comment": "Syarat membuka instrumen (GDD 5.5). type: emergency_fund | net_worth | level | quiz_topic",
+	"stages": [
+		{ "stage": 1, "name_key": "STAGE_1", "requirements": [] },
+		{
+			"stage": 2, "name_key": "STAGE_2",
+			"requirements": [
+				{ "type": "emergency_fund", "months": 3 },
+				{ "type": "quiz_topic", "topic": "basics", "correct": 3 }
+			]
+		},
+		{
+			"stage": 3, "name_key": "STAGE_3",
+			"requirements": [
+				{ "type": "net_worth", "min": 50000000 },
+				{ "type": "level", "min": 3 }
+			]
+		},
+		{
+			"stage": 4, "name_key": "STAGE_4",
+			"requirements": [
+				{ "type": "net_worth", "min": 150000000 },
+				{ "type": "quiz_topic", "topic": "risk", "correct": 3 }
+			]
+		}
+	]
+}

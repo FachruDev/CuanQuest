@@ -1,10 +1,10 @@
-extends Control
+extends ModalPopup
 ## Popup (modal) ringkasan yang muncul setiap kali pemain menekan "Lanjut".
 
 
 func _ready() -> void:
-	hide()
-	%OkButton.pressed.connect(hide)
+	super()
+	%OkButton.pressed.connect(close)
 
 
 func show_report(report: Dictionary) -> void:
