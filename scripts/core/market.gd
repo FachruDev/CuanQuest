@@ -50,8 +50,11 @@ func step(month: int) -> Array[Dictionary]:
 	if rng.randf() < config["news_chance"]:
 		_roll_news(month, news, shocks)
 
+	# Urutan loop HARUS tetap (ikut file data), bukan urutan Dictionary `regimes`:
+	# setelah save/load lewat JSON urutan key bisa berubah, dan angka acak akan
+	# tertukar antar faktor sehingga hasil simulasi tidak lagi sama.
 	var factor_z := {}
-	for factor: String in regimes:
+	for factor: String in _factor_order():
 		factor_z[factor] = rng.randfn(0.0, 1.0)
 
 	for asset: MarketAsset in assets.values():
@@ -67,6 +70,44 @@ func step(month: int) -> Array[Dictionary]:
 		news_log.push_front(item)
 	news_log.resize(mini(news_log.size(), int(config["news_log_size"])))
 	return news
+
+
+## Simpan kondisi pasar. RNG state disimpan sebagai string karena bilangan 64-bit
+## akan kehilangan presisi jika disimpan sebagai angka JSON (float 53-bit).
+func to_dict() -> Dictionary:
+	var asset_states := {}
+	for asset: MarketAsset in assets.values():
+		asset_states[asset.id] = {"price": asset.price, "history": asset.history}
+	return {
+		"rng_seed": str(rng.seed), "rng_state": str(rng.state),
+		"policy_rate": policy_rate, "regimes": regimes, "news_log": news_log,
+		"assets": asset_states,
+	}
+
+
+## Kebalikan to_dict(): parameter aset diambil dari file data terbaru, harga dari save.
+func load_state(asset_defs: Array, market_config: Dictionary, news: Array, d: Dictionary) -> void:
+	config = market_config
+	news_defs = news
+	assets.clear()
+	for def: Dictionary in asset_defs:
+		var asset := MarketAsset.from_def(def)
+		var saved: Dictionary = d["assets"].get(asset.id, {})
+		if not saved.is_empty():
+			asset.price = saved["price"]
+			asset.history.assign(saved["history"])
+		assets[asset.id] = asset
+	rng.seed = String(d["rng_seed"]).to_int()
+	rng.state = String(d["rng_state"]).to_int()
+	policy_rate = d["policy_rate"]
+	regimes.clear()
+	for factor: String in d["regimes"]:
+		var r: Dictionary = d["regimes"][factor]
+		regimes[factor] = {"id": r["id"], "months_left": int(r["months_left"])}
+	news_log.clear()
+	for item: Dictionary in d["news_log"]:
+		item["month"] = int(item["month"])
+		news_log.append(item)
 
 
 func get_asset(id: String) -> MarketAsset:
@@ -89,8 +130,12 @@ func _new_regime(id: String) -> Dictionary:
 	return {"id": id, "months_left": rng.randi_range(int(def["min_months"]), int(def["max_months"]))}
 
 
+func _factor_order() -> Array:
+	return config["factors"].keys()
+
+
 func _update_regimes(month: int, news: Array[Dictionary]) -> void:
-	for factor: String in regimes:
+	for factor: String in _factor_order():
 		var regime: Dictionary = regimes[factor]
 		regime["months_left"] -= 1
 		if regime["months_left"] > 0:

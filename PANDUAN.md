@@ -30,12 +30,14 @@ data/
   news.json                   Template berita pasar & dampaknya ke harga
   events.json                 33 event hidup: syarat muncul, pilihan, efek
   quiz.json                   39 soal kuis (4 topik)
+  glossary.json               31 istilah glosarium
   unlocks.json                Syarat membuka tiap tahap instrumen
 localization/strings.csv      Semua teks UI (kolom id & en)
 theme/main_theme.tres         Font global, warna tombol aktif, panel, progress bar
 scripts/
   autoload/game_state.gd      STATE GLOBAL: kas, bulan, kondisi, portofolio, loop bulanan, XP, unlock, event
   autoload/ad_service.gd      Iklan rewarded (STUB, nanti diganti AdMob dengan interface sama)
+  autoload/save_manager.gd    Simpan/muat file JSON di user:// + simpan otomatis
   core/                       Logika murni tanpa UI (mudah dites)
     market.gd, market_asset.gd   Simulasi pasar (GBM, RNG ber-seed)
     fmt.gd                    Format Rp1.234.567, +2,35%, tanggal game
@@ -52,6 +54,9 @@ scripts/
     ui_text.gd                Helper teks: perubahan efek, syarat unlock
     screens/                  Satu script per tab
 scenes/
+  title.tscn                  Layar judul (main scene saat game dibuka)
+  new_game.tscn               Buat karakter
+  tutorial.tscn               Tutorial 5 layar
   main.tscn                   Shell aplikasi
   screens/                    home, market, portfolio, placeholder
   ui/month_summary_popup.tscn
@@ -75,8 +80,8 @@ scenes/
 
 | # | Item | Milestone | Status |
 |---|---|---|---|
-| 1 | Profil karakter dan pilihan kesulitan | M5 | ⬜ |
-| 2 | Tutorial singkat dan glosarium | M5 | ⬜ |
+| 1 | Profil karakter dan pilihan kesulitan | M5 | ✅ |
+| 2 | Tutorial singkat dan glosarium | M5 | ✅ 5 layar tutorial, 31 istilah, petunjuk per tab |
 | 3 | Loop bulanan dengan tombol Lanjut | M2 | ✅ |
 | 4 | Gaji dan biaya hidup (makan, sewa) | M2 | ✅ |
 | 5 | Tabungan, deposito, reksa dana, saham, kripto | M3 | ✅ |
@@ -87,8 +92,8 @@ scenes/
 | 10 | Kuis 3 per minggu + iklan rewarded (minimal 30 soal) | M4 | ✅ 39 soal; iklan masih stub (AdMob di M7) |
 | 11 | Sistem unlock instrumen | M4 | ✅ |
 | 12 | Kondisi menang dan kalah serta layar akhir | M6 | ⬜ |
-| 13 | Save/load otomatis dan manual | M5 | ⬜ |
-| 14 | Pengaturan dan halaman profil | M6 | ⬜ |
+| 13 | Save/load otomatis dan manual | M5 | ✅ |
+| 14 | Pengaturan dan halaman profil | M5 + M6 | 🟨 halaman profil ada; pengaturan di M6 |
 | 15 | Disclaimer simulasi dan kebijakan privasi | M6 | 🟨 disclaimer ada; kebijakan privasi di M6 |
 
 ## Milestone
@@ -97,7 +102,7 @@ scenes/
 - [x] **M2: Loop bulanan.** Gaji, biaya hidup, kesehatan/kebahagiaan, laporan bulanan, tab Portofolio, navigasi bawah
 - [x] **M3: Pasar lengkap.** 10 aset di 5 kelas, siklus bull/sideways/bear, korelasi, suku bunga acuan, 16 berita pasar, bunga & penalti deposito
 - [x] **M4: Event hidup, kuis, unlock.** 33 event (termasuk efek tertunda & PHK), 39 soal kuis (3/minggu nyata + iklan stub), XP & level, 4 tahap unlock, antrean popup
-- [ ] **M5: Save/load, layar judul, onboarding (profil, kesulitan), tutorial & glosarium**
+- [x] **M5: Save/load, layar judul, buat karakter, tutorial & glosarium.** 3 latar belakang, 3 tingkat kesulitan, simpan otomatis + 3 slot manual, petunjuk saat tab pertama dibuka, tab Profil
 - [ ] **M6: Menang/kalah + layar akhir, profil & pengaturan, kebijakan privasi**
 - [ ] **M7: Export Android, playtest, balancing**
 
@@ -117,6 +122,23 @@ Setiap bulan `Market.step()` menjalankan:
 - **Teks event & kuis** ditulis langsung dalam bahasa Indonesia di JSON dan ditampilkan lewat `tr(teks)`. Untuk bahasa Inggris nanti, tambahkan file terjemahan dengan teks Indonesia sebagai key, tanpa perlu mengubah JSON atau kode.
 - **Jatah kuis memakai jam perangkat** (`QuizManager.current_week_id()`), sehingga menekan Lanjut tidak menambah jatah. Catatan: jatah ini akan hilang saat game ditutup, sampai fitur save/load selesai di M5.
 - **Tips testing unlock:** turunkan angka `min` di `data/unlocks.json` (misalnya `50000000` menjadi `5000000`) agar tahap saham dan kripto cepat terbuka. Jangan lupa kembalikan angkanya.
+
+## Simpan & Muat (M5)
+
+- **Alur layar:** `title.tscn` -> `new_game.tscn` -> `tutorial.tscn` (hanya jika belum pernah) -> `main.tscn`. Perpindahan memakai `get_tree().change_scene_to_file()`, sedangkan autoload (`GameState` dkk.) tetap hidup.
+- **Dua jenis data:**
+  - *Slot save* (`user://saves/auto.json`, `slot_1..3.json`): state satu permainan, hasil `GameState.to_dict()`.
+  - *Data pemain* (`user://player.json`): jatah kuis, status tutorial, dan petunjuk yang sudah dilihat. Dipisah agar membuat save baru tidak mereset jatah kuis mingguan.
+- **Kapan tersimpan otomatis:** setiap akhir bulan, setiap event diputuskan, serta saat aplikasi di-pause (Android) atau ditutup.
+- **Lokasi file di PC:** `%APPDATA%\Godot\app_userdata\Cuan Quest\`. Hapus folder `saves` untuk mulai dari nol.
+- **Pelajaran dari bug:** urutan key `Dictionary` bisa berubah setelah melewati JSON. Loop yang mengambil angka acak harus memakai urutan tetap (lihat `Market._factor_order()`), kalau tidak hasil simulasi setelah load akan berbeda. Hal yang sama berlaku untuk RNG state 64-bit, yang disimpan sebagai string karena angka JSON hanya presisi 53-bit.
+- **Menjalankan scene utama langsung (F6)** tetap bisa: `main.gd` otomatis membuat game baru dengan profil default.
+
+## Latihan M5 (opsional)
+
+1. Tambah latar belakang baru, misalnya `"pns"` (gaji stabil, volatilitas 0) di `data/economy.json`. Tombolnya otomatis muncul di layar Buat Karakter.
+2. Buka file `auto.json` di folder save dengan VS Code, lihat strukturnya, lalu bandingkan dengan `GameState.to_dict()`.
+3. Tambah istilah baru di `data/glossary.json` dan coba cari di popup glosarium.
 
 ## Latihan M4 (opsional)
 

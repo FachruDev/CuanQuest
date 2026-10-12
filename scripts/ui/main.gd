@@ -6,6 +6,9 @@ extends Control
 ## (laporan bulan -> instrumen baru terbuka -> event hidup). Popup berikutnya
 ## baru tampil setelah popup sebelumnya ditutup (signal `closed` dari ModalPopup).
 
+## Petunjuk kontekstual saat tab dibuka pertama kali (index tab -> key teks).
+const TAB_HINTS := {1: "HINT_MARKET", 2: "HINT_PORTFOLIO", 3: "HINT_ACTIVITY", 4: "HINT_PROFILE"}
+
 @onready var _screens: Array[Control] = [
 	%HomeScreen, %MarketScreen, %PortfolioScreen, %ActivityScreen, %ProfileScreen]
 @onready var _nav_buttons: Array[Button] = [
@@ -16,12 +19,18 @@ var _popup_open := false
 
 
 func _ready() -> void:
+	# Saat scene ini dijalankan langsung dari editor (F6) tanpa lewat layar judul.
+	if not GameState.is_active:
+		GameState.new_game()
+
 	var group := ButtonGroup.new()
 	for i in _nav_buttons.size():
 		_nav_buttons[i].button_group = group
 		_nav_buttons[i].pressed.connect(_show_screen.bind(i))
 
 	%NextButton.pressed.connect(GameState.advance_month)
+	%GlossaryButton.pressed.connect(func() -> void: _enqueue(%GlossaryPopup.open))
+	%ProfileScreen.glossary_requested.connect(func() -> void: _enqueue(%GlossaryPopup.open))
 	GameState.changed.connect(_refresh_top_bar)
 	GameState.month_advanced.connect(func(report: Dictionary) -> void:
 		_enqueue(%SummaryPopup.show_report.bind(report)))
@@ -32,24 +41,29 @@ func _ready() -> void:
 		_enqueue(%EventPopup.open.bind(event)))
 	%ActivityScreen.quiz_requested.connect(func(question: Dictionary) -> void:
 		_enqueue(%QuizPopup.open.bind(question)))
-	for popup: ModalPopup in [%SummaryPopup, %InfoPopup, %EventPopup, %QuizPopup]:
+	for popup: ModalPopup in [%SummaryPopup, %InfoPopup, %EventPopup, %QuizPopup, %GlossaryPopup]:
 		popup.closed.connect(_show_next_popup)
 
 	_show_screen(0)
 	_refresh_top_bar()
+	# Event yang belum diputuskan saat game disimpan muncul lagi setelah dimuat.
+	if GameState.has_pending_event():
+		_enqueue(%EventPopup.open.bind(GameState.pending_event))
 
 
 func _show_screen(index: int) -> void:
 	_nav_buttons[index].button_pressed = true  # lewat ButtonGroup: tombol lain otomatis lepas
 	for i in _screens.size():
 		_screens[i].visible = i == index
+	if TAB_HINTS.has(index) and GameState.consume_hint(TAB_HINTS[index]):
+		_enqueue(%InfoPopup.open.bind(tr("HINT_TITLE"), tr(TAB_HINTS[index])))
 
 
 func _refresh_top_bar() -> void:
 	%CashValue.text = Fmt.rupiah(GameState.cash)
 	%CashValue.modulate = MonthReport.RED if GameState.cash < 0 else Color.WHITE
 	%NetWorthValue.text = Fmt.rupiah(GameState.net_worth())
-	%DateLabel.text = "%s  |  Level %d" % [Fmt.game_date(GameState.month), GameState.level()]
+	%DateLabel.text = tr("TOPBAR_INFO") % [Fmt.game_date(GameState.month), GameState.age(), GameState.level()]
 	%NextButton.disabled = GameState.has_pending_event()
 
 

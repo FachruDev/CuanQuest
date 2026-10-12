@@ -1,11 +1,30 @@
 {
-	"start_cash": 2000000,
-	"salary": 5500000,
 	"start_health": 70,
 	"start_happiness": 70,
-	"default_food": "standard",
-	"default_housing": "kos",
-	"event_chance": 0.6,
+	"default_background": "employee",
+	"default_difficulty": "normal",
+	"backgrounds": [
+		{
+			"id": "student", "name_key": "BG_STUDENT", "desc_key": "BG_STUDENT_DESC",
+			"salary": 3000000, "start_cash": 1500000, "start_age": 20, "income_volatility": 0.0,
+			"default_food": "standard", "default_housing": "family"
+		},
+		{
+			"id": "employee", "name_key": "BG_EMPLOYEE", "desc_key": "BG_EMPLOYEE_DESC",
+			"salary": 5500000, "start_cash": 2000000, "start_age": 23, "income_volatility": 0.0,
+			"default_food": "standard", "default_housing": "kos"
+		},
+		{
+			"id": "freelancer", "name_key": "BG_FREELANCER", "desc_key": "BG_FREELANCER_DESC",
+			"salary": 6500000, "start_cash": 3000000, "start_age": 25, "income_volatility": 0.35,
+			"default_food": "standard", "default_housing": "kos"
+		}
+	],
+	"difficulties": [
+		{ "id": "easy", "name_key": "DIFF_EASY", "desc_key": "DIFF_EASY_DESC", "salary_mult": 1.15, "expense_mult": 0.9, "event_chance": 0.45, "bad_event_mult": 0.6 },
+		{ "id": "normal", "name_key": "DIFF_NORMAL", "desc_key": "DIFF_NORMAL_DESC", "salary_mult": 1.0, "expense_mult": 1.0, "event_chance": 0.6, "bad_event_mult": 1.0 },
+		{ "id": "hard", "name_key": "DIFF_HARD", "desc_key": "DIFF_HARD_DESC", "salary_mult": 0.9, "expense_mult": 1.1, "event_chance": 0.7, "bad_event_mult": 1.6 }
+	],
 	"xp_per_month": 2,
 	"xp_per_level": 60,
 	"quiz": {

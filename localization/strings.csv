@@ -35,7 +35,6 @@ NAV_MARKET,Pasar,Market
 NAV_PORTFOLIO,Portofolio,Portfolio
 NAV_ACTIVITY,Aktivitas,Activity
 NAV_PROFILE,Profil,Profile
-PLACEHOLDER_PROFILE,Profil & pengaturan hadir di Milestone 5.,Profile & settings arrive in Milestone 5.
 HOME_WELLBEING,Kondisi,Wellbeing
 STAT_HEALTH,Kesehatan,Health
 STAT_HAPPINESS,Kebahagiaan,Happiness
@@ -199,3 +198,94 @@ Check the Market tab."
 REPORT_SALARY_UNEMPLOYED,Gaji (menganggur),Salary (unemployed)
 REPORT_EVENTS,KEJADIAN,EVENTS
 HOME_UNEMPLOYED,Menganggur: tanpa gaji %d bulan lagi,Unemployed: no salary for %d more months
+DEFAULT_PLAYER_NAME,Pemain,Player
+TOPBAR_INFO,%s  |  %d th  |  Level %d,%s  |  age %d  |  Level %d
+BTN_CLOSE,Tutup,Close
+TITLE_TAGLINE,Simulasi kehidupan finansial & investasi,A personal finance & investing life sim
+TITLE_CONTINUE,Lanjutkan,Continue
+TITLE_NEW_GAME,Game Baru,New Game
+TITLE_NEW_CONFIRM,Yakin? Simpanan otomatis akan ditimpa. Tekan lagi untuk lanjut.,Sure? The autosave will be overwritten. Tap again to continue.
+TITLE_LOAD,Muat Game,Load Game
+SAVE_SLOT,Slot %d,Slot %d
+SAVE_EMPTY,(kosong),(empty)
+SAVE_BUTTON,Simpan,Save
+LOAD_BUTTON,Muat,Load
+SAVE_OK,Tersimpan!,Saved!
+SAVE_FAILED,Gagal menyimpan.,Failed to save.
+SAVE_LOAD_FAILED,Gagal memuat simpanan (file rusak atau versi berbeda).,Failed to load the save (corrupted or different version).
+NG_TITLE,Buat Karakter,Create Character
+NG_NAME,Nama,Name
+NG_NAME_HINT,Nama karaktermu,Your character's name
+NG_AVATAR,Avatar,Avatar
+NG_BACKGROUND,Latar Belakang,Background
+NG_DIFFICULTY,Tingkat Kesulitan,Difficulty
+NG_SALARY,%s/bulan,%s/month
+NG_START,Mulai Bermain,Start Playing
+BG_STUDENT,Mahasiswa,Student
+BG_STUDENT_DESC,"Usia 20. Kerja paruh waktu, masih tinggal bersama orang tua. Penghasilan kecil, tapi waktu masih panjang.","Age 20. Part-time job, lives with parents. Small income, but plenty of time ahead."
+BG_EMPLOYEE,Karyawan,Employee
+BG_EMPLOYEE_DESC,Usia 23. Gaji tetap setiap bulan dan stabil.,Age 23. Steady monthly salary.
+BG_FREELANCER,Pekerja Lepas,Freelancer
+BG_FREELANCER_DESC,"Usia 25. Rata-rata penghasilan lebih tinggi, tapi naik-turun hingga 35% tiap bulan.","Age 25. Higher average income, but it swings up to 35% each month."
+DIFF_EASY,Santai,Relaxed
+DIFF_EASY_DESC,"Gaji +15%, biaya hidup -10%, kejadian buruk lebih jarang.","Salary +15%, living costs -10%, fewer bad events."
+DIFF_NORMAL,Normal,Normal
+DIFF_NORMAL_DESC,Kondisi standar seperti yang dirancang.,"Standard, as designed."
+DIFF_HARD,Sulit,Hard
+DIFF_HARD_DESC,"Gaji -10%, biaya hidup +10%, kejadian buruk lebih sering.","Salary -10%, living costs +10%, more bad events."
+TUT_NEXT,Lanjut,Next
+TUT_FINISH,Mulai!,Start!
+TUT_SKIP,Lewati,Skip
+TUT_1_TITLE,Selamat datang di Cuan Quest!,Welcome to Cuan Quest!
+TUT_1_BODY,"Kamu akan menjalani kehidupan finansial sebuah karakter: bekerja, membayar biaya hidup, menghadapi kejadian tak terduga, dan mengembangkan uang lewat investasi.
+
+Semua uang di game ini VIRTUAL. Ini simulasi untuk edukasi, bukan saran keuangan.","You will live a character's financial life: work, pay living costs, face surprises, and grow money through investing.
+
+All money here is VIRTUAL. This is an educational simulation, not financial advice."
+TUT_2_TITLE,Satu giliran = satu bulan,One turn = one month
+TUT_2_BODY,"Setiap awal bulan gaji masuk dan biaya hidup terpotong otomatis. Kadang muncul kejadian yang harus kamu putuskan.
+
+Setelah selesai mengatur keuangan, tekan ""Lanjut ke Bulan Berikutnya"". Pasar bergerak dan laporan bulananmu muncul.","At the start of each month your salary arrives and living costs are deducted. Sometimes an event needs your decision.
+
+When you're done, tap ""Next Month"". The market moves and your monthly report appears."
+TUT_3_TITLE,Beranda: jaga hidupmu,Home: take care of yourself
+TUT_3_BODY,"Pilih makan dan tempat tinggal. Yang murah membuat tabungan cepat bertambah, tapi bisa menurunkan kesehatan dan kebahagiaan.
+
+Siapkan dana darurat (3-6 kali pengeluaran bulanan) untuk menghadapi sakit, PHK, atau kerusakan.","Choose food and housing. Cheap options grow savings faster but can lower health and happiness.
+
+Build an emergency fund (3-6x monthly spending) for sickness, layoffs, or repairs."
+TUT_4_TITLE,Pasar: mulai dari yang aman,Market: start safe
+TUT_4_BODY,"Awalnya hanya tabungan, deposito, dan reksa dana pasar uang yang terbuka. Reksa dana saham, saham, lalu kripto terbuka bertahap saat kamu memenuhi syaratnya.
+
+Ingat: semakin tinggi potensi untung, semakin tinggi risikonya.","At first only savings, deposits, and money market funds are open. Equity funds, stocks, then crypto unlock as you meet requirements.
+
+Remember: higher potential return means higher risk."
+TUT_5_TITLE,Belajar sambil bermain,Learn as you play
+TUT_5_BODY,"Di tab Aktivitas ada 3 kuis gratis setiap minggu. Jawaban benar memberi hadiah dan XP, dan sebagian kuis menjadi syarat membuka instrumen baru.
+
+Bingung dengan suatu istilah? Tekan tombol ""?"" di kanan atas untuk membuka glosarium.","The Activity tab has 3 free quizzes every week. Correct answers give rewards and XP, and some quizzes unlock new instruments.
+
+Confused by a term? Tap ""?"" at the top right to open the glossary."
+REQ_TUTORIAL,Selesaikan tutorial,Complete the tutorial
+GLOSSARY_TITLE,Glosarium,Glossary
+GLOSSARY_SEARCH,Cari istilah...,Search terms...
+GLOSSARY_NOT_FOUND,Istilah tidak ditemukan.,No matching term.
+PROFILE_INFO,"%s | %d tahun
+Kesulitan: %s | Level %d","%s | age %d
+Difficulty: %s | Level %d"
+PROFILE_SAVE_TITLE,Simpan & Muat,Save & Load
+PROFILE_AUTOSAVE_INFO,Game tersimpan otomatis setiap bulan dan saat aplikasi ditutup. Gunakan slot di bawah untuk menyimpan cadangan.,The game autosaves every month and when the app closes. Use the slots below for backups.
+PROFILE_MENU_TITLE,Menu,Menu
+PROFILE_GLOSSARY,Glosarium,Glossary
+PROFILE_TUTORIAL,Ulangi Tutorial,Replay Tutorial
+PROFILE_TO_TITLE,Kembali ke Menu Utama,Back to Main Menu
+HOME_SALARY_VARIABLE,Penghasilan rata-rata: %s (naik-turun hingga %d%%),Average income: %s (varies up to %d%%)
+HINT_TITLE,Petunjuk,Tip
+HINT_MARKET,"Ini daftar instrumen investasi. Ketuk salah satu untuk melihat detail, grafik, dan tombol beli/jual.
+
+Instrumen yang redup masih terkunci; lihat syaratnya di halaman detail atau di tab Aktivitas.","This is the list of instruments. Tap one to see details, a chart, and buy/sell.
+
+Dimmed instruments are locked; see their requirements in the detail page or the Activity tab."
+HINT_PORTFOLIO,"Di sini kamu bisa memantau kekayaan bersih dari waktu ke waktu, semua kepemilikan beserta untung/ruginya, dan laporan bulan terakhir.","Track your net worth over time, all holdings with profit/loss, and the latest monthly report."
+HINT_ACTIVITY,Jawab kuis untuk mendapat hadiah dan XP. Level dan kuis tertentu dibutuhkan untuk membuka instrumen baru.,Answer quizzes for rewards and XP. Levels and some quizzes are required to unlock new instruments.
+HINT_PROFILE,"Simpan cadangan game di slot manual, buka glosarium, atau ulangi tutorial dari sini.","Save backups in manual slots, open the glossary, or replay the tutorial here."

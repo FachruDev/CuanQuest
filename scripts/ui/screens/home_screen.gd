@@ -20,6 +20,9 @@ func _refresh() -> void:
 	var income := GameState.salary if GameState.unemployed_months == 0 else 0
 	var surplus := income - expenses
 	%SalaryLabel.text = tr("HOME_SALARY") % Fmt.rupiah(GameState.salary)
+	var volatility := float(GameState.background["income_volatility"])
+	if volatility > 0.0:
+		%SalaryLabel.text = tr("HOME_SALARY_VARIABLE") % [Fmt.rupiah(GameState.salary), roundi(volatility * 100)]
 	%SalaryLabel.modulate = Color.WHITE
 	if GameState.unemployed_months > 0:
 		%SalaryLabel.text = tr("HOME_UNEMPLOYED") % GameState.unemployed_months
@@ -54,7 +57,7 @@ func _build_options(container: HBoxContainer, options: Array, on_select: Callabl
 		content.alignment = BoxContainer.ALIGNMENT_CENTER
 		content.mouse_filter = Control.MOUSE_FILTER_IGNORE  # klik diteruskan ke Button
 		content.add_child(_make_label(tr(option["name_key"]), 24))
-		var cost_label := _make_label(Fmt.rupiah(option["cost"]), 18)
+		var cost_label := _make_label(Fmt.rupiah(GameState.option_cost(option)), 18)
 		cost_label.modulate = Color(1, 1, 1, 0.7)
 		content.add_child(cost_label)
 		button.add_child(content)

@@ -71,6 +71,23 @@ func correct_in_topic(topic: String) -> int:
 	return count
 
 
+## Disimpan di user://player.json (global, bukan per slot save).
+func to_dict() -> Dictionary:
+	return {"correct_ids": correct_ids.keys(), "week_id": week_id, "free_used": free_used,
+		"day_id": day_id, "ads_used": ads_used, "bonus_credits": bonus_credits}
+
+
+func from_dict(d: Dictionary) -> void:
+	correct_ids.clear()
+	for id: String in d.get("correct_ids", []):
+		correct_ids[id] = true
+	week_id = int(d.get("week_id", -1))
+	free_used = int(d.get("free_used", 0))
+	day_id = int(d.get("day_id", -1))
+	ads_used = int(d.get("ads_used", 0))
+	bonus_credits = int(d.get("bonus_credits", 0))
+
+
 func _pick_question(preferred_topics: Array) -> Dictionary:
 	var pool := questions.filter(func(q: Dictionary) -> bool: return not correct_ids.has(q["id"]))
 	if pool.is_empty():

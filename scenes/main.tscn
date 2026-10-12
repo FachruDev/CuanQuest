@@ -4,7 +4,8 @@
 [ext_resource type="PackedScene" path="res://scenes/screens/home_screen.tscn" id="2_home"]
 [ext_resource type="PackedScene" path="res://scenes/screens/market_screen.tscn" id="3_market"]
 [ext_resource type="PackedScene" path="res://scenes/screens/portfolio_screen.tscn" id="4_portfolio"]
-[ext_resource type="PackedScene" path="res://scenes/screens/placeholder_screen.tscn" id="5_placeholder"]
+[ext_resource type="PackedScene" path="res://scenes/screens/profile_screen.tscn" id="5_profile"]
+[ext_resource type="PackedScene" path="res://scenes/ui/glossary_popup.tscn" id="11_glossary"]
 [ext_resource type="PackedScene" path="res://scenes/ui/month_summary_popup.tscn" id="6_popup"]
 [ext_resource type="PackedScene" path="res://scenes/screens/activity_screen.tscn" id="7_activity"]
 [ext_resource type="PackedScene" path="res://scenes/ui/info_popup.tscn" id="8_info"]
@@ -78,6 +79,13 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Rp0"
 
+[node name="GlossaryButton" type="Button" parent="Margin/VBox/TopBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(68, 68)
+layout_mode = 2
+size_flags_vertical = 4
+text = "?"
+
 [node name="DateLabel" type="Label" parent="Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -111,11 +119,10 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="ProfileScreen" parent="Margin/VBox/Content" instance=ExtResource("5_placeholder")]
+[node name="ProfileScreen" parent="Margin/VBox/Content" instance=ExtResource("5_profile")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-message_key = "PLACEHOLDER_PROFILE"
 
 [node name="NextButton" type="Button" parent="Margin/VBox"]
 unique_name_in_owner = true
@@ -185,5 +192,9 @@ unique_name_in_owner = true
 layout_mode = 1
 
 [node name="QuizPopup" parent="." instance=ExtResource("10_quiz")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="GlossaryPopup" parent="." instance=ExtResource("11_glossary")]
 unique_name_in_owner = true
 layout_mode = 1

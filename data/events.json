@@ -1,13 +1,14 @@
 {
 	"_comment": [
 		"category: finance | work | health | social | market | scam",
+		"bad: true = event merugikan, bobotnya dikali bad_event_mult dari tingkat kesulitan",
 		"Syarat (opsional): min_month, max_times, cooldown (bulan, default 12), month_of_year (0=Jan), guaranteed (selalu muncul jika syarat terpenuhi), requires: employed | has_investments | low_happiness",
 		"choice: label, cost (dibayar di muka, pilihan nonaktif jika kas kurang), effects ATAU outcomes [{chance, effects, result}], result",
 		"effects: cash, cash_salary (kali gaji), health, happiness, xp, salary_pct, unemployed_months, sell_all, delayed {months, chance, effects, text, fail_text}"
 	],
 	"events": [
 		{
-			"id": "motor_broken", "category": "finance", "weight": 3,
+			"id": "motor_broken", "bad": true, "category": "finance", "weight": 3,
 			"title": "Motor Mogok", "text": "Motormu mogok di tengah jalan dan butuh servis besar.",
 			"choices": [
 				{ "label": "Servis di bengkel resmi", "cost": 1500000, "effects": {}, "result": "Motor kembali prima dan bergaransi." },
@@ -28,7 +29,7 @@
 			]
 		},
 		{
-			"id": "scam_invest", "category": "scam", "weight": 2, "min_month": 2, "max_times": 2, "cooldown": 18,
+			"id": "scam_invest", "bad": true, "category": "scam", "weight": 2, "min_month": 2, "max_times": 2, "cooldown": 18,
 			"title": "Investasi \"Pasti Untung\"", "text": "Teman lama menawarkan investasi dengan keuntungan 10% per bulan, dijamin tanpa risiko. \"Kuotanya terbatas, buruan!\"",
 			"choices": [
 				{ "label": "Ikut dengan Rp5.000.000", "cost": 5000000, "effects": { "happiness": -6 }, "result": "Bulan pertama 'untung' dibayar, lalu pengelolanya menghilang. Uangmu lenyap. Ingat: untung tinggi dan dijamin adalah ciri investasi bodong." },
@@ -37,7 +38,7 @@
 			]
 		},
 		{
-			"id": "pinjol", "category": "scam", "weight": 2, "min_month": 4, "max_times": 2, "cooldown": 18,
+			"id": "pinjol", "bad": true, "category": "scam", "weight": 2, "min_month": 4, "max_times": 2, "cooldown": 18,
 			"title": "Pinjaman Cair 5 Menit", "text": "Sebuah SMS menawarkan pinjaman Rp3 juta, cair 5 menit tanpa syarat. Cukup instal aplikasi dan izinkan akses kontak.",
 			"choices": [
 				{ "label": "Ambil pinjamannya", "effects": { "cash": 3000000, "delayed": { "months": 1, "effects": { "cash": -5500000, "happiness": -10 }, "text": "Tagihan pinjol ilegal datang: Rp5,5 juta untuk pinjaman Rp3 juta, plus teror ke semua kontakmu." } }, "result": "Uang Rp3 juta cair. Tapi aplikasi itu tidak terdaftar di OJK..." },
@@ -45,7 +46,7 @@
 			]
 		},
 		{
-			"id": "flu", "category": "health", "weight": 3,
+			"id": "flu", "bad": true, "category": "health", "weight": 3,
 			"title": "Demam Tinggi", "text": "Badanmu demam tinggi sejak semalam.",
 			"choices": [
 				{ "label": "Periksa ke dokter", "cost": 500000, "effects": { "health": 4 }, "result": "Dokter memberi obat yang tepat. Kamu cepat pulih." },
@@ -53,7 +54,7 @@
 			]
 		},
 		{
-			"id": "hospital", "category": "health", "weight": 1, "min_month": 6, "cooldown": 24,
+			"id": "hospital", "bad": true, "category": "health", "weight": 1, "min_month": 6, "cooldown": 24,
 			"title": "Harus Rawat Inap", "text": "Hasil pemeriksaan menunjukkan kamu perlu rawat inap 3 hari. Kamu belum punya asuransi kesehatan.",
 			"choices": [
 				{ "label": "Rawat inap", "cost": 7000000, "effects": { "health": 10 }, "result": "Kamu pulih total. Inilah gunanya dana darurat (dan asuransi)." },
@@ -62,7 +63,7 @@
 			]
 		},
 		{
-			"id": "dental", "category": "health", "weight": 2, "cooldown": 18,
+			"id": "dental", "bad": true, "category": "health", "weight": 2, "cooldown": 18,
 			"title": "Sakit Gigi", "text": "Gigimu berdenyut hebat sampai sulit tidur.",
 			"choices": [
 				{ "label": "Ke dokter gigi", "cost": 800000, "effects": { "health": 3 }, "result": "Gigi ditambal, sakitnya hilang." },
@@ -85,7 +86,7 @@
 			]
 		},
 		{
-			"id": "layoff", "category": "work", "weight": 1, "min_month": 8, "max_times": 1, "requires": "employed",
+			"id": "layoff", "bad": true, "category": "work", "weight": 1, "min_month": 8, "max_times": 1, "requires": "employed",
 			"title": "Gelombang PHK", "text": "Perusahaan melakukan efisiensi dan kamu termasuk yang terkena PHK. Kamu menerima pesangon 2 kali gaji. Butuh sekitar 3 bulan untuk mendapat pekerjaan baru.",
 			"choices": [
 				{ "label": "Terima dan mulai cari kerja", "effects": { "cash_salary": 2.0, "unemployed_months": 3, "happiness": -10 }, "result": "Selama 3 bulan ke depan tidak ada gaji. Dana daruratmu sedang diuji." }
@@ -145,7 +146,7 @@
 			]
 		},
 		{
-			"id": "parents", "category": "social", "weight": 1, "min_month": 6, "cooldown": 18,
+			"id": "parents", "bad": true, "category": "social", "weight": 1, "min_month": 6, "cooldown": 18,
 			"title": "Orang Tua Butuh Bantuan", "text": "Atap rumah orang tuamu bocor parah dan perlu diperbaiki.",
 			"choices": [
 				{ "label": "Bantu Rp3 juta", "cost": 3000000, "effects": { "happiness": 6 }, "result": "Orang tuamu sangat terbantu." },
@@ -154,7 +155,7 @@
 			]
 		},
 		{
-			"id": "phone_broken", "category": "finance", "weight": 2, "min_month": 4, "cooldown": 18,
+			"id": "phone_broken", "bad": true, "category": "finance", "weight": 2, "min_month": 4, "cooldown": 18,
 			"title": "HP Jatuh dan Rusak", "text": "Layar HP-mu pecah dan tidak bisa menyala.",
 			"choices": [
 				{ "label": "Beli HP flagship terbaru", "cost": 8000000, "effects": { "happiness": 6 }, "result": "HP baru yang keren. Dompet menangis." },
@@ -187,7 +188,7 @@
 			]
 		},
 		{
-			"id": "kos_repair", "category": "finance", "weight": 2, "cooldown": 12,
+			"id": "kos_repair", "bad": true, "category": "finance", "weight": 2, "cooldown": 12,
 			"title": "Kerusakan di Kamar", "text": "Pipa air di kamarmu bocor dan merusak beberapa barang.",
 			"choices": [
 				{ "label": "Ganti barang yang rusak", "cost": 600000, "effects": {}, "result": "Kamar kembali rapi." },
@@ -195,7 +196,7 @@
 			]
 		},
 		{
-			"id": "electric_bill", "category": "finance", "weight": 2, "cooldown": 12,
+			"id": "electric_bill", "bad": true, "category": "finance", "weight": 2, "cooldown": 12,
 			"title": "Tagihan Listrik Membengkak", "text": "Pemakaian AC berlebihan membuat tagihan listrik bulan ini membengkak.",
 			"choices": [
 				{ "label": "Bayar dan mulai hemat energi", "effects": { "cash": -400000, "xp": 5 }, "result": "Pelajaran: pengeluaran kecil yang rutin bisa membesar." },
@@ -232,7 +233,7 @@
 			]
 		},
 		{
-			"id": "friend_panic", "category": "market", "weight": 2, "min_month": 3, "cooldown": 12, "requires": "has_investments",
+			"id": "friend_panic", "bad": true, "category": "market", "weight": 2, "min_month": 3, "cooldown": 12, "requires": "has_investments",
 			"title": "Teman Panik", "text": "Temanmu yakin pasar akan crash besar bulan depan. \"Jual semua investasimu sekarang!\"",
 			"choices": [
 				{ "label": "Jual semua investasi", "effects": { "sell_all": true, "happiness": -2 }, "result": "Semua investasimu dijual (dengan biaya transaksi). Prediksi pasar jangka pendek jarang akurat." },
@@ -276,7 +277,7 @@
 			]
 		},
 		{
-			"id": "mlm", "category": "scam", "weight": 2, "min_month": 5, "max_times": 2, "cooldown": 18,
+			"id": "mlm", "bad": true, "category": "scam", "weight": 2, "min_month": 5, "max_times": 2, "cooldown": 18,
 			"title": "Ajakan Bisnis \"Member\"", "text": "Kenalan mengajakmu bergabung bisnis: bayar pendaftaran Rp2,5 juta, lalu rekrut 5 orang untuk mendapat bonus. Produknya tidak jelas.",
 			"choices": [
 				{ "label": "Daftar", "cost": 2500000, "outcomes": [
@@ -287,7 +288,7 @@
 			]
 		},
 		{
-			"id": "phishing", "category": "scam", "weight": 2, "min_month": 2, "max_times": 2, "cooldown": 12,
+			"id": "phishing", "bad": true, "category": "scam", "weight": 2, "min_month": 2, "max_times": 2, "cooldown": 12,
 			"title": "SMS Hadiah Undian", "text": "\"Selamat! Anda memenangkan undian Rp50 juta. Klik link berikut dan masukkan data rekening serta kode OTP untuk klaim hadiah.\"",
 			"choices": [
 				{ "label": "Klik link dan isi datanya", "effects": { "cash": -2000000, "happiness": -6 }, "result": "Rekeningmu dibobol Rp2 juta. Jangan pernah memberikan data rekening atau OTP." },

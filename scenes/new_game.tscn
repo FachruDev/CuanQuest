@@ -1,0 +1,100 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/new_game_screen.gd" id="1_new"]
+
+[node name="NewGame" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_new")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.067, 0.086, 0.13, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "NG_TITLE"
+
+[node name="Scroll" type="ScrollContainer" parent="Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Form" type="VBoxContainer" parent="Margin/VBox/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="NameLabel" type="Label" parent="Margin/VBox/Scroll/Form"]
+layout_mode = 2
+text = "NG_NAME"
+
+[node name="NameEdit" type="LineEdit" parent="Margin/VBox/Scroll/Form"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+placeholder_text = "NG_NAME_HINT"
+max_length = 16
+
+[node name="AvatarLabel" type="Label" parent="Margin/VBox/Scroll/Form"]
+layout_mode = 2
+text = "NG_AVATAR"
+
+[node name="AvatarRow" type="HFlowContainer" parent="Margin/VBox/Scroll/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="BackgroundLabel" type="Label" parent="Margin/VBox/Scroll/Form"]
+layout_mode = 2
+text = "NG_BACKGROUND"
+
+[node name="BackgroundOptions" type="VBoxContainer" parent="Margin/VBox/Scroll/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="DifficultyLabel" type="Label" parent="Margin/VBox/Scroll/Form"]
+layout_mode = 2
+text = "NG_DIFFICULTY"
+
+[node name="DifficultyOptions" type="VBoxContainer" parent="Margin/VBox/Scroll/Form"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="StartButton" type="Button" parent="Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 92)
+layout_mode = 2
+text = "NG_START"
+
+[node name="BackButton" type="Button" parent="Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "BTN_BACK"

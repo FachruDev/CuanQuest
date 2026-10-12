@@ -22,13 +22,14 @@ func pick_guaranteed(state: Node) -> Dictionary:
 	return {}
 
 
-func pick_random(state: Node, rng: RandomNumberGenerator) -> Dictionary:
+## `bad_mult` (dari tingkat kesulitan) mengalikan bobot event yang ditandai "bad".
+func pick_random(state: Node, rng: RandomNumberGenerator, bad_mult: float = 1.0) -> Dictionary:
 	var candidates: Array[Dictionary] = []
 	var weights := PackedFloat32Array()
 	for def: Dictionary in defs:
 		if not def.get("guaranteed", false) and _is_eligible(def, state):
 			candidates.append(def)
-			weights.append(def.get("weight", 1.0))
+			weights.append(def.get("weight", 1.0) * (bad_mult if def.get("bad", false) else 1.0))
 	if candidates.is_empty():
 		return {}
 	return candidates[rng.rand_weighted(weights)]
@@ -37,6 +38,27 @@ func pick_random(state: Node, rng: RandomNumberGenerator) -> Dictionary:
 func mark_shown(def: Dictionary, month: int) -> void:
 	counts[def["id"]] = counts.get(def["id"], 0) + 1
 	last_month[def["id"]] = month
+
+
+func to_dict() -> Dictionary:
+	return {"counts": counts, "last_month": last_month}
+
+
+func from_dict(d: Dictionary) -> void:
+	counts.clear()
+	last_month.clear()
+	for id: String in d.get("counts", {}):
+		counts[id] = int(d["counts"][id])
+	for id: String in d.get("last_month", {}):
+		last_month[id] = int(d["last_month"][id])
+
+
+## Cari definisi event berdasarkan id (dipakai saat memuat event yang tertunda).
+func find(id: String) -> Dictionary:
+	for def: Dictionary in defs:
+		if def["id"] == id:
+			return def
+	return {}
 
 
 ## `state` adalah GameState (diakses secara duck-typing: state.month, state.holdings, ...).

@@ -1,10 +1,11 @@
 {
-	"_comment": "Syarat membuka instrumen (GDD 5.5). type: emergency_fund | net_worth | level | quiz_topic",
+	"_comment": "Syarat membuka instrumen (GDD 5.5). type: tutorial | emergency_fund | net_worth | level | quiz_topic",
 	"stages": [
 		{ "stage": 1, "name_key": "STAGE_1", "requirements": [] },
 		{
 			"stage": 2, "name_key": "STAGE_2",
 			"requirements": [
+				{ "type": "tutorial" },
 				{ "type": "emergency_fund", "months": 3 },
 				{ "type": "quiz_topic", "topic": "basics", "correct": 3 }
 			]

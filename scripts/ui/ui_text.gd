@@ -38,6 +38,8 @@ static func fill_requirements(box: VBoxContainer, stage: Dictionary) -> void:
 
 static func requirement_text(req: Dictionary, status: Dictionary) -> String:
 	match req["type"]:
+		"tutorial":
+			return _t("REQ_TUTORIAL")
 		"emergency_fund":
 			return _t("REQ_EMERGENCY") % [int(req["months"]), Fmt.rupiah(status["current"]), Fmt.rupiah(status["target"])]
 		"net_worth":
