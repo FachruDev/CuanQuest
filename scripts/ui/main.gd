@@ -6,6 +6,8 @@ extends Control
 ## (laporan bulan -> instrumen baru terbuka -> event hidup). Popup berikutnya
 ## baru tampil setelah popup sebelumnya ditutup (signal `closed` dari ModalPopup).
 
+const END_SCENE := "res://scenes/end_screen.tscn"
+
 ## Petunjuk kontekstual saat tab dibuka pertama kali (index tab -> key teks).
 const TAB_HINTS := {1: "HINT_MARKET", 2: "HINT_PORTFOLIO", 3: "HINT_ACTIVITY", 4: "HINT_PROFILE"}
 
@@ -28,7 +30,9 @@ func _ready() -> void:
 		_nav_buttons[i].button_group = group
 		_nav_buttons[i].pressed.connect(_show_screen.bind(i))
 
-	%NextButton.pressed.connect(GameState.advance_month)
+	%NextButton.pressed.connect(func() -> void:
+		Sfx.play("coin")
+		GameState.advance_month())
 	%GlossaryButton.pressed.connect(func() -> void: _enqueue(%GlossaryPopup.open))
 	%ProfileScreen.glossary_requested.connect(func() -> void: _enqueue(%GlossaryPopup.open))
 	GameState.changed.connect(_refresh_top_bar)
@@ -39,9 +43,19 @@ func _ready() -> void:
 			tr("UNLOCK_POPUP_BODY") % [tr(stage["name_key"]), UiText.stage_assets_text(int(stage["stage"]))])))
 	GameState.event_triggered.connect(func(event: Dictionary) -> void:
 		_enqueue(%EventPopup.open.bind(event)))
+	GameState.goal_reached.connect(func(goal: String) -> void:
+		_enqueue(%InfoPopup.open.bind(tr("GOAL_TITLE_" + goal.to_upper()), tr("GOAL_BODY_" + goal.to_upper()),
+			tr("GOAL_FINISH_NOW"), GameState.finish_game.bind("win", goal))))
+	# Game berakhir: popup yang masih mengantre (event, unlock) dibuang karena tidak relevan lagi.
+	# Popup yang sedang tampil (mis. laporan bulan terakhir) tetap dibaca dulu, lalu pindah ke layar akhir.
+	GameState.game_ended.connect(func(_result: Dictionary) -> void:
+		_popup_queue.clear()
+		_enqueue(func() -> void: get_tree().change_scene_to_file(END_SCENE)))
+	%ProfileScreen.text_requested.connect(func(title: String, body: String) -> void:
+		_enqueue(%TextPopup.open.bind(title, body)))
 	%ActivityScreen.quiz_requested.connect(func(question: Dictionary) -> void:
 		_enqueue(%QuizPopup.open.bind(question)))
-	for popup: ModalPopup in [%SummaryPopup, %InfoPopup, %EventPopup, %QuizPopup, %GlossaryPopup]:
+	for popup: ModalPopup in [%SummaryPopup, %InfoPopup, %EventPopup, %QuizPopup, %GlossaryPopup, %TextPopup]:
 		popup.closed.connect(_show_next_popup)
 
 	_show_screen(0)

@@ -1,0 +1,11 @@
+{
+	"_comment": "Teks hukum yang tampil di dalam game. Versi untuk Play Store ada di docs/kebijakan-privasi.md. GANTI [EMAIL KONTAK] sebelum rilis.",
+	"privacy": {
+		"title": "Kebijakan Privasi",
+		"body": "Terakhir diperbarui: 12 Oktober 2026\n\n1. Data yang disimpan\nCuan Quest tidak mengumpulkan, mengirim, atau menjual data pribadi. Nama karakter, progres permainan, dan pengaturan hanya disimpan di perangkatmu sendiri.\n\n2. Koneksi internet\nVersi ini dapat dimainkan sepenuhnya offline dan tidak mengirim data ke server mana pun.\n\n3. Iklan (versi mendatang)\nVersi mendatang dapat menampilkan iklan opsional (rewarded ads) dari pihak ketiga seperti Google AdMob. Jika fitur itu aktif, penyedia iklan dapat memproses pengenal perangkat dan data penggunaan sesuai kebijakan privasi mereka. Kebijakan ini akan diperbarui dan kamu akan dimintai persetujuan sebelum fitur iklan diaktifkan.\n\n4. Anak-anak\nGame ini adalah simulasi edukasi dan tidak sengaja mengumpulkan data dari siapa pun, termasuk anak-anak.\n\n5. Menghapus data\nKamu dapat menghapus semua data kapan saja melalui Profil > Pengaturan > Reset Data, atau dengan menghapus aplikasi.\n\n6. Kontak\nPertanyaan tentang privasi dapat dikirim ke: [EMAIL KONTAK]"
+	},
+	"terms": {
+		"title": "Syarat Penggunaan",
+		"body": "Terakhir diperbarui: 12 Oktober 2026\n\n1. Simulasi edukasi\nCuan Quest adalah game simulasi untuk tujuan edukasi dan hiburan. Isi game BUKAN saran keuangan, investasi, atau hukum.\n\n2. Uang virtual\nSemua uang, aset, dan keuntungan di dalam game bersifat virtual, tidak memiliki nilai nyata, tidak dapat ditukar dengan uang asli, dan tidak dapat ditarik.\n\n3. Bukan perjudian\nGame ini tidak mengandung unsur taruhan dengan uang asli.\n\n4. Data pasar fiktif\nSemua perusahaan, koin, harga, dan berita di dalam game adalah fiktif. Kemiripan dengan entitas nyata hanyalah kebetulan.\n\n5. Perubahan\nKonten, fitur, dan syarat ini dapat berubah melalui pembaruan aplikasi.\n\n6. Kontak\n[EMAIL KONTAK]"
+	}
+}

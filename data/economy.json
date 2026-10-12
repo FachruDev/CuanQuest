@@ -25,6 +25,13 @@
 		{ "id": "normal", "name_key": "DIFF_NORMAL", "desc_key": "DIFF_NORMAL_DESC", "salary_mult": 1.0, "expense_mult": 1.0, "event_chance": 0.6, "bad_event_mult": 1.0 },
 		{ "id": "hard", "name_key": "DIFF_HARD", "desc_key": "DIFF_HARD_DESC", "salary_mult": 0.9, "expense_mult": 1.1, "event_chance": 0.7, "bad_event_mult": 1.6 }
 	],
+	"end": {
+		"_comment": "Kondisi menang/kalah (GDD 5.11). freedom_rate = aturan 4%: investasi x 4% / 12 >= pengeluaran bulanan.",
+		"win_net_worth": 1000000000,
+		"freedom_rate": 0.04,
+		"retirement_age": 60,
+		"danger_months": 3
+	},
 	"xp_per_month": 2,
 	"xp_per_level": 60,
 	"quiz": {

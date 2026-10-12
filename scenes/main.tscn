@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://scenes/screens/portfolio_screen.tscn" id="4_portfolio"]
 [ext_resource type="PackedScene" path="res://scenes/screens/profile_screen.tscn" id="5_profile"]
 [ext_resource type="PackedScene" path="res://scenes/ui/glossary_popup.tscn" id="11_glossary"]
+[ext_resource type="PackedScene" path="res://scenes/ui/text_popup.tscn" id="12_text"]
 [ext_resource type="PackedScene" path="res://scenes/ui/month_summary_popup.tscn" id="6_popup"]
 [ext_resource type="PackedScene" path="res://scenes/screens/activity_screen.tscn" id="7_activity"]
 [ext_resource type="PackedScene" path="res://scenes/ui/info_popup.tscn" id="8_info"]
@@ -196,5 +197,9 @@ unique_name_in_owner = true
 layout_mode = 1
 
 [node name="GlossaryPopup" parent="." instance=ExtResource("11_glossary")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="TextPopup" parent="." instance=ExtResource("12_text")]
 unique_name_in_owner = true
 layout_mode = 1

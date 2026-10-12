@@ -3,9 +3,25 @@ extends RefCounted
 ## Helper format angka gaya Indonesia: Rp1.234.567 dan +2,35%.
 
 
+## Diatur oleh Settings: true = format ringkas (Rp1,25 jt / Rp3,40 M).
+static var compact := false
+
+
 static func rupiah(value: float) -> String:
 	var n := roundi(value)
-	return ("-" if n < 0 else "") + "Rp" + _group_thousands(absi(n))
+	var minus := "-" if n < 0 else ""
+	if compact and absi(n) >= 1_000_000:
+		return minus + "Rp" + _short(absi(n))
+	return minus + "Rp" + _group_thousands(absi(n))
+
+
+## 1.250.000 -> "1,25 jt" | 3.400.000.000 -> "3,40 M" (miliar) | ... "T" (triliun)
+static func _short(n: int) -> String:
+	if n >= 1_000_000_000_000:
+		return number(n / 1e12) + " T"
+	if n >= 1_000_000_000:
+		return number(n / 1e9) + " M"
+	return number(n / 1e6) + " jt"
 
 
 ## Selalu dengan tanda: +Rp1.000 / -Rp1.000

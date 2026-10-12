@@ -17,9 +17,11 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+Settings="*res://scripts/autoload/settings.gd"
 GameState="*res://scripts/autoload/game_state.gd"
 AdService="*res://scripts/autoload/ad_service.gd"
 SaveManager="*res://scripts/autoload/save_manager.gd"
+Sfx="*res://scripts/autoload/sfx.gd"
 
 [display]
 

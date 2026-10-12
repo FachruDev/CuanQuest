@@ -31,13 +31,16 @@ data/
   events.json                 33 event hidup: syarat muncul, pilihan, efek
   quiz.json                   39 soal kuis (4 topik)
   glossary.json               31 istilah glosarium
+  legal.json                  Kebijakan privasi & syarat penggunaan (tampil di game)
   unlocks.json                Syarat membuka tiap tahap instrumen
 localization/strings.csv      Semua teks UI (kolom id & en)
 theme/main_theme.tres         Font global, warna tombol aktif, panel, progress bar
 scripts/
   autoload/game_state.gd      STATE GLOBAL: kas, bulan, kondisi, portofolio, loop bulanan, XP, unlock, event
   autoload/ad_service.gd      Iklan rewarded (STUB, nanti diganti AdMob dengan interface sama)
+  autoload/settings.gd        Pengaturan perangkat (user://settings.cfg)
   autoload/save_manager.gd    Simpan/muat file JSON di user:// + simpan otomatis
+  autoload/sfx.gd             Efek suara buatan kode + getar
   core/                       Logika murni tanpa UI (mudah dites)
     market.gd, market_asset.gd   Simulasi pasar (GBM, RNG ber-seed)
     fmt.gd                    Format Rp1.234.567, +2,35%, tanggal game
@@ -57,6 +60,7 @@ scenes/
   title.tscn                  Layar judul (main scene saat game dibuka)
   new_game.tscn               Buat karakter
   tutorial.tscn               Tutorial 5 layar
+  end_screen.tscn             Layar akhir (hasil, statistik, analisis)
   main.tscn                   Shell aplikasi
   screens/                    home, market, portfolio, placeholder
   ui/month_summary_popup.tscn
@@ -91,10 +95,10 @@ scenes/
 | 9 | Event hidup (minimal 30 event) | M4 | ✅ 33 event |
 | 10 | Kuis 3 per minggu + iklan rewarded (minimal 30 soal) | M4 | ✅ 39 soal; iklan masih stub (AdMob di M7) |
 | 11 | Sistem unlock instrumen | M4 | ✅ |
-| 12 | Kondisi menang dan kalah serta layar akhir | M6 | ⬜ |
+| 12 | Kondisi menang dan kalah serta layar akhir | M6 | ✅ |
 | 13 | Save/load otomatis dan manual | M5 | ✅ |
-| 14 | Pengaturan dan halaman profil | M5 + M6 | 🟨 halaman profil ada; pengaturan di M6 |
-| 15 | Disclaimer simulasi dan kebijakan privasi | M6 | 🟨 disclaimer ada; kebijakan privasi di M6 |
+| 14 | Pengaturan dan halaman profil | M5 + M6 | ✅ |
+| 15 | Disclaimer simulasi dan kebijakan privasi | M6 | ✅ (isi [EMAIL KONTAK] sebelum rilis) |
 
 ## Milestone
 
@@ -103,7 +107,7 @@ scenes/
 - [x] **M3: Pasar lengkap.** 10 aset di 5 kelas, siklus bull/sideways/bear, korelasi, suku bunga acuan, 16 berita pasar, bunga & penalti deposito
 - [x] **M4: Event hidup, kuis, unlock.** 33 event (termasuk efek tertunda & PHK), 39 soal kuis (3/minggu nyata + iklan stub), XP & level, 4 tahap unlock, antrean popup
 - [x] **M5: Save/load, layar judul, buat karakter, tutorial & glosarium.** 3 latar belakang, 3 tingkat kesulitan, simpan otomatis + 3 slot manual, petunjuk saat tab pertama dibuka, tab Profil
-- [ ] **M6: Menang/kalah + layar akhir, profil & pengaturan, kebijakan privasi**
+- [x] **M6: Menang/kalah + layar akhir, pengaturan, kebijakan privasi.** 2 cara menang + pensiun, 3 cara kalah, penjualan paksa, layar akhir dengan analisis, statistik & riwayat, efek suara buatan kode, getar, bahasa, format angka ringkas, reset data
 - [ ] **M7: Export Android, playtest, balancing**
 
 ## Cara Kerja Simulasi Pasar (M3)
@@ -133,6 +137,30 @@ Setiap bulan `Market.step()` menjalankan:
 - **Lokasi file di PC:** `%APPDATA%\Godot\app_userdata\Cuan Quest\`. Hapus folder `saves` untuk mulai dari nol.
 - **Pelajaran dari bug:** urutan key `Dictionary` bisa berubah setelah melewati JSON. Loop yang mengambil angka acak harus memakai urutan tetap (lihat `Market._factor_order()`), kalau tidak hasil simulasi setelah load akan berbeda. Hal yang sama berlaku untuk RNG state 64-bit, yang disimpan sebagai string karena angka JSON hanya presisi 53-bit.
 - **Menjalankan scene utama langsung (F6)** tetap bisa: `main.gd` otomatis membuat game baru dengan profil default.
+
+## Menang, Kalah & Pengaturan (M6)
+
+**Kondisi akhir** (angka di `data/economy.json` bagian `end`):
+
+| Hasil | Syarat | Catatan |
+|---|---|---|
+| Menang: Miliarder | Kekayaan bersih >= Rp1 miliar | Pemain boleh lanjut bermain |
+| Menang: Bebas finansial | Investasi x 4% / 12 >= biaya hidup bulanan (aturan 4%) | Pemain boleh lanjut bermain |
+| Pensiun | Usia 60 | Selesai, dengan skor warisan |
+| Kalah: Bangkrut | Kas minus 3 bulan berturut-turut | Sebelumnya aset dijual paksa, mulai dari risiko terendah |
+| Kalah: Kesehatan/Kebahagiaan | Bernilai 0 selama 3 bulan berturut-turut | Ada peringatan merah di laporan bulanan |
+
+- **Game over** menghapus simpanan otomatis dan mencatat hasilnya di *Riwayat Permainan* (`player.json`). Slot manual tetap ada, sehingga pemain bisa memuat ulang ke titik sebelumnya.
+- **Analisis akhir** (`EndAnalysis`) dibuat berbasis aturan dari statistik selama bermain, misalnya rugi karena penipuan, panik jual, uang menganggur, gaya hidup mewah, biaya transaksi, dan konsentrasi aset.
+- **Efek suara** (`Sfx`) dibangkitkan dari gelombang sinus, tanpa file audio. Semua tombol otomatis berbunyi lewat signal `SceneTree.node_added`. Musik belum ada, karena butuh aset audio.
+- **Bahasa Inggris** baru mencakup tampilan; isi event/kuis/glosarium masih Bahasa Indonesia.
+- **Kebijakan privasi** untuk Play Store ada di `docs/kebijakan-privasi.md`. Isi `[EMAIL KONTAK]` & `[NAMA PENGEMBANG]` (juga di `data/legal.json`), lalu unggah ke URL publik.
+
+## Latihan M6 (opsional)
+
+1. Ubah `win_net_worth` di `data/economy.json` menjadi `100000000`, lalu coba capai kemenangan pertama dengan cepat.
+2. Tambah aturan analisis baru di `scripts/ui/end_analysis.gd`, misalnya pujian jika pemain tidak pernah tertipu (`scam_loss == 0`) setelah 2 tahun.
+3. Ganti nada suara di `scripts/autoload/sfx.gd` (fungsi `_tone`), misalnya buat bunyi "coin" yang lebih tinggi.
 
 ## Latihan M5 (opsional)
 

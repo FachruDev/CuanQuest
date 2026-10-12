@@ -45,6 +45,7 @@ func _on_answer(index: int) -> void:
 		elif i == index:
 			_buttons[i].modulate = MonthReport.RED
 
+	Sfx.play("success" if result["correct"] else "fail")
 	if result["correct"]:
 		%ResultLabel.text = tr("QUIZ_CORRECT") % [Fmt.rupiah(result["reward"]), result["xp"]]
 		%ResultLabel.modulate = MonthReport.GREEN

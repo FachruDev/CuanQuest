@@ -18,18 +18,20 @@ func _ready() -> void:
 	_load_player()
 	GameState.state_committed.connect(func() -> void: save_slot(AUTO_SLOT))
 	GameState.player_changed.connect(_save_player)
+	# Game over: hapus simpanan otomatis (slot manual tetap ada untuk "mengulang").
+	GameState.game_ended.connect(func(_result: Dictionary) -> void: delete_slot(AUTO_SLOT))
 
 
 ## Android bisa mematikan app kapan saja saat di background, jadi simpan saat di-pause/ditutup.
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_APPLICATION_PAUSED or what == NOTIFICATION_WM_CLOSE_REQUEST:
-		if GameState.is_active:
+		if GameState.is_active and not GameState.is_over:
 			save_slot(AUTO_SLOT)
 		_save_player()
 
 
 func save_slot(slot: String) -> bool:
-	if not GameState.is_active:
+	if not GameState.is_active or GameState.is_over:
 		return false
 	var data := {
 		"meta": {
@@ -49,6 +51,22 @@ func load_slot(slot: String) -> bool:
 	if not data.has("state"):
 		return false
 	return GameState.load_from_dict(data["state"])
+
+
+func delete_slot(slot: String) -> void:
+	if has_slot(slot):
+		DirAccess.remove_absolute(_slot_path(slot))
+
+
+## Hapus SEMUA simpanan dan data pemain (Pengaturan -> Reset Data). Pengaturan tidak ikut dihapus.
+func reset_all() -> void:
+	delete_slot(AUTO_SLOT)
+	for slot: String in MANUAL_SLOTS:
+		delete_slot(slot)
+	if FileAccess.file_exists(PLAYER_PATH):
+		DirAccess.remove_absolute(PLAYER_PATH)
+	GameState.player_from_dict({})
+	GameState.is_active = false
 
 
 func has_slot(slot: String) -> bool:

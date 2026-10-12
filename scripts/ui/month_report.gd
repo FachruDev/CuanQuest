@@ -66,8 +66,11 @@ static func fill(box: VBoxContainer, r: Dictionary) -> void:
 		change_text += " (%s)" % Fmt.percent((after - before) / before)
 	_add_row(box, "REPORT_NET_WORTH_CHANGE", change_text, color_of(after - before))
 
-	if r["cash_after"] < 0:
-		_add_text(box, "REPORT_WARN_NEGATIVE_CASH", RED)
+	for sale: Dictionary in r.get("forced_sales", []):
+		_add_text_raw(box, TranslationServer.translate("REPORT_FORCED_SALE") % [
+			TranslationServer.translate(sale["asset_key"]), Fmt.rupiah(sale["proceeds"])], RED)
+	for warning: String in r.get("warnings", []):
+		_add_text_raw(box, warning, RED)
 
 
 ## Teks berita yang sudah diterjemahkan, mis. "PT Bank Sentosa Tbk mencatat laba melonjak".
@@ -110,8 +113,12 @@ static func _add_row(box: VBoxContainer, key: String, value: String, color: Colo
 
 
 static func _add_text(box: VBoxContainer, key: String, color: Color) -> void:
+	_add_text_raw(box, TranslationServer.translate(key), color)
+
+
+static func _add_text_raw(box: VBoxContainer, text: String, color: Color) -> void:
 	var label := Label.new()
-	label.text = TranslationServer.translate(key)
+	label.text = text
 	label.modulate = color
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.add_theme_font_size_override("font_size", 22)

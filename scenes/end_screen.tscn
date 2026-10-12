@@ -1,0 +1,148 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/end_screen.gd" id="1_end"]
+[ext_resource type="Script" path="res://scripts/ui/avatar_view.gd" id="2_avatar"]
+[ext_resource type="Script" path="res://scripts/ui/price_chart.gd" id="3_chart"]
+
+[node name="EndScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_end")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.067, 0.086, 0.13, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Scroll" type="ScrollContainer" parent="Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Content" type="VBoxContainer" parent="Margin/VBox/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 14
+
+[node name="ResultTitle" type="Label" parent="Margin/VBox/Scroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 46
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="ReasonLabel" type="Label" parent="Margin/VBox/Scroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 23
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="PlayerCard" type="PanelContainer" parent="Margin/VBox/Scroll/Content"]
+layout_mode = 2
+
+[node name="Row" type="HBoxContainer" parent="Margin/VBox/Scroll/Content/PlayerCard"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Avatar" type="Control" parent="Margin/VBox/Scroll/Content/PlayerCard/Row"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 90)
+layout_mode = 2
+script = ExtResource("2_avatar")
+
+[node name="Texts" type="VBoxContainer" parent="Margin/VBox/Scroll/Content/PlayerCard/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="PlayerLabel" type="Label" parent="Margin/VBox/Scroll/Content/PlayerCard/Row/Texts"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+autowrap_mode = 3
+
+[node name="ScoreLabel" type="Label" parent="Margin/VBox/Scroll/Content/PlayerCard/Row/Texts"]
+unique_name_in_owner = true
+layout_mode = 2
+modulate = Color(0.95, 0.77, 0.06, 1)
+theme_override_font_sizes/font_size = 26
+
+[node name="StatsTitle" type="Label" parent="Margin/VBox/Scroll/Content"]
+layout_mode = 2
+text = "END_STATS"
+
+[node name="StatsGrid" type="GridContainer" parent="Margin/VBox/Scroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/v_separation = 6
+columns = 2
+
+[node name="ChartTitle" type="Label" parent="Margin/VBox/Scroll/Content"]
+layout_mode = 2
+text = "END_CHART"
+
+[node name="LifeChart" type="Control" parent="Margin/VBox/Scroll/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 260)
+layout_mode = 2
+script = ExtResource("3_chart")
+max_points = 1000
+
+[node name="HighlightTitle" type="Label" parent="Margin/VBox/Scroll/Content"]
+layout_mode = 2
+text = "END_HIGHLIGHTS"
+
+[node name="HighlightList" type="VBoxContainer" parent="Margin/VBox/Scroll/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="InsightTitle" type="Label" parent="Margin/VBox/Scroll/Content"]
+layout_mode = 2
+text = "END_INSIGHTS"
+
+[node name="InsightPanel" type="PanelContainer" parent="Margin/VBox/Scroll/Content"]
+layout_mode = 2
+
+[node name="InsightList" type="VBoxContainer" parent="Margin/VBox/Scroll/Content/InsightPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="PlayAgainButton" type="Button" parent="Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 84)
+layout_mode = 2
+text = "END_PLAY_AGAIN"
+
+[node name="TitleButton" type="Button" parent="Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 68)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "PROFILE_TO_TITLE"

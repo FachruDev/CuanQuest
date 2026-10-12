@@ -35,6 +35,8 @@ func open(event: Dictionary) -> void:
 	%Choices.show()
 	%ResultBox.hide()
 	show()
+	Sfx.play("alert")
+	Sfx.vibrate()
 
 
 func _on_choice(index: int) -> void:
