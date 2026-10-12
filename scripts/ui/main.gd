@@ -10,6 +10,12 @@ const END_SCENE := "res://scenes/end_screen.tscn"
 
 ## Petunjuk kontekstual saat tab dibuka pertama kali (index tab -> key teks).
 const TAB_HINTS := {1: "HINT_MARKET", 2: "HINT_PORTFOLIO", 3: "HINT_ACTIVITY", 4: "HINT_PROFILE"}
+const BOLT_ICON := preload("res://assets/icons/bolt.svg")
+const BOLT_FULL := Color("#ffc95c")
+const BOLT_EMPTY := Color("#5a4e78")
+const NAV_MUTED := Color("#7a6650")
+## Tab yang belum didesain ulang (teks putih) ditaruh di panel gelap sementara.
+const REDESIGNED_TABS := [0]
 
 @onready var _screens: Array[Control] = [
 	%HomeScreen, %MarketScreen, %PortfolioScreen, %ActivityScreen, %ProfileScreen]
@@ -29,6 +35,10 @@ func _ready() -> void:
 	for i in _nav_buttons.size():
 		_nav_buttons[i].button_group = group
 		_nav_buttons[i].pressed.connect(_show_screen.bind(i))
+		_nav_buttons[i].toggled.connect(_style_nav.bind(_nav_buttons[i]))
+		_style_nav(false, _nav_buttons[i])
+	%PlayerAvatar.avatar_index = GameState.avatar
+	%PlayerName.text = GameState.player_name
 
 	%NextButton.pressed.connect(func() -> void:
 		Sfx.play("coin")
@@ -71,20 +81,47 @@ func _show_screen(index: int) -> void:
 	_nav_buttons[index].button_pressed = true  # lewat ButtonGroup: tombol lain otomatis lepas
 	for i in _screens.size():
 		_screens[i].visible = i == index
+	%LegacyFrame.visible = index not in REDESIGNED_TABS
 	if TAB_HINTS.has(index) and GameState.consume_hint(TAB_HINTS[index]):
 		_enqueue(%InfoPopup.open.bind(tr("HINT_TITLE"), tr(TAB_HINTS[index])))
 
 
 func _refresh_top_bar() -> void:
 	%CashValue.text = Fmt.rupiah(GameState.cash)
-	%CashValue.modulate = MonthReport.RED if GameState.cash < 0 else Color.WHITE
+	%CashValue.add_theme_color_override("font_color", Palette.LOSS if GameState.cash < 0 else Palette.INK)
 	%NetWorthValue.text = Fmt.rupiah(GameState.net_worth())
-	%DateLabel.text = tr("TOPBAR_INFO") % [Fmt.game_date(GameState.month), GameState.age(),
-		GameState.level(), GameState.energy, GameState.energy_capacity]
+	%DateLabel.text = Fmt.game_date(GameState.month)
+	%AgeLabel.text = tr("TOPBAR_AGE") % GameState.age()
+	%LevelLabel.text = tr("TOPBAR_LEVEL") % GameState.level()
+	_refresh_energy()
 	var busy := GameState.has_pending_event() or GameState.is_over
-	%NextButton.disabled = busy
-	%Skip6Button.disabled = busy
-	%Skip12Button.disabled = busy
+	for button: Button in [%NextButton, %Skip6Button, %Skip12Button]:
+		button.disabled = busy
+		button.get_child(0).modulate.a = 0.45 if busy else 1.0
+
+
+## Satu ikon petir per poin energi bulan ini: kuning = tersisa, ungu redup = terpakai.
+func _refresh_energy() -> void:
+	var icons: Control = %EnergyIcons
+	while icons.get_child_count() < GameState.energy_capacity:
+		var bolt := TextureRect.new()
+		bolt.texture = BOLT_ICON
+		bolt.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		bolt.custom_minimum_size = Vector2(18, 22)
+		bolt.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		icons.add_child(bolt)
+	for i in icons.get_child_count():
+		var bolt: TextureRect = icons.get_child(i)
+		bolt.visible = i < GameState.energy_capacity
+		bolt.self_modulate = BOLT_FULL if i < GameState.energy else BOLT_EMPTY
+	%EnergyPill.tooltip_text = tr("TOPBAR_ENERGY") % [GameState.energy, GameState.energy_capacity]
+
+
+## Tab aktif: ikon & label tinta di atas pil emas; tab lain: cokelat redup.
+func _style_nav(active: bool, button: Button) -> void:
+	var color := Palette.INK if active else NAV_MUTED
+	button.get_node("Content/Icon").self_modulate = color
+	button.get_node("Content/Label").add_theme_color_override("font_color", color)
 
 
 ## Lompat beberapa bulan. Berhenti otomatis jika ada event/peringatan (lihat GameState.fast_forward).

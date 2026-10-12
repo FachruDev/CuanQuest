@@ -39,13 +39,18 @@ HOME_WELLBEING,Kondisi,Wellbeing
 STAT_HEALTH,Kesehatan,Health
 STAT_HAPPINESS,Kebahagiaan,Happiness
 HOME_MONTHLY,Arus Kas Bulanan,Monthly Cash Flow
-HOME_SALARY,Gaji: %s,Salary: %s
-HOME_EXPENSES,Biaya hidup: %s,Living costs: %s
-HOME_SURPLUS,Sisa untuk ditabung/investasi: %s,Left to save/invest: %s
 HOME_FOOD,Makan,Food
 HOME_HOUSING,Tempat Tinggal,Housing
 HOME_EFFECT,"%s: kesehatan %+d, kebahagiaan %+d per bulan","%s: health %+d, happiness %+d per month"
 HOME_CHOICE_HINT,Perubahan pilihan berlaku saat awal bulan berikutnya.,Changes apply at the start of next month.
+TOPBAR_AGE,%d th,age %d
+TOPBAR_LEVEL,Lv %d,Lv %d
+TOPBAR_ENERGY,Energi %d/%d,Energy %d/%d
+HOME_SALARY_LABEL,Gaji,Salary
+HOME_INCOME_AVG_LABEL,Penghasilan rata-rata,Average income
+HOME_INCOME_VARIES,Naik-turun hingga %d%% tiap bulan,Varies up to %d%% each month
+HOME_EXPENSES_LABEL,Biaya hidup,Living costs
+HOME_SURPLUS_LABEL,Sisa untuk ditabung/investasi,Left to save/invest
 FOOD_FRUGAL,Hemat,Frugal
 FOOD_STANDARD,Standar,Standard
 FOOD_LUXURY,Mewah,Luxury
@@ -198,7 +203,6 @@ REPORT_SALARY_UNEMPLOYED,Gaji (menganggur),Salary (unemployed)
 REPORT_EVENTS,KEJADIAN,EVENTS
 HOME_UNEMPLOYED,Menganggur: tanpa gaji %d bulan lagi,Unemployed: no salary for %d more months
 DEFAULT_PLAYER_NAME,Pemain,Player
-TOPBAR_INFO,%s | %d th | Lv %d | Energi %d/%d,%s | age %d | Lv %d | Energy %d/%d
 BTN_CLOSE,Tutup,Close
 TITLE_TAGLINE,Simulasi kehidupan finansial & investasi,A personal finance & investing life sim
 TITLE_CONTINUE,Lanjutkan,Continue
@@ -267,6 +271,14 @@ DIFF_HARD_DESC,"Gaji -10%, biaya hidup +10%, kejadian buruk lebih sering.","Sala
 TUT_NEXT,Lanjut,Next
 TUT_FINISH,Mulai!,Start!
 TUT_SKIP,Lewati,Skip
+TUT_PAGE,TUTORIAL %d / %d,TUTORIAL %d / %d
+TUT_ART_VIRTUAL,UANG VIRTUAL,VIRTUAL MONEY
+TUT_ART_MONTH,BULAN,MONTH
+TUT_ART_SALARY,+ Gaji,+ Salary
+TUT_ART_COSTS,− Biaya hidup,− Living costs
+TUT_ART_EMERGENCY,DANA DARURAT,EMERGENCY FUND
+TUT_ART_STAGE,Tahap %d,Stage %d
+TUT_ART_RISK,Untung & risiko naik,Return & risk rise
 TUT_1_TITLE,Selamat datang di Cuan Quest!,Welcome to Cuan Quest!
 TUT_1_BODY,"Kamu akan menjalani kehidupan finansial sebuah karakter: bekerja, membayar biaya hidup, menghadapi kejadian tak terduga, dan mengembangkan uang lewat investasi.
 
@@ -310,7 +322,6 @@ PROFILE_MENU_TITLE,Menu,Menu
 PROFILE_GLOSSARY,Glosarium,Glossary
 PROFILE_TUTORIAL,Ulangi Tutorial,Replay Tutorial
 PROFILE_TO_TITLE,Kembali ke Menu Utama,Back to Main Menu
-HOME_SALARY_VARIABLE,Penghasilan rata-rata: %s (naik-turun hingga %d%%),Average income: %s (varies up to %d%%)
 HINT_TITLE,Petunjuk,Tip
 HINT_MARKET,"Ini daftar instrumen investasi. Ketuk salah satu untuk melihat detail, grafik, dan tombol beli/jual.
 

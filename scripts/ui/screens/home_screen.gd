@@ -1,5 +1,5 @@
 extends ScrollContainer
-## Tab Beranda: kondisi karakter, arus kas bulanan, dan pilihan biaya hidup.
+## Tab Beranda (tema "Senja Cuan"): kondisi karakter, arus kas bulanan, dan pilihan biaya hidup.
 
 var _food_buttons: Dictionary = {}     # option_id -> Button
 var _housing_buttons: Dictionary = {}
@@ -15,21 +15,31 @@ func _ready() -> void:
 func _refresh() -> void:
 	%HealthBar.value = GameState.health
 	%HappinessBar.value = GameState.happiness
+	%HealthValue.text = "%d / 100" % GameState.health
+	%HappinessValue.text = "%d / 100" % GameState.happiness
 
 	var expenses := GameState.monthly_expenses()
-	var income := GameState.salary if GameState.unemployed_months == 0 else 0
+	var unemployed := GameState.unemployed_months > 0
+	var income := 0 if unemployed else GameState.salary
 	var surplus := income - expenses
-	%SalaryLabel.text = tr("HOME_SALARY") % Fmt.rupiah(GameState.salary)
 	var volatility := float(GameState.background["income_volatility"])
-	if volatility > 0.0:
-		%SalaryLabel.text = tr("HOME_SALARY_VARIABLE") % [Fmt.rupiah(GameState.salary), roundi(volatility * 100)]
-	%SalaryLabel.modulate = Color.WHITE
-	if GameState.unemployed_months > 0:
-		%SalaryLabel.text = tr("HOME_UNEMPLOYED") % GameState.unemployed_months
-		%SalaryLabel.modulate = MonthReport.RED
-	%ExpenseLabel.text = tr("HOME_EXPENSES") % Fmt.rupiah(expenses)
-	%SurplusLabel.text = tr("HOME_SURPLUS") % Fmt.signed_rupiah(surplus)
-	%SurplusLabel.modulate = MonthReport.GREEN if surplus >= 0 else MonthReport.RED
+
+	%SalaryName.text = tr("HOME_INCOME_AVG_LABEL" if volatility > 0.0 else "HOME_SALARY_LABEL")
+	%SalaryValue.text = Fmt.signed_rupiah(income)
+	%SalaryValue.add_theme_color_override("font_color", Palette.LOSS if unemployed else Palette.GAIN)
+	%SalaryNote.visible = unemployed or volatility > 0.0
+	if unemployed:
+		%SalaryNote.text = tr("HOME_UNEMPLOYED") % GameState.unemployed_months
+		%SalaryNote.add_theme_color_override("font_color", Palette.LOSS)
+	elif volatility > 0.0:
+		%SalaryNote.text = tr("HOME_INCOME_VARIES") % roundi(volatility * 100)
+		%SalaryNote.remove_theme_color_override("font_color")
+
+	%ExpenseValue.text = Fmt.signed_rupiah(-expenses)
+	%ExpenseValue.add_theme_color_override("font_color", Palette.LOSS)
+	%SurplusValue.text = Fmt.signed_rupiah(surplus)
+	%SurplusValue.add_theme_color_override("font_color", Palette.GAIN if surplus >= 0 else Palette.LOSS)
+	%SurplusBox.theme_type_variation = &"SurplusPositive" if surplus >= 0 else &"SurplusNegative"
 
 	for id: String in _food_buttons:
 		_food_buttons[id].set_pressed_no_signal(id == GameState.food_id)
@@ -48,18 +58,19 @@ func _build_options(container: HBoxContainer, options: Array, on_select: Callabl
 		var button := Button.new()
 		button.toggle_mode = true
 		button.button_group = group
-		button.custom_minimum_size = Vector2(0, 96)
+		button.theme_type_variation = &"ChoiceButton"
+		button.custom_minimum_size = Vector2(0, 84)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.pressed.connect(on_select.bind(option["id"]))
 
 		var content := VBoxContainer.new()
 		content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		content.offset_bottom = -5  # bibir bawah tombol
 		content.alignment = BoxContainer.ALIGNMENT_CENTER
+		content.add_theme_constant_override("separation", 0)
 		content.mouse_filter = Control.MOUSE_FILTER_IGNORE  # klik diteruskan ke Button
-		content.add_child(_make_label(tr(option["name_key"]), 24))
-		var cost_label := _make_label(Fmt.rupiah(GameState.option_cost(option)), 18)
-		cost_label.modulate = Color(1, 1, 1, 0.7)
-		content.add_child(cost_label)
+		content.add_child(_make_label(tr(option["name_key"]), &"ChoiceNameLabel"))
+		content.add_child(_make_label(Fmt.rupiah(GameState.option_cost(option)), &"ChoiceCostLabel"))
 		button.add_child(content)
 
 		container.add_child(button)
@@ -67,11 +78,11 @@ func _build_options(container: HBoxContainer, options: Array, on_select: Callabl
 	return buttons
 
 
-func _make_label(text: String, font_size: int) -> Label:
+func _make_label(text: String, variation: StringName) -> Label:
 	var label := Label.new()
 	label.text = text
+	label.theme_type_variation = variation
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", font_size)
 	return label
 
 

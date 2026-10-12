@@ -1,6 +1,11 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/tutorial_screen.gd" id="1_tut"]
+[ext_resource type="Theme" path="res://theme/senja_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://scripts/ui/chunky_button.gd" id="3_chunky"]
+[ext_resource type="Texture2D" path="res://assets/icons/skip.svg" id="4_skip"]
+[ext_resource type="Texture2D" path="res://assets/icons/lightbulb.svg" id="5_bulb"]
+[ext_resource type="Texture2D" path="res://assets/icons/arrow_badge.svg" id="6_arrow"]
 
 [node name="Tutorial" type="Control"]
 layout_mode = 3
@@ -9,86 +14,225 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("2_theme")
 script = ExtResource("1_tut")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Sky" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.067, 0.086, 0.13, 1)
+mouse_filter = 2
+color = Color(0.9922, 0.8902, 0.749, 1)
 
-[node name="Margin" type="MarginContainer" parent="."]
+[node name="Header" type="HBoxContainer" parent="."]
 layout_mode = 1
-anchors_preset = 15
+anchors_preset = 10
 anchor_right = 1.0
-anchor_bottom = 1.0
+offset_left = 48.0
+offset_top = 40.0
+offset_right = -48.0
+offset_bottom = 104.0
 grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/margin_left = 32
-theme_override_constants/margin_top = 48
-theme_override_constants/margin_right = 32
-theme_override_constants/margin_bottom = 24
 
-[node name="VBox" type="VBoxContainer" parent="Margin"]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="TopRow" type="HBoxContainer" parent="Margin/VBox"]
-layout_mode = 2
-
-[node name="PageIndicator" type="Label" parent="Margin/VBox/TopRow"]
+[node name="Dots" type="HBoxContainer" parent="Header"]
 unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 8
+
+[node name="Spacer" type="Control" parent="Header"]
 layout_mode = 2
 size_flags_horizontal = 3
-modulate = Color(1, 1, 1, 0.6)
-theme_override_font_sizes/font_size = 22
+mouse_filter = 2
 
-[node name="SkipButton" type="Button" parent="Margin/VBox/TopRow"]
+[node name="SkipButton" type="Button" parent="Header"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(160, 60)
+custom_minimum_size = Vector2(150, 64)
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
+size_flags_vertical = 4
+theme_type_variation = &"NeutralButton"
+script = ExtResource("3_chunky")
+press_depth = 5.0
+
+[node name="Content" type="CenterContainer" parent="Header/SkipButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="HBox" type="HBoxContainer" parent="Header/SkipButton/Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="Label" type="Label" parent="Header/SkipButton/Content/HBox"]
+layout_mode = 2
+theme_type_variation = &"StatNameLabel"
 text = "TUT_SKIP"
 
-[node name="Panel" type="PanelContainer" parent="Margin/VBox"]
+[node name="Icon" type="TextureRect" parent="Header/SkipButton/Content/HBox"]
+custom_minimum_size = Vector2(18, 16)
 layout_mode = 2
-size_flags_vertical = 3
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("4_skip")
+expand_mode = 1
+stretch_mode = 5
 
-[node name="PageBox" type="VBoxContainer" parent="Margin/VBox/Panel"]
+[node name="Art" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -312.0
+offset_top = 116.0
+offset_right = 312.0
+offset_bottom = 586.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="Sheet" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 612.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"SheetPanel"
+
+[node name="Margin" type="MarginContainer" parent="Sheet"]
 layout_mode = 2
-theme_override_constants/separation = 24
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 26
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 32
 
-[node name="PageTitle" type="Label" parent="Margin/VBox/Panel/PageBox"]
+[node name="VBox" type="VBoxContainer" parent="Sheet/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="PageChip" type="PanelContainer" parent="Sheet/Margin/VBox"]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_type_variation = &"PageChip"
+
+[node name="PageLabel" type="Label" parent="Sheet/Margin/VBox/PageChip"]
 unique_name_in_owner = true
 layout_mode = 2
-modulate = Color(0.18, 0.8, 0.44, 1)
-theme_override_font_sizes/font_size = 38
-autowrap_mode = 3
+theme_type_variation = &"CapsLabel"
 
-[node name="PageBody" type="Label" parent="Margin/VBox/Panel/PageBox"]
+[node name="PageTitle" type="Label" parent="Sheet/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 27
+theme_type_variation = &"TutorialTitleLabel"
 autowrap_mode = 3
 
-[node name="NavRow" type="HBoxContainer" parent="Margin/VBox"]
+[node name="PageBody" type="Label" parent="Sheet/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"TutorialBodyLabel"
+autowrap_mode = 3
+
+[node name="TipBox" type="PanelContainer" parent="Sheet/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"TipCard"
+
+[node name="HBox" type="HBoxContainer" parent="Sheet/Margin/VBox/TipBox"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="PrevButton" type="Button" parent="Margin/VBox/NavRow"]
+[node name="Icon" type="TextureRect" parent="Sheet/Margin/VBox/TipBox/HBox"]
+custom_minimum_size = Vector2(26, 28)
+layout_mode = 2
+size_flags_vertical = 0
+texture = ExtResource("5_bulb")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PageTip" type="Label" parent="Sheet/Margin/VBox/TipBox/HBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "BTN_BACK"
+theme_type_variation = &"InfoLabel"
+autowrap_mode = 3
 
-[node name="NextButton" type="Button" parent="Margin/VBox/NavRow"]
+[node name="Spacer" type="Control" parent="Sheet/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="NavRow" type="HBoxContainer" parent="Sheet/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="PrevButton" type="Button" parent="Sheet/Margin/VBox/NavRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 88)
+custom_minimum_size = Vector2(0, 104)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"NeutralButton"
+script = ExtResource("3_chunky")
+
+[node name="Content" type="Label" parent="Sheet/Margin/VBox/NavRow/PrevButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"NeutralButtonLabel"
+text = "NG_BACK"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NextButton" type="Button" parent="Sheet/Margin/VBox/NavRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 104)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.0
+theme_type_variation = &"PrimaryButton"
+script = ExtResource("3_chunky")
+
+[node name="Content" type="CenterContainer" parent="Sheet/Margin/VBox/NavRow/NextButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="NextBox" type="HBoxContainer" parent="Sheet/Margin/VBox/NavRow/NextButton/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+
+[node name="NextLabel" type="Label" parent="Sheet/Margin/VBox/NavRow/NextButton/Content/NextBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"PrimaryButtonLabel"
 text = "TUT_NEXT"
+
+[node name="NextIcon" type="TextureRect" parent="Sheet/Margin/VBox/NavRow/NextButton/Content/NextBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(52, 52)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("6_arrow")
+expand_mode = 1
+stretch_mode = 5
