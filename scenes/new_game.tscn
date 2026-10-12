@@ -1,6 +1,13 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/new_game_screen.gd" id="1_new"]
+[ext_resource type="Theme" path="res://theme/senja_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://scripts/ui/chunky_button.gd" id="3_chunky"]
+[ext_resource type="Texture2D" path="res://assets/illustrations/header_bg.svg" id="4_header"]
+[ext_resource type="Texture2D" path="res://assets/icons/chevron_left.svg" id="5_back"]
+[ext_resource type="Script" path="res://scripts/ui/avatar_view.gd" id="6_avatar"]
+[ext_resource type="Texture2D" path="res://assets/icons/info.svg" id="7_info"]
+[ext_resource type="Texture2D" path="res://assets/icons/arrow_badge.svg" id="8_arrow"]
 
 [node name="NewGame" type="Control"]
 layout_mode = 3
@@ -9,115 +16,435 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("2_theme")
 script = ExtResource("1_new")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Ground" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.067, 0.086, 0.13, 1)
+mouse_filter = 2
+color = Color(1, 0.9725, 0.9255, 1)
 
-[node name="Margin" type="MarginContainer" parent="."]
+[node name="HeaderArt" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 320.0
+grow_horizontal = 2
+mouse_filter = 2
+texture = ExtResource("4_header")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Header" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 48.0
+offset_top = 40.0
+offset_right = -48.0
+offset_bottom = 248.0
+grow_horizontal = 2
+theme_override_constants/separation = 16
+
+[node name="TopRow" type="HBoxContainer" parent="Header"]
+layout_mode = 2
+
+[node name="HeaderBackButton" type="Button" parent="Header/TopRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(68, 72)
+layout_mode = 2
+tooltip_text = "NG_BACK"
+theme_type_variation = &"RoundButton"
+icon = ExtResource("5_back")
+icon_alignment = 1
+
+[node name="Spacer" type="Control" parent="Header/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="StepPill" type="PanelContainer" parent="Header/TopRow"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"HeaderPill"
+
+[node name="StepLabel" type="Label" parent="Header/TopRow/StepPill"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"PillLabel"
+
+[node name="StepTitle" type="Label" parent="Header"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StepTitleLabel"
+
+[node name="Progress" type="HBoxContainer" parent="Header"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_constants/separation = 10
+
+[node name="Progress1" type="Panel" parent="Header/Progress"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"ProgressOn"
+
+[node name="Progress2" type="Panel" parent="Header/Progress"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"ProgressOff"
+
+[node name="Progress3" type="Panel" parent="Header/Progress"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"ProgressOff"
+
+[node name="Sheet" type="PanelContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_top = 268.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 40
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 16
+theme_type_variation = &"SheetPanel"
 
-[node name="VBox" type="VBoxContainer" parent="Margin"]
+[node name="Margin" type="MarginContainer" parent="Sheet"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 32
 
-[node name="Title" type="Label" parent="Margin/VBox"]
+[node name="VBox" type="VBoxContainer" parent="Sheet/Margin"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "NG_TITLE"
+theme_override_constants/separation = 20
 
-[node name="Scroll" type="ScrollContainer" parent="Margin/VBox"]
+[node name="Scroll" type="ScrollContainer" parent="Sheet/Margin/VBox"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="Form" type="VBoxContainer" parent="Margin/VBox/Scroll"]
+[node name="Steps" type="MarginContainer" parent="Sheet/Margin/VBox/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
 
-[node name="NameLabel" type="Label" parent="Margin/VBox/Scroll/Form"]
-layout_mode = 2
-text = "NG_NAME"
-
-[node name="NameEdit" type="LineEdit" parent="Margin/VBox/Scroll/Form"]
+[node name="Step1" type="VBoxContainer" parent="Sheet/Margin/VBox/Scroll/Steps"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 72)
 layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Preview" type="HBoxContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step1"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Frame" type="PanelContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step1/Preview"]
+custom_minimum_size = Vector2(188, 195)
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"AvatarFrame"
+
+[node name="PreviewAvatar" type="Control" parent="Sheet/Margin/VBox/Scroll/Steps/Step1/Preview/Frame"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(178, 178)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("6_avatar")
+
+[node name="NameBox" type="VBoxContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step1/Preview"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="NameLabel" type="Label" parent="Sheet/Margin/VBox/Scroll/Steps/Step1/Preview/NameBox"]
+layout_mode = 2
+theme_type_variation = &"CapsLabel"
+text = "NG_NAME"
+uppercase = true
+
+[node name="NameEdit" type="LineEdit" parent="Sheet/Margin/VBox/Scroll/Steps/Step1/Preview/NameBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+theme_type_variation = &"SenjaLineEdit"
 placeholder_text = "NG_NAME_HINT"
 max_length = 16
 
-[node name="AvatarLabel" type="Label" parent="Margin/VBox/Scroll/Form"]
-layout_mode = 2
-text = "NG_AVATAR"
-
-[node name="AvatarRow" type="HFlowContainer" parent="Margin/VBox/Scroll/Form"]
+[node name="NameHint" type="Label" parent="Sheet/Margin/VBox/Scroll/Steps/Step1/Preview/NameBox"]
 unique_name_in_owner = true
 layout_mode = 2
-
-[node name="BackgroundLabel" type="Label" parent="Margin/VBox/Scroll/Form"]
-layout_mode = 2
-text = "NG_BACKGROUND"
-
-[node name="BackgroundOptions" type="VBoxContainer" parent="Margin/VBox/Scroll/Form"]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="DifficultyLabel" type="Label" parent="Margin/VBox/Scroll/Form"]
-layout_mode = 2
-text = "NG_DIFFICULTY"
-
-[node name="DifficultyOptions" type="VBoxContainer" parent="Margin/VBox/Scroll/Form"]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="RiskLabel" type="Label" parent="Margin/VBox/Scroll/Form"]
-layout_mode = 2
-text = "NG_RISK"
-
-[node name="RiskHint" type="Label" parent="Margin/VBox/Scroll/Form"]
-layout_mode = 2
-modulate = Color(1, 1, 1, 0.6)
-theme_override_font_sizes/font_size = 19
-text = "NG_RISK_HINT"
+theme_type_variation = &"MutedLabel"
 autowrap_mode = 3
 
-[node name="RiskQuestions" type="VBoxContainer" parent="Margin/VBox/Scroll/Form"]
+[node name="AvatarSection" type="VBoxContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step1"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Heading" type="HBoxContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step1/AvatarSection"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Label" type="Label" parent="Sheet/Margin/VBox/Scroll/Steps/Step1/AvatarSection/Heading"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"SectionLabel"
+text = "NG_PICK_AVATAR"
+
+[node name="AvatarDesc" type="Label" parent="Sheet/Margin/VBox/Scroll/Steps/Step1/AvatarSection/Heading"]
 unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 8
+theme_type_variation = &"MutedLabel"
+horizontal_alignment = 2
+
+[node name="MaleRow" type="HBoxContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step1/AvatarSection"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="RiskResult" type="Label" parent="Margin/VBox/Scroll/Form"]
+[node name="Chip" type="PanelContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step1/AvatarSection/MaleRow"]
+layout_mode = 2
+theme_type_variation = &"ChipTeal"
+
+[node name="Label" type="Label" parent="Sheet/Margin/VBox/Scroll/Steps/Step1/AvatarSection/MaleRow/Chip"]
+layout_mode = 2
+theme_type_variation = &"ChipLabel"
+text = "NG_MALE"
+
+[node name="Line" type="Panel" parent="Sheet/Margin/VBox/Scroll/Steps/Step1/AvatarSection/MaleRow"]
+custom_minimum_size = Vector2(0, 3)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_type_variation = &"Divider"
+
+[node name="MaleGrid" type="GridContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step1/AvatarSection"]
 unique_name_in_owner = true
 layout_mode = 2
-modulate = Color(0.36, 0.68, 0.98, 1)
-theme_override_font_sizes/font_size = 21
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 14
+columns = 5
+
+[node name="FemaleRow" type="HBoxContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step1/AvatarSection"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Chip" type="PanelContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step1/AvatarSection/FemaleRow"]
+layout_mode = 2
+theme_type_variation = &"ChipCoral"
+
+[node name="Label" type="Label" parent="Sheet/Margin/VBox/Scroll/Steps/Step1/AvatarSection/FemaleRow/Chip"]
+layout_mode = 2
+theme_type_variation = &"ChipLabel"
+text = "NG_FEMALE"
+
+[node name="Line" type="Panel" parent="Sheet/Margin/VBox/Scroll/Steps/Step1/AvatarSection/FemaleRow"]
+custom_minimum_size = Vector2(0, 3)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_type_variation = &"Divider"
+
+[node name="FemaleGrid" type="GridContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step1/AvatarSection"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 14
+columns = 5
+
+[node name="Step2" type="VBoxContainer" parent="Sheet/Margin/VBox/Scroll/Steps"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="BackgroundLabel" type="Label" parent="Sheet/Margin/VBox/Scroll/Steps/Step2"]
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "NG_BACKGROUND"
+
+[node name="BackgroundOptions" type="VBoxContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step2"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Gap" type="Control" parent="Sheet/Margin/VBox/Scroll/Steps/Step2"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="DifficultyLabel" type="Label" parent="Sheet/Margin/VBox/Scroll/Steps/Step2"]
+layout_mode = 2
+theme_type_variation = &"SectionLabel"
+text = "NG_DIFFICULTY"
+
+[node name="Track" type="PanelContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step2"]
+layout_mode = 2
+theme_type_variation = &"SegmentTrack"
+
+[node name="DifficultyRow" type="HBoxContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step2/Track"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DifficultyCard" type="PanelContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step2"]
+layout_mode = 2
+theme_type_variation = &"InfoCard"
+
+[node name="HBox" type="HBoxContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step2/DifficultyCard"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Icon" type="TextureRect" parent="Sheet/Margin/VBox/Scroll/Steps/Step2/DifficultyCard/HBox"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("7_info")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DifficultyDesc" type="Label" parent="Sheet/Margin/VBox/Scroll/Steps/Step2/DifficultyCard/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"InfoLabel"
 autowrap_mode = 3
 
-[node name="StartButton" type="Button" parent="Margin/VBox"]
+[node name="Step3" type="VBoxContainer" parent="Sheet/Margin/VBox/Scroll/Steps"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 92)
+visible = false
 layout_mode = 2
-text = "NG_START"
+theme_override_constants/separation = 22
 
-[node name="BackButton" type="Button" parent="Margin/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
+[node name="RiskHint" type="Label" parent="Sheet/Margin/VBox/Scroll/Steps/Step3"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
-text = "BTN_BACK"
+theme_type_variation = &"MutedLabel"
+text = "NG_RISK_HINT"
+autowrap_mode = 3
+
+[node name="RiskQuestions" type="VBoxContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step3"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="Result" type="PanelContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step3"]
+layout_mode = 2
+theme_type_variation = &"ResultPanel"
+
+[node name="VBox" type="VBoxContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step3/Result"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Top" type="HBoxContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step3/Result/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Name" type="VBoxContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step3/Result/VBox/Top"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="Caps" type="Label" parent="Sheet/Margin/VBox/Scroll/Steps/Step3/Result/VBox/Top/Name"]
+layout_mode = 2
+theme_type_variation = &"CapsLabel"
+text = "NG_YOUR_PROFILE"
+
+[node name="ProfileName" type="Label" parent="Sheet/Margin/VBox/Scroll/Steps/Step3/Result/VBox/Top/Name"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ProfileNameLabel"
+
+[node name="Meter" type="HBoxContainer" parent="Sheet/Margin/VBox/Scroll/Steps/Step3/Result/VBox/Top"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 6
+
+[node name="ProfileDesc" type="Label" parent="Sheet/Margin/VBox/Scroll/Steps/Step3/Result/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"InfoLabel"
+autowrap_mode = 3
+
+[node name="ButtonRow" type="HBoxContainer" parent="Sheet/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="BackStepButton" type="Button" parent="Sheet/Margin/VBox/ButtonRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 104)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"NeutralButton"
+script = ExtResource("3_chunky")
+
+[node name="Content" type="CenterContainer" parent="Sheet/Margin/VBox/ButtonRow/BackStepButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="Sheet/Margin/VBox/ButtonRow/BackStepButton/Content"]
+layout_mode = 2
+theme_type_variation = &"NeutralButtonLabel"
+text = "NG_BACK"
+
+[node name="NextButton" type="Button" parent="Sheet/Margin/VBox/ButtonRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 104)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+theme_type_variation = &"PrimaryButton"
+script = ExtResource("3_chunky")
+
+[node name="Content" type="CenterContainer" parent="Sheet/Margin/VBox/ButtonRow/NextButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="HBox" type="HBoxContainer" parent="Sheet/Margin/VBox/ButtonRow/NextButton/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 16
+
+[node name="NextLabel" type="Label" parent="Sheet/Margin/VBox/ButtonRow/NextButton/Content/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"PrimaryButtonLabel"
+text = "NG_NEXT"
+
+[node name="NextIcon" type="TextureRect" parent="Sheet/Margin/VBox/ButtonRow/NextButton/Content/HBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(52, 52)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("8_arrow")
+expand_mode = 1
+stretch_mode = 5

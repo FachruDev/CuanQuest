@@ -231,6 +231,27 @@ NG_BACKGROUND,Latar Belakang,Background
 NG_DIFFICULTY,Tingkat Kesulitan,Difficulty
 NG_SALARY,%s/bulan,%s/month
 NG_START,Mulai Bermain,Start Playing
+NG_STEP,LANGKAH %d DARI %d,STEP %d OF %d
+NG_STEP1_TITLE,Siapa kamu?,Who are you?
+NG_STEP2_TITLE,Jalan hidupmu,Your path
+NG_STEP3_TITLE,Gaya investasimu,Your investing style
+NG_PICK_AVATAR,Pilih avatar,Pick an avatar
+NG_MALE,Pria,Male
+NG_FEMALE,Wanita,Female
+NG_NAME_DEFAULT,Kosongkan untuk memakai nama %s.,Leave empty to use the name %s.
+NG_NEXT,Lanjut,Next
+NG_BACK,Kembali,Back
+NG_YOUR_PROFILE,PROFILMU,YOUR PROFILE
+AVATAR_DESC_0,"Rambut acak, kaus teal","Messy hair, teal tee"
+AVATAR_DESC_1,"Rambut samping, kacamata","Side-swept hair, glasses"
+AVATAR_DESC_2,"Belah tengah, hoodie & headphone","Center part, hoodie & headphones"
+AVATAR_DESC_3,"Rapi, sweater koral","Neat hair, coral sweater"
+AVATAR_DESC_4,"Runcing jingga, jaket","Spiky orange hair, jacket"
+AVATAR_DESC_5,"Panjang hitam, jepit bintang","Long black hair, star clip"
+AVATAR_DESC_6,"Twin tail pink, kerah pelaut","Pink twin tails, sailor collar"
+AVATAR_DESC_7,"Hijab mint, bros emas","Mint hijab, gold brooch"
+AVATAR_DESC_8,"Bob cokelat, anting emas","Brown bob, gold earrings"
+AVATAR_DESC_9,"Ponytail ungu, scrunchie","Purple ponytail, scrunchie"
 BG_STUDENT,Mahasiswa,Student
 BG_STUDENT_DESC,"Usia 20. Kerja paruh waktu, masih tinggal bersama orang tua. Penghasilan kecil, tapi waktu masih panjang.","Age 20. Part-time job, lives with parents. Small income, but plenty of time ahead."
 BG_EMPLOYEE,Karyawan,Employee

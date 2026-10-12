@@ -137,8 +137,8 @@ SVG, tampil sekitar 40-48 px.
 
 | File | Ukuran (2x) | Prioritas | Catatan |
 |---|---|---|---|
-| `illustrations/avatar_0.png` ... `avatar_5.png` | 256 x 256 | P1 | 6 karakter (wajah/setengah badan), pengganti avatar lingkaran inisial |
-| `illustrations/avatar_0_happy.png`, `_neutral`, `_sad` (per avatar) | 256 x 256 | P3 | Ekspresi mengikuti kebahagiaan (>=60 / 30-59 / <30): 18 gambar |
+| `illustrations/avatar_0.svg` ... `avatar_9.svg` | 256 x 256 | P1 | **Sudah ada** (gaya anime "Senja Cuan"): 0-4 pria, 5-9 wanita. Nama saran & deskripsi di `AvatarView.NAMES` dan kunci `AVATAR_DESC_<n>`. Versi PNG buatan sendiri boleh menggantikan, asal nama & urutannya sama |
+| `illustrations/avatar_0_happy.png`, `_neutral`, `_sad` (per avatar) | 256 x 256 | P3 | Ekspresi mengikuti kebahagiaan (>=60 / 30-59 / <30): 30 gambar |
 | `illustrations/background_student.png`, `background_employee.png`, `background_freelancer.png` | 480 x 480 | P2 | Ilustrasi pilihan latar belakang di layar Buat Karakter |
 
 ### 3.6 Ilustrasi Ruangan & Beranda
