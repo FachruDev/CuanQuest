@@ -203,8 +203,19 @@ BTN_CLOSE,Tutup,Close
 TITLE_TAGLINE,Simulasi kehidupan finansial & investasi,A personal finance & investing life sim
 TITLE_CONTINUE,Lanjutkan,Continue
 TITLE_NEW_GAME,Game Baru,New Game
-TITLE_NEW_CONFIRM,Yakin? Simpanan otomatis akan ditimpa. Tekan lagi untuk lanjut.,Sure? The autosave will be overwritten. Tap again to continue.
 TITLE_LOAD,Muat Game,Load Game
+TITLE_AUTOSAVE_LABEL,SIMPANAN OTOMATIS,AUTOSAVE
+TITLE_NET_WORTH_LABEL,KEKAYAAN,NET WORTH
+TITLE_WELCOME_TITLE,Petualangan barumu dimulai,Your adventure starts here
+TITLE_WELCOME_BODY,"Dari gaji pertama sampai pensiun di usia 60. Atur uangmu, raih cuan.","From your first paycheck to retirement at 60. Manage your money, grow your wealth."
+TITLE_LOAD_SUBTITLE,Pilih simpanan manual untuk dilanjutkan,Pick a manual save to continue
+TITLE_LOAD_EMPTY_HINT,Simpan lewat tab Profil di dalam game,Save from the Profile tab in-game
+TITLE_LOAD_NOTE,Game tersimpan otomatis setiap bulan dan saat aplikasi ditutup. Pakai tombol Lanjutkan untuk simpanan terbaru.,The game autosaves every month and when the app closes. Use Continue for the latest save.
+TITLE_SAVED_AT,Disimpan %s,Saved %s
+TITLE_CONFIRM_NEW_TITLE,Mulai game baru?,Start a new game?
+TITLE_CONFIRM_NEW_BODY,"Simpanan otomatis milik %s (%s, %s) akan ditimpa. Slot manual tetap aman.","%s's autosave (%s, %s) will be overwritten. Manual slots stay safe."
+TITLE_CONFIRM_NEW_YES,"Ya, mulai baru","Yes, start over"
+TITLE_CANCEL,Batal,Cancel
 SAVE_SLOT,Slot %d,Slot %d
 SAVE_EMPTY,(kosong),(empty)
 SAVE_BUTTON,Simpan,Save

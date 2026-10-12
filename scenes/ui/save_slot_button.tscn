@@ -1,0 +1,93 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/save_slot_button.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/icons/chevron_right.svg" id="2_chevron"]
+
+[node name="SaveSlotButton" type="Button"]
+custom_minimum_size = Vector2(0, 128)
+theme_type_variation = &"SlotButton"
+script = ExtResource("1_script")
+press_depth = 5.0
+
+[node name="Content" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -6.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 25
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 25
+theme_override_constants/margin_bottom = 18
+
+[node name="HBox" type="HBoxContainer" parent="Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 20
+
+[node name="Badge" type="PanelContainer" parent="Content/HBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_type_variation = &"BadgePanel"
+
+[node name="Number" type="Label" parent="Content/HBox/Badge"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"BadgeLabel"
+text = "1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Info" type="VBoxContainer" parent="Content/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="SlotName" type="Label" parent="Content/HBox/Info"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"CapsLabel"
+text = "SLOT 1"
+uppercase = true
+
+[node name="Title" type="Label" parent="Content/HBox/Info"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"SlotTitleLabel"
+text_overrun_behavior = 3
+
+[node name="Detail" type="Label" parent="Content/HBox/Info"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
+text_overrun_behavior = 3
+
+[node name="Side" type="VBoxContainer" parent="Content/HBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Money" type="Label" parent="Content/HBox/Side"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"SlotMoneyLabel"
+horizontal_alignment = 2
+
+[node name="Chevron" type="TextureRect" parent="Content/HBox/Side"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(14, 24)
+layout_mode = 2
+size_flags_horizontal = 8
+mouse_filter = 2
+texture = ExtResource("2_chevron")
+expand_mode = 1
+stretch_mode = 5

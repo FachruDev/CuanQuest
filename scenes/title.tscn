@@ -1,6 +1,20 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/title_screen.gd" id="1_title"]
+[ext_resource type="Theme" path="res://theme/senja_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://scripts/ui/chunky_button.gd" id="3_chunky"]
+[ext_resource type="Texture2D" path="res://assets/illustrations/title_bg.svg" id="4_bg"]
+[ext_resource type="Texture2D" path="res://assets/illustrations/title_coin.svg" id="5_coin"]
+[ext_resource type="Texture2D" path="res://assets/icons/play_badge.svg" id="6_play"]
+[ext_resource type="Texture2D" path="res://assets/icons/plus_badge.svg" id="7_plus_badge"]
+[ext_resource type="Texture2D" path="res://assets/icons/plus.svg" id="8_plus"]
+[ext_resource type="Texture2D" path="res://assets/icons/folder.svg" id="9_folder"]
+[ext_resource type="Texture2D" path="res://assets/icons/info.svg" id="10_info"]
+[ext_resource type="Texture2D" path="res://assets/icons/close.svg" id="11_close"]
+[ext_resource type="Texture2D" path="res://assets/icons/save.svg" id="12_save"]
+[ext_resource type="Texture2D" path="res://assets/icons/warning.svg" id="13_warning"]
+[ext_resource type="Texture2D" path="res://assets/icons/welcome.svg" id="14_welcome"]
+[ext_resource type="Texture2D" path="res://assets/icons/trend_up.svg" id="15_trend"]
 
 [node name="Title" type="Control"]
 layout_mode = 3
@@ -9,93 +23,657 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("2_theme")
 script = ExtResource("1_title")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Ground" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.067, 0.086, 0.13, 1)
+mouse_filter = 2
+color = Color(0.4235, 0.749, 0.5922, 1)
 
-[node name="Margin" type="MarginContainer" parent="."]
+[node name="Scenery" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 780.0
+grow_horizontal = 2
+mouse_filter = 2
+texture = ExtResource("4_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Logo" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 112.0
+offset_bottom = 560.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_constants/separation = 34
+
+[node name="Wordmark" type="VBoxContainer" parent="Logo"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = -30
+
+[node name="CoinHolder" type="CenterContainer" parent="Logo/Wordmark"]
+z_index = 1
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Coin" type="TextureRect" parent="Logo/Wordmark/CoinHolder"]
+custom_minimum_size = Vector2(92, 92)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("5_coin")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CoinLabel" type="Label" parent="Logo/Wordmark/CoinHolder/Coin"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_bottom = -8.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_type_variation = &"CoinLabel"
+text = "Rp"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Name" type="VBoxContainer" parent="Logo/Wordmark"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = -24
+
+[node name="LogoLabel" type="Label" parent="Logo/Wordmark/Name"]
+layout_mode = 2
+theme_type_variation = &"LogoLabel"
+text = "Cuan"
+horizontal_alignment = 1
+
+[node name="RibbonHolder" type="CenterContainer" parent="Logo/Wordmark/Name"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Ribbon" type="PanelContainer" parent="Logo/Wordmark/Name/RibbonHolder"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"RibbonPanel"
+
+[node name="RibbonLabel" type="Label" parent="Logo/Wordmark/Name/RibbonHolder/Ribbon"]
+layout_mode = 2
+theme_type_variation = &"RibbonLabel"
+text = "QUEST"
+horizontal_alignment = 1
+
+[node name="TaglineHolder" type="CenterContainer" parent="Logo"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Tagline" type="PanelContainer" parent="Logo/TaglineHolder"]
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"PillPanel"
+
+[node name="TaglineLabel" type="Label" parent="Logo/TaglineHolder/Tagline"]
+layout_mode = 2
+theme_type_variation = &"TaglineLabel"
+text = "TITLE_TAGLINE"
+horizontal_alignment = 1
+
+[node name="Sheet" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -572.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_type_variation = &"SheetPanel"
+
+[node name="Margin" type="MarginContainer" parent="Sheet"]
+layout_mode = 2
 theme_override_constants/margin_left = 48
-theme_override_constants/margin_top = 48
+theme_override_constants/margin_top = 32
 theme_override_constants/margin_right = 48
 theme_override_constants/margin_bottom = 32
 
-[node name="VBox" type="VBoxContainer" parent="Margin"]
+[node name="VBox" type="VBoxContainer" parent="Sheet/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="SaveCard" type="PanelContainer" parent="Sheet/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"CardPanel"
+
+[node name="HBox" type="HBoxContainer" parent="Sheet/Margin/VBox/SaveCard"]
 layout_mode = 2
 theme_override_constants/separation = 18
+
+[node name="Avatar" type="PanelContainer" parent="Sheet/Margin/VBox/SaveCard/HBox"]
+custom_minimum_size = Vector2(68, 68)
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"AvatarPanel"
+
+[node name="SaveInitial" type="Label" parent="Sheet/Margin/VBox/SaveCard/HBox/Avatar"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"BadgeLabel"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Info" type="VBoxContainer" parent="Sheet/Margin/VBox/SaveCard/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
 alignment = 1
 
-[node name="Logo" type="Label" parent="Margin/VBox"]
+[node name="Caps" type="Label" parent="Sheet/Margin/VBox/SaveCard/HBox/Info"]
 layout_mode = 2
-modulate = Color(0.18, 0.8, 0.44, 1)
-theme_override_font_sizes/font_size = 72
-text = "Cuan Quest"
-horizontal_alignment = 1
+theme_type_variation = &"CapsLabel"
+text = "TITLE_AUTOSAVE_LABEL"
 
-[node name="Tagline" type="Label" parent="Margin/VBox"]
+[node name="SaveName" type="Label" parent="Sheet/Margin/VBox/SaveCard/HBox/Info"]
+unique_name_in_owner = true
 layout_mode = 2
-modulate = Color(1, 1, 1, 0.7)
-theme_override_font_sizes/font_size = 24
-text = "TITLE_TAGLINE"
-horizontal_alignment = 1
+theme_type_variation = &"NameLabel"
+text_overrun_behavior = 3
+
+[node name="SaveDetail" type="Label" parent="Sheet/Margin/VBox/SaveCard/HBox/Info"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"MutedLabel"
 autowrap_mode = 3
 
-[node name="Spacer" type="Control" parent="Margin/VBox"]
-custom_minimum_size = Vector2(0, 60)
+[node name="Worth" type="VBoxContainer" parent="Sheet/Margin/VBox/SaveCard/HBox"]
 layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 2
 
-[node name="ContinueButton" type="Button" parent="Margin/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 96)
+[node name="Caps" type="Label" parent="Sheet/Margin/VBox/SaveCard/HBox/Worth"]
 layout_mode = 2
+theme_type_variation = &"CapsLabel"
+text = "TITLE_NET_WORTH_LABEL"
+horizontal_alignment = 2
+
+[node name="Value" type="HBoxContainer" parent="Sheet/Margin/VBox/SaveCard/HBox/Worth"]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 2
+
+[node name="TrendIcon" type="TextureRect" parent="Sheet/Margin/VBox/SaveCard/HBox/Worth/Value"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(18, 16)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("15_trend")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SaveNetWorth" type="Label" parent="Sheet/Margin/VBox/SaveCard/HBox/Worth/Value"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"MoneyLabel"
+
+[node name="WelcomeCard" type="PanelContainer" parent="Sheet/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"WelcomePanel"
+
+[node name="HBox" type="HBoxContainer" parent="Sheet/Margin/VBox/WelcomeCard"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Icon" type="TextureRect" parent="Sheet/Margin/VBox/WelcomeCard/HBox"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("14_welcome")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Text" type="VBoxContainer" parent="Sheet/Margin/VBox/WelcomeCard/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="Heading" type="Label" parent="Sheet/Margin/VBox/WelcomeCard/HBox/Text"]
+layout_mode = 2
+theme_type_variation = &"CardTitleLabel"
+text = "TITLE_WELCOME_TITLE"
+autowrap_mode = 3
+
+[node name="Body" type="Label" parent="Sheet/Margin/VBox/WelcomeCard/HBox/Text"]
+layout_mode = 2
+theme_type_variation = &"MutedBodyLabel"
+text = "TITLE_WELCOME_BODY"
+autowrap_mode = 3
+
+[node name="ContinueButton" type="Button" parent="Sheet/Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 112)
+layout_mode = 2
+theme_type_variation = &"PrimaryButton"
+script = ExtResource("3_chunky")
+
+[node name="Content" type="CenterContainer" parent="Sheet/Margin/VBox/ContinueButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="HBox" type="HBoxContainer" parent="Sheet/Margin/VBox/ContinueButton/Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 18
+
+[node name="Icon" type="TextureRect" parent="Sheet/Margin/VBox/ContinueButton/Content/HBox"]
+custom_minimum_size = Vector2(52, 52)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("6_play")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="Sheet/Margin/VBox/ContinueButton/Content/HBox"]
+layout_mode = 2
+theme_type_variation = &"PrimaryButtonLabel"
 text = "TITLE_CONTINUE"
 
-[node name="ContinueInfo" type="Label" parent="Margin/VBox"]
+[node name="StartButton" type="Button" parent="Sheet/Margin/VBox"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 112)
 layout_mode = 2
-modulate = Color(1, 1, 1, 0.6)
-theme_override_font_sizes/font_size = 19
-horizontal_alignment = 1
-autowrap_mode = 3
+theme_type_variation = &"PrimaryButton"
+script = ExtResource("3_chunky")
 
-[node name="NewGameButton" type="Button" parent="Margin/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 88)
+[node name="Content" type="CenterContainer" parent="Sheet/Margin/VBox/StartButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="HBox" type="HBoxContainer" parent="Sheet/Margin/VBox/StartButton/Content"]
 layout_mode = 2
-autowrap_mode = 3
+mouse_filter = 2
+theme_override_constants/separation = 18
+
+[node name="Icon" type="TextureRect" parent="Sheet/Margin/VBox/StartButton/Content/HBox"]
+custom_minimum_size = Vector2(52, 52)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("7_plus_badge")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="Sheet/Margin/VBox/StartButton/Content/HBox"]
+layout_mode = 2
+theme_type_variation = &"PrimaryButtonLabel"
 text = "TITLE_NEW_GAME"
 
-[node name="LoadButton" type="Button" parent="Margin/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 80)
+[node name="Row" type="HBoxContainer" parent="Sheet/Margin/VBox"]
 layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="NewGameButton" type="Button" parent="Sheet/Margin/VBox/Row"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 95)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"SecondaryButton"
+script = ExtResource("3_chunky")
+press_depth = 5.0
+
+[node name="Content" type="CenterContainer" parent="Sheet/Margin/VBox/Row/NewGameButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="HBox" type="HBoxContainer" parent="Sheet/Margin/VBox/Row/NewGameButton/Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="Icon" type="TextureRect" parent="Sheet/Margin/VBox/Row/NewGameButton/Content/HBox"]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("8_plus")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="Sheet/Margin/VBox/Row/NewGameButton/Content/HBox"]
+layout_mode = 2
+theme_type_variation = &"SecondaryButtonLabel"
+text = "TITLE_NEW_GAME"
+
+[node name="LoadButton" type="Button" parent="Sheet/Margin/VBox/Row"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 95)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"NeutralButton"
+script = ExtResource("3_chunky")
+
+[node name="Content" type="CenterContainer" parent="Sheet/Margin/VBox/Row/LoadButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="HBox" type="HBoxContainer" parent="Sheet/Margin/VBox/Row/LoadButton/Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="LoadIcon" type="TextureRect" parent="Sheet/Margin/VBox/Row/LoadButton/Content/HBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("9_folder")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LoadLabel" type="Label" parent="Sheet/Margin/VBox/Row/LoadButton/Content/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"NeutralButtonLabel"
 text = "TITLE_LOAD"
 
-[node name="LoadPanel" type="VBoxContainer" parent="Margin/VBox"]
+[node name="ErrorLabel" type="Label" parent="Sheet/Margin/VBox"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="Spacer2" type="Control" parent="Margin/VBox"]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-
-[node name="Disclaimer" type="Label" parent="Margin/VBox"]
-layout_mode = 2
-modulate = Color(1, 1, 1, 0.45)
-theme_override_font_sizes/font_size = 18
-text = "DISCLAIMER"
+theme_type_variation = &"ErrorLabel"
 horizontal_alignment = 1
 autowrap_mode = 3
+
+[node name="Spacer" type="Control" parent="Sheet/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="Disclaimer" type="HBoxContainer" parent="Sheet/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Icon" type="TextureRect" parent="Sheet/Margin/VBox/Disclaimer"]
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("10_info")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="Sheet/Margin/VBox/Disclaimer"]
+layout_mode = 2
+theme_type_variation = &"DisclaimerLabel"
+text = "DISCLAIMER"
+
+[node name="LoadOverlay" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LoadDim" type="ColorRect" parent="LoadOverlay"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.169, 0.129, 0.278, 0.62)
+
+[node name="LoadSheet" type="PanelContainer" parent="LoadOverlay"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_type_variation = &"SheetPanel"
+
+[node name="Margin" type="MarginContainer" parent="LoadOverlay/LoadSheet"]
+layout_mode = 2
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 40
+
+[node name="VBox" type="VBoxContainer" parent="LoadOverlay/LoadSheet/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Handle" type="Panel" parent="LoadOverlay/LoadSheet/Margin/VBox"]
+custom_minimum_size = Vector2(72, 8)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"HandlePanel"
+
+[node name="Header" type="HBoxContainer" parent="LoadOverlay/LoadSheet/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Text" type="VBoxContainer" parent="LoadOverlay/LoadSheet/Margin/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="Heading" type="Label" parent="LoadOverlay/LoadSheet/Margin/VBox/Header/Text"]
+layout_mode = 2
+theme_type_variation = &"HeadingLabel"
+text = "TITLE_LOAD"
+
+[node name="Subtitle" type="Label" parent="LoadOverlay/LoadSheet/Margin/VBox/Header/Text"]
+layout_mode = 2
+theme_type_variation = &"MutedBodyLabel"
+text = "TITLE_LOAD_SUBTITLE"
+autowrap_mode = 3
+
+[node name="CloseLoadButton" type="Button" parent="LoadOverlay/LoadSheet/Margin/VBox/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(68, 72)
+layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "BTN_CLOSE"
+theme_type_variation = &"RoundButton"
+icon = ExtResource("11_close")
+icon_alignment = 1
+
+[node name="SlotList" type="VBoxContainer" parent="LoadOverlay/LoadSheet/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Notice" type="PanelContainer" parent="LoadOverlay/LoadSheet/Margin/VBox"]
+layout_mode = 2
+theme_type_variation = &"NoticePanel"
+
+[node name="HBox" type="HBoxContainer" parent="LoadOverlay/LoadSheet/Margin/VBox/Notice"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Icon" type="TextureRect" parent="LoadOverlay/LoadSheet/Margin/VBox/Notice/HBox"]
+custom_minimum_size = Vector2(26, 26)
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("12_save")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="LoadOverlay/LoadSheet/Margin/VBox/Notice/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"MutedLabel"
+text = "TITLE_LOAD_NOTE"
+autowrap_mode = 3
+
+[node name="ConfirmOverlay" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+z_index = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ConfirmDim" type="ColorRect" parent="ConfirmOverlay"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.169, 0.129, 0.278, 0.62)
+
+[node name="Center" type="CenterContainer" parent="ConfirmOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ConfirmDialog" type="VBoxContainer" parent="ConfirmOverlay/Center"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(608, 0)
+layout_mode = 2
+theme_override_constants/separation = -64
+
+[node name="BadgeHolder" type="CenterContainer" parent="ConfirmOverlay/Center/ConfirmDialog"]
+z_index = 1
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Badge" type="PanelContainer" parent="ConfirmOverlay/Center/ConfirmDialog/BadgeHolder"]
+custom_minimum_size = Vector2(128, 135)
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"WarningBadgePanel"
+
+[node name="Icon" type="TextureRect" parent="ConfirmOverlay/Center/ConfirmDialog/BadgeHolder/Badge"]
+custom_minimum_size = Vector2(64, 60)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("13_warning")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DialogPanel" type="PanelContainer" parent="ConfirmOverlay/Center/ConfirmDialog"]
+layout_mode = 2
+theme_type_variation = &"DialogPanel"
+
+[node name="VBox" type="VBoxContainer" parent="ConfirmOverlay/Center/ConfirmDialog/DialogPanel"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Heading" type="Label" parent="ConfirmOverlay/Center/ConfirmDialog/DialogPanel/VBox"]
+layout_mode = 2
+theme_type_variation = &"HeadingLabel"
+text = "TITLE_CONFIRM_NEW_TITLE"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="ConfirmBody" type="Label" parent="ConfirmOverlay/Center/ConfirmDialog/DialogPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"BodyLabel"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Gap" type="Control" parent="ConfirmOverlay/Center/ConfirmDialog/DialogPanel/VBox"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="ConfirmYesButton" type="Button" parent="ConfirmOverlay/Center/ConfirmDialog/DialogPanel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+theme_type_variation = &"DangerButton"
+script = ExtResource("3_chunky")
+
+[node name="Content" type="CenterContainer" parent="ConfirmOverlay/Center/ConfirmDialog/DialogPanel/VBox/ConfirmYesButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="ConfirmOverlay/Center/ConfirmDialog/DialogPanel/VBox/ConfirmYesButton/Content"]
+layout_mode = 2
+theme_type_variation = &"DangerButtonLabel"
+text = "TITLE_CONFIRM_NEW_YES"
+
+[node name="ConfirmCancelButton" type="Button" parent="ConfirmOverlay/Center/ConfirmDialog/DialogPanel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 94)
+layout_mode = 2
+theme_type_variation = &"NeutralButton"
+script = ExtResource("3_chunky")
+
+[node name="Content" type="CenterContainer" parent="ConfirmOverlay/Center/ConfirmDialog/DialogPanel/VBox/ConfirmCancelButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="ConfirmOverlay/Center/ConfirmDialog/DialogPanel/VBox/ConfirmCancelButton/Content"]
+layout_mode = 2
+theme_type_variation = &"NeutralButtonLabel"
+text = "TITLE_CANCEL"

@@ -85,11 +85,16 @@ func slot_summary(slot: String) -> String:
 	var meta := slot_meta(slot)
 	if meta.is_empty():
 		return tr("SAVE_EMPTY")
+	return "%s | %s | %s | %s" % [
+		meta["player_name"], Fmt.game_date(int(meta["month"])), Fmt.rupiah(meta["net_worth"]),
+		saved_at_text(meta)]
+
+
+## Waktu simpan (jam lokal HP): "12/10/2026 10:30"
+func saved_at_text(meta: Dictionary) -> String:
 	var bias_minutes: int = Time.get_time_zone_from_system()["bias"]
 	var dt := Time.get_datetime_dict_from_unix_time(int(meta["saved_at"]) + bias_minutes * 60)
-	return "%s | %s | %s | %02d/%02d/%d %02d:%02d" % [
-		meta["player_name"], Fmt.game_date(int(meta["month"])), Fmt.rupiah(meta["net_worth"]),
-		dt["day"], dt["month"], dt["year"], dt["hour"], dt["minute"]]
+	return "%02d/%02d/%d %02d:%02d" % [dt["day"], dt["month"], dt["year"], dt["hour"], dt["minute"]]
 
 
 func _slot_path(slot: String) -> String:

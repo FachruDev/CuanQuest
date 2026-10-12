@@ -15,6 +15,14 @@ static func rupiah(value: float) -> String:
 	return minus + "Rp" + _group_thousands(absi(n))
 
 
+## Selalu ringkas, apa pun pengaturan: Rp12,50 jt (untuk ruang sempit seperti kartu simpanan).
+static func rupiah_short(value: float) -> String:
+	var n := roundi(value)
+	if absi(n) < 1_000_000:
+		return rupiah(value)
+	return ("-" if n < 0 else "") + "Rp" + _short(absi(n))
+
+
 ## 1.250.000 -> "1,25 jt" | 3.400.000.000 -> "3,40 M" (miliar) | ... "T" (triliun)
 static func _short(n: int) -> String:
 	if n >= 1_000_000_000_000:
