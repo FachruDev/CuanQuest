@@ -1,0 +1,192 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/main.gd" id="1_main"]
+[ext_resource type="Script" path="res://scripts/ui/price_chart.gd" id="2_chart"]
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_main")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.067, 0.086, 0.13, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 32
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TopBar" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+
+[node name="CashBox" type="VBoxContainer" parent="Margin/VBox/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CashTitle" type="Label" parent="Margin/VBox/TopBar/CashBox"]
+layout_mode = 2
+modulate = Color(1, 1, 1, 0.6)
+theme_override_font_sizes/font_size = 20
+text = "LBL_CASH"
+
+[node name="CashValue" type="Label" parent="Margin/VBox/TopBar/CashBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Rp0"
+
+[node name="NetWorthBox" type="VBoxContainer" parent="Margin/VBox/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NetWorthTitle" type="Label" parent="Margin/VBox/TopBar/NetWorthBox"]
+layout_mode = 2
+modulate = Color(1, 1, 1, 0.6)
+theme_override_font_sizes/font_size = 20
+text = "LBL_NET_WORTH"
+
+[node name="NetWorthValue" type="Label" parent="Margin/VBox/TopBar/NetWorthBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Rp0"
+
+[node name="DateLabel" type="Label" parent="Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+modulate = Color(1, 1, 1, 0.6)
+theme_override_font_sizes/font_size = 22
+text = "Jan"
+
+[node name="HSeparator" type="HSeparator" parent="Margin/VBox"]
+layout_mode = 2
+
+[node name="AssetName" type="Label" parent="Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Aset"
+
+[node name="PriceRow" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="PriceLabel" type="Label" parent="Margin/VBox/PriceRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 44
+text = "Rp0"
+
+[node name="ChangeLabel" type="Label" parent="Margin/VBox/PriceRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+text = "+0,00%"
+
+[node name="Chart" type="Control" parent="Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 240)
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("2_chart")
+
+[node name="HoldingLabel" type="Label" parent="Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+autowrap_mode = 3
+text = "LBL_NO_HOLDING"
+
+[node name="ModeRow" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+
+[node name="ModeBuy" type="Button" parent="Margin/VBox/ModeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "BTN_MODE_BUY"
+
+[node name="ModeSell" type="Button" parent="Margin/VBox/ModeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+size_flags_horizontal = 3
+toggle_mode = true
+text = "BTN_MODE_SELL"
+
+[node name="AmountEdit" type="LineEdit" parent="Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+placeholder_text = "HINT_AMOUNT"
+
+[node name="QuickRow" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+
+[node name="Quick25" type="Button" parent="Margin/VBox/QuickRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "25%"
+
+[node name="Quick50" type="Button" parent="Margin/VBox/QuickRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "50%"
+
+[node name="Quick100" type="Button" parent="Margin/VBox/QuickRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "100%"
+
+[node name="ConfirmButton" type="Button" parent="Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+text = "BTN_CONFIRM_BUY"
+
+[node name="FeedbackLabel" type="Label" parent="Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+autowrap_mode = 3
+
+[node name="NextButton" type="Button" parent="Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+text = "BTN_NEXT_MONTH"
+
+[node name="Disclaimer" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+modulate = Color(1, 1, 1, 0.45)
+theme_override_font_sizes/font_size = 18
+text = "DISCLAIMER"
+horizontal_alignment = 1
+autowrap_mode = 3

@@ -1,0 +1,15 @@
+{
+	"assets": [
+		{
+			"id": "NUSA",
+			"name_key": "ASSET_NUSA",
+			"class": "stock",
+			"start_price": 1500,
+			"drift": 0.10,
+			"volatility": 0.25,
+			"buy_fee": 0.0015,
+			"sell_fee": 0.0025,
+			"risk": 3
+		}
+	]
+}

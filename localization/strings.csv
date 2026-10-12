@@ -1,0 +1,32 @@
+keys,id,en
+LBL_CASH,Kas,Cash
+LBL_NET_WORTH,Kekayaan Bersih,Net Worth
+LBL_HOLDING,"Kepemilikan: %s unit | Nilai %s | %s","Holding: %s units | Value %s | %s"
+LBL_NO_HOLDING,Kamu belum punya aset ini.,You don't own this asset yet.
+BTN_MODE_BUY,Beli,Buy
+BTN_MODE_SELL,Jual,Sell
+BTN_CONFIRM_BUY,Konfirmasi Beli,Confirm Buy
+BTN_CONFIRM_SELL,Konfirmasi Jual,Confirm Sell
+BTN_NEXT_MONTH,Lanjut ke Bulan Berikutnya,Next Month
+HINT_AMOUNT,Nominal (Rp),Amount (Rp)
+ERR_AMOUNT_INVALID,Masukkan nominal yang valid.,Enter a valid amount.
+ERR_NOT_ENOUGH_CASH,Kas tidak cukup.,Not enough cash.
+ERR_NOT_ENOUGH_UNITS,Kepemilikan tidak cukup.,Not enough holdings.
+MSG_BUY_OK,"Berhasil beli %s unit (fee %s).","Bought %s units (fee %s)."
+MSG_SELL_OK,"Berhasil jual %s unit, uang masuk %s (fee %s).","Sold %s units, received %s (fee %s)."
+MSG_NEW_MONTH,"Bulan baru! Harga %s bergerak %s.","New month! %s moved %s."
+FMT_DATE,%s Tahun %d,%s Year %d
+MONTH_1,Januari,January
+MONTH_2,Februari,February
+MONTH_3,Maret,March
+MONTH_4,April,April
+MONTH_5,Mei,May
+MONTH_6,Juni,June
+MONTH_7,Juli,July
+MONTH_8,Agustus,August
+MONTH_9,September,September
+MONTH_10,Oktober,October
+MONTH_11,November,November
+MONTH_12,Desember,December
+ASSET_NUSA,PT Nusa Karya Tbk (NUSA),PT Nusa Karya Tbk (NUSA)
+DISCLAIMER,"Simulasi untuk edukasi, bukan saran keuangan. Uang virtual.","Educational simulation, not financial advice. Virtual money."
