@@ -66,6 +66,70 @@ static func requirement_text(req: Dictionary, status: Dictionary) -> String:
 	return ""
 
 
+## Tombol tebal gaya Senja Cuan dibuat lewat kode: ChunkyButton + Label "Content" sebagai anak
+## (sama seperti tombol di scene .tscn). `variation` mis. PrimaryButton / NeutralButton / DangerButton.
+static func chunky_button(text: String, variation: StringName, label_variation: StringName,
+		height := 80.0, font_size := 0) -> Button:
+	var button := ChunkyButton.new()
+	button.theme_type_variation = variation
+	button.custom_minimum_size = Vector2(0, height)
+	var label := Label.new()
+	label.name = "Content"
+	label.text = text
+	label.theme_type_variation = label_variation
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	label.offset_left = 12.0
+	label.offset_right = -12.0
+	label.offset_bottom = -7.0  # sisakan bibir bawah tombol
+	if font_size > 0:
+		label.add_theme_font_size_override("font_size", font_size)
+	button.add_child(label)
+	return button
+
+
+## Nominal ringkas untuk tombol: 500000 -> "Rp500 rb", 1000000 -> "Rp1 jt"
+static func amount_short(amount: int) -> String:
+	if amount >= 1_000_000 and amount % 1_000_000 == 0:
+		return "Rp%d jt" % (amount / 1_000_000)
+	if amount >= 1000 and amount % 1000 == 0:
+		return "Rp%d rb" % (amount / 1000)
+	return Fmt.rupiah(amount)
+
+
+## Kalimat sebuah target bulanan, mis. "Investasikan minimal Rp1.000.000 secara manual".
+static func target_text(target: Dictionary) -> String:
+	var key := "TARGET_" + str(target["type"]).to_upper()
+	match target["type"]:
+		"invest", "save", "dream_deposit":
+			return _t(key) % Fmt.rupiah(target["goal"])
+		"health", "happiness":
+			return _t(key) % int(target["goal"])
+		"activity":
+			for def: Dictionary in GameState.activity_defs():
+				if def["id"] == target["param"]:
+					return _t(key) % _t(def["name"])
+	return _t(key)
+
+
+## Status target: teks & warna ("Selesai" hijau, "Gagal" merah, "Berjalan" redup).
+static func target_status(target: Dictionary) -> Dictionary:
+	match target["state"]:
+		"done":
+			return {"text": _t("TARGET_DONE"), "color": Palette.GAIN}
+		"failed":
+			return {"text": _t("TARGET_FAILED"), "color": Palette.LOSS}
+	return {"text": _t("TARGET_OPEN"), "color": Palette.MUTED}
+
+
+## "Jangka pendek" / "Jangka menengah" / "Jangka panjang"
+static func horizon_text(horizon: String) -> String:
+	return _t("DREAM_HORIZON_" + horizon.to_upper())
+
+
 ## Nama-nama aset di satu tahap unlock, dipisah koma.
 static func stage_assets_text(stage: int) -> String:
 	var names: Array[String] = []

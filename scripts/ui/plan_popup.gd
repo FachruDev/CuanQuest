@@ -6,6 +6,7 @@ extends ModalPopup
 
 const MAX_ROWS_HEIGHT := 540.0
 const VALUE_WIDTH := 200.0
+const DREAM_PREFIX := "dream:"  # kunci baris pos impian: "dream:motor"
 
 var _draft: Dictionary = {}
 var _values: Dictionary = {}  # kunci baris ("basic", "lifestyle", "emergency", id aset) -> Label nilai
@@ -42,6 +43,13 @@ func _build_rows() -> void:
 	%Rows.add_child(_row("lifestyle", tr("PLAN_LIFESTYLE"), true))
 	%Rows.add_child(_row("emergency", tr("PLAN_EMERGENCY"), true))
 
+	var active := GameState.active_dreams()
+	if not active.is_empty():
+		%Rows.add_child(_label(tr("PLAN_DREAMS"), &"ReportHeaderLabel"))
+		%Rows.add_child(_label(tr("PLAN_DREAMS_NOTE"), &"SmallMutedLabel"))
+		for entry: Dictionary in active:
+			%Rows.add_child(_row(DREAM_PREFIX + entry["id"], tr(GameState.dream_def(entry["id"])["name"]), true))
+
 	%Rows.add_child(_label(tr("PLAN_INVEST"), &"ReportHeaderLabel"))
 	var invest_note := _label(tr("PLAN_INVEST_NOTE"), &"SmallMutedLabel")
 	%Rows.add_child(invest_note)
@@ -72,7 +80,7 @@ func _row(key: String, title: String, adjustable: bool) -> VBoxContainer:
 		row.add_child(value)
 	box.add_child(row)
 	_values[key] = value
-	if key in ["basic", "lifestyle", "emergency"]:
+	if key in ["basic", "lifestyle", "emergency"] or key.begins_with(DREAM_PREFIX):
 		var note := _label("", &"SmallMutedLabel")
 		box.add_child(note)
 		_notes[key] = note
@@ -99,6 +107,8 @@ func _on_step(key: String, direction: int) -> void:
 	var share := clampf(snappedf(_share(key) + direction * step, step), 0.0, limit)
 	if key in ["lifestyle", "emergency"]:
 		_draft[key] = share
+	elif key.begins_with(DREAM_PREFIX):
+		_draft["dreams"][key.trim_prefix(DREAM_PREFIX)] = share
 	else:
 		_draft["invest"][key] = share
 	_refresh()
@@ -107,6 +117,8 @@ func _on_step(key: String, direction: int) -> void:
 func _share(key: String) -> float:
 	if key in ["lifestyle", "emergency"]:
 		return float(_draft[key])
+	if key.begins_with(DREAM_PREFIX):
+		return float(_draft["dreams"].get(key.trim_prefix(DREAM_PREFIX), 0.0))
 	return float(_draft["invest"].get(key, 0.0))
 
 
@@ -132,10 +144,14 @@ func _refresh() -> void:
 		if key in ["basic", "lifestyle", "emergency"]:
 			continue
 		var amount := 0
-		for item: Dictionary in preview["invest"]:
-			if item["id"] == key:
+		var id := key.trim_prefix(DREAM_PREFIX)
+		for item: Dictionary in preview["dreams" if key.begins_with(DREAM_PREFIX) else "invest"]:
+			if item["id"] == id:
 				amount = item["amount"]
 		_values[key].text = _share_text(_share(key), amount)
+		if key.begins_with(DREAM_PREFIX):
+			_notes[key].text = tr("PLAN_DREAM_NEEDED") % Fmt.rupiah(
+				GameState.dream_needed_monthly(GameState.active_dream(id)))
 
 	var surplus: int = preview["surplus"]
 	%SurplusValue.text = Fmt.signed_rupiah(surplus)

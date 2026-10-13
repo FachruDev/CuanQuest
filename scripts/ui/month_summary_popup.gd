@@ -53,6 +53,8 @@ func _fill_highlight(report: Dictionary) -> void:
 		child.queue_free()
 	for mover: Dictionary in report.get("movers", []):
 		%Movers.add_child(_mover_chip(mover))
+	for dream: Dictionary in report.get("dreams_progress", []):
+		%Movers.add_child(_dream_chip(dream))
 	%MoversTitle.visible = %Movers.get_child_count() > 0
 	%Movers.visible = %MoversTitle.visible
 
@@ -82,6 +84,18 @@ func _on_reveal_finished() -> void:
 
 func _set_worth_text(value: float) -> void:
 	%WorthValue.text = Fmt.rupiah(value)
+
+
+## Kartu kecil emas "Motor Baru 45%" untuk progres impian.
+func _dream_chip(dream: Dictionary) -> PanelContainer:
+	var chip := PanelContainer.new()
+	chip.theme_type_variation = &"SmallChipGold"
+	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var label := Label.new()
+	label.theme_type_variation = &"SmallChipGoldLabel"
+	label.text = tr("SUMMARY_DREAM_CHIP") % [tr(dream["name"]), roundi(float(dream["ratio"]) * 100.0)]
+	chip.add_child(label)
+	return chip
 
 
 ## Kartu kecil "BSNT +6,20%" berwarna hijau/merah.

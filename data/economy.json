@@ -34,6 +34,28 @@
 	},
 	"_fast_forward_comment": "Pengali peluang event saat lompat waktu (GameState.fast_forward; tombolnya dihapus di v1.5, disimpan untuk masa pensiun v2b). 1.0 = sama seperti maju per bulan.",
 	"fast_forward_event_mult": 0.15,
+	"dreams": {
+		"_comment": "Impian (v1.5-0 langkah 3). Pos impian berbunga seperti tabungan (interest_asset). share_cap = batas porsi gaji yang disarankan otomatis saat impian dipilih.",
+		"max_active": 3,
+		"max_pick_start": 2,
+		"extend_months": 12,
+		"extend_happiness": -3,
+		"release_happiness": -5,
+		"share_cap": 0.2,
+		"interest_asset": "TAB",
+		"deposit_amounts": [500000, 1000000, 5000000]
+	},
+	"targets": {
+		"_comment": "Target bulanan (v1.5-0 langkah 3): beberapa target ringan per bulan, hadiah kecil, gagal tidak dihukum.",
+		"per_month": 2,
+		"reward_happiness": 2,
+		"reward_xp": 10,
+		"invest_amount": 1000000,
+		"dream_deposit": 500000,
+		"save_months": 1,
+		"stat_bonus": 5,
+		"stat_cap": 85
+	},
 	"budget": {
 		"_comment": [
 			"Rencana gaji (v1.5-0 langkah 2). Semua porsi dalam persen GAJI bulan itu, jadi ikut menyesuaikan saat gaji berubah atau menganggur.",

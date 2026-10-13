@@ -22,6 +22,10 @@ const NAV_MUTED := Color("#7a6650")
 
 var _popup_queue: Array[Callable] = []
 var _popup_open := false
+var _last_level := 0
+var _toast: PanelContainer
+var _toast_label: Label
+var _toast_tween: Tween
 
 
 func _ready() -> void:
@@ -49,13 +53,28 @@ func _ready() -> void:
 		_enqueue_plan_review())
 	%HomeScreen.plan_requested.connect(func() -> void: _enqueue(%PlanPopup.open))
 	GameState.stage_unlocked.connect(func(stage: Dictionary) -> void:
-		_enqueue(%InfoPopup.open.bind(tr("UNLOCK_POPUP_TITLE"),
-			tr("UNLOCK_POPUP_BODY") % [tr(stage["name_key"]), UiText.stage_assets_text(int(stage["stage"]))])))
+		_enqueue(_celebrating(%InfoPopup.open.bind(tr("UNLOCK_POPUP_TITLE"),
+			tr("UNLOCK_POPUP_BODY") % [tr(stage["name_key"]), UiText.stage_assets_text(int(stage["stage"]))]))))
 	GameState.event_triggered.connect(func(event: Dictionary) -> void:
 		_enqueue(%EventPopup.open.bind(event)))
 	GameState.goal_reached.connect(func(goal: String) -> void:
-		_enqueue(%InfoPopup.open.bind(tr("GOAL_TITLE_" + goal.to_upper()), tr("GOAL_BODY_" + goal.to_upper()),
-			tr("GOAL_FINISH_NOW"), GameState.finish_game.bind("win", goal))))
+		_enqueue(_celebrating(%InfoPopup.open.bind(tr("GOAL_TITLE_" + goal.to_upper()), tr("GOAL_BODY_" + goal.to_upper()),
+			tr("GOAL_FINISH_NOW"), GameState.finish_game.bind("win", goal)))))
+	GameState.dream_achieved.connect(func(dream: Dictionary) -> void:
+		var def: Dictionary = dream["def"]
+		_enqueue(_celebrating(%InfoPopup.open.bind(tr("DREAM_ACHIEVED_TITLE"),
+			tr("DREAM_ACHIEVED_BODY") % [tr(def["name"]), int(def["happiness"]), int(def["xp"])]))))
+	GameState.dream_overdue.connect(func(dream: Dictionary) -> void:
+		_enqueue(%DreamPopup.open_overdue.bind(dream)))
+	GameState.target_completed.connect(func(target: Dictionary) -> void:
+		_show_toast(tr("TOAST_TARGET") % UiText.target_text(target)))
+	%HomeScreen.dream_requested.connect(func(dream_id: String) -> void:
+		_enqueue(%DreamPopup.open_detail.bind(dream_id)))
+	%HomeScreen.add_dream_requested.connect(func() -> void: _enqueue(%DreamPickerPopup.open))
+	# Impian baru di tengah permainan: buka Rencana Gaji agar porsi pos impiannya bisa dicek.
+	%DreamPickerPopup.dreams_picked.connect(func() -> void:
+		if GameState.plan.get("confirmed", false):
+			_enqueue(%PlanPopup.open))
 	# Game berakhir: popup yang masih mengantre (event, unlock) dibuang karena tidak relevan lagi.
 	# Popup yang sedang tampil (mis. laporan bulan terakhir) tetap dibaca dulu, lalu pindah ke layar akhir.
 	GameState.game_ended.connect(func(_result: Dictionary) -> void:
@@ -66,15 +85,22 @@ func _ready() -> void:
 	%ActivityScreen.quiz_requested.connect(func(question: Dictionary) -> void:
 		_enqueue(%QuizPopup.open.bind(question)))
 	for popup: ModalPopup in [%SummaryPopup, %InfoPopup, %EventPopup, %QuizPopup, %GlossaryPopup, %TextPopup,
-			%PlanPopup]:
+			%PlanPopup, %DreamPickerPopup, %DreamPopup]:
 		popup.closed.connect(_show_next_popup)
 
+	_build_toast()
+	_last_level = GameState.level()
 	_show_screen(0)
 	_refresh_top_bar()
 	# Event yang belum diputuskan saat game disimpan muncul lagi setelah dimuat.
 	if GameState.has_pending_event():
 		_enqueue(%EventPopup.open.bind(GameState.pending_event))
-	_enqueue_plan_review()  # permainan baru: pemain menyusun rencana gaji pertamanya
+	# Permainan baru: pilih impian dulu, lalu susun rencana gaji pertama.
+	if not GameState.dreams_asked:
+		_enqueue(%DreamPickerPopup.open)
+	_enqueue_plan_review()
+	for dream: Dictionary in GameState.overdue_dreams():  # tenggat terlewat sebelum game ditutup
+		_enqueue(%DreamPopup.open_overdue.bind(GameState.dream_view(dream)))
 
 
 func _show_screen(index: int) -> void:
@@ -92,6 +118,9 @@ func _refresh_top_bar() -> void:
 	%DateLabel.text = Fmt.game_date(GameState.month)
 	%AgeLabel.text = tr("TOPBAR_AGE") % GameState.age()
 	%LevelLabel.text = tr("TOPBAR_LEVEL") % GameState.level()
+	if GameState.level() > _last_level:
+		_show_toast(tr("TOAST_LEVEL") % GameState.level())
+	_last_level = GameState.level()
 	_refresh_energy()
 	var busy := GameState.has_pending_event() or GameState.is_over
 	%NextButton.disabled = busy
@@ -120,6 +149,48 @@ func _style_nav(active: bool, button: Button) -> void:
 	var color := Palette.INK if active else NAV_MUTED
 	button.get_node("Content/Icon").self_modulate = color
 	button.get_node("Content/Label").add_theme_color_override("font_color", color)
+
+
+## Membungkus pembuka popup agar confetti ikut tampil (impian, tahap baru, target kemenangan).
+func _celebrating(show_popup: Callable) -> Callable:
+	return func() -> void:
+		show_popup.call()
+		Sfx.vibrate()
+		Confetti.burst(self)
+
+
+## Notifikasi singkat di bawah top bar (target selesai, naik level). Tidak menghalangi sentuhan.
+func _build_toast() -> void:
+	var holder := CenterContainer.new()
+	holder.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	holder.offset_top = 200.0
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_toast = PanelContainer.new()
+	_toast.theme_type_variation = &"PillPanel"
+	_toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_toast.hide()
+	_toast_label = Label.new()
+	_toast_label.theme_type_variation = &"PillLabel"
+	_toast_label.add_theme_font_size_override("font_size", 18)
+	_toast_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_toast_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_toast_label.custom_minimum_size.x = 600.0  # teks panjang dibungkus, tidak melebar keluar layar
+	_toast.add_child(_toast_label)
+	holder.add_child(_toast)
+	add_child(holder)
+
+
+func _show_toast(text: String) -> void:
+	_toast_label.text = text
+	_toast.show()
+	_toast.modulate.a = 1.0
+	Sfx.play("success")
+	if _toast_tween:
+		_toast_tween.kill()
+	_toast_tween = create_tween()
+	_toast_tween.tween_interval(2.2)
+	_toast_tween.tween_property(_toast, "modulate:a", 0.0, 0.4)
+	_toast_tween.tween_callback(_toast.hide)
 
 
 ## Rencana gaji perlu dicek (belum pernah disimpan atau gaji berubah). Diperiksa lagi saat

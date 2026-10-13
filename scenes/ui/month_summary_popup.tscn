@@ -133,10 +133,11 @@ layout_mode = 2
 theme_type_variation = &"SmallMutedLabel"
 text = "SUMMARY_HIGHLIGHTS"
 
-[node name="Movers" type="HBoxContainer" parent="Center/Dialog/Panel/VBox/Highlight/VBox"]
+[node name="Movers" type="HFlowContainer" parent="Center/Dialog/Panel/VBox/Highlight/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 6
 
 [node name="SkipHint" type="Label" parent="Center/Dialog/Panel/VBox/Highlight/VBox"]
 unique_name_in_owner = true

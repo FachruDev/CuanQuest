@@ -1,0 +1,22 @@
+{
+	"_comment": [
+		"Impian (v1.5-0 langkah 3): tujuan finansial dengan biaya, tenggat, dan hadiah.",
+		"horizon: short (< 2 tahun) | medium (2-5 tahun) | long (> 5 tahun); dipakai untuk petunjuk instrumen yang cocok.",
+		"months = tenggat bawaan sejak dipilih. min_age = usia minimal agar impian bisa dipilih.",
+		"Teks ditulis langsung dalam bahasa Indonesia dan ditampilkan lewat tr(), seperti event dan aktivitas."
+	],
+	"dreams": [
+		{ "id": "phone", "name": "HP Baru", "desc": "Ganti HP lama yang sudah lemot dengan HP baru yang kencang.", "cost": 6000000, "months": 12, "horizon": "short", "min_age": 0, "happiness": 4, "xp": 15 },
+		{ "id": "laptop", "name": "Laptop Kerja", "desc": "Laptop yang cukup kuat untuk kerja dan belajar keterampilan baru.", "cost": 15000000, "months": 18, "horizon": "short", "min_age": 0, "happiness": 5, "xp": 20 },
+		{ "id": "bali", "name": "Liburan ke Bali", "desc": "Seminggu menikmati pantai dan budaya Bali tanpa memakai kartu kredit.", "cost": 10000000, "months": 12, "horizon": "short", "min_age": 0, "happiness": 8, "xp": 15 },
+		{ "id": "motor", "name": "Motor Baru", "desc": "Motor sendiri untuk ke kantor, dibeli tunai tanpa cicilan.", "cost": 28000000, "months": 30, "horizon": "medium", "min_age": 18, "happiness": 6, "xp": 25 },
+		{ "id": "umrah", "name": "Ibadah Umrah", "desc": "Menabung untuk berangkat umrah dengan tenang.", "cost": 35000000, "months": 36, "horizon": "medium", "min_age": 0, "happiness": 10, "xp": 30 },
+		{ "id": "japan", "name": "Liburan ke Jepang", "desc": "Dua minggu menjelajah Tokyo dan Kyoto.", "cost": 40000000, "months": 36, "horizon": "medium", "min_age": 0, "happiness": 10, "xp": 30 },
+		{ "id": "business", "name": "Modal Usaha Sampingan", "desc": "Modal awal untuk membuka usaha kecil di samping pekerjaan utama.", "cost": 50000000, "months": 48, "horizon": "medium", "min_age": 20, "happiness": 6, "xp": 40 },
+		{ "id": "wedding", "name": "Biaya Menikah", "desc": "Pernikahan sederhana tanpa utang.", "cost": 120000000, "months": 48, "horizon": "medium", "min_age": 21, "happiness": 12, "xp": 40 },
+		{ "id": "house_dp", "name": "DP Rumah", "desc": "Uang muka rumah pertama, agar cicilan KPR nanti lebih ringan.", "cost": 150000000, "months": 72, "horizon": "long", "min_age": 21, "happiness": 12, "xp": 60 },
+		{ "id": "masters", "name": "Kuliah S2", "desc": "Biaya kuliah magister untuk membuka jenjang karier berikutnya.", "cost": 200000000, "months": 96, "horizon": "long", "min_age": 21, "happiness": 8, "xp": 80 },
+		{ "id": "car", "name": "Mobil Keluarga", "desc": "Mobil yang nyaman untuk keluarga, dibeli tunai.", "cost": 250000000, "months": 96, "horizon": "long", "min_age": 21, "happiness": 10, "xp": 60 },
+		{ "id": "early_retire", "name": "Pensiun Dini", "desc": "Dana Rp2 miliar agar bisa berhenti bekerja lebih awal dan hidup dari hasil investasi.", "cost": 2000000000, "months": 240, "horizon": "long", "min_age": 0, "happiness": 20, "xp": 150 }
+	]
+}

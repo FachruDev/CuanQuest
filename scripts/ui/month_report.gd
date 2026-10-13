@@ -29,12 +29,16 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 
 	var autodebet: Array = r.get("autodebet", [])
 	var skipped: Array = r.get("autodebet_skipped", [])
-	if int(r.get("emergency_saved", 0)) > 0 or not autodebet.is_empty() or not skipped.is_empty():
+	if int(r.get("emergency_saved", 0)) > 0 or not autodebet.is_empty() or not skipped.is_empty() \
+			or not r.get("dream_saved", []).is_empty():
 		_add_header(box, "REPORT_PLAN")
 		if int(r.get("emergency_saved", 0)) > 0:
 			_add_row_text(box, TranslationServer.translate("REPORT_EMERGENCY"), Fmt.rupiah(r["emergency_saved"]), Palette.GAIN)
 		for item: Dictionary in autodebet:
 			_add_row_text(box, TranslationServer.translate("REPORT_AUTODEBET") % TranslationServer.translate(item["asset_key"]),
+				Fmt.rupiah(item["amount"]), Palette.GAIN)
+		for item: Dictionary in r.get("dream_saved", []):
+			_add_row_text(box, TranslationServer.translate("REPORT_DREAM_SAVED") % TranslationServer.translate(item["name"]),
 				Fmt.rupiah(item["amount"]), Palette.GAIN)
 		for asset_key: String in skipped:
 			_add_text(box, TranslationServer.translate("REPORT_AUTODEBET_SKIPPED") % TranslationServer.translate(asset_key), Palette.LOSS)
@@ -55,6 +59,23 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 		_add_header(box, "REPORT_NEWS")
 		for item: Dictionary in news:
 			_add_bullet(box, "- " + news_text(item))
+
+	var targets: Array = r.get("targets", [])
+	if not targets.is_empty():
+		_add_header(box, "REPORT_TARGETS")
+		for target: Dictionary in targets:
+			var status := UiText.target_status(target)
+			_add_row_text(box, UiText.target_text(target), status["text"], status["color"])
+
+	if int(r.get("turn_trades", 0)) > 0:
+		var edge: float = r["trade_edge"]
+		_add_header(box, "REPORT_TRADES")
+		_add_row(box, "REPORT_TRADE_EDGE", Fmt.signed_rupiah(edge), signed_color(edge))
+		_add_text(box, TranslationServer.translate("REPORT_TRADE_META") % [int(r["turn_trades"]), Fmt.rupiah(r["turn_fees"])], Palette.MUTED)
+		if edge >= 0.0:
+			_add_text(box, TranslationServer.translate("REPORT_TRADE_GOOD"), Palette.MUTED)
+		else:
+			_add_text(box, TranslationServer.translate("REPORT_TRADE_BAD") % Fmt.rupiah(-edge), Palette.MUTED)
 
 	_add_header(box, "REPORT_WELLBEING")
 	_add_row(box, "STAT_HEALTH", "%+d" % r["health_delta"], signed_color(r["health_delta"]))

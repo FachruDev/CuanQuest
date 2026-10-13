@@ -117,10 +117,12 @@ scenes/
 - [ ] **v1.5-0 "Giliran Bulanan yang Hidup"**:
   - [x] (1) Pasar harian + animasi pergantian bulan (lihat bagian di bawah)
   - [x] (2) Pembagian gaji + autodebet; tombol +6 Bln / +1 Thn dihapus
-  - [ ] (3) Impian + target bulanan + perayaan
+  - [x] (3) Impian + target bulanan + perayaan
   - [ ] (4) Event Director + kuis 6/minggu tanpa iklan
   - [ ] (5) SQLite
 - [ ] **v1.5a/b/c, v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
+
+Rangkuman semua checklist MVP (v1, v1.5, v2, M7) ada di [docs/CHECKLIST_MVP.md](docs/CHECKLIST_MVP.md).
 - [ ] **M7: Export rilis & Play Store** (setelah v2 selesai; tanpa monetisasi)
 
 ## Prototipe Waktu (diarsipkan)
@@ -156,6 +158,18 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Konfigurasi** ada di `data/economy.json` bagian `budget` (langkah 5%, batas porsi, aset dana darurat, efek kebahagiaan gaya hidup).
 - **Transaksi autodebet** tercatat dengan jenis `auto` di riwayat transaksi.
 - **Tombol +6 Bln / +1 Thn dihapus** karena satu bulan kini cepat dan berisi keputusan. Fungsi `GameState.fast_forward()` tetap disimpan untuk masa pensiun (v2b).
+
+## Impian, Target Bulanan & Perayaan (v1.5-0 langkah 3)
+
+- **Impian** (`data/dreams.json`, 12 impian): pemain memilih maksimal 2 di awal permainan (popup "Pilih Impian"), dan bisa menambah sampai 3 impian aktif dari Beranda. Setiap impian punya **pos tabungan sendiri** (`GameState.dreams[i].saved`) yang diisi lewat porsi di Rencana Gaji atau setoran manual, dan berbunga seperti Tabungan.
+- **Porsi saran** saat impian dipilih = setoran per bulan yang dibutuhkan agar tepat waktu, dibulatkan ke atas per 5% gaji, tetapi dibatasi sisa gaji di rencana agar rencana tidak melebihi gaji.
+- **Terwujud** otomatis saat dana mencukupi (setelah setoran bulanan atau manual): dana dipakai, kelebihannya kembali ke kas, lalu kebahagiaan & XP naik dan muncul perayaan (confetti).
+- **Tenggat terlewat:** popup wajib memilih perpanjang 12 bulan (kebahagiaan -3) atau lepaskan (dana kembali ke kas, kebahagiaan -5).
+- **Kas minus:** setelah investasi dijual paksa, dana pos impian ikut dipakai sebelum dihitung bangkrut.
+- **Target bulanan** (`GameState.targets`): 2 target acak per bulan dari daftar yang masuk akal (investasi manual, aktivitas tertentu, kas akhir bulan, naikkan kesehatan/kebahagiaan, kuis benar, setor ke impian, tidak menjual rugi). Hadiah kecil, gagal tidak dihukum. Target "akhir bulan" dinilai di `_finalize_targets()` saat Lanjut ditekan.
+- **Pembanding "kalau tidak bertransaksi":** portofolio dicatat di awal giliran (`_snapshot_turn`); saat Lanjut, selisihnya = (perubahan unit x pergerakan harga bulan itu) - fee. Autodebet tidak dihitung sebagai transaksi manual.
+- **Perayaan & umpan balik:** `Confetti.burst()` (digambar lewat kode) untuk impian terwujud, tahap baru, dan target kemenangan; notifikasi singkat (toast) untuk target selesai dan naik level; kartu progres impian di sorotan laporan bulanan.
+- **Urutan popup:** sinyal impian dikirim setelah laporan (`_flush_dream_signals`), sehingga urutannya laporan → perayaan/tenggat → tahap baru → event.
 
 ## Event, Kuis & Unlock (M4)
 

@@ -488,3 +488,61 @@ REPORT_EMERGENCY,Dana darurat (Tabungan),Emergency fund (Savings)
 REPORT_AUTODEBET,Autodebet %s,Auto-invest %s
 REPORT_AUTODEBET_SKIPPED,Autodebet %s dilewati: kas tidak cukup.,Auto-invest %s skipped: not enough cash.
 TX_AUTO,Autodebet,Auto-invest
+DREAMS_TITLE,Impian,Dreams
+DREAMS_EMPTY,Belum ada impian. Pilih impian agar tabungan dan investasimu punya tujuan.,No dreams yet. Pick one so your savings and investments have a purpose.
+DREAMS_ADD,+ Tambah impian,+ Add a dream
+DREAM_PROGRESS,%s dari %s,%s of %s
+DREAM_DEADLINE,Tenggat %s · %d bulan lagi,Due %s · %d months left
+DREAM_DEADLINE_PASSED,Tenggat %s sudah lewat,Deadline %s has passed
+DREAM_NEEDED,Perlu ±%s per bulan agar tepat waktu,Needs about %s per month to be on time
+DREAM_HORIZON_SHORT,Jangka pendek,Short term
+DREAM_HORIZON_MEDIUM,Jangka menengah,Medium term
+DREAM_HORIZON_LONG,Jangka panjang,Long term
+DREAM_HINT_SHORT,"Impian jangka pendek sebaiknya disimpan di tempat aman (tabungan, deposito, RD pasar uang). Pos impian berbunga seperti tabungan.","Short-term dreams belong in safe places (savings, deposits, money market funds). Dream funds earn savings interest."
+DREAM_HINT_MEDIUM,"Untuk 2-5 tahun, campuran instrumen aman dan reksa dana saham bisa membantu, asal siap dengan naik-turunnya.","For 2-5 years, a mix of safe instruments and equity funds can help, if you can handle the ups and downs."
+DREAM_HINT_LONG,"Untuk lebih dari 5 tahun, investasi seperti reksa dana saham bisa tumbuh lebih cepat dari tabungan. Atur porsinya di Rencana Gaji.","For more than 5 years, investments such as equity funds can grow faster than savings. Set the shares in your Salary Plan."
+DREAM_DEPOSIT,Setor sekarang,Deposit now
+DREAM_RELEASE,Lepaskan impian,Let go of this dream
+DREAM_RELEASE_CONFIRM,"Ketuk lagi untuk melepas (dana kembali ke kas, kebahagiaan %d)","Tap again to let go (funds return to cash, happiness %d)"
+DREAM_OVERDUE_TITLE,Tenggat Terlewat,Deadline Missed
+DREAM_OVERDUE_BODY,%s: terkumpul %s dari %s. Mau diperpanjang atau dilepas?,%s: saved %s of %s. Extend it or let it go?
+DREAM_EXTEND,Perpanjang %d bulan (kebahagiaan %d),Extend %d months (happiness %d)
+DREAM_RELEASE_OVERDUE,"Lepaskan (dana kembali ke kas, kebahagiaan %d)","Let go (funds return to cash, happiness %d)"
+DREAM_ACHIEVED_TITLE,Impian Terwujud!,Dream Achieved!
+DREAM_ACHIEVED_BODY,"%s akhirnya terwujud. Kebahagiaan %+d, XP %+d.
+
+Menabung dengan tujuan yang jelas membuat impian lebih cepat tercapai.","%s has finally come true. Happiness %+d, XP %+d.
+
+Saving with a clear goal gets you there faster."
+PICKER_TITLE,Pilih Impian,Pick Your Dreams
+PICKER_INTRO,Pilih hingga %d impian. Impian memberi tujuan untuk tabungan dan investasimu.,Pick up to %d dreams. Dreams give your savings and investments a purpose.
+PICKER_ITEM,%s · %s · %d bulan,%s · %s · %d months
+PICKER_CONFIRM,Pilih impian,Pick dreams
+PICKER_LATER,Nanti saja,Maybe later
+PICKER_NONE,Semua impian sudah dipilih atau terwujud.,All dreams are already picked or achieved.
+PLAN_DREAMS,Pos impian,Dream funds
+PLAN_DREAMS_NOTE,Disisihkan ke pos impian setiap gajian. Berbunga seperti tabungan.,Set aside for your dreams every payday. Earns savings interest.
+PLAN_DREAM_NEEDED,Perlu ±%s per bulan agar tepat waktu,Needs about %s per month to be on time
+TARGETS_TITLE,Target Bulan Ini,This Month's Targets
+TARGETS_REWARD,"Setiap target selesai: kebahagiaan +%d, XP +%d","Each completed target: happiness +%d, XP +%d"
+TARGET_INVEST,Investasikan minimal %s secara manual,Invest at least %s manually
+TARGET_ACTIVITY,Lakukan aktivitas: %s,Do the activity: %s
+TARGET_SAVE,Akhiri bulan dengan kas minimal %s,End the month with at least %s in cash
+TARGET_HEALTH,Naikkan kesehatan ke %d,Raise health to %d
+TARGET_HAPPINESS,Naikkan kebahagiaan ke %d,Raise happiness to %d
+TARGET_NO_LOSS,Jangan menjual aset dalam kondisi rugi,Don't sell any asset at a loss
+TARGET_QUIZ,Jawab 1 soal kuis dengan benar,Answer 1 quiz question correctly
+TARGET_DREAM_DEPOSIT,Setor minimal %s ke pos impian,Deposit at least %s into a dream fund
+TARGET_OPEN,Berjalan,In progress
+TARGET_DONE,Selesai,Done
+TARGET_FAILED,Gagal,Missed
+TOAST_TARGET,Target selesai: %s,Target done: %s
+TOAST_LEVEL,Naik ke Level %d!,Level %d reached!
+REPORT_TARGETS,TARGET BULAN INI,THIS MONTH'S TARGETS
+REPORT_TRADES,TRANSAKSIMU BULAN INI,YOUR TRADES THIS MONTH
+REPORT_TRADE_EDGE,Dibanding kalau tidak bertransaksi,Compared with not trading
+REPORT_TRADE_META,"%d transaksi, fee %s","%d trades, fees %s"
+REPORT_TRADE_GOOD,"Transaksimu bulan ini lebih untung daripada menahan. Ingat, hasil satu bulan bisa saja karena keberuntungan.","Your trades beat holding this month. Remember, one month's result can be pure luck."
+REPORT_TRADE_BAD,Menahan saja akan lebih untung %s. Fee dan keputusan terburu-buru sering menggerus hasil.,Simply holding would have earned %s more. Fees and rushed decisions often eat into returns.
+REPORT_DREAM_SAVED,Pos impian %s,Dream fund %s
+SUMMARY_DREAM_CHIP,%s %d%%,%s %d%%

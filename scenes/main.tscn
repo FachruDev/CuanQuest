@@ -13,6 +13,8 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/glossary_popup.tscn" id="11_glossary"]
 [ext_resource type="PackedScene" path="res://scenes/ui/text_popup.tscn" id="12_text"]
 [ext_resource type="PackedScene" path="res://scenes/ui/plan_popup.tscn" id="30_plan"]
+[ext_resource type="PackedScene" path="res://scenes/ui/dream_picker_popup.tscn" id="31_picker"]
+[ext_resource type="PackedScene" path="res://scenes/ui/dream_popup.tscn" id="32_dream"]
 [ext_resource type="Theme" path="res://theme/senja_theme.tres" id="13_theme"]
 [ext_resource type="Script" path="res://scripts/ui/chunky_button.gd" id="14_chunky"]
 [ext_resource type="Script" path="res://scripts/ui/avatar_view.gd" id="15_avatar"]
@@ -576,5 +578,13 @@ unique_name_in_owner = true
 layout_mode = 1
 
 [node name="PlanPopup" parent="." instance=ExtResource("30_plan")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="DreamPickerPopup" parent="." instance=ExtResource("31_picker")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="DreamPopup" parent="." instance=ExtResource("32_dream")]
 unique_name_in_owner = true
 layout_mode = 1

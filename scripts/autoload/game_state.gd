@@ -15,6 +15,12 @@ signal player_changed
 signal game_ended(result: Dictionary)
 ## Target kemenangan tercapai ("millionaire" / "freedom"); pemain boleh lanjut bermain.
 signal goal_reached(goal: String)
+## Impian terwujud (dana pos impian mencapai biayanya). `dream` = entri impian + "def".
+signal dream_achieved(dream: Dictionary)
+## Tenggat impian terlewat; pemain memilih memperpanjang atau melepas.
+signal dream_overdue(dream: Dictionary)
+## Target bulanan selesai di tengah bulan (untuk notifikasi singkat).
+signal target_completed(target: Dictionary)
 
 ## Versi slot save. Naik ke 2 di v1.5 (pasar harian); save lama ditolak, tanpa migrasi.
 const SAVE_VERSION := 2
@@ -30,6 +36,7 @@ const UNLOCKS_PATH := "res://data/unlocks.json"
 const EVENTS_PATH := "res://data/events.json"
 const QUIZ_PATH := "res://data/quiz.json"
 const ACTIVITIES_PATH := "res://data/activities.json"
+const DREAMS_PATH := "res://data/dreams.json"
 const RISK_PROFILE_PATH := "res://data/risk_profile.json"
 const MAX_TRANSACTIONS := 200
 
@@ -87,6 +94,18 @@ var risk_profile_id := "moderate"
 var plan: Dictionary = {}
 var plan_applied_month := -1                 # bulan terakhir rencana dijalankan (cegah dobel)
 var month_income := 0                        # penghasilan yang benar-benar diterima bulan ini
+## Impian (v1.5-0 langkah 3): [{id, saved, start_month, deadline, status, achieved_month}]
+## status: active | achieved | released
+var dreams: Array[Dictionary] = []
+var dreams_asked := false                    # pemain sudah ditawari memilih impian di awal permainan
+## Target bulan berjalan: [{type, goal, param, progress, state: open|done|failed}]
+var targets: Array[Dictionary] = []
+# Transaksi manual selama giliran ini, untuk pembanding "kalau tidak bertransaksi" di laporan.
+var turn_units: Dictionary = {}              # asset_id -> unit saat giliran dimulai
+var turn_fees := 0.0
+var turn_trades := 0
+var dream_defs: Array = []                   # isi data/dreams.json
+var _dream_signals: Array[Callable] = []     # impian terwujud/terlewat, dikirim setelah laporan
 var _fast_forwarding := false
 var _deferred: Array[Callable] = []          # signal yang ditunda selama lompat waktu
 
@@ -104,6 +123,7 @@ func _ready() -> void:
 	quiz.setup(DataLoader.load_json(QUIZ_PATH).get("questions", []), economy["quiz"])
 	activity_data = DataLoader.load_json(ACTIVITIES_PATH)
 	risk_data = DataLoader.load_json(RISK_PROFILE_PATH)
+	dream_defs = DataLoader.load_json(DREAMS_PATH).get("dreams", [])
 
 
 ## `profile`: { "name", "avatar", "background", "difficulty" } (semua opsional).
@@ -131,6 +151,10 @@ func new_game(profile: Dictionary = {}, seed_value: int = -1) -> void:
 	housing_id = background["default_housing"]
 	plan = default_plan()
 	plan_applied_month = -1
+	dreams.clear()
+	dreams_asked = false
+	targets.clear()
+	_dream_signals.clear()
 	holdings.clear()
 	unlocked_stages.clear()
 	pending_event = {}
@@ -155,6 +179,7 @@ func new_game(profile: Dictionary = {}, seed_value: int = -1) -> void:
 	last_report = {}
 	is_active = true
 	_check_unlocks(false)
+	_snapshot_turn()
 	changed.emit()
 
 
@@ -167,13 +192,15 @@ func age() -> int:
 func advance_month() -> void:
 	if has_pending_event() or is_over:
 		return  # event bulan ini harus diputuskan dulu
+	var finished_targets := _finalize_targets()
 	var net_worth_before := net_worth()
 	var invest_before := investments_value()
 	var start_prices := _current_prices()
-	var interest := _pay_interest()
+	var interest := _pay_interest() + _pay_dream_interest()
 	var news := market.step(month + 1)
 	var invest_change := investments_value() - invest_before
 	var daily_worth := _daily_worth_series(net_worth_before)
+	var trade := _turn_trade_result(start_prices)
 
 	var from_month := month
 	month += 1
@@ -201,10 +228,18 @@ func advance_month() -> void:
 		"daily_worth": daily_worth,
 		"start_prices": start_prices,
 		"movers": _movers_since(start_prices),
+		"targets": finished_targets,
+		"trade_edge": trade["edge"],
+		"turn_trades": trade["trades"],
+		"turn_fees": trade["fees"],
+		"dreams_progress": _dreams_progress(),
 	})
+	_queue_overdue_dreams()
+	_snapshot_turn()
 	changed.emit()
 	if not _fast_forwarding:
 		month_advanced.emit(last_report)
+	_flush_dream_signals()
 	if _check_end():
 		return
 	_check_goals()
@@ -221,7 +256,7 @@ func advance_month() -> void:
 func _daily_worth_series(start_value: float) -> Array[float]:
 	var series: Array[float] = [start_value]
 	for day in range(1, MarketAsset.DAYS_IN_MONTH + 1):
-		var value := float(cash)
+		var value := float(cash) + dream_funds()
 		for asset_id: String in holdings:
 			var asset := market.get_asset(asset_id)
 			value += units_of(asset_id) * (asset.price if asset.is_interest() else asset.price_on_day(day))
@@ -303,6 +338,8 @@ func _start_month() -> Dictionary:
 	happiness = clampi(happiness + int(food["happiness"]) + int(housing["happiness"]), 0, 100)
 	# Rencana gaji baru berjalan setelah pemain menyimpannya pertama kali (lihat set_plan).
 	var budget := _apply_budget(paid) if plan.get("confirmed", false) else {}
+	_check_dreams()
+	targets = _new_targets()
 
 	return {
 		"salary": paid,
@@ -548,6 +585,8 @@ func answer_quiz(question: Dictionary, option_index: int) -> Dictionary:
 	var gained := int(cfg["xp_correct"]) if is_correct else int(cfg["xp_wrong"])
 	cash += reward
 	xp += gained
+	if is_correct:
+		_progress_target("quiz", 1.0)
 	changed.emit()
 	player_changed.emit()
 	_check_unlocks(true)
@@ -616,7 +655,7 @@ func total_cost() -> float:
 
 
 func net_worth() -> float:
-	return cash + investments_value()
+	return cash + investments_value() + dream_funds()
 
 
 ## Beli aset senilai `amount` Rupiah (sudah termasuk fee).
@@ -643,6 +682,10 @@ func buy(asset_id: String, amount: int, kind: String = "buy") -> Dictionary:
 	cash -= amount
 	stats["total_fees"] += fee
 	_log_transaction(kind, asset, amount, units, fee, 0.0)
+	if kind == "buy":  # autodebet tidak dihitung sebagai transaksi manual
+		turn_fees += fee
+		turn_trades += 1
+		_progress_target("invest", amount)
 
 	changed.emit()
 	return {"ok": true, "units": units, "fee": fee}
@@ -679,6 +722,11 @@ func sell(asset_id: String, amount: int, kind: String = "sell") -> Dictionary:
 	stats["total_fees"] += fee
 	_record_extreme("best_trade", "worst_trade", proceeds - cost_sold, {"asset_key": asset.name_key})
 	_log_transaction(kind, asset, proceeds, units, fee, proceeds - cost_sold)
+	if kind in ["sell", "panic"]:
+		turn_fees += fee
+		turn_trades += 1
+		if proceeds - cost_sold < 0.0:
+			_fail_target("no_loss")
 
 	changed.emit()
 	return {"ok": true, "units": units, "fee": fee, "proceeds": proceeds, "penalty": penalty}
@@ -747,6 +795,8 @@ func to_dict() -> Dictionary:
 		"energy": energy, "energy_capacity": energy_capacity, "activity_counts": activity_counts,
 		"transactions": transactions, "risk_profile": risk_profile_id,
 		"plan": plan, "plan_applied_month": plan_applied_month, "month_income": month_income,
+		"dreams": dreams, "dreams_asked": dreams_asked, "targets": targets,
+		"turn_units": turn_units, "turn_fees": turn_fees, "turn_trades": turn_trades,
 	}
 
 
@@ -811,6 +861,20 @@ func load_from_dict(d: Dictionary) -> bool:
 	plan["salary_seen"] = int(plan["salary_seen"])
 	plan_applied_month = int(d.get("plan_applied_month", -1))
 	month_income = int(d.get("month_income", salary))
+	dreams.clear()
+	for entry: Dictionary in d.get("dreams", []):
+		for key: String in ["start_month", "deadline", "achieved_month"]:
+			entry[key] = int(entry.get(key, -1))
+		entry["saved"] = float(entry["saved"])
+		dreams.append(entry)
+	dreams_asked = d.get("dreams_asked", false)
+	targets.clear()
+	for t: Dictionary in d.get("targets", []):
+		targets.append(t)
+	turn_units = d.get("turn_units", {})
+	turn_fees = float(d.get("turn_fees", 0.0))
+	turn_trades = int(d.get("turn_trades", 0))
+	_dream_signals.clear()
 	is_over = false
 	end_result = {}
 
@@ -832,7 +896,8 @@ func _new_stats() -> Dictionary:
 		"total_salary": 0, "total_living": 0, "total_interest": 0.0, "total_fees": 0.0,
 		"peak_net_worth": 0.0, "events": 0, "scam_loss": 0, "forced_sales": 0,
 		"unaffordable_choices": 0, "luxury_months": 0, "cash_heavy_months": 0,
-		"panic_sell": false, "total_lifestyle": 0, "total_autodebet": 0,
+		"panic_sell": false, "total_lifestyle": 0, "total_autodebet": 0, "dreams_achieved": 0,
+		"targets_done": 0,
 		"best_trade": {}, "worst_trade": {}, "best_event": {}, "worst_event": {},
 	}
 
@@ -870,6 +935,15 @@ func _cover_negative_cash() -> Array[Dictionary]:
 		var result := sell(asset_id, mini(needed, ceili(holding_value(asset_id))), "forced")
 		if result["ok"]:
 			sales.append({"asset_key": asset.name_key, "proceeds": result["proceeds"]})
+	for entry: Dictionary in active_dreams():  # terakhir: dana pos impian terpaksa dipakai
+		if cash >= 0:
+			break
+		var taken := minf(float(entry["saved"]), -cash)
+		if taken <= 0.0:
+			continue
+		entry["saved"] -= taken
+		cash += roundi(taken)
+		sales.append({"asset_key": dream_def(entry["id"])["name"], "proceeds": roundi(taken)})
 	stats["forced_sales"] += sales.size()
 	return sales
 
@@ -988,6 +1062,7 @@ func do_activity(activity_id: String) -> Dictionary:
 	cash -= int(def.get("cost", 0))
 	_apply_effects(def["effects"])
 	stats["activities"] = stats.get("activities", 0) + 1
+	_progress_target("activity", 1.0, activity_id)
 	changed.emit()
 	_check_unlocks(true)
 	return {"ok": true, "changes": _diff(before)}
@@ -1083,7 +1158,7 @@ func budget_config() -> Dictionary:
 func default_plan() -> Dictionary:
 	var cfg := budget_config()
 	return {"lifestyle": float(cfg["default_lifestyle"]), "emergency": float(cfg["default_emergency"]),
-		"invest": {}, "salary_seen": salary, "confirmed": false}
+		"invest": {}, "dreams": {}, "salary_seen": salary, "confirmed": false}
 
 
 ## Rencana perlu dicek pemain: belum pernah disimpan, atau gaji pokok berubah sejak terakhir dicek.
@@ -1101,8 +1176,11 @@ func set_plan(new_plan: Dictionary) -> Dictionary:
 	var applied := {}
 	if first and plan_applied_month != month:
 		applied = _apply_budget(month_income)
+		_check_dreams()
+		_snapshot_turn()  # autodebet pertama bukan transaksi manual
 	changed.emit()
 	state_committed.emit()
+	_flush_dream_signals()
 	return applied
 
 
@@ -1158,15 +1236,27 @@ func plan_preview(p: Dictionary, income: int) -> Dictionary:
 		var amount := _round_thousand(income * share)
 		invest.append({"id": asset.id, "name_key": asset.name_key, "share": share, "amount": amount})
 		invest_total += amount
+	var dream_items: Array[Dictionary] = []
+	var dreams_total := 0
+	for entry: Dictionary in active_dreams():
+		var share := float(p.get("dreams", {}).get(entry["id"], 0.0))
+		if share <= 0.0:
+			continue
+		var needed := ceili(maxf(0.0, dream_def(entry["id"])["cost"] - entry["saved"]) / 1000.0) * 1000
+		var amount := mini(_round_thousand(income * share), needed)  # jangan menabung melebihi biayanya
+		dream_items.append({"id": entry["id"], "name": dream_def(entry["id"])["name"], "share": share, "amount": amount})
+		dreams_total += amount
 	return {"income": income, "basic": basic, "lifestyle": lifestyle, "emergency": emergency,
 		"emergency_room": room, "invest": invest, "invest_total": invest_total,
-		"surplus": income - basic - lifestyle - emergency - invest_total}
+		"dreams": dream_items, "dreams_total": dreams_total,
+		"surplus": income - basic - lifestyle - emergency - invest_total - dreams_total}
 
 
 ## Menjalankan rencana setelah gaji masuk: belanja gaya hidup, setor dana darurat, lalu
 ## autodebet. Pos yang kasnya tidak cukup dilewati dan dicatat di laporan.
 func _apply_budget(income: int) -> Dictionary:
-	var result := {"lifestyle_cost": 0, "emergency_saved": 0, "autodebet": [], "autodebet_skipped": []}
+	var result := {"lifestyle_cost": 0, "emergency_saved": 0, "autodebet": [], "autodebet_skipped": [],
+		"dream_saved": []}
 	plan_applied_month = month
 	if income <= 0:
 		return result  # menganggur: tidak ada gaji untuk dibagi
@@ -1183,6 +1273,15 @@ func _apply_budget(income: int) -> Dictionary:
 		if buy(emergency_asset_id(), emergency, "auto")["ok"]:
 			result["emergency_saved"] = emergency
 
+	for item: Dictionary in preview["dreams"]:  # pos impian sebelum autodebet
+		var saved: int = item["amount"]
+		if saved >= 1000 and saved <= cash:
+			cash -= saved
+			_find_dream(item["id"])["saved"] += saved
+			result["dream_saved"].append({"name": item["name"], "amount": saved})
+		elif saved >= 1000:
+			result["autodebet_skipped"].append(item["name"])
+
 	for item: Dictionary in preview["invest"]:
 		var amount: int = item["amount"]
 		if amount >= 1000 and amount <= cash and buy(item["id"], amount, "auto")["ok"]:
@@ -1195,6 +1294,323 @@ func _apply_budget(income: int) -> Dictionary:
 
 func _round_thousand(value: float) -> int:
 	return maxi(0, floori(value / 1000.0) * 1000)
+
+
+# --- Impian (v1.5-0 langkah 3) -----------------------------------------------------
+
+func dreams_config() -> Dictionary:
+	return economy["dreams"]
+
+
+func dream_def(id: String) -> Dictionary:
+	for def: Dictionary in dream_defs:
+		if def["id"] == id:
+			return def
+	return {}
+
+
+func active_dreams() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for entry: Dictionary in dreams:
+		if entry["status"] == "active":
+			result.append(entry)
+	return result
+
+
+func dream_funds() -> float:
+	var total := 0.0
+	for entry: Dictionary in active_dreams():
+		total += float(entry["saved"])
+	return total
+
+
+func can_add_dream() -> bool:
+	return active_dreams().size() < int(dreams_config()["max_active"])
+
+
+## Impian yang bisa dipilih: belum dipilih/terwujud, dan usia sudah cukup.
+func available_dreams() -> Array:
+	var taken := {}
+	for entry: Dictionary in dreams:
+		if entry["status"] != "released":
+			taken[entry["id"]] = true
+	return dream_defs.filter(func(def: Dictionary) -> bool:
+		return not taken.has(def["id"]) and age() >= int(def.get("min_age", 0)))
+
+
+## Setoran per bulan yang dibutuhkan agar impian tercapai tepat waktu.
+func dream_needed_monthly(entry: Dictionary) -> int:
+	var left := maxf(0.0, dream_def(entry["id"])["cost"] - entry["saved"])
+	var months_left := maxi(1, int(entry["deadline"]) - month)
+	return ceili(left / months_left / 1000.0) * 1000
+
+
+## Porsi gaji yang disarankan saat impian dipilih (dibulatkan ke atas per langkah, dibatasi share_cap).
+func suggested_dream_share(entry: Dictionary) -> float:
+	var step := float(budget_config()["step"])
+	var share := ceilf(dream_needed_monthly(entry) / float(maxi(salary, 1)) / step) * step
+	return clampf(share, step, float(dreams_config()["share_cap"]))
+
+
+func pick_dreams(ids: Array) -> void:
+	for id: String in ids:
+		if not can_add_dream() or dream_def(id).is_empty():
+			break
+		var def := dream_def(id)
+		var entry := {"id": id, "saved": 0.0, "start_month": month, "deadline": month + int(def["months"]),
+			"status": "active", "achieved_month": -1}
+		dreams.append(entry)
+		# Porsi saran dibatasi sisa gaji di rencana saat ini, agar rencana tidak melebihi gaji.
+		var step := float(budget_config()["step"])
+		var surplus := maxf(0.0, float(plan_preview(plan, salary)["surplus"]))
+		var room := floorf(surplus / maxf(1.0, salary) / step + 0.0001) * step
+		plan["dreams"][id] = minf(suggested_dream_share(entry), room)
+	dreams_asked = true
+	changed.emit()
+	state_committed.emit()
+
+
+func mark_dreams_asked() -> void:
+	dreams_asked = true
+	state_committed.emit()
+
+
+## Setoran manual ke pos impian.
+func deposit_dream(id: String, amount: int) -> bool:
+	var entry := _find_dream(id)
+	if entry.is_empty() or entry["status"] != "active" or amount <= 0 or amount > cash:
+		return false
+	var left := ceili(maxf(0.0, dream_def(id)["cost"] - entry["saved"]))
+	amount = mini(amount, left)
+	cash -= amount
+	entry["saved"] += amount
+	_progress_target("dream_deposit", amount)
+	_check_dreams()
+	changed.emit()
+	state_committed.emit()
+	_flush_dream_signals()
+	return true
+
+
+## Melepas impian: dana kembali ke kas, kebahagiaan turun sedikit.
+func release_dream(id: String) -> void:
+	var entry := _find_dream(id)
+	if entry.is_empty() or entry["status"] != "active":
+		return
+	cash += roundi(entry["saved"])
+	entry["saved"] = 0.0
+	entry["status"] = "released"
+	plan["dreams"].erase(id)
+	happiness = clampi(happiness + int(dreams_config()["release_happiness"]), 0, 100)
+	changed.emit()
+	state_committed.emit()
+
+
+## Memperpanjang tenggat impian yang terlewat.
+func extend_dream(id: String) -> void:
+	var entry := _find_dream(id)
+	if entry.is_empty() or entry["status"] != "active":
+		return
+	entry["deadline"] = month + int(dreams_config()["extend_months"])
+	happiness = clampi(happiness + int(dreams_config()["extend_happiness"]), 0, 100)
+	changed.emit()
+	state_committed.emit()
+
+
+## Impian aktif yang tenggatnya sudah lewat (menunggu keputusan pemain).
+func overdue_dreams() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for entry: Dictionary in active_dreams():
+		if month > int(entry["deadline"]):
+			result.append(entry)
+	return result
+
+
+## Data impian siap tampil: entri + definisi + persentase terkumpul.
+func dream_view(entry: Dictionary) -> Dictionary:
+	var def := dream_def(entry["id"])
+	return entry.merged({"def": def, "ratio": clampf(entry["saved"] / float(def["cost"]), 0.0, 1.0)})
+
+
+## Entri impian AKTIF dengan id tersebut ({} jika tidak ada / sudah terwujud / dilepas).
+func active_dream(id: String) -> Dictionary:
+	return _find_dream(id)
+
+
+func _find_dream(id: String) -> Dictionary:
+	for entry: Dictionary in dreams:
+		if entry["id"] == id and entry["status"] == "active":
+			return entry
+	return {}
+
+
+## Impian yang dananya sudah cukup langsung terwujud (dana dipakai, kelebihannya kembali ke kas).
+func _check_dreams() -> void:
+	for entry: Dictionary in active_dreams():
+		var def := dream_def(entry["id"])
+		if entry["saved"] + 0.5 < float(def["cost"]):
+			continue
+		cash += roundi(entry["saved"] - float(def["cost"]))
+		entry["saved"] = float(def["cost"])
+		entry["status"] = "achieved"
+		entry["achieved_month"] = month
+		plan["dreams"].erase(entry["id"])
+		happiness = clampi(happiness + int(def["happiness"]), 0, 100)
+		xp += int(def["xp"])
+		stats["dreams_achieved"] += 1
+		var view := dream_view(entry)
+		_dream_signals.append(func() -> void: dream_achieved.emit(view))
+
+
+func _queue_overdue_dreams() -> void:
+	for entry: Dictionary in overdue_dreams():
+		var view := dream_view(entry)
+		_dream_signals.append(func() -> void: dream_overdue.emit(view))
+
+
+## Sinyal impian dikirim SETELAH laporan bulanan, agar urutan popup: laporan -> perayaan.
+func _flush_dream_signals() -> void:
+	var pending := _dream_signals.duplicate()
+	_dream_signals.clear()
+	for send: Callable in pending:
+		if _fast_forwarding:
+			_deferred.append(send)
+		else:
+			send.call()
+
+
+## Pos impian berbunga seperti tabungan (setelah pajak). Mengembalikan totalnya.
+func _pay_dream_interest() -> float:
+	var asset := market.get_asset(dreams_config()["interest_asset"])
+	var rate := market.rate_for(asset) * (1.0 - asset.interest_tax) / 12.0
+	var total := 0.0
+	for entry: Dictionary in active_dreams():
+		var gain: float = entry["saved"] * rate
+		entry["saved"] += gain
+		total += gain
+	return total
+
+
+func _dreams_progress() -> Array:
+	var result: Array = []
+	for entry: Dictionary in active_dreams():
+		var view := dream_view(entry)
+		result.append({"name": view["def"]["name"], "ratio": view["ratio"]})
+	return result
+
+
+# --- Target bulanan (v1.5-0 langkah 3) ------------------------------------------------
+
+func targets_config() -> Dictionary:
+	return economy["targets"]
+
+
+## Memilih beberapa target ringan untuk bulan baru dari daftar yang masuk akal saat ini.
+func _new_targets() -> Array[Dictionary]:
+	var cfg := targets_config()
+	var cap := int(cfg["stat_cap"])
+	var bonus := int(cfg["stat_bonus"])
+	var pool: Array[Dictionary] = [{"type": "invest", "goal": float(cfg["invest_amount"]), "param": ""}]
+	var activities := activity_defs().filter(func(def: Dictionary) -> bool:
+		return int(def["energy"]) <= energy_capacity)
+	if not activities.is_empty():
+		var def: Dictionary = activities[rng.randi() % activities.size()]
+		pool.append({"type": "activity", "goal": 1.0, "param": def["id"]})
+	pool.append({"type": "save", "goal": float(monthly_expenses() * int(cfg["save_months"])), "param": ""})
+	if health < cap:
+		pool.append({"type": "health", "goal": float(mini(cap, health + bonus)), "param": ""})
+	if happiness < cap:
+		pool.append({"type": "happiness", "goal": float(mini(cap, happiness + bonus)), "param": ""})
+	if investments_value() > 0.0:
+		pool.append({"type": "no_loss", "goal": 0.0, "param": ""})
+	if quiz.free_left() > 0:
+		pool.append({"type": "quiz", "goal": 1.0, "param": ""})
+	if not active_dreams().is_empty():
+		pool.append({"type": "dream_deposit", "goal": float(cfg["dream_deposit"]), "param": ""})
+	var picked: Array[Dictionary] = []
+	for i in mini(int(cfg["per_month"]), pool.size()):
+		var target: Dictionary = pool.pop_at(rng.randi() % pool.size())
+		target.merge({"progress": 0.0, "state": "open"})
+		picked.append(target)
+	return picked
+
+
+func _progress_target(type: String, amount: float, param: String = "") -> void:
+	for target: Dictionary in targets:
+		if target["type"] != type or target["state"] != "open":
+			continue
+		if target["param"] != "" and target["param"] != param:
+			continue
+		target["progress"] += amount
+		if target["progress"] >= target["goal"]:
+			_complete_target(target, true)
+
+
+func _fail_target(type: String) -> void:
+	for target: Dictionary in targets:
+		if target["type"] == type and target["state"] == "open":
+			target["state"] = "failed"
+
+
+func _complete_target(target: Dictionary, notify: bool) -> void:
+	var cfg := targets_config()
+	target["state"] = "done"
+	happiness = clampi(happiness + int(cfg["reward_happiness"]), 0, 100)
+	xp += int(cfg["reward_xp"])
+	stats["targets_done"] += 1
+	if notify:
+		target_completed.emit(target)
+
+
+## Akhir bulan: target yang dinilai dari kondisi akhir dicek; sisanya yang belum selesai gagal.
+## Mengembalikan salinan untuk laporan bulanan.
+func _finalize_targets() -> Array:
+	for target: Dictionary in targets:
+		if target["state"] != "open":
+			continue
+		var ok := false
+		match target["type"]:
+			"save":
+				ok = cash >= target["goal"]
+			"health":
+				ok = health >= target["goal"]
+			"happiness":
+				ok = happiness >= target["goal"]
+			"no_loss":
+				ok = true
+		if ok:
+			_complete_target(target, false)
+		else:
+			target["state"] = "failed"
+	return targets.duplicate(true)
+
+
+# --- Pembanding "kalau tidak bertransaksi" ---------------------------------------------
+
+## Mencatat portofolio di awal giliran, agar transaksi manual bulan ini bisa dibandingkan.
+func _snapshot_turn() -> void:
+	turn_units.clear()
+	for asset_id: String in holdings:
+		turn_units[asset_id] = units_of(asset_id)
+	turn_fees = 0.0
+	turn_trades = 0
+
+
+## Selisih hasil transaksi manual bulan ini dibanding kalau portofolio awal giliran ditahan:
+## (perubahan unit x pergerakan harga bulan ini) - fee. Transaksi terjadi di harga awal bulan.
+func _turn_trade_result(start_prices: Dictionary) -> Dictionary:
+	if turn_trades == 0:
+		return {"edge": 0.0, "trades": 0, "fees": 0.0}
+	var ids := turn_units.keys()
+	for asset_id: String in holdings:
+		if asset_id not in ids:
+			ids.append(asset_id)
+	var edge := -turn_fees
+	for asset_id: String in ids:
+		var asset := market.get_asset(asset_id)
+		var delta := units_of(asset_id) - float(turn_units.get(asset_id, 0.0))
+		edge += delta * (asset.price - float(start_prices.get(asset_id, asset.price)))
+	return {"edge": edge, "trades": turn_trades, "fees": turn_fees}
 
 
 # --- Profil risiko (M6.5, GDD 5.8) -------------------------------------------------
