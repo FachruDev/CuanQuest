@@ -1,0 +1,84 @@
+{
+	"_comment": "Konfigurasi prototipe B 'Hari Cepat': 1 hari game sekitar 1 detik nyata, berhenti otomatis saat ada kejadian.",
+	"clock": {
+		"seconds_per_day_options": [2.0, 1.0, 0.5],
+		"seconds_per_day": 1.0,
+		"step_minutes": 360,
+		"start_hour": 6,
+		"max_steps_per_frame": 8,
+		"idle_pause_seconds": 180
+	},
+	"calendar": {
+		"days_per_month": 30,
+		"months_per_year": 12,
+		"payday": 25,
+		"bill_day": 1,
+		"report_day": 30,
+		"report_hour": 18
+	},
+	"money": {
+		"start_cash": 10000000,
+		"salary": 6000000,
+		"monthly_bills": 3500000,
+		"payday_invest_share": 0.1
+	},
+	"stats": {
+		"start_health": 75,
+		"start_happiness": 70,
+		"health_per_day": -0.08,
+		"happiness_per_day": -0.15,
+		"warn_below": 30
+	},
+	"energy_per_month": 6,
+	"activity_days": {
+		"side_job": 4,
+		"course": 6,
+		"self_study": 2,
+		"exercise": 1,
+		"hangout": 1,
+		"rest": 2
+	},
+	"market": {
+		"trading_days_per_year": 257,
+		"calendar_days_per_year": 360,
+		"history_limit": 400,
+		"big_move_sigma": 2.5,
+		"big_move_cooldown_days": 15,
+		"instruments": [
+			{
+				"asset_id": "BSNT",
+				"name": "PT Bank Sentosa Tbk (BSNT)",
+				"session": "stock",
+				"news_chance_per_day": 0.04,
+				"news_size_min": 0.02,
+				"news_size_max": 0.05
+			},
+			{
+				"asset_id": "GRD",
+				"name": "Garuda Coin (GRD)",
+				"session": "crypto",
+				"news_chance_per_day": 0.04,
+				"news_size_min": 0.04,
+				"news_size_max": 0.09
+			}
+		]
+	},
+	"events": {
+		"count_weights": [15, 40, 30, 15],
+		"drought_months": 2,
+		"drought_bonus_weights": [0, 40, 40, 20],
+		"min_gap_days": 4,
+		"first_hour": 6,
+		"last_hour": 20,
+		"bad_weight_after_bad": 0.5,
+		"no_repeat_last": 4
+	},
+	"missions": {
+		"per_month": 3,
+		"reward_happiness": 4,
+		"reward_xp": 10,
+		"invest_target": 1000000,
+		"save_target": 3000000,
+		"health_target": 60
+	}
+}

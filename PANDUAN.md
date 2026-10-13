@@ -113,19 +113,24 @@ scenes/
 - [x] **M6.5: Melengkapi isi draft.** Energi & 6 aktivitas bulanan, lompat waktu (+6 Bln / +1 Thn), riwayat transaksi, periode grafik 1B/6B/1T/Semua, grafik alokasi aset + peringatan konsentrasi, profil risiko (kuesioner + peringatan di Pasar)
 - [x] **Redesain UI "Senja Cuan"** (dikerjakan sendiri oleh pengembang)
 - [x] **APK debug v1** untuk dicoba di HP (`build/cuan-quest-debug.apk`, preset "Android")
-- [ ] **v1.5-0 langkah 1: Prototipe waktu** (`prototypes/time/`, lihat bagian di bawah). Kode selesai, menunggu uji 5 orang
+- [ ] **v1.5-0 langkah 1: Prototipe waktu** (`prototypes/`, lihat bagian di bawah). A (per jam) dan B (hari cepat) selesai, menunggu uji & keputusan
 - [ ] **v1.5-0 langkah 2: Sistem waktu hybrid di game utama** (+ Event Director, rebalancing, SQLite, kuis 6/minggu tanpa iklan)
 - [ ] **v1.5a/b/c, v2a/b/c** (lihat `MVP_Baru_Sistem_Waktu_Hybrid.md`)
 - [ ] **M7: Export rilis & Play Store** (setelah v2 selesai; tanpa monetisasi)
 
-## Prototipe Waktu Hybrid (v1.5-0 langkah 1)
+## Prototipe Waktu (v1.5-0 langkah 1)
 
-Prototipe terpisah di `prototypes/time/` untuk menguji ritme waktu berjalan sebelum game utama dirombak. Tidak memakai `GameState`/`SaveManager`; simpanannya ada di `user://prototype/`.
+Dua prototipe terpisah di `prototypes/` untuk memilih cara waktu berjalan sebelum game utama dirombak. Tidak memakai `GameState`/`SaveManager`; simpanannya ada di `user://prototype/`.
+
+- **A: Waktu per Jam** (`prototypes/time/`): 1 jam game = 2,5 detik, jam bursa, antrean pesanan, tidur & begadang.
+- **B: Hari Cepat** (`prototypes/day/`): 1 hari sekitar 1 detik, berhenti otomatis saat ada keputusan, plus aktivitas berdurasi, misi bulanan, kesehatan & kebahagiaan, dan reaksi saat harga bergerak besar. Dibuat karena di A pemain sering hanya menunggu gajian/akhir bulan.
 
 **Cara menjalankan:**
-- Di editor: buka `prototypes/time/time_proto.tscn`, lalu tekan **F6** (Run Current Scene).
-- Di HP: pasang `build/cuan-quest-proto-waktu.apk` (preset "Android Prototipe Waktu"). Aplikasinya bernama *Cuan Proto Waktu* dan bisa terpasang berdampingan dengan game utama.
-- Uji otomatis: `godot --headless --path . --script res://prototypes/time/test_proto.gd`
+- Di editor: buka `prototypes/launcher.tscn` (atau langsung `time/time_proto.tscn` / `day/day_proto.tscn`), lalu tekan **F6** (Run Current Scene).
+- Di HP: pasang `build/cuan-quest-proto-waktu.apk` (preset "Android Prototipe Waktu"). Aplikasinya bernama *Cuan Proto Waktu*, membuka menu pilihan A/B, dan bisa terpasang berdampingan dengan game utama.
+- Uji otomatis: `godot --headless --path . --script res://prototypes/time/test_proto.gd` dan `.../prototypes/day/test_day.gd`
+
+Prototipe B memakai ulang `GameClock`, `ProtoDirector`, `ProtoMetrics`, dan `ProtoDialog` dari A. Langkah waktunya 6 jam (pagi, siang, sore, malam = warna latar), pasarnya bergerak sekali sehari (`day_market.gd`, `dt` = 1/257 untuk saham dan 1/360 untuk kripto), dan isinya ada di `day_world.gd` + `day_config.json`.
 
 | File | Isi |
 |---|---|
@@ -145,7 +150,7 @@ Prototipe terpisah di `prototypes/time/` untuk menguji ritme waktu berjalan sebe
 - **Hemat baterai.** `OS.low_processor_usage_mode = true` (layar hanya digambar ulang bila ada perubahan), `Engine.max_fps = 30`, UI diperbarui hanya saat waktu maju, dan tidak ada pembaruan sama sekali saat jeda.
 - **Feature tag.** Preset ekspor prototipe memberi fitur kustom `prototipe`, dan `project.godot` berisi `run/main_scene.prototipe`. Analogi web: seperti variabel `.env` per build, sehingga satu project menghasilkan dua APK dengan scene awal berbeda.
 
-**Panduan untuk penguji** ada di `prototypes/time/README.md`.
+**Panduan untuk penguji** ada di `prototypes/README.md`.
 
 ## Cara Kerja Simulasi Pasar (M3)
 

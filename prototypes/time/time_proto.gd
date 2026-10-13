@@ -13,6 +13,7 @@ const ProtoDialog := preload("res://prototypes/time/proto_dialog.gd")
 
 const CONFIG_PATH := "res://prototypes/time/time_config.json"
 const STATE_PATH := "user://prototype/state.json"
+const LAUNCHER_SCENE := "res://prototypes/launcher.tscn"
 const AUTOSAVE_SECONDS := 30.0
 const LOG_LINES := 8
 const PERIODS := [["1 Hari", 1], ["1 Minggu", 7], ["1 Bulan", 30]]
@@ -154,7 +155,8 @@ func _build_controls() -> void:
 		%ScaleRow.add_child(button)
 		_scale_buttons[seconds] = button
 
-	for item: Array in [["Salin laporan", _on_copy_report], ["Mulai ulang", _on_restart], ["Reset metrik", _on_reset_metrics]]:
+	for item: Array in [["Salin laporan", _on_copy_report], ["Mulai ulang", _on_restart],
+			["Reset metrik", _on_reset_metrics], ["Ganti prototipe", _on_switch_prototype]]:
 		var button := Button.new()
 		button.theme_type_variation = &"PeriodButton"
 		button.add_theme_font_size_override("font_size", 20)
@@ -567,6 +569,11 @@ func _on_reset_metrics() -> void:
 	metrics.reset()
 	%MetricsLabel.text = metrics.report_text()
 	_show_toast("Metrik direset")
+
+
+func _on_switch_prototype() -> void:
+	_save()
+	get_tree().change_scene_to_file(LAUNCHER_SCENE)
 
 
 func _pause_idle(count: bool) -> void:

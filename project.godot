@@ -12,7 +12,7 @@ config_version=5
 
 config/name="Cuan Quest"
 run/main_scene="res://scenes/title.tscn"
-run/main_scene.prototipe="res://prototypes/time/time_proto.tscn"
+run/main_scene.prototipe="res://prototypes/launcher.tscn"
 config/features=PackedStringArray("4.7", "Mobile")
 config/icon="res://icon.svg"
 

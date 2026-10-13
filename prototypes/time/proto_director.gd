@@ -68,8 +68,8 @@ func pop_event() -> Dictionary:
 	return picked
 
 
-## Hasil satu pilihan. Prototipe hanya menerapkan efek ke KAS.
-## -> {"result": teks, "cash": perubahan kas}
+## Hasil satu pilihan. -> {"result": teks, "cash": perubahan kas, "effects": efek lain}
+## Prototipe A hanya memakai kas; prototipe B juga memakai kesehatan & kebahagiaan.
 func resolve(event: Dictionary, choice_index: int) -> Dictionary:
 	var choice: Dictionary = event["choices"][choice_index]
 	var cash := -float(choice.get("cost", 0))
@@ -81,8 +81,9 @@ func resolve(event: Dictionary, choice_index: int) -> Dictionary:
 			roll -= float(outcome["chance"])
 			if roll < 0.0:
 				break
-	cash += float(picked.get("effects", {}).get("cash", 0))
-	return {"result": picked.get("result", ""), "cash": cash}
+	var effects: Dictionary = picked.get("effects", {})
+	cash += float(effects.get("cash", 0))
+	return {"result": picked.get("result", ""), "cash": cash, "effects": effects}
 
 
 func find(id: String) -> Dictionary:
