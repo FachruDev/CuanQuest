@@ -1,8 +1,10 @@
 class_name QuizManager
 extends RefCounted
-## Bank soal + jatah kuis.
-## - Gratis `free_per_week` kali per minggu NYATA (reset setiap Senin, jam perangkat).
-## - Kuis tambahan didapat dengan menonton iklan rewarded (maks `ads_per_day` per hari).
+## Bank soal + jatah kuis (v1.5-0: tanpa iklan).
+## - Jatah `free_per_week` soal per minggu NYATA (reset setiap Senin, jam perangkat).
+## - Setiap soal yang DIBUKA memakai satu jatah, dijawab benar atau salah.
+## - Soal yang sudah muncul minggu ini tidak diulang di minggu yang sama; soal yang salah
+##   bisa muncul lagi minggu berikutnya.
 ## Sengaja tidak memakai waktu di dalam game agar pemain tidak bisa "farming" kuis
 ## dengan menekan Lanjut berulang kali (GDD 5.4).
 
@@ -10,10 +12,8 @@ var questions: Array = []
 var config: Dictionary = {}
 var correct_ids: Dictionary = {}   # question_id -> true (pernah dijawab benar)
 var week_id := -1
-var free_used := 0
-var day_id := -1
-var ads_used := 0
-var bonus_credits := 0             # kuis tambahan hasil menonton iklan
+var used_this_week := 0
+var shown_this_week: Dictionary = {}  # question_id -> true (sudah muncul minggu ini)
 
 
 func setup(question_defs: Array, quiz_config: Dictionary) -> void:
@@ -21,24 +21,14 @@ func setup(question_defs: Array, quiz_config: Dictionary) -> void:
 	config = quiz_config
 
 
+## Sisa jatah minggu ini.
 func free_left() -> int:
-	_sync_clock()
-	return maxi(0, int(config["free_per_week"]) - free_used)
-
-
-func ads_left() -> int:
-	_sync_clock()
-	return maxi(0, int(config["ads_per_day"]) - ads_used)
+	_sync_week()
+	return maxi(0, int(config["free_per_week"]) - used_this_week)
 
 
 func can_start() -> bool:
-	return free_left() > 0 or bonus_credits > 0
-
-
-func add_bonus_credit() -> void:
-	_sync_clock()
-	ads_used += 1
-	bonus_credits += 1
+	return free_left() > 0
 
 
 ## Memakai satu jatah lalu mengembalikan soal. {} jika jatah habis.
@@ -46,13 +36,12 @@ func add_bonus_credit() -> void:
 ## "intip soal lalu tutup".
 ## `preferred_topics`: topik yang sedang dibutuhkan untuk unlock, diprioritaskan 70%.
 func start(preferred_topics: Array = []) -> Dictionary:
-	if free_left() > 0:
-		free_used += 1
-	elif bonus_credits > 0:
-		bonus_credits -= 1
-	else:
+	if free_left() <= 0:
 		return {}
-	return _pick_question(preferred_topics)
+	used_this_week += 1
+	var question := _pick_question(preferred_topics)
+	shown_this_week[question["id"]] = true
+	return question
 
 
 func answer(question: Dictionary, option_index: int) -> bool:
@@ -73,8 +62,8 @@ func correct_in_topic(topic: String) -> int:
 
 ## Disimpan di user://player.json (global, bukan per slot save).
 func to_dict() -> Dictionary:
-	return {"correct_ids": correct_ids.keys(), "week_id": week_id, "free_used": free_used,
-		"day_id": day_id, "ads_used": ads_used, "bonus_credits": bonus_credits}
+	return {"correct_ids": correct_ids.keys(), "week_id": week_id, "used_this_week": used_this_week,
+		"shown_this_week": shown_this_week.keys()}
 
 
 func from_dict(d: Dictionary) -> void:
@@ -82,31 +71,34 @@ func from_dict(d: Dictionary) -> void:
 	for id: String in d.get("correct_ids", []):
 		correct_ids[id] = true
 	week_id = int(d.get("week_id", -1))
-	free_used = int(d.get("free_used", 0))
-	day_id = int(d.get("day_id", -1))
-	ads_used = int(d.get("ads_used", 0))
-	bonus_credits = int(d.get("bonus_credits", 0))
+	used_this_week = int(d.get("used_this_week", d.get("free_used", 0)))  # "free_used" = format v1
+	shown_this_week.clear()
+	for id: String in d.get("shown_this_week", []):
+		shown_this_week[id] = true
 
 
+## Urutan prioritas pool: belum pernah benar & belum muncul minggu ini → belum muncul minggu ini
+## → semua soal (bank soal habis).
 func _pick_question(preferred_topics: Array) -> Dictionary:
-	var pool := questions.filter(func(q: Dictionary) -> bool: return not correct_ids.has(q["id"]))
+	var fresh := questions.filter(func(q: Dictionary) -> bool:
+		return not correct_ids.has(q["id"]) and not shown_this_week.has(q["id"]))
+	var pool := fresh
 	if pool.is_empty():
-		pool = questions  # semua sudah benar: ulangi dari seluruh bank soal
+		pool = questions.filter(func(q: Dictionary) -> bool: return not shown_this_week.has(q["id"]))
+	if pool.is_empty():
+		pool = questions
 	var preferred := pool.filter(func(q: Dictionary) -> bool: return q["topic"] in preferred_topics)
 	if not preferred.is_empty() and randf() < 0.7:
 		return preferred.pick_random()
 	return pool.pick_random()
 
 
-func _sync_clock() -> void:
+func _sync_week() -> void:
 	var week := current_week_id()
 	if week != week_id:
 		week_id = week
-		free_used = 0
-	var day := local_day()
-	if day != day_id:
-		day_id = day
-		ads_used = 0
+		used_this_week = 0
+		shown_this_week.clear()
 
 
 ## Hari ke-N sejak 1 Jan 1970 menurut zona waktu perangkat.

@@ -2,6 +2,7 @@ class_name EventManager
 extends RefCounted
 ## Memilih event hidup yang memenuhi syarat, berdasarkan bobot.
 ## Efek dari pilihan pemain diterapkan oleh GameState (karena menyentuh kas, gaji, dll).
+## Berapa event per bulan ditentukan Event Director di GameState (_roll_events).
 
 var defs: Array = []
 var counts: Dictionary = {}       # event_id -> berapa kali sudah muncul
@@ -17,19 +18,30 @@ func setup(event_defs: Array) -> void:
 ## Event "guaranteed" (mis. THR) selalu muncul jika syaratnya terpenuhi.
 func pick_guaranteed(state: Node) -> Dictionary:
 	for def: Dictionary in defs:
-		if def.get("guaranteed", false) and _is_eligible(def, state):
+		if def.get("guaranteed", false) and not def.get("chain_only", false) and _is_eligible(def, state):
 			return def
 	return {}
 
 
-## `bad_mult` (dari tingkat kesulitan) mengalikan bobot event yang ditandai "bad".
-func pick_random(state: Node, rng: RandomNumberGenerator, bad_mult: float = 1.0) -> Dictionary:
+## `bad_mult` mengalikan bobot event yang ditandai "bad" (tingkat kesulitan & anti-sial beruntun).
+## `context`: kondisi pemain yang aktif ({"cash_rich": true, ...}); bobot event dikali
+## pengali di field "context" event tersebut. `exclude`: id event yang sudah terpilih bulan ini.
+func pick_random(state: Node, rng: RandomNumberGenerator, bad_mult: float = 1.0,
+		context: Dictionary = {}, exclude: Array = []) -> Dictionary:
 	var candidates: Array[Dictionary] = []
 	var weights := PackedFloat32Array()
 	for def: Dictionary in defs:
-		if not def.get("guaranteed", false) and _is_eligible(def, state):
-			candidates.append(def)
-			weights.append(def.get("weight", 1.0) * (bad_mult if def.get("bad", false) else 1.0))
+		if def.get("guaranteed", false) or def.get("chain_only", false) or def["id"] in exclude:
+			continue
+		if not _is_eligible(def, state):
+			continue
+		var weight: float = def.get("weight", 1.0) * (bad_mult if def.get("bad", false) else 1.0)
+		var multipliers: Dictionary = def.get("context", {})
+		for condition: String in multipliers:
+			if context.get(condition, false):
+				weight *= float(multipliers[condition])
+		candidates.append(def)
+		weights.append(weight)
 	if candidates.is_empty():
 		return {}
 	return candidates[rng.rand_weighted(weights)]

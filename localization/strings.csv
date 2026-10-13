@@ -181,10 +181,8 @@ Real ads will be added before release.
 %d"
 ACT_LEVEL,Level %d,Level %d
 ACT_QUIZ_TITLE,Kuis Finansial,Financial Quiz
-ACT_QUIZ_INFO,Kuis gratis minggu ini: %d / %d tersisa. Jatah di-reset setiap Senin.,Free quizzes this week: %d / %d left. Resets every Monday.
-ACT_QUIZ_BONUS,Kuis tambahan dari iklan: %d,Bonus quizzes from ads: %d
+ACT_QUIZ_INFO,"Kuis minggu ini: %d / %d tersisa. Benar atau salah sama-sama memakai jatah, dan jatah di-reset setiap Senin.","Quizzes this week: %d / %d left. Right or wrong, each one uses a slot. Resets every Monday."
 ACT_START_QUIZ,Mulai Kuis,Start Quiz
-ACT_WATCH_AD,Tonton iklan untuk +1 kuis (sisa %d hari ini),Watch an ad for +1 quiz (%d left today)
 ACT_TOPIC_TITLE,Soal benar per topik,Correct answers by topic
 ACT_UNLOCK_TITLE,Membuka Instrumen Baru,Unlocking Instruments
 UNLOCK_OPEN,Terbuka,Unlocked

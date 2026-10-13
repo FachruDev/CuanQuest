@@ -1,6 +1,6 @@
 extends ScrollContainer
 ## Tab Aktivitas (tema "Senja Cuan"): aktivitas bulanan (energi), level & XP,
-## kuis (jatah mingguan + iklan), dan progres unlock instrumen.
+## kuis (jatah mingguan, tanpa iklan), dan progres unlock instrumen.
 
 ## Main yang menampilkan popup kuis (lewat antrean popup), screen ini hanya meminta.
 signal quiz_requested(question: Dictionary)
@@ -22,7 +22,6 @@ var _activity_rows: Dictionary = {}
 
 func _ready() -> void:
 	%StartQuizButton.pressed.connect(_on_start_quiz)
-	%AdButton.pressed.connect(_on_watch_ad)
 	_build_activities()
 	GameState.changed.connect(_refresh)
 	visibility_changed.connect(_refresh)  # jatah kuis bisa reset karena waktu nyata berjalan
@@ -45,14 +44,8 @@ func _refresh() -> void:
 	var quiz := GameState.quiz
 	var free_left := quiz.free_left()
 	%QuizInfo.text = tr("ACT_QUIZ_INFO") % [free_left, int(GameState.economy["quiz"]["free_per_week"])]
-	if quiz.bonus_credits > 0:
-		%QuizInfo.text += "\n" + tr("ACT_QUIZ_BONUS") % quiz.bonus_credits
 	%StartQuizButton.disabled = not quiz.can_start()
 	%StartQuizButton.get_child(0).modulate = DIMMED if %StartQuizButton.disabled else Color.WHITE
-	%AdButton.visible = free_left == 0 and quiz.bonus_credits == 0
-	%AdButton.disabled = quiz.ads_left() == 0 or not AdService.is_available()
-	%AdLabel.text = tr("ACT_WATCH_AD") % quiz.ads_left()
-	%AdLabel.modulate = DIMMED if %AdButton.disabled else Color.WHITE
 
 	_clear(%TopicChips)
 	for topic: String in TOPICS:
@@ -134,10 +127,6 @@ func _on_start_quiz() -> void:
 	var question := GameState.start_quiz()
 	if not question.is_empty():
 		quiz_requested.emit(question)
-
-
-func _on_watch_ad() -> void:
-	AdService.show_rewarded(GameState.grant_quiz_credit)
 
 
 # --- Aktivitas bulanan (energi) ---------------------------------------------

@@ -3,8 +3,10 @@
 		"category: finance | work | health | social | market | scam",
 		"bad: true = event merugikan, bobotnya dikali bad_event_mult dari tingkat kesulitan",
 		"Syarat (opsional): min_month, max_times, cooldown (bulan, default 12), month_of_year (0=Jan), guaranteed (selalu muncul jika syarat terpenuhi), requires: employed | has_investments | low_happiness",
+		"context (opsional, Event Director v1.5): pengali bobot saat kondisi pemain aktif, mis. {\"cash_rich\": 3}. Kondisi: cash_rich | cash_poor | low_happiness | low_health | holds_risky | holds_crypto (ambang di economy.json event_director)",
+		"chain_only: true = event lanjutan, hanya muncul lewat efek chain (tidak pernah acak)",
 		"choice: label, cost (dibayar di muka, pilihan nonaktif jika kas kurang), effects ATAU outcomes [{chance, effects, result}], result",
-		"effects: cash, cash_salary (kali gaji), health, happiness, xp, salary_pct, unemployed_months, sell_all, delayed {months, chance, effects, text, fail_text}"
+		"effects: cash, cash_salary (kali gaji), health, happiness, xp, salary_pct, unemployed_months, sell_all, delayed {months, chance, effects, text, fail_text}, chain {event, months: [min, max]} (jadwalkan event lanjutan)"
 	],
 	"events": [
 		{
@@ -29,24 +31,24 @@
 			]
 		},
 		{
-			"id": "scam_invest", "bad": true, "category": "scam", "weight": 2, "min_month": 2, "max_times": 2, "cooldown": 18,
+			"id": "scam_invest", "bad": true, "category": "scam", "weight": 2, "min_month": 2, "max_times": 2, "cooldown": 18, "context": { "cash_rich": 3 },
 			"title": "Investasi \"Pasti Untung\"", "text": "Teman lama menawarkan investasi dengan keuntungan 10% per bulan, dijamin tanpa risiko. \"Kuotanya terbatas, buruan!\"",
 			"choices": [
-				{ "label": "Ikut dengan Rp5.000.000", "cost": 5000000, "effects": { "happiness": -6 }, "result": "Bulan pertama 'untung' dibayar, lalu pengelolanya menghilang. Uangmu lenyap. Ingat: untung tinggi dan dijamin adalah ciri investasi bodong." },
-				{ "label": "Coba dengan Rp1.000.000 saja", "cost": 1000000, "effects": { "happiness": -3 }, "result": "Uang Rp1 juta itu tidak pernah kembali. Investasi bodong tetap bodong, sekecil apa pun modalnya." },
+				{ "label": "Ikut dengan Rp5.000.000", "cost": 5000000, "effects": { "cash": 500000, "chain": { "event": "scam_collapse", "months": [1, 2] } }, "result": "Bulan ini kamu menerima \"keuntungan\" Rp500 ribu. Terlihat meyakinkan... untuk sementara." },
+				{ "label": "Coba dengan Rp1.000.000 saja", "cost": 1000000, "effects": { "cash": 100000, "chain": { "event": "scam_collapse", "months": [1, 2] } }, "result": "Bulan ini kamu menerima \"keuntungan\" Rp100 ribu. Teman-temanmu mulai ikut bergabung." },
 				{ "label": "Tolak dan cek legalitasnya di OJK", "effects": { "xp": 15 }, "result": "Tepat! Entitas itu tidak terdaftar di OJK. Beberapa bulan kemudian beritanya muncul di TV." }
 			]
 		},
 		{
-			"id": "pinjol", "bad": true, "category": "scam", "weight": 2, "min_month": 4, "max_times": 2, "cooldown": 18,
+			"id": "pinjol", "bad": true, "category": "scam", "weight": 2, "min_month": 4, "max_times": 2, "cooldown": 18, "context": { "cash_poor": 4 },
 			"title": "Pinjaman Cair 5 Menit", "text": "Sebuah SMS menawarkan pinjaman Rp3 juta, cair 5 menit tanpa syarat. Cukup instal aplikasi dan izinkan akses kontak.",
 			"choices": [
-				{ "label": "Ambil pinjamannya", "effects": { "cash": 3000000, "delayed": { "months": 1, "effects": { "cash": -5500000, "happiness": -10 }, "text": "Tagihan pinjol ilegal datang: Rp5,5 juta untuk pinjaman Rp3 juta, plus teror ke semua kontakmu." } }, "result": "Uang Rp3 juta cair. Tapi aplikasi itu tidak terdaftar di OJK..." },
+				{ "label": "Ambil pinjamannya", "effects": { "cash": 3000000, "chain": { "event": "pinjol_collect", "months": [1, 1] } }, "result": "Uang Rp3 juta cair. Tapi aplikasi itu tidak terdaftar di OJK..." },
 				{ "label": "Abaikan dan laporkan nomornya", "effects": { "xp": 10 }, "result": "Bagus. Pinjol ilegal mengenakan bunga mencekik dan menagih dengan cara meneror." }
 			]
 		},
 		{
-			"id": "flu", "bad": true, "category": "health", "weight": 3,
+			"id": "flu", "bad": true, "category": "health", "weight": 3, "context": { "low_health": 2 },
 			"title": "Demam Tinggi", "text": "Badanmu demam tinggi sejak semalam.",
 			"choices": [
 				{ "label": "Periksa ke dokter", "cost": 500000, "effects": { "health": 4 }, "result": "Dokter memberi obat yang tepat. Kamu cepat pulih." },
@@ -54,7 +56,7 @@
 			]
 		},
 		{
-			"id": "hospital", "bad": true, "category": "health", "weight": 1, "min_month": 6, "cooldown": 24,
+			"id": "hospital", "bad": true, "category": "health", "weight": 1, "min_month": 6, "cooldown": 24, "context": { "low_health": 3 },
 			"title": "Harus Rawat Inap", "text": "Hasil pemeriksaan menunjukkan kamu perlu rawat inap 3 hari. Kamu belum punya asuransi kesehatan.",
 			"choices": [
 				{ "label": "Rawat inap", "cost": 7000000, "effects": { "health": 10 }, "result": "Kamu pulih total. Inilah gunanya dana darurat (dan asuransi)." },
@@ -112,7 +114,7 @@
 			]
 		},
 		{
-			"id": "side_gig", "category": "work", "weight": 3, "cooldown": 6,
+			"id": "side_gig", "category": "work", "weight": 3, "cooldown": 6, "context": { "cash_poor": 2 },
 			"title": "Proyek Sampingan", "text": "Seorang klien menawarkan proyek akhir pekan dengan bayaran Rp2 juta.",
 			"choices": [
 				{ "label": "Ambil proyeknya", "effects": { "cash": 2000000, "health": -3, "happiness": -2, "xp": 5 }, "result": "Proyek selesai dan uang masuk, meski akhir pekanmu habis." },
@@ -129,7 +131,7 @@
 			]
 		},
 		{
-			"id": "vacation", "category": "social", "weight": 2, "cooldown": 12,
+			"id": "vacation", "category": "social", "weight": 2, "cooldown": 12, "context": { "low_happiness": 2 },
 			"title": "Ajakan Liburan ke Bali", "text": "Teman-teman mengajakmu liburan ke Bali selama 4 hari.",
 			"choices": [
 				{ "label": "Ikut liburan", "cost": 4000000, "effects": { "happiness": 12, "health": 2 }, "result": "Liburan yang menyenangkan! Pikiranmu segar kembali." },
@@ -138,10 +140,10 @@
 			]
 		},
 		{
-			"id": "friend_loan", "category": "social", "weight": 2, "min_month": 3, "cooldown": 12,
+			"id": "friend_loan", "category": "social", "weight": 2, "min_month": 3, "cooldown": 12, "context": { "cash_rich": 2 },
 			"title": "Teman Mau Pinjam Uang", "text": "Sahabatmu butuh pinjaman Rp2 juta dan berjanji mengembalikan dalam 3 bulan.",
 			"choices": [
-				{ "label": "Pinjamkan", "cost": 2000000, "effects": { "delayed": { "months": 3, "chance": 0.6, "effects": { "cash": 2000000, "happiness": 3 }, "text": "Temanmu menepati janji dan mengembalikan Rp2 juta.", "fail_text": "Sudah 3 bulan, temanmu belum juga membayar utangnya dan mulai sulit dihubungi." } }, "result": "Kamu meminjamkan Rp2 juta. Prinsipnya: pinjamkan hanya uang yang siap kamu ikhlaskan." },
+				{ "label": "Pinjamkan", "cost": 2000000, "effects": { "chain": { "event": "friend_loan_due", "months": [2, 3] } }, "result": "Kamu meminjamkan Rp2 juta. Prinsipnya: pinjamkan hanya uang yang siap kamu ikhlaskan." },
 				{ "label": "Tolak dengan halus", "effects": { "happiness": -2 }, "result": "Agak canggung, tapi keuanganmu aman." }
 			]
 		},
@@ -165,7 +167,7 @@
 			]
 		},
 		{
-			"id": "flash_sale", "category": "finance", "weight": 2, "cooldown": 6,
+			"id": "flash_sale", "category": "finance", "weight": 2, "cooldown": 6, "context": { "cash_rich": 1.5 },
 			"title": "Diskon Besar Tanggal Kembar", "text": "Aplikasi belanja mengadakan diskon besar-besaran. Keranjangmu sudah penuh.",
 			"choices": [
 				{ "label": "Checkout semua isi keranjang", "cost": 2500000, "effects": { "happiness": 4 }, "result": "Paket berdatangan. Senangnya sebentar, tagihannya terasa lama." },
@@ -211,7 +213,7 @@
 			]
 		},
 		{
-			"id": "crypto_fomo", "category": "market", "weight": 2, "min_month": 6, "cooldown": 12,
+			"id": "crypto_fomo", "category": "market", "weight": 2, "min_month": 6, "cooldown": 12, "context": { "cash_rich": 2, "holds_crypto": 2 },
 			"title": "Koin Viral di Grup Chat", "text": "Semua orang di grup membicarakan koin baru yang \"naik 1000% minggu ini\". Katanya bakal naik lagi.",
 			"choices": [
 				{ "label": "Ikut beli Rp3 juta", "cost": 3000000, "outcomes": [
@@ -222,7 +224,7 @@
 			]
 		},
 		{
-			"id": "stock_tip", "category": "market", "weight": 2, "min_month": 4, "cooldown": 12,
+			"id": "stock_tip", "category": "market", "weight": 2, "min_month": 4, "cooldown": 12, "context": { "holds_risky": 1.5 },
 			"title": "Tips Saham dari Grup", "text": "Seorang \"mentor\" di grup Telegram menyuruh semua anggota membeli saham kecil yang 'pasti terbang'.",
 			"choices": [
 				{ "label": "Ikut beli Rp2 juta", "cost": 2000000, "outcomes": [
@@ -233,7 +235,7 @@
 			]
 		},
 		{
-			"id": "friend_panic", "bad": true, "category": "market", "weight": 2, "min_month": 3, "cooldown": 12, "requires": "has_investments",
+			"id": "friend_panic", "bad": true, "category": "market", "weight": 2, "min_month": 3, "cooldown": 12, "requires": "has_investments", "context": { "holds_risky": 2 },
 			"title": "Teman Panik", "text": "Temanmu yakin pasar akan crash besar bulan depan. \"Jual semua investasimu sekarang!\"",
 			"choices": [
 				{ "label": "Jual semua investasi", "effects": { "sell_all": true, "happiness": -2 }, "result": "Semua investasimu dijual (dengan biaya transaksi). Prediksi pasar jangka pendek jarang akurat." },
@@ -241,7 +243,7 @@
 			]
 		},
 		{
-			"id": "gym", "category": "health", "weight": 2, "cooldown": 12,
+			"id": "gym", "category": "health", "weight": 2, "cooldown": 12, "context": { "low_health": 2 },
 			"title": "Ajakan Olahraga", "text": "Teman kantor mengajakmu rutin berolahraga.",
 			"choices": [
 				{ "label": "Daftar gym 3 bulan", "cost": 1200000, "effects": { "health": 8, "happiness": 3 }, "result": "Badan jadi lebih bugar." },
@@ -250,7 +252,7 @@
 			]
 		},
 		{
-			"id": "burnout", "category": "health", "weight": 3, "cooldown": 6, "requires": "low_happiness",
+			"id": "burnout", "category": "health", "weight": 3, "cooldown": 6, "requires": "low_happiness", "context": { "low_happiness": 2 },
 			"title": "Burnout", "text": "Akhir-akhir ini kamu merasa lelah, sulit fokus, dan kehilangan semangat.",
 			"choices": [
 				{ "label": "Ambil cuti dan liburan singkat", "cost": 1500000, "effects": { "happiness": 12, "health": 4 }, "result": "Energimu kembali terisi." },
@@ -277,7 +279,7 @@
 			]
 		},
 		{
-			"id": "mlm", "bad": true, "category": "scam", "weight": 2, "min_month": 5, "max_times": 2, "cooldown": 18,
+			"id": "mlm", "bad": true, "category": "scam", "weight": 2, "min_month": 5, "max_times": 2, "cooldown": 18, "context": { "cash_rich": 2 },
 			"title": "Ajakan Bisnis \"Member\"", "text": "Kenalan mengajakmu bergabung bisnis: bayar pendaftaran Rp2,5 juta, lalu rekrut 5 orang untuk mendapat bonus. Produknya tidak jelas.",
 			"choices": [
 				{ "label": "Daftar", "cost": 2500000, "outcomes": [
@@ -293,6 +295,62 @@
 			"choices": [
 				{ "label": "Klik link dan isi datanya", "effects": { "cash": -2000000, "happiness": -6 }, "result": "Rekeningmu dibobol Rp2 juta. Jangan pernah memberikan data rekening atau OTP." },
 				{ "label": "Hapus SMS-nya", "effects": { "xp": 10 }, "result": "Bagus! Tidak ada undian yang meminta OTP atau biaya administrasi." }
+			]
+		},
+		{
+			"id": "friend_loan_due", "chain_only": true, "category": "social", "weight": 1,
+			"title": "Janji Temanmu", "text": "Beberapa bulan lalu kamu meminjamkan Rp2 juta. Sekarang waktunya temanmu mengembalikan.",
+			"choices": [
+				{ "label": "Tagih dengan sopan", "outcomes": [
+					{ "chance": 0.6, "effects": { "cash": 2000000, "happiness": 3 }, "result": "Temanmu membayar penuh dan berterima kasih atas bantuanmu." },
+					{ "chance": 0.4, "effects": { "happiness": -4 }, "result": "Temanmu menghindar dan sulit dihubungi. Pelajaran mahal: pinjamkan hanya uang yang siap kamu ikhlaskan." }
+				] },
+				{ "label": "Beri waktu 2 bulan lagi", "effects": { "happiness": 1, "chain": { "event": "friend_loan_due", "months": [2, 2] } }, "result": "Kamu memberi kelonggaran. Semoga dia menepati janjinya." },
+				{ "label": "Ikhlaskan saja", "effects": { "happiness": 2, "xp": 5 }, "result": "Kamu mengikhlaskan uangnya. Pertemanan terjaga, tapi dompetmu yang menanggung." }
+			]
+		},
+		{
+			"id": "scam_collapse", "chain_only": true, "bad": true, "category": "scam", "weight": 1,
+			"title": "Pengelola Investasi Kabur", "text": "Investasi \"pasti untung\" itu berhenti membayar. Pengelolanya menghilang bersama uang para anggota, termasuk uangmu.",
+			"choices": [
+				{ "label": "Laporkan ke polisi dan OJK", "effects": { "happiness": -4, "xp": 15 }, "result": "Laporanmu membantu penyelidikan, tapi uangmu kemungkinan besar tidak kembali. Selalu cek legalitas di OJK sebelum berinvestasi." },
+				{ "label": "Ajak teman ikut agar modal kembali", "effects": { "happiness": -8 }, "result": "Kamu ikut menjerat orang lain, dan uangmu tetap tidak kembali. Skema seperti ini hanya menguntungkan pembuatnya." }
+			]
+		},
+		{
+			"id": "pinjol_collect", "chain_only": true, "bad": true, "category": "scam", "weight": 1,
+			"title": "Penagih Pinjol Datang", "text": "Tagihan pinjol ilegal datang: Rp5,5 juta untuk pinjaman Rp3 juta. Penagih mulai meneror kontak-kontakmu.",
+			"choices": [
+				{ "label": "Lunasi Rp5,5 juta", "cost": 5500000, "effects": { "happiness": -6 }, "result": "Lunas, tapi bunganya mencekik. Pinjol ilegal selalu jauh lebih mahal dari yang dijanjikan." },
+				{ "label": "Lapor ke OJK & polisi, bayar pokoknya saja", "cost": 3000000, "effects": { "happiness": -4, "xp": 15 }, "result": "Kamu melapor dan hanya membayar pokok pinjaman. Teror berhenti setelah laporanmu diproses." },
+				{ "label": "Abaikan teror penagih", "effects": { "happiness": -12, "health": -5 }, "result": "Teror terus berdatangan ke keluarga dan rekan kerja. Masalah tidak hilang dengan diabaikan." }
+			]
+		},
+		{
+			"id": "counseling", "category": "health", "weight": 2, "cooldown": 6, "requires": "low_happiness", "context": { "low_happiness": 3 },
+			"title": "Tawaran Konseling", "text": "Kantormu bekerja sama dengan psikolog. Akhir-akhir ini kamu sering merasa lelah dan murung.",
+			"choices": [
+				{ "label": "Ikut sesi konseling", "cost": 300000, "effects": { "happiness": 10, "health": 2 }, "result": "Bercerita kepada profesional membuat pikiranmu lebih ringan. Kesehatan mental sama pentingnya dengan kesehatan fisik." },
+				{ "label": "Curhat ke sahabat", "effects": { "happiness": 5 }, "result": "Sahabatmu mendengarkan dengan sabar. Kamu merasa tidak sendirian." },
+				{ "label": "Nanti saja", "effects": { "happiness": -2 }, "result": "Kamu memendamnya lagi. Jangan ragu mencari bantuan saat merasa tertekan." }
+			]
+		},
+		{
+			"id": "harbolnas", "category": "finance", "weight": 3, "month_of_year": 11, "cooldown": 11,
+			"title": "Harbolnas 12.12", "text": "Semua aplikasi belanja penuh diskon dan gratis ongkir. Keranjangmu sudah penuh.",
+			"choices": [
+				{ "label": "Checkout semuanya", "cost": 2500000, "effects": { "happiness": 4 }, "result": "Paket berdatangan. Senang sesaat, tapi apakah semuanya benar-benar kamu butuhkan?" },
+				{ "label": "Beli yang memang dibutuhkan saja", "cost": 500000, "effects": { "happiness": 2, "xp": 5 }, "result": "Belanja dengan daftar membuatmu tetap hemat." },
+				{ "label": "Kosongkan keranjang", "effects": { "happiness": -1, "xp": 10 }, "result": "Diskon terbaik adalah tidak membeli barang yang tidak perlu." }
+			]
+		},
+		{
+			"id": "health_checkup", "category": "health", "weight": 2, "cooldown": 12, "context": { "low_health": 3 },
+			"title": "Cek Kesehatan", "text": "Badanmu sering lemas belakangan ini. Klinik dekat kantor menawarkan paket medical check-up.",
+			"choices": [
+				{ "label": "Ambil paket lengkap", "cost": 800000, "effects": { "health": 8 }, "result": "Hasilnya keluar dan kamu tahu apa yang perlu diperbaiki. Mencegah lebih murah daripada mengobati." },
+				{ "label": "Cek dasar di puskesmas", "cost": 100000, "effects": { "health": 4 }, "result": "Pemeriksaan dasar sudah cukup memberi gambaran kondisimu." },
+				{ "label": "Tunda dulu", "effects": { "health": -2 }, "result": "Kamu menundanya. Semoga bukan masalah serius." }
 			]
 		}
 	]

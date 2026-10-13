@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 13 Oktober 2026 (v1.5-0 langkah 3 selesai)
+- **Terakhir diperbarui:** 13 Oktober 2026 (v1.5-0 langkah 4 selesai)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -13,7 +13,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v1** (M1-M6.5) | Game dasar, 15 item GDD bagian 11 | ✅ 15/15 |
 | **UI "Senja Cuan"** | Redesain seluruh tampilan | ✅ |
 | **Prototipe waktu A/B/C** | Uji sistem waktu berjalan (tidak dipakai, diarsipkan) | ✅ |
-| **v1.5-0** | Giliran Bulanan yang Hidup | 🔄 3/5 langkah |
+| **v1.5-0** | Giliran Bulanan yang Hidup | 🔄 4/5 langkah |
 | **v1.5a** | Realisme ekonomi | ⬜ |
 | **v1.5b** | Utang, properti, hunian yang tumbuh | ⬜ |
 | **v1.5c** | Karier, tokoh, konten | ⬜ |
@@ -35,7 +35,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | 7 | Portofolio dasar dan ringkasan bulanan | M2 | ✅ |
 | 8 | Simulasi harga dengan siklus pasar sederhana | M3 | ✅ |
 | 9 | Event hidup (minimal 30 event) | M4 | ✅ 33 event |
-| 10 | Kuis mingguan (minimal 30 soal) | M4 | ✅ 39 soal (aturan 6/minggu tanpa iklan menyusul di v1.5-0 langkah 4) |
+| 10 | Kuis mingguan (minimal 30 soal) | M4 | ✅ 39 soal; sejak v1.5-0: 6 soal/minggu, tanpa iklan |
 | 11 | Sistem unlock instrumen | M4 | ✅ |
 | 12 | Kondisi menang dan kalah serta layar akhir | M6 | ✅ |
 | 13 | Save/load otomatis dan manual | M5 | ✅ |
@@ -55,7 +55,7 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 | 1 | Pasar harian + animasi pergantian bulan | ✅ |
 | 2 | Rencana gaji + autodebet; hapus tombol +6 Bln / +1 Thn | ✅ |
 | 3 | Impian + target bulanan + perayaan | ✅ |
-| 4 | Event Director + kuis 6 soal/minggu tanpa iklan + lepas iklan | ⬜ |
+| 4 | Event Director + kuis 6 soal/minggu tanpa iklan + lepas iklan | ✅ |
 | 5 | Penyimpanan SQLite | ⬜ |
 
 ### Rincian fitur
@@ -87,13 +87,17 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 - ✅ Laporan: hasil target, pos impian, dan pembanding "kalau tidak bertransaksi"
 - ⬜ Avatar bereaksi sesuai kondisi (ditunda: butuh aset ekspresi avatar)
 
-**Langkah 4: Event Director, kuis, iklan** ⬜
-- ⬜ 0-3 event per bulan sesuai tingkat kesulitan (Santai / Normal / Sulit)
-- ⬜ Bobot event menyesuaikan kondisi pemain (kas, kesehatan, kebahagiaan, aset yang dipegang, bulan)
-- ⬜ Anti-sial beruntun dan peluang naik setelah 2 bulan tenang
-- ⬜ Rantai event (lanjutan 1-3 bulan kemudian)
-- ⬜ Kuis 6 soal per minggu, gratis; benar atau salah memakai kuota
-- ⬜ `AdService` dilepas dari UI; teks iklan di UI, `legal.json`, dan kebijakan privasi disesuaikan
+**Langkah 4: Event Director, kuis, iklan** ✅
+- ✅ 0-3 event per bulan sesuai tingkat kesulitan (Santai 25/45/25/5, Normal 15/40/30/15, Sulit 10/30/35/25 %)
+- ✅ Event diputuskan satu per satu; tombol Lanjut terkunci sampai semua selesai
+- ✅ Bobot event menyesuaikan kondisi pemain (kas berlebih/tipis, kesehatan/kebahagiaan rendah, memegang saham/kripto) lewat tag `context` di `events.json`
+- ✅ Anti-sial beruntun dan peluang naik setelah 2 bulan tenang
+- ✅ Rantai event: pinjaman teman → Janji Temanmu, investasi bodong → Pengelola Kabur, pinjol → Penagih Pinjol
+- ✅ 3 event kontekstual baru: Tawaran Konseling, Harbolnas 12.12, Cek Kesehatan (total 39 event)
+- ✅ Event kalender (THR) dan event lanjutan terpisah dari jatah acak
+- ✅ Kuis 6 soal per minggu, gratis; benar atau salah memakai kuota; soal tidak diulang di minggu yang sama
+- ✅ Tombol iklan dihapus; teks iklan di UI, `legal.json`, dan kebijakan privasi disesuaikan (game tanpa iklan)
+- 🔄 Catatan keseimbangan: event kini rata-rata 1,42/bulan (sebelumnya 0,61); simulasi 10 tahun menunjukkan gaji & kekayaan tumbuh lebih cepat karena event positif ikut lebih sering. Ditinjau saat penyeimbangan ekonomi
 
 **Langkah 5: SQLite** ⬜
 - ⬜ Cek kompatibilitas plugin `godot-sqlite` dengan Godot 4.7 dan Android
@@ -106,10 +110,10 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 - ✅ Bulan rutin tidak perlu mengatur gaji lagi: rencana berjalan otomatis
 - ✅ Autodebet tereksekusi setiap bulan dan dicatat di laporan serta riwayat transaksi
 - ✅ Minimal 12 impian; progres, tercapai, dan terlewat berjalan benar
-- ⬜ Event Director menghasilkan 0-3 event per bulan sesuai distribusi, dan rantai event berjalan
-- 🔄 Simpan dan muat menghasilkan keadaan yang sama persis (harga & RNG ✅, jadwal event menunggu langkah 4)
+- ✅ Event Director menghasilkan 0-3 event per bulan sesuai distribusi, dan rantai event berjalan
+- ✅ Simpan dan muat menghasilkan keadaan yang sama persis (harga, RNG, antrean & jadwal event)
 - ✅ Save versi lama ditolak dengan pesan yang jelas, tanpa crash
-- ⬜ Kuota kuis 6 soal per minggu, tanpa tombol iklan
+- ✅ Kuota kuis 6 soal per minggu, tanpa tombol iklan
 - ⬜ **Playtest:** penguji rata-rata memainkan minimal 10 bulan per sesi dan jarang merasa "hanya menekan Lanjut"
 
 ---
@@ -161,7 +165,7 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 ## Penutup v1.5 ⬜
 
 - ⬜ Uji performa dan baterai di HP kelas menengah
-- ⬜ Playtest ulang dan penyeimbangan ekonomi
+- ⬜ Playtest ulang dan penyeimbangan ekonomi (termasuk frekuensi event positif dari Event Director)
 - ⬜ Disclaimer simulasi dan kebijakan privasi diperbarui
 
 ---

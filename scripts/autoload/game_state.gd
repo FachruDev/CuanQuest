@@ -104,6 +104,10 @@ var targets: Array[Dictionary] = []
 var turn_units: Dictionary = {}              # asset_id -> unit saat giliran dimulai
 var turn_fees := 0.0
 var turn_trades := 0
+## Event Director (v1.5-0 langkah 4)
+var event_queue: Array[String] = []          # event bulan ini yang menunggu giliran (setelah pending_event)
+var chain_events: Array[Dictionary] = []     # event lanjutan terjadwal: [{id, due}]
+var director: Dictionary = {}                # {"quiet_months": int, "last_bad": bool}
 var dream_defs: Array = []                   # isi data/dreams.json
 var _dream_signals: Array[Callable] = []     # impian terwujud/terlewat, dikirim setelah laporan
 var _fast_forwarding := false
@@ -153,6 +157,9 @@ func new_game(profile: Dictionary = {}, seed_value: int = -1) -> void:
 	plan_applied_month = -1
 	dreams.clear()
 	dreams_asked = false
+	event_queue.clear()
+	chain_events.clear()
+	director = _new_director()
 	targets.clear()
 	_dream_signals.clear()
 	holdings.clear()
@@ -244,7 +251,7 @@ func advance_month() -> void:
 		return
 	_check_goals()
 	_check_unlocks(true)
-	_roll_event()
+	_roll_events()
 	state_committed.emit()
 
 
@@ -441,19 +448,103 @@ func has_pending_event() -> bool:
 	return not pending_event.is_empty()
 
 
-func _roll_event() -> void:
-	var event := events.pick_guaranteed(self)
-	var chance := float(difficulty["event_chance"])
-	if _fast_forwarding:
-		chance *= float(economy.get("fast_forward_event_mult", 1.0))  # lompat waktu tetap bermakna
-	if event.is_empty() and rng.randf() < chance:
-		event = events.pick_random(self, rng, float(difficulty["bad_event_mult"]))
-	if event.is_empty():
+# --- Event Director (v1.5-0 langkah 4) ------------------------------------------------
+# Setiap bulan: event wajib (mis. THR) + event lanjutan yang jatuh tempo + 0-3 event acak.
+# Event diputuskan satu per satu; tombol Lanjut terkunci sampai semuanya selesai.
+
+func _new_director() -> Dictionary:
+	return {"quiet_months": 0, "last_bad": false}
+
+
+func _roll_events() -> void:
+	var cfg: Dictionary = economy["event_director"]
+	var queue: Array[Dictionary] = []
+	var guaranteed := events.pick_guaranteed(self)  # event kalender, di luar jatah acak
+	if not guaranteed.is_empty():
+		queue.append(guaranteed)
+	for chained: Dictionary in chain_events.duplicate():  # rantai event, juga di luar jatah
+		if int(chained["due"]) > month:
+			continue
+		chain_events.erase(chained)
+		var def := events.find(chained["id"])
+		if not def.is_empty():
+			queue.append(def)
+
+	var context := event_context()
+	var picked := 0
+	for i in _roll_event_count():
+		# Anti-sial beruntun: setelah event buruk, event buruk berikutnya lebih jarang.
+		var bad_mult := float(difficulty["bad_event_mult"])
+		if director["last_bad"]:
+			bad_mult *= float(cfg["bad_after_bad"])
+		var taken := queue.map(func(e: Dictionary) -> String: return e["id"])
+		var event := events.pick_random(self, rng, bad_mult, context, taken)
+		if event.is_empty():
+			break
+		queue.append(event)
+		director["last_bad"] = event.get("bad", false)
+		picked += 1
+	director["quiet_months"] = int(director["quiet_months"]) + 1 if picked == 0 else 0
+	stats["events_rolled"] = int(stats.get("events_rolled", 0)) + picked
+
+	if queue.is_empty():
 		return
-	events.mark_shown(event, month)
-	pending_event = event
+	for event: Dictionary in queue:
+		events.mark_shown(event, month)
+	pending_event = queue[0]
+	event_queue.clear()
+	for event: Dictionary in queue.slice(1):
+		event_queue.append(event["id"])
 	changed.emit()
-	_emit_later(event_triggered, event)
+	_emit_later(event_triggered, pending_event)
+
+
+## Jumlah event acak bulan ini (bobot sesuai tingkat kesulitan). Setelah beberapa bulan
+## tenang, bulan berikutnya pasti ada event (quiet_counts).
+func _roll_event_count() -> int:
+	var cfg: Dictionary = economy["event_director"]
+	var weights: Array = difficulty["event_counts"]
+	if int(director["quiet_months"]) >= int(cfg["quiet_months"]):
+		weights = cfg["quiet_counts"]
+	var floats := PackedFloat32Array()
+	for w in weights:
+		floats.append(float(w))
+	var count := rng.rand_weighted(floats)
+	if _fast_forwarding and rng.randf() >= float(economy.get("fast_forward_event_mult", 1.0)):
+		count = 0  # lompat waktu (masa pensiun nanti) tetap bermakna, tidak terus terpotong
+	return count
+
+
+## Kondisi pemain untuk tag "context" di events.json.
+func event_context() -> Dictionary:
+	var cfg: Dictionary = economy["event_director"]
+	var expenses := float(maxi(monthly_expenses(), 1))
+	var risky := false
+	var crypto := false
+	for asset_id: String in holdings:
+		var asset_class := market.get_asset(asset_id).asset_class
+		risky = risky or asset_class in ["stock", "crypto"]
+		crypto = crypto or asset_class == "crypto"
+	return {
+		"cash_rich": cash >= expenses * float(cfg["cash_rich_months"]),
+		"cash_poor": cash < expenses * float(cfg["cash_poor_months"]),
+		"low_happiness": happiness < int(cfg["low_happiness"]),
+		"low_health": health < int(cfg["low_health"]),
+		"holds_risky": risky,
+		"holds_crypto": crypto,
+	}
+
+
+## Event berikutnya di antrean bulan ini (setelah event sebelumnya diputuskan).
+func _next_queued_event() -> void:
+	while not event_queue.is_empty():
+		var def := events.find(event_queue.pop_front())
+		if def.is_empty():
+			continue
+		pending_event = def
+		changed.emit()
+		event_triggered.emit(def)
+		return
 
 
 ## Pilihan dengan biaya di muka hanya bisa dipilih jika kas cukup.
@@ -488,6 +579,7 @@ func resolve_event(choice_index: int) -> Dictionary:
 	_record_extreme("best_event", "worst_event", cash_change, {"title": event["title"]})
 	changed.emit()
 	_check_unlocks(true)
+	_next_queued_event()  # sebelum autosave, agar event yang tersisa ikut tersimpan sebagai pending
 	state_committed.emit()
 	return result
 
@@ -511,6 +603,9 @@ func _apply_effects(e: Dictionary) -> void:
 		var d: Dictionary = e["delayed"].duplicate(true)
 		d["due"] = month + int(d["months"])
 		delayed_effects.append(d)
+	if e.has("chain"):  # rantai event: jadwalkan event lanjutan beberapa bulan lagi
+		var months: Array = e["chain"]["months"]
+		chain_events.append({"id": e["chain"]["event"], "due": month + rng.randi_range(int(months[0]), int(months[1]))})
 	if e.get("sell_all", false):
 		stats["panic_sell"] = true
 		for asset_id: String in holdings.keys():
@@ -569,12 +664,6 @@ func _needed_quiz_topics() -> Array:
 		if not topics.is_empty():
 			return topics
 	return []
-
-
-func grant_quiz_credit() -> void:
-	quiz.add_bonus_credit()
-	changed.emit()
-	player_changed.emit()
 
 
 ## Mengembalikan { "correct": bool, "reward": int, "xp": int }
@@ -797,6 +886,7 @@ func to_dict() -> Dictionary:
 		"plan": plan, "plan_applied_month": plan_applied_month, "month_income": month_income,
 		"dreams": dreams, "dreams_asked": dreams_asked, "targets": targets,
 		"turn_units": turn_units, "turn_fees": turn_fees, "turn_trades": turn_trades,
+		"event_queue": event_queue, "chain_events": chain_events, "director": director,
 	}
 
 
@@ -875,6 +965,14 @@ func load_from_dict(d: Dictionary) -> bool:
 	turn_fees = float(d.get("turn_fees", 0.0))
 	turn_trades = int(d.get("turn_trades", 0))
 	_dream_signals.clear()
+	event_queue.assign(d.get("event_queue", []))
+	chain_events.clear()
+	for chained: Dictionary in d.get("chain_events", []):
+		chain_events.append({"id": chained["id"], "due": int(chained["due"])})
+	director = _new_director().merged(d.get("director", {}), true)
+	director["quiet_months"] = int(director["quiet_months"])
+	if pending_event.is_empty() and not event_queue.is_empty():  # jaga-jaga: antrean tanpa pending
+		pending_event = events.find(event_queue.pop_front())
 	is_over = false
 	end_result = {}
 

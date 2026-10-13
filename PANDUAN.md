@@ -95,7 +95,7 @@ scenes/
 | 7 | Portofolio dasar dan ringkasan bulanan | M2 | ✅ |
 | 8 | Simulasi harga dengan siklus pasar sederhana | M3 | ✅ |
 | 9 | Event hidup (minimal 30 event) | M4 | ✅ 33 event |
-| 10 | Kuis 3 per minggu + iklan rewarded (minimal 30 soal) | M4 | ✅ 39 soal; iklan masih stub (AdMob di M7) |
+| 10 | Kuis mingguan (minimal 30 soal) | M4 | ✅ 39 soal; sejak v1.5-0: 6 soal/minggu, tanpa iklan |
 | 11 | Sistem unlock instrumen | M4 | ✅ |
 | 12 | Kondisi menang dan kalah serta layar akhir | M6 | ✅ |
 | 13 | Save/load otomatis dan manual | M5 | ✅ |
@@ -118,7 +118,7 @@ scenes/
   - [x] (1) Pasar harian + animasi pergantian bulan (lihat bagian di bawah)
   - [x] (2) Pembagian gaji + autodebet; tombol +6 Bln / +1 Thn dihapus
   - [x] (3) Impian + target bulanan + perayaan
-  - [ ] (4) Event Director + kuis 6/minggu tanpa iklan
+  - [x] (4) Event Director + kuis 6/minggu tanpa iklan
   - [ ] (5) SQLite
 - [ ] **v1.5a/b/c, v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
@@ -170,6 +170,18 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Pembanding "kalau tidak bertransaksi":** portofolio dicatat di awal giliran (`_snapshot_turn`); saat Lanjut, selisihnya = (perubahan unit x pergerakan harga bulan itu) - fee. Autodebet tidak dihitung sebagai transaksi manual.
 - **Perayaan & umpan balik:** `Confetti.burst()` (digambar lewat kode) untuk impian terwujud, tahap baru, dan target kemenangan; notifikasi singkat (toast) untuk target selesai dan naik level; kartu progres impian di sorotan laporan bulanan.
 - **Urutan popup:** sinyal impian dikirim setelah laporan (`_flush_dream_signals`), sehingga urutannya laporan → perayaan/tenggat → tahap baru → event.
+
+## Event Director & Kuis Tanpa Iklan (v1.5-0 langkah 4)
+
+- **Jumlah event per bulan** diambil dari `difficulties[].event_counts` di `economy.json` (bobot untuk 0/1/2/3 event; Normal 15/40/30/15). Setelah 2 bulan tanpa event acak, bulan berikutnya memakai `quiet_counts` sehingga pasti ada kejadian.
+- **Urutan per bulan** (`GameState._roll_events`): event kalender (mis. THR, `guaranteed`) → event lanjutan yang jatuh tempo (`chain_events`) → event acak. Event kalender & lanjutan tidak mengurangi jatah acak.
+- **Diputuskan satu per satu:** event pertama jadi `pending_event`, sisanya di `event_queue`. Setelah satu diputuskan, `_next_queued_event()` memunculkan berikutnya. Tombol Lanjut terkunci sampai semua selesai.
+- **Konteks:** `event_context()` menghitung kondisi pemain (kas berlebih/tipis, kesehatan/kebahagiaan rendah, memegang saham/kripto). Event dengan tag `"context"` di `events.json` bobotnya dikali saat kondisinya aktif, mis. investasi bodong ×3 saat kas berlebih, pinjol ×4 saat kas tipis.
+- **Anti-sial beruntun:** setelah event buruk, bobot event buruk berikutnya dikali `bad_after_bad` (0,5).
+- **Rantai event:** efek `"chain": {"event": id, "months": [min, max]}` menjadwalkan event lanjutan (`chain_only: true`, tidak pernah muncul acak). Contoh: pinjaman teman → Janji Temanmu; investasi bodong → Pengelola Kabur; pinjol → Penagih Pinjol.
+- **Hasil simulasi** (20 permainan x 10 tahun, pilihan acak): sebaran 15/41/30/13%, rata-rata 1,42 event/bulan (sebelumnya 0,61). Karena event positif seperti kenaikan gaji ikut lebih sering, median gaji akhir naik dari Rp9,4 jt ke Rp13,4 jt dan median kekayaan dari Rp402 jt ke Rp558 jt. Perlu ditinjau saat penyeimbangan (inflasi v1.5a akan menekannya).
+- **Kuis:** 6 soal per minggu nyata, tanpa iklan. Setiap soal yang dibuka memakai jatah; soal yang sudah muncul minggu ini tidak diulang di minggu yang sama (`QuizManager.shown_this_week`).
+- **Iklan dilepas dari UI:** tombol "Tonton iklan" dihapus. `AdService` masih terdaftar sebagai autoload tetapi tidak dipanggil (disimpan untuk v3). Kebijakan privasi kini menyatakan game tanpa iklan.
 
 ## Event, Kuis & Unlock (M4)
 

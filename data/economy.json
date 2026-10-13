@@ -21,9 +21,9 @@
 		}
 	],
 	"difficulties": [
-		{ "id": "easy", "name_key": "DIFF_EASY", "desc_key": "DIFF_EASY_DESC", "salary_mult": 1.15, "expense_mult": 0.9, "event_chance": 0.45, "bad_event_mult": 0.6 },
-		{ "id": "normal", "name_key": "DIFF_NORMAL", "desc_key": "DIFF_NORMAL_DESC", "salary_mult": 1.0, "expense_mult": 1.0, "event_chance": 0.6, "bad_event_mult": 1.0 },
-		{ "id": "hard", "name_key": "DIFF_HARD", "desc_key": "DIFF_HARD_DESC", "salary_mult": 0.9, "expense_mult": 1.1, "event_chance": 0.7, "bad_event_mult": 1.6 }
+		{ "id": "easy", "name_key": "DIFF_EASY", "desc_key": "DIFF_EASY_DESC", "salary_mult": 1.15, "expense_mult": 0.9, "event_counts": [25, 45, 25, 5], "bad_event_mult": 0.6 },
+		{ "id": "normal", "name_key": "DIFF_NORMAL", "desc_key": "DIFF_NORMAL_DESC", "salary_mult": 1.0, "expense_mult": 1.0, "event_counts": [15, 40, 30, 15], "bad_event_mult": 1.0 },
+		{ "id": "hard", "name_key": "DIFF_HARD", "desc_key": "DIFF_HARD_DESC", "salary_mult": 0.9, "expense_mult": 1.1, "event_counts": [10, 30, 35, 25], "bad_event_mult": 1.6 }
 	],
 	"end": {
 		"_comment": "Kondisi menang/kalah (GDD 5.11). freedom_rate = aturan 4%: investasi x 4% / 12 >= pengeluaran bulanan.",
@@ -34,6 +34,20 @@
 	},
 	"_fast_forward_comment": "Pengali peluang event saat lompat waktu (GameState.fast_forward; tombolnya dihapus di v1.5, disimpan untuk masa pensiun v2b). 1.0 = sama seperti maju per bulan.",
 	"fast_forward_event_mult": 0.15,
+	"event_director": {
+		"_comment": [
+			"Event Director (v1.5-0 langkah 4). Jumlah event acak per bulan diambil dari difficulties[].event_counts (bobot untuk 0/1/2/3 event).",
+			"Setelah quiet_months bulan tanpa event acak, bulan berikutnya memakai quiet_counts. Setelah event buruk, bobot event buruk berikutnya dikali bad_after_bad.",
+			"Ambang kondisi pemain untuk tag context di events.json: cash_rich/cash_poor dalam kelipatan pengeluaran pokok bulanan."
+		],
+		"quiet_months": 2,
+		"quiet_counts": [0, 45, 35, 20],
+		"bad_after_bad": 0.5,
+		"cash_rich_months": 6,
+		"cash_poor_months": 1,
+		"low_happiness": 40,
+		"low_health": 40
+	},
 	"dreams": {
 		"_comment": "Impian (v1.5-0 langkah 3). Pos impian berbunga seperti tabungan (interest_asset). share_cap = batas porsi gaji yang disarankan otomatis saat impian dipilih.",
 		"max_active": 3,
@@ -75,8 +89,8 @@
 	"xp_per_month": 2,
 	"xp_per_level": 60,
 	"quiz": {
-		"free_per_week": 3,
-		"ads_per_day": 5,
+		"_comment": "v1.5-0: 6 soal per minggu nyata, tanpa iklan. Setiap soal yang dibuka memakai jatah.",
+		"free_per_week": 6,
 		"reward_correct": 100000,
 		"xp_correct": 20,
 		"xp_wrong": 5
