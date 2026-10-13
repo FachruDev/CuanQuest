@@ -1,10 +1,13 @@
 extends Control
-## Menu pembuka APK prototipe: memilih prototipe A (waktu per jam) atau B (hari cepat).
+## Menu pembuka APK prototipe: memilih prototipe C (sesi pasar), B (hari cepat), atau
+## A (waktu per jam).
 
 const ProtoDialog := preload("res://prototypes/time/proto_dialog.gd")
 const CHOICES := [
+	["C: Sesi Pasar", "Hidup berjalan per bulan lewat tombol. Di dalam bulan, grafik berjalan sekitar 90 detik dan kamu bisa trading langsung, dengan berita kilat dan event hidup.",
+		"res://prototypes/session/session_proto.tscn", &"PrimaryButton", &"PrimaryButtonLabel"],
 	["B: Hari Cepat", "1 hari sekitar 1 detik. Berhenti saat ada keputusan: event, gajian, laporan, harga bergerak besar. Ada aktivitas, misi bulanan, kesehatan & kebahagiaan.",
-		"res://prototypes/day/day_proto.tscn", &"PrimaryButton", &"PrimaryButtonLabel"],
+		"res://prototypes/day/day_proto.tscn", &"NeutralButton", &"NeutralButtonLabel"],
 	["A: Waktu per Jam", "1 jam game = 2,5 detik. Jam bursa, antrean pesanan, tidur & begadang, lompat ke gajian.",
 		"res://prototypes/time/time_proto.tscn", &"NeutralButton", &"NeutralButtonLabel"],
 ]

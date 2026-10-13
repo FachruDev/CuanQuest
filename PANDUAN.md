@@ -113,7 +113,7 @@ scenes/
 - [x] **M6.5: Melengkapi isi draft.** Energi & 6 aktivitas bulanan, lompat waktu (+6 Bln / +1 Thn), riwayat transaksi, periode grafik 1B/6B/1T/Semua, grafik alokasi aset + peringatan konsentrasi, profil risiko (kuesioner + peringatan di Pasar)
 - [x] **Redesain UI "Senja Cuan"** (dikerjakan sendiri oleh pengembang)
 - [x] **APK debug v1** untuk dicoba di HP (`build/cuan-quest-debug.apk`, preset "Android")
-- [ ] **v1.5-0 langkah 1: Prototipe waktu** (`prototypes/`, lihat bagian di bawah). A (per jam) dan B (hari cepat) selesai, menunggu uji & keputusan
+- [ ] **v1.5-0 langkah 1: Prototipe waktu** (`prototypes/`, lihat bagian di bawah). A (per jam), B (hari cepat), dan C (sesi pasar, arah yang dipilih) selesai, menunggu uji C
 - [ ] **v1.5-0 langkah 2: Sistem waktu hybrid di game utama** (+ Event Director, rebalancing, SQLite, kuis 6/minggu tanpa iklan)
 - [ ] **v1.5a/b/c, v2a/b/c** (lihat `MVP_Baru_Sistem_Waktu_Hybrid.md`)
 - [ ] **M7: Export rilis & Play Store** (setelah v2 selesai; tanpa monetisasi)
@@ -124,11 +124,14 @@ Dua prototipe terpisah di `prototypes/` untuk memilih cara waktu berjalan sebelu
 
 - **A: Waktu per Jam** (`prototypes/time/`): 1 jam game = 2,5 detik, jam bursa, antrean pesanan, tidur & begadang.
 - **B: Hari Cepat** (`prototypes/day/`): 1 hari sekitar 1 detik, berhenti otomatis saat ada keputusan, plus aktivitas berdurasi, misi bulanan, kesehatan & kebahagiaan, dan reaksi saat harga bergerak besar. Dibuat karena di A pemain sering hanya menunggu gajian/akhir bulan.
+- **C: Sesi Pasar** (`prototypes/session/`, arah yang dipilih setelah A & B terasa kurang seru): hidup tetap per bulan lewat tombol manual seperti v1, tetapi di dalam bulan grafik berjalan sendiri selama satu sesi (120 pergerakan, sekitar 90 detik pada 1x). Pemain trading langsung dengan tombol cepat, ada berita kilat (70% kabar asli yang berlanjut, 30% rumor yang berbalik), event hidup di tengah sesi, dan laporan yang membandingkan hasil trading dengan "kalau hanya ditahan".
+
+**Kenapa sesi C punya panjang tetap:** kalau grafik berjalan tanpa batas selama pemain belum menekan Lanjut, pemain bisa menunggu harga naik terus tanpa membayar tagihan. Dengan 120 pergerakan per bulan, menekan Lanjut lebih awal menghitung sisa pergerakan secara instan, dan hasil akhirnya sama persis dengan menonton sampai habis (dicek di `test_session.gd`). `dt` per tick = 1/(120 x 12) = 1/1.440.
 
 **Cara menjalankan:**
 - Di editor: buka `prototypes/launcher.tscn` (atau langsung `time/time_proto.tscn` / `day/day_proto.tscn`), lalu tekan **F6** (Run Current Scene).
-- Di HP: pasang `build/cuan-quest-proto-waktu.apk` (preset "Android Prototipe Waktu"). Aplikasinya bernama *Cuan Proto Waktu*, membuka menu pilihan A/B, dan bisa terpasang berdampingan dengan game utama.
-- Uji otomatis: `godot --headless --path . --script res://prototypes/time/test_proto.gd` dan `.../prototypes/day/test_day.gd`
+- Di HP: pasang `build/cuan-quest-proto-waktu.apk` (preset "Android Prototipe Waktu"). Aplikasinya bernama *Cuan Proto Waktu*, membuka menu pilihan C/B/A, dan bisa terpasang berdampingan dengan game utama.
+- Uji otomatis: `godot --headless --path . --script res://prototypes/time/test_proto.gd` (juga `day/test_day.gd` dan `session/test_session.gd`)
 
 Prototipe B memakai ulang `GameClock`, `ProtoDirector`, `ProtoMetrics`, dan `ProtoDialog` dari A. Langkah waktunya 6 jam (pagi, siang, sore, malam = warna latar), pasarnya bergerak sekali sehari (`day_market.gd`, `dt` = 1/257 untuk saham dan 1/360 untuk kripto), dan isinya ada di `day_world.gd` + `day_config.json`.
 
