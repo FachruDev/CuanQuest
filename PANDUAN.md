@@ -111,9 +111,41 @@ scenes/
 - [x] **M5: Save/load, layar judul, buat karakter, tutorial & glosarium.** 3 latar belakang, 3 tingkat kesulitan, simpan otomatis + 3 slot manual, petunjuk saat tab pertama dibuka, tab Profil
 - [x] **M6: Menang/kalah + layar akhir, pengaturan, kebijakan privasi.** 2 cara menang + pensiun, 3 cara kalah, penjualan paksa, layar akhir dengan analisis, statistik & riwayat, efek suara buatan kode, getar, bahasa, format angka ringkas, reset data
 - [x] **M6.5: Melengkapi isi draft.** Energi & 6 aktivitas bulanan, lompat waktu (+6 Bln / +1 Thn), riwayat transaksi, periode grafik 1B/6B/1T/Semua, grafik alokasi aset + peringatan konsentrasi, profil risiko (kuesioner + peringatan di Pasar)
-- [ ] **Redesain UI** (tema cozy; aset dari Anda, lihat `docs/KEBUTUHAN_ASET.md`)
-- [ ] **M7: Export Android, AdMob, playtest, balancing, rilis v1**
-- [ ] **v1.5 / v2** (lihat dokumen MVP v1.5 & v2)
+- [x] **Redesain UI "Senja Cuan"** (dikerjakan sendiri oleh pengembang)
+- [x] **APK debug v1** untuk dicoba di HP (`build/cuan-quest-debug.apk`, preset "Android")
+- [ ] **v1.5-0 langkah 1: Prototipe waktu** (`prototypes/time/`, lihat bagian di bawah). Kode selesai, menunggu uji 5 orang
+- [ ] **v1.5-0 langkah 2: Sistem waktu hybrid di game utama** (+ Event Director, rebalancing, SQLite, kuis 6/minggu tanpa iklan)
+- [ ] **v1.5a/b/c, v2a/b/c** (lihat `MVP_Baru_Sistem_Waktu_Hybrid.md`)
+- [ ] **M7: Export rilis & Play Store** (setelah v2 selesai; tanpa monetisasi)
+
+## Prototipe Waktu Hybrid (v1.5-0 langkah 1)
+
+Prototipe terpisah di `prototypes/time/` untuk menguji ritme waktu berjalan sebelum game utama dirombak. Tidak memakai `GameState`/`SaveManager`; simpanannya ada di `user://prototype/`.
+
+**Cara menjalankan:**
+- Di editor: buka `prototypes/time/time_proto.tscn`, lalu tekan **F6** (Run Current Scene).
+- Di HP: pasang `build/cuan-quest-proto-waktu.apk` (preset "Android Prototipe Waktu"). Aplikasinya bernama *Cuan Proto Waktu* dan bisa terpasang berdampingan dengan game utama.
+- Uji otomatis: `godot --headless --path . --script res://prototypes/time/test_proto.gd`
+
+| File | Isi |
+|---|---|
+| `time_config.json` | Semua angka: skala waktu, jam bangun/pingsan, energi, kalender, gaji, pasar, distribusi event |
+| `game_clock.gd` | Jam game (menit sejak hari ke-0), kalender 30 hari, jeda, kecepatan, *fixed timestep* |
+| `proto_market.gd` | 1 saham (jam bursa + gap saat buka) dan 1 kripto (24/7), harga per jam, berita intraday |
+| `proto_director.gd` | Event Director mini: 0-3 event per bulan, jadwal di jam bangun, jarak minimal 4 hari |
+| `proto_world.gd` | Simulasi: kas, energi, tidur, pingsan, lompat waktu, antrean pesanan, laporan, simpan/muat |
+| `proto_metrics.gd` | Pengukur uji (waktu per kecepatan, jeda, transaksi, tidur, lompatan), bisa disalin |
+| `time_proto.gd/.tscn`, `proto_dialog.gd` | Tampilan prototipe dan popup |
+
+**Konsep penting:**
+- **Fixed timestep.** `GameClock.consume(delta)` mengumpulkan detik nyata lalu mengubahnya menjadi langkah 15 menit game. Mirip `setInterval` yang mengejar waktu tertinggal, tetapi angka acak hanya diambil per langkah, sehingga hasil simulasi sama di HP lambat maupun cepat.
+- **Jeda dengan alasan.** Jeda disimpan sebagai kumpulan alasan (`manual`, `popup`, `idle`, `background`). Jam baru berjalan setelah semua alasan dilepas, mirip *reference counting*. Dengan begitu menutup popup tidak menjalankan waktu jika pemain sebelumnya menekan Jeda.
+- **`dt` per instrumen** (MVP bagian 5.1). Saham hanya bergerak 7 jam per hari kerja, sehingga `dt = 1/1.799`; kripto `1/8.640`. Sebanyak 18% variasi saham dialokasikan ke langkah *gap* saat bursa buka. Uji otomatis memastikan drift dan volatilitas tahunan tetap sesuai `data/assets.json`.
+- **Tidur dan lompat waktu = simulasi batch.** Semua langkah yang dilewati dihitung dalam satu frame tanpa menggambar grafik, lalu UI diperbarui sekali. Lompatan berhenti saat ada event atau laporan.
+- **Hemat baterai.** `OS.low_processor_usage_mode = true` (layar hanya digambar ulang bila ada perubahan), `Engine.max_fps = 30`, UI diperbarui hanya saat waktu maju, dan tidak ada pembaruan sama sekali saat jeda.
+- **Feature tag.** Preset ekspor prototipe memberi fitur kustom `prototipe`, dan `project.godot` berisi `run/main_scene.prototipe`. Analogi web: seperti variabel `.env` per build, sehingga satu project menghasilkan dua APK dengan scene awal berbeda.
+
+**Panduan untuk penguji** ada di `prototypes/time/README.md`.
 
 ## Cara Kerja Simulasi Pasar (M3)
 
