@@ -82,6 +82,11 @@ var energy_capacity := 0                     # energi maksimal bulan ini (dikunc
 var activity_counts: Dictionary = {}         # activity_id -> berapa kali bulan ini
 var transactions: Array[Dictionary] = []     # riwayat transaksi, terbaru di depan
 var risk_profile_id := "moderate"
+## Rencana gaji (v1.5-0): porsi dalam persen gaji. Dijalankan otomatis tiap awal bulan.
+## {"lifestyle": 0.05, "emergency": 0.1, "invest": {asset_id: 0.1}, "salary_seen": int, "confirmed": bool}
+var plan: Dictionary = {}
+var plan_applied_month := -1                 # bulan terakhir rencana dijalankan (cegah dobel)
+var month_income := 0                        # penghasilan yang benar-benar diterima bulan ini
 var _fast_forwarding := false
 var _deferred: Array[Callable] = []          # signal yang ditunda selama lompat waktu
 
@@ -124,6 +129,8 @@ func new_game(profile: Dictionary = {}, seed_value: int = -1) -> void:
 	unemployed_months = 0
 	food_id = background["default_food"]
 	housing_id = background["default_housing"]
+	plan = default_plan()
+	plan_applied_month = -1
 	holdings.clear()
 	unlocked_stages.clear()
 	pending_event = {}
@@ -287,12 +294,15 @@ func _start_month() -> Dictionary:
 	var food_cost := option_cost(food)
 	var housing_cost := option_cost(housing)
 	cash += paid - food_cost - housing_cost
+	month_income = paid
 	stats["total_salary"] += paid
 	stats["total_living"] += food_cost + housing_cost
 	if food_id == "luxury" or housing_id == "apartment":
 		stats["luxury_months"] += 1
 	health = clampi(health + int(food["health"]) + int(housing["health"]), 0, 100)
 	happiness = clampi(happiness + int(food["happiness"]) + int(housing["happiness"]), 0, 100)
+	# Rencana gaji baru berjalan setelah pemain menyimpannya pertama kali (lihat set_plan).
+	var budget := _apply_budget(paid) if plan.get("confirmed", false) else {}
 
 	return {
 		"salary": paid,
@@ -301,7 +311,7 @@ func _start_month() -> Dictionary:
 		"housing_cost": housing_cost,
 		"health_delta": health - health_before,
 		"happiness_delta": happiness - happiness_before,
-	}
+	}.merged(budget)
 
 
 ## Biaya sebuah pilihan makan/tempat tinggal setelah dikali pengali tingkat kesulitan.
@@ -611,7 +621,8 @@ func net_worth() -> float:
 
 ## Beli aset senilai `amount` Rupiah (sudah termasuk fee).
 ## Mengembalikan { ok, error, units, fee } supaya UI bisa menampilkan pesan.
-func buy(asset_id: String, amount: int) -> Dictionary:
+## `kind`: buy (manual) | auto (autodebet dari rencana gaji).
+func buy(asset_id: String, amount: int, kind: String = "buy") -> Dictionary:
 	if not is_asset_unlocked(asset_id):
 		return {"ok": false, "error": "ERR_LOCKED"}
 	if amount <= 0:
@@ -631,7 +642,7 @@ func buy(asset_id: String, amount: int) -> Dictionary:
 	holdings[asset_id] = h
 	cash -= amount
 	stats["total_fees"] += fee
-	_log_transaction("buy", asset, amount, units, fee, 0.0)
+	_log_transaction(kind, asset, amount, units, fee, 0.0)
 
 	changed.emit()
 	return {"ok": true, "units": units, "fee": fee}
@@ -735,6 +746,7 @@ func to_dict() -> Dictionary:
 		"goals_reached": goals_reached,
 		"energy": energy, "energy_capacity": energy_capacity, "activity_counts": activity_counts,
 		"transactions": transactions, "risk_profile": risk_profile_id,
+		"plan": plan, "plan_applied_month": plan_applied_month, "month_income": month_income,
 	}
 
 
@@ -795,6 +807,10 @@ func load_from_dict(d: Dictionary) -> bool:
 		t["month"] = int(t["month"])
 		transactions.append(t)
 	risk_profile_id = d.get("risk_profile", "moderate")
+	plan = default_plan().merged(d.get("plan", {}), true)
+	plan["salary_seen"] = int(plan["salary_seen"])
+	plan_applied_month = int(d.get("plan_applied_month", -1))
+	month_income = int(d.get("month_income", salary))
 	is_over = false
 	end_result = {}
 
@@ -816,7 +832,7 @@ func _new_stats() -> Dictionary:
 		"total_salary": 0, "total_living": 0, "total_interest": 0.0, "total_fees": 0.0,
 		"peak_net_worth": 0.0, "events": 0, "scam_loss": 0, "forced_sales": 0,
 		"unaffordable_choices": 0, "luxury_months": 0, "cash_heavy_months": 0,
-		"panic_sell": false,
+		"panic_sell": false, "total_lifestyle": 0, "total_autodebet": 0,
 		"best_trade": {}, "worst_trade": {}, "best_event": {}, "worst_event": {},
 	}
 
@@ -1019,7 +1035,7 @@ func _merge_reports(reports: Array[Dictionary]) -> Dictionary:
 	if reports.size() == 1:
 		return merged
 	for key: String in ["salary", "food_cost", "housing_cost", "invest_change", "interest",
-			"health_delta", "happiness_delta"]:
+			"health_delta", "happiness_delta", "lifestyle_cost", "emergency_saved"]:
 		var total := 0.0
 		for r: Dictionary in reports:
 			total += float(r.get(key, 0))
@@ -1056,6 +1072,129 @@ func _log_transaction(kind: String, asset: MarketAsset, amount: float, units: fl
 		"amount": amount, "units": units, "fee": fee, "pnl": pnl})
 	if transactions.size() > MAX_TRANSACTIONS:
 		transactions.resize(MAX_TRANSACTIONS)
+
+
+# --- Rencana gaji & autodebet (v1.5-0 langkah 2) ----------------------------------
+
+func budget_config() -> Dictionary:
+	return economy["budget"]
+
+
+func default_plan() -> Dictionary:
+	var cfg := budget_config()
+	return {"lifestyle": float(cfg["default_lifestyle"]), "emergency": float(cfg["default_emergency"]),
+		"invest": {}, "salary_seen": salary, "confirmed": false}
+
+
+## Rencana perlu dicek pemain: belum pernah disimpan, atau gaji pokok berubah sejak terakhir dicek.
+func plan_needs_review() -> bool:
+	return not plan.get("confirmed", false) or int(plan.get("salary_seen", 0)) != salary
+
+
+## Menyimpan rencana dari popup. Saat pertama kali disimpan, rencana langsung dijalankan
+## untuk bulan ini (gaji bulan ini sudah masuk). Mengembalikan ringkasan yang dijalankan ({} jika tidak).
+func set_plan(new_plan: Dictionary) -> Dictionary:
+	var first: bool = not plan.get("confirmed", false)
+	plan = new_plan.duplicate(true)
+	plan["confirmed"] = true
+	plan["salary_seen"] = salary
+	var applied := {}
+	if first and plan_applied_month != month:
+		applied = _apply_budget(month_income)
+	changed.emit()
+	state_committed.emit()
+	return applied
+
+
+## Popup rencana ditutup tanpa disimpan: perubahan gaji dianggap sudah dilihat.
+func acknowledge_plan_review() -> void:
+	plan["salary_seen"] = salary
+
+
+## Aset yang bisa diikutkan autodebet: sudah terbuka dan bukan tabungan/deposito.
+func autodebet_assets() -> Array[MarketAsset]:
+	var result: Array[MarketAsset] = []
+	for asset: MarketAsset in market.assets.values():
+		if not asset.is_interest() and is_asset_unlocked(asset.id):
+			result.append(asset)
+	return result
+
+
+func emergency_asset_id() -> String:
+	return budget_config()["emergency_asset"]
+
+
+func emergency_balance() -> float:
+	return holding_value(emergency_asset_id())
+
+
+## Target dana darurat: N x pengeluaran pokok bulanan (makan + tempat tinggal).
+func emergency_target() -> float:
+	return float(monthly_expenses() * int(budget_config()["emergency_target_months"]))
+
+
+## Efek kebahagiaan per bulan dari porsi gaya hidup (lihat economy.json budget.lifestyle_happiness).
+func lifestyle_happiness(share: float) -> int:
+	var effect := 0
+	for row: Array in budget_config()["lifestyle_happiness"]:
+		if share + 0.0001 >= float(row[0]):
+			effect = int(row[1])
+	return effect
+
+
+## Rincian rupiah sebuah rencana untuk penghasilan `income`. Satu sumber hitungan untuk
+## popup rencana, kartu Beranda, dan eksekusi di awal bulan.
+func plan_preview(p: Dictionary, income: int) -> Dictionary:
+	var basic := monthly_expenses()
+	var lifestyle := _round_thousand(income * float(p["lifestyle"]))
+	var room := maxf(0.0, emergency_target() - emergency_balance())
+	var emergency := mini(_round_thousand(income * float(p["emergency"])), _round_thousand(room))
+	var invest: Array[Dictionary] = []
+	var invest_total := 0
+	for asset: MarketAsset in autodebet_assets():
+		var share := float(p["invest"].get(asset.id, 0.0))
+		if share <= 0.0:
+			continue
+		var amount := _round_thousand(income * share)
+		invest.append({"id": asset.id, "name_key": asset.name_key, "share": share, "amount": amount})
+		invest_total += amount
+	return {"income": income, "basic": basic, "lifestyle": lifestyle, "emergency": emergency,
+		"emergency_room": room, "invest": invest, "invest_total": invest_total,
+		"surplus": income - basic - lifestyle - emergency - invest_total}
+
+
+## Menjalankan rencana setelah gaji masuk: belanja gaya hidup, setor dana darurat, lalu
+## autodebet. Pos yang kasnya tidak cukup dilewati dan dicatat di laporan.
+func _apply_budget(income: int) -> Dictionary:
+	var result := {"lifestyle_cost": 0, "emergency_saved": 0, "autodebet": [], "autodebet_skipped": []}
+	plan_applied_month = month
+	if income <= 0:
+		return result  # menganggur: tidak ada gaji untuk dibagi
+	var preview := plan_preview(plan, income)
+
+	var lifestyle := mini(int(preview["lifestyle"]), maxi(cash, 0))
+	cash -= lifestyle
+	stats["total_lifestyle"] += lifestyle
+	happiness = clampi(happiness + lifestyle_happiness(float(lifestyle) / income), 0, 100)
+	result["lifestyle_cost"] = lifestyle
+
+	var emergency: int = preview["emergency"]
+	if emergency >= 1000 and emergency <= cash:
+		if buy(emergency_asset_id(), emergency, "auto")["ok"]:
+			result["emergency_saved"] = emergency
+
+	for item: Dictionary in preview["invest"]:
+		var amount: int = item["amount"]
+		if amount >= 1000 and amount <= cash and buy(item["id"], amount, "auto")["ok"]:
+			stats["total_autodebet"] += amount
+			result["autodebet"].append({"asset_key": item["name_key"], "amount": amount})
+		else:
+			result["autodebet_skipped"].append(item["name_key"])
+	return result
+
+
+func _round_thousand(value: float) -> int:
+	return maxi(0, floori(value / 1000.0) * 1000)
 
 
 # --- Profil risiko (M6.5, GDD 5.8) -------------------------------------------------

@@ -9,7 +9,8 @@ const CLASS_COLORS := {
 	"mutual_fund": Color("#f6b93b"), "stock": Color("#f07a5f"), "crypto": Color("#7a4fb0"),
 }
 ## Chip jenis transaksi: beli hijau, jual emas, jual paksa/panik merah.
-const TX_CHIPS := {"buy": &"MoodGreen", "sell": &"MoodGold", "forced": &"MoodRed", "panic": &"MoodRed"}
+const TX_CHIPS := {"buy": &"MoodGreen", "auto": &"MoodGreen", "sell": &"MoodGold", "forced": &"MoodRed", "panic": &"MoodRed"}
+const BUY_KINDS := ["buy", "auto"]  # transaksi beli tidak punya untung/rugi terealisasi
 
 
 func _ready() -> void:
@@ -127,7 +128,7 @@ func _build_transactions() -> void:
 		meta.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		middle.add_child(name_label)
 		middle.add_child(meta)
-		if kind != "buy":
+		if kind not in BUY_KINDS:
 			var pnl := _label(tr("TX_PNL") % Fmt.signed_rupiah(t["pnl"]), &"AssetSubLabel")
 			pnl.add_theme_color_override("font_color", MonthReport.signed_color(t["pnl"]))
 			middle.add_child(pnl)

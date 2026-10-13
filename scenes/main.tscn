@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/quiz_popup.tscn" id="10_quiz"]
 [ext_resource type="PackedScene" path="res://scenes/ui/glossary_popup.tscn" id="11_glossary"]
 [ext_resource type="PackedScene" path="res://scenes/ui/text_popup.tscn" id="12_text"]
+[ext_resource type="PackedScene" path="res://scenes/ui/plan_popup.tscn" id="30_plan"]
 [ext_resource type="Theme" path="res://theme/senja_theme.tres" id="13_theme"]
 [ext_resource type="Script" path="res://scripts/ui/chunky_button.gd" id="14_chunky"]
 [ext_resource type="Script" path="res://scripts/ui/avatar_view.gd" id="15_avatar"]
@@ -371,46 +372,6 @@ layout_mode = 2
 theme_type_variation = &"NextButtonLabel"
 text = "BTN_NEXT_MONTH"
 
-[node name="Skip6Button" type="Button" parent="BottomNav/VBox/NextMargin/NextRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(104, 88)
-layout_mode = 2
-theme_type_variation = &"NeutralButton"
-script = ExtResource("14_chunky")
-
-[node name="Content" type="Label" parent="BottomNav/VBox/NextMargin/NextRow/Skip6Button"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_bottom = -7.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_type_variation = &"SkipButtonLabel"
-text = "BTN_SKIP_6"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Skip12Button" type="Button" parent="BottomNav/VBox/NextMargin/NextRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(104, 88)
-layout_mode = 2
-theme_type_variation = &"NeutralButton"
-script = ExtResource("14_chunky")
-
-[node name="Content" type="Label" parent="BottomNav/VBox/NextMargin/NextRow/Skip12Button"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_bottom = -7.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_type_variation = &"SkipButtonLabel"
-text = "BTN_SKIP_12"
-horizontal_alignment = 1
-vertical_alignment = 1
-
 [node name="NavBar" type="PanelContainer" parent="BottomNav/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
@@ -611,5 +572,9 @@ unique_name_in_owner = true
 layout_mode = 1
 
 [node name="TextPopup" parent="." instance=ExtResource("12_text")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="PlanPopup" parent="." instance=ExtResource("30_plan")]
 unique_name_in_owner = true
 layout_mode = 1

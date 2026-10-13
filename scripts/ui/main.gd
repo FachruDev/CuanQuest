@@ -41,13 +41,13 @@ func _ready() -> void:
 	%NextButton.pressed.connect(func() -> void:
 		Sfx.play("coin")
 		GameState.advance_month())
-	%Skip6Button.pressed.connect(_fast_forward.bind(6))
-	%Skip12Button.pressed.connect(_fast_forward.bind(12))
 	%GlossaryButton.pressed.connect(func() -> void: _enqueue(%GlossaryPopup.open))
 	%ProfileScreen.glossary_requested.connect(func() -> void: _enqueue(%GlossaryPopup.open))
 	GameState.changed.connect(_refresh_top_bar)
 	GameState.month_advanced.connect(func(report: Dictionary) -> void:
-		_enqueue(%SummaryPopup.show_report.bind(report)))
+		_enqueue(%SummaryPopup.show_report.bind(report))
+		_enqueue_plan_review())
+	%HomeScreen.plan_requested.connect(func() -> void: _enqueue(%PlanPopup.open))
 	GameState.stage_unlocked.connect(func(stage: Dictionary) -> void:
 		_enqueue(%InfoPopup.open.bind(tr("UNLOCK_POPUP_TITLE"),
 			tr("UNLOCK_POPUP_BODY") % [tr(stage["name_key"]), UiText.stage_assets_text(int(stage["stage"]))])))
@@ -65,7 +65,8 @@ func _ready() -> void:
 		_enqueue(%TextPopup.open.bind(title, body)))
 	%ActivityScreen.quiz_requested.connect(func(question: Dictionary) -> void:
 		_enqueue(%QuizPopup.open.bind(question)))
-	for popup: ModalPopup in [%SummaryPopup, %InfoPopup, %EventPopup, %QuizPopup, %GlossaryPopup, %TextPopup]:
+	for popup: ModalPopup in [%SummaryPopup, %InfoPopup, %EventPopup, %QuizPopup, %GlossaryPopup, %TextPopup,
+			%PlanPopup]:
 		popup.closed.connect(_show_next_popup)
 
 	_show_screen(0)
@@ -73,6 +74,7 @@ func _ready() -> void:
 	# Event yang belum diputuskan saat game disimpan muncul lagi setelah dimuat.
 	if GameState.has_pending_event():
 		_enqueue(%EventPopup.open.bind(GameState.pending_event))
+	_enqueue_plan_review()  # permainan baru: pemain menyusun rencana gaji pertamanya
 
 
 func _show_screen(index: int) -> void:
@@ -92,9 +94,8 @@ func _refresh_top_bar() -> void:
 	%LevelLabel.text = tr("TOPBAR_LEVEL") % GameState.level()
 	_refresh_energy()
 	var busy := GameState.has_pending_event() or GameState.is_over
-	for button: Button in [%NextButton, %Skip6Button, %Skip12Button]:
-		button.disabled = busy
-		button.get_child(0).modulate.a = 0.45 if busy else 1.0
+	%NextButton.disabled = busy
+	%NextButton.get_child(0).modulate.a = 0.45 if busy else 1.0
 
 
 ## Satu ikon petir per poin energi bulan ini: kuning = tersisa, ungu redup = terpakai.
@@ -121,10 +122,14 @@ func _style_nav(active: bool, button: Button) -> void:
 	button.get_node("Content/Label").add_theme_color_override("font_color", color)
 
 
-## Lompat beberapa bulan. Berhenti otomatis jika ada event/peringatan (lihat GameState.fast_forward).
-func _fast_forward(months: int) -> void:
-	Sfx.play("coin")
-	GameState.fast_forward(months)
+## Rencana gaji perlu dicek (belum pernah disimpan atau gaji berubah). Diperiksa lagi saat
+## gilirannya tiba, karena event di antrean bisa saja mengubah gaji lebih dulu.
+func _enqueue_plan_review() -> void:
+	_enqueue(func() -> void:
+		if GameState.plan_needs_review() and not GameState.is_over:
+			%PlanPopup.open()
+		else:
+			_show_next_popup())
 
 
 func _enqueue(show_popup: Callable) -> void:

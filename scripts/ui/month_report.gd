@@ -24,6 +24,20 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 	_add_header(box, "REPORT_EXPENSES")
 	_add_row(box, "REPORT_FOOD", Fmt.signed_rupiah(-r["food_cost"]), Palette.LOSS)
 	_add_row(box, "REPORT_HOUSING", Fmt.signed_rupiah(-r["housing_cost"]), Palette.LOSS)
+	if int(r.get("lifestyle_cost", 0)) > 0:
+		_add_row(box, "REPORT_LIFESTYLE", Fmt.signed_rupiah(-r["lifestyle_cost"]), Palette.LOSS)
+
+	var autodebet: Array = r.get("autodebet", [])
+	var skipped: Array = r.get("autodebet_skipped", [])
+	if int(r.get("emergency_saved", 0)) > 0 or not autodebet.is_empty() or not skipped.is_empty():
+		_add_header(box, "REPORT_PLAN")
+		if int(r.get("emergency_saved", 0)) > 0:
+			_add_row_text(box, TranslationServer.translate("REPORT_EMERGENCY"), Fmt.rupiah(r["emergency_saved"]), Palette.GAIN)
+		for item: Dictionary in autodebet:
+			_add_row_text(box, TranslationServer.translate("REPORT_AUTODEBET") % TranslationServer.translate(item["asset_key"]),
+				Fmt.rupiah(item["amount"]), Palette.GAIN)
+		for asset_key: String in skipped:
+			_add_text(box, TranslationServer.translate("REPORT_AUTODEBET_SKIPPED") % TranslationServer.translate(asset_key), Palette.LOSS)
 
 	_add_header(box, "REPORT_INVESTMENT")
 	if r.get("interest", 0.0) > 0.0:
@@ -92,9 +106,14 @@ static func _add_header(box: VBoxContainer, key: String) -> void:
 
 
 static func _add_row(box: VBoxContainer, key: String, value: String, color: Color) -> void:
+	_add_row_text(box, TranslationServer.translate(key), value, color)
+
+
+## Seperti _add_row, tetapi nama barisnya sudah berupa teks jadi (mis. "Autodebet BSNT").
+static func _add_row_text(box: VBoxContainer, name: String, value: String, color: Color) -> void:
 	var row := HBoxContainer.new()
 	var name_label := Label.new()
-	name_label.text = TranslationServer.translate(key)
+	name_label.text = name
 	name_label.theme_type_variation = &"RowLabel"
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var value_label := Label.new()

@@ -50,7 +50,7 @@ HOME_SALARY_LABEL,Gaji,Salary
 HOME_INCOME_AVG_LABEL,Penghasilan rata-rata,Average income
 HOME_INCOME_VARIES,Naik-turun hingga %d%% tiap bulan,Varies up to %d%% each month
 HOME_EXPENSES_LABEL,Biaya hidup,Living costs
-HOME_SURPLUS_LABEL,Sisa untuk ditabung/investasi,Left to save/invest
+HOME_SURPLUS_LABEL,Sisa ke kas,Left in cash
 FOOD_FRUGAL,Hemat,Frugal
 FOOD_STANDARD,Standar,Standard
 FOOD_LUXURY,Mewah,Luxury
@@ -426,8 +426,6 @@ SETTINGS_PRIVACY,Kebijakan Privasi,Privacy Policy
 SETTINGS_TERMS,Syarat Penggunaan,Terms of Use
 SETTINGS_RESET,Reset Data (hapus semua simpanan),Reset Data (delete all saves)
 SETTINGS_RESET_CONFIRM,Yakin? Semua simpanan & progres kuis akan dihapus permanen. Tekan lagi untuk menghapus.,Sure? All saves & quiz progress will be permanently deleted. Tap again to delete.
-BTN_SKIP_6,+6 Bln,+6 Mo
-BTN_SKIP_12,+1 Thn,+1 Yr
 SUMMARY_TITLE_MULTI,Laporan %d Bulan,%d-Month Report
 ACT_ENERGY_TITLE,Aktivitas Bulan Ini,This Month's Activities
 ACT_ENERGY_COUNT,Energi %d / %d,Energy %d / %d
@@ -465,3 +463,28 @@ PROFILE_RISK_TITLE,Profil Risiko,Risk Profile
 SAVE_OUTDATED,Simpanan ini dari versi game lama dan tidak kompatibel. Silakan mulai permainan baru.,This save is from an older version of the game and is not compatible. Please start a new game.
 SUMMARY_HIGHLIGHTS,Sorotan,Highlights
 SUMMARY_SKIP_HINT,Ketuk grafik untuk melewati animasi,Tap the chart to skip the animation
+PLAN_TITLE,Rencana Gaji,Salary Plan
+PLAN_SUBTITLE,Gaji %s / bulan,Salary %s / month
+PLAN_INTRO,Bayar dirimu dulu: sisihkan dana darurat dan investasi sebelum belanja. Rencana ini berjalan otomatis setiap gajian.,Pay yourself first: set aside your emergency fund and investments before spending. This plan runs automatically every payday.
+PLAN_REVIEW_SALARY,Gajimu berubah. Cek lagi rencanamu.,Your salary changed. Review your plan.
+PLAN_BASIC,Kebutuhan pokok,Basic needs
+PLAN_BASIC_NOTE,Makan & tempat tinggal (ubah di Beranda),Food & housing (change on Home)
+PLAN_LIFESTYLE,Gaya hidup,Lifestyle
+PLAN_LIFESTYLE_NOTE,Hiburan & belanja. Kebahagiaan %+d per bulan,Fun & shopping. Happiness %+d per month
+PLAN_EMERGENCY,Dana darurat,Emergency fund
+PLAN_EMERGENCY_NOTE,Disetor ke %s. Terkumpul %s dari target %s (%d bulan pengeluaran pokok),Deposited to %s. Saved %s of the %s target (%d months of basic expenses)
+PLAN_EMERGENCY_DONE,"Target tercapai, setoran berhenti otomatis.","Target reached, deposits stop automatically."
+PLAN_INVEST,Investasi otomatis (autodebet),Automatic investing
+PLAN_INVEST_NOTE,"Dibeli otomatis setiap awal bulan, setelah gaji masuk.","Bought automatically at the start of each month, after payday."
+PLAN_INVEST_LOCKED,Aset lain muncul di sini setelah tahapnya terbuka.,More assets appear here once their stage is unlocked.
+PLAN_SURPLUS,Sisa ke kas,Left in cash
+PLAN_OVER,Rencanamu melebihi gaji. Kurangi salah satu porsi.,Your plan exceeds your salary. Reduce one of the shares.
+PLAN_SAVE,Simpan rencana,Save plan
+PLAN_SHARE,%d%% · %s,%d%% · %s
+HOME_PLAN_BUTTON,Atur rencana gaji,Edit salary plan
+REPORT_LIFESTYLE,Gaya hidup,Lifestyle
+REPORT_PLAN,RENCANA GAJI,SALARY PLAN
+REPORT_EMERGENCY,Dana darurat (Tabungan),Emergency fund (Savings)
+REPORT_AUTODEBET,Autodebet %s,Auto-invest %s
+REPORT_AUTODEBET_SKIPPED,Autodebet %s dilewati: kas tidak cukup.,Auto-invest %s skipped: not enough cash.
+TX_AUTO,Autodebet,Auto-invest

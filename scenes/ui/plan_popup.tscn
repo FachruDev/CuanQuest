@@ -1,0 +1,187 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/plan_popup.gd" id="1_plan"]
+[ext_resource type="Theme" path="res://theme/senja_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://scripts/ui/chunky_button.gd" id="3_chunky"]
+[ext_resource type="Texture2D" path="res://assets/icons/wallet.svg" id="4_wallet"]
+
+[node name="PlanPopup" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_plan")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.169, 0.129, 0.278, 0.62)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Dialog" type="VBoxContainer" parent="Center"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(632, 0)
+layout_mode = 2
+theme_override_constants/separation = -64
+
+[node name="BadgeHolder" type="CenterContainer" parent="Center/Dialog"]
+z_index = 1
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Badge" type="PanelContainer" parent="Center/Dialog/BadgeHolder"]
+custom_minimum_size = Vector2(122, 129)
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"BadgeGoldPanel"
+
+[node name="Icon" type="TextureRect" parent="Center/Dialog/BadgeHolder/Badge"]
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("4_wallet")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Panel" type="PanelContainer" parent="Center/Dialog"]
+layout_mode = 2
+theme_type_variation = &"DialogPanel"
+
+[node name="VBox" type="VBoxContainer" parent="Center/Dialog/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Center/Dialog/Panel/VBox"]
+layout_mode = 2
+theme_type_variation = &"PopupTitleLabel"
+text = "PLAN_TITLE"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="SubtitleHolder" type="CenterContainer" parent="Center/Dialog/Panel/VBox"]
+layout_mode = 2
+
+[node name="Pill" type="PanelContainer" parent="Center/Dialog/Panel/VBox/SubtitleHolder"]
+layout_mode = 2
+theme_type_variation = &"SubtitlePill"
+
+[node name="Subtitle" type="Label" parent="Center/Dialog/Panel/VBox/SubtitleHolder/Pill"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"PillMutedLabel"
+
+[node name="ReviewLabel" type="Label" parent="Center/Dialog/Panel/VBox"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(1, 0)
+layout_mode = 2
+theme_type_variation = &"ErrorLabel"
+text = "PLAN_REVIEW_SALARY"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Intro" type="Label" parent="Center/Dialog/Panel/VBox"]
+custom_minimum_size = Vector2(1, 0)
+layout_mode = 2
+theme_type_variation = &"SmallMutedLabel"
+text = "PLAN_INTRO"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Scroll" type="ScrollContainer" parent="Center/Dialog/Panel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Rows" type="VBoxContainer" parent="Center/Dialog/Panel/VBox/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="SurplusBox" type="PanelContainer" parent="Center/Dialog/Panel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"SurplusPositive"
+
+[node name="HBox" type="HBoxContainer" parent="Center/Dialog/Panel/VBox/SurplusBox"]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="Center/Dialog/Panel/VBox/SurplusBox/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"StatNameLabel"
+text = "PLAN_SURPLUS"
+
+[node name="SurplusValue" type="Label" parent="Center/Dialog/Panel/VBox/SurplusBox/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"SurplusValueLabel"
+text = "Rp0"
+
+[node name="OverLabel" type="Label" parent="Center/Dialog/Panel/VBox"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(1, 0)
+layout_mode = 2
+theme_type_variation = &"ErrorLabel"
+text = "PLAN_OVER"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="SaveButton" type="Button" parent="Center/Dialog/Panel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 88)
+layout_mode = 2
+theme_type_variation = &"PrimaryButton"
+script = ExtResource("3_chunky")
+
+[node name="Content" type="Label" parent="Center/Dialog/Panel/VBox/SaveButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"PrimaryButtonLabel"
+text = "PLAN_SAVE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CloseButton" type="Button" parent="Center/Dialog/Panel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+theme_type_variation = &"NeutralButton"
+script = ExtResource("3_chunky")
+
+[node name="Content" type="Label" parent="Center/Dialog/Panel/VBox/CloseButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"NeutralButtonLabel"
+text = "BTN_CLOSE"
+horizontal_alignment = 1
+vertical_alignment = 1

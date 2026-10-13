@@ -116,7 +116,7 @@ scenes/
 - [x] **Prototipe waktu A/B/C** (diarsipkan di cabang `archive/prototipe-waktu`; arah diganti, lihat `MVP_Cuan_Quest_Revisi3.md`)
 - [ ] **v1.5-0 "Giliran Bulanan yang Hidup"**:
   - [x] (1) Pasar harian + animasi pergantian bulan (lihat bagian di bawah)
-  - [ ] (2) Pembagian gaji + autodebet
+  - [x] (2) Pembagian gaji + autodebet; tombol +6 Bln / +1 Thn dihapus
   - [ ] (3) Impian + target bulanan + perayaan
   - [ ] (4) Event Director + kuis 6/minggu tanpa iklan
   - [ ] (5) SQLite
@@ -146,6 +146,16 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Grafik:** `PriceChart.points_per_period` menentukan berapa titik membentuk satu bulan (1 untuk data bulanan, 21/30 untuk harian). `set_long_data()` mengisi data periode "Semua". Tab Pasar memakai periode 1B / 3B / 1T / Semua.
 - **Animasi laporan:** `GameState` menyimpan `daily_worth` (kekayaan per tanggal) dan `movers` (aset yang paling bergerak) di laporan. Popup laporan menggambar grafik dari kiri ke kanan (`PriceChart.play_reveal()`, tween properti `reveal`), memutar angka kekayaan (`tween_method`), lalu memunculkan kartu sorotan. Ketuk grafik untuk melewati.
 - **Save versi 2:** `SAVE_VERSION` naik ke 2; save lama ditolak dengan pesan `SAVE_OUTDATED`. Data pemain (`player.json`: kuis, tutorial, riwayat) memakai `PLAYER_VERSION` terpisah sehingga tidak ikut hilang.
+
+## Rencana Gaji & Autodebet (v1.5-0 langkah 2)
+
+- **Rencana dalam persen gaji** (`GameState.plan`): gaya hidup, dana darurat, dan investasi otomatis per aset. Karena berupa persen, rencana otomatis menyesuaikan saat gaji naik, turun, atau saat menganggur (gaji 0 berarti tidak ada yang dibagi).
+- **Satu sumber hitungan:** `GameState.plan_preview(plan, penghasilan)` dipakai popup Rencana Gaji, kartu Beranda, dan eksekusi di awal bulan, sehingga angka yang dilihat pemain selalu sama dengan yang dijalankan.
+- **Urutan di awal bulan** (`_apply_budget`, dipanggil dari `_start_month`): gaji masuk → makan & tempat tinggal → gaya hidup (memengaruhi kebahagiaan) → setor dana darurat ke Tabungan sampai target 6 bulan pengeluaran pokok → autodebet per aset. Pos yang kasnya tidak cukup dilewati dan dicatat di laporan.
+- **Kapan popup muncul:** di bulan pertama (rencana belum pernah disimpan), setelah laporan bila gaji pokok berubah, atau saat pemain menekan "Atur rencana gaji" di Beranda. Rencana pertama langsung dijalankan untuk bulan itu karena gajinya sudah masuk.
+- **Konfigurasi** ada di `data/economy.json` bagian `budget` (langkah 5%, batas porsi, aset dana darurat, efek kebahagiaan gaya hidup).
+- **Transaksi autodebet** tercatat dengan jenis `auto` di riwayat transaksi.
+- **Tombol +6 Bln / +1 Thn dihapus** karena satu bulan kini cepat dan berisi keputusan. Fungsi `GameState.fast_forward()` tetap disimpan untuk masa pensiun (v2b).
 
 ## Event, Kuis & Unlock (M4)
 

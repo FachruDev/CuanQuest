@@ -32,8 +32,24 @@
 		"retirement_age": 60,
 		"danger_months": 3
 	},
-	"_fast_forward_comment": "Pengali peluang event saat lompat waktu (+6 Bln / +1 Thn). 1.0 = sama seperti maju per bulan.",
+	"_fast_forward_comment": "Pengali peluang event saat lompat waktu (GameState.fast_forward; tombolnya dihapus di v1.5, disimpan untuk masa pensiun v2b). 1.0 = sama seperti maju per bulan.",
 	"fast_forward_event_mult": 0.15,
+	"budget": {
+		"_comment": [
+			"Rencana gaji (v1.5-0 langkah 2). Semua porsi dalam persen GAJI bulan itu, jadi ikut menyesuaikan saat gaji berubah atau menganggur.",
+			"Dana darurat disetor otomatis ke emergency_asset sampai saldonya mencapai emergency_target_months x pengeluaran pokok bulanan.",
+			"lifestyle_happiness: [porsi minimal, efek kebahagiaan per bulan]; dipakai baris terakhir yang porsinya <= pilihan pemain."
+		],
+		"step": 0.05,
+		"lifestyle_max": 0.3,
+		"emergency_max": 0.3,
+		"invest_max_each": 0.5,
+		"default_lifestyle": 0.05,
+		"default_emergency": 0.1,
+		"emergency_asset": "TAB",
+		"emergency_target_months": 6,
+		"lifestyle_happiness": [[0.0, -2], [0.05, 0], [0.1, 1], [0.2, 2], [0.3, 3]]
+	},
 	"xp_per_month": 2,
 	"xp_per_level": 60,
 	"quiz": {
