@@ -4,7 +4,9 @@ extends RefCounted
 ## Dipakai di popup ringkasan dan di tab Portofolio (seperti komponen yang di-reuse).
 
 
-static func fill(box: VBoxContainer, r: Dictionary) -> void:
+## `with_net_worth`: false jika kekayaan bersih sudah ditampilkan di tempat lain
+## (popup laporan menampilkannya di bagian sorotan beranimasi).
+static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> void:
 	for child in box.get_children():
 		box.remove_child(child)
 		child.queue_free()
@@ -44,18 +46,25 @@ static func fill(box: VBoxContainer, r: Dictionary) -> void:
 	_add_row(box, "STAT_HEALTH", "%+d" % r["health_delta"], signed_color(r["health_delta"]))
 	_add_row(box, "STAT_HAPPINESS", "%+d" % r["happiness_delta"], signed_color(r["happiness_delta"]))
 
-	var before: float = r["net_worth_before"]
-	var after: float = r["net_worth_after"]
-	var change_text := Fmt.signed_rupiah(after - before)
-	if before > 0:
-		change_text += " (%s)" % Fmt.percent((after - before) / before)
-	_add_net_worth_box(box, after, change_text, after - before)
+	if with_net_worth:
+		var after: float = r["net_worth_after"]
+		_add_net_worth_box(box, after, net_worth_change_text(r), after - float(r["net_worth_before"]))
 
 	for sale: Dictionary in r.get("forced_sales", []):
 		_add_text(box, TranslationServer.translate("REPORT_FORCED_SALE") % [
 			TranslationServer.translate(sale["asset_key"]), Fmt.rupiah(sale["proceeds"])], Palette.LOSS)
 	for warning: String in r.get("warnings", []):
 		_add_text(box, warning, Palette.LOSS)
+
+
+## "+Rp1.250.000 (+3,10%)"
+static func net_worth_change_text(r: Dictionary) -> String:
+	var before: float = r["net_worth_before"]
+	var after: float = r["net_worth_after"]
+	var text := Fmt.signed_rupiah(after - before)
+	if before > 0:
+		text += " (%s)" % Fmt.percent((after - before) / before)
+	return text
 
 
 ## Teks berita yang sudah diterjemahkan, mis. "PT Bank Sentosa Tbk mencatat laba melonjak".

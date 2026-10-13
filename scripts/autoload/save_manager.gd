@@ -53,6 +53,17 @@ func load_slot(slot: String) -> bool:
 	return GameState.load_from_dict(data["state"])
 
 
+## true jika slot berisi simpanan dari versi game lama (tidak bisa dimuat, tanpa migrasi).
+func is_outdated(slot: String) -> bool:
+	var state: Dictionary = _read_json(_slot_path(slot)).get("state", {})
+	return not state.is_empty() and int(state.get("version", 0)) != GameState.SAVE_VERSION
+
+
+## Pesan gagal muat yang sesuai penyebabnya.
+func load_error_text(slot: String) -> String:
+	return tr("SAVE_OUTDATED") if is_outdated(slot) else tr("SAVE_LOAD_FAILED")
+
+
 func delete_slot(slot: String) -> void:
 	if has_slot(slot):
 		DirAccess.remove_absolute(_slot_path(slot))

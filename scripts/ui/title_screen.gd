@@ -107,6 +107,6 @@ func _load(slot: String) -> void:
 		get_tree().change_scene_to_file(MAIN_SCENE)
 		return
 	%LoadOverlay.hide()
-	%ErrorLabel.text = tr("SAVE_LOAD_FAILED")
+	%ErrorLabel.text = SaveManager.load_error_text(slot)
 	%ErrorLabel.show()
 	Sfx.play("fail")

@@ -4,6 +4,7 @@
 [ext_resource type="Theme" path="res://theme/senja_theme.tres" id="2_theme"]
 [ext_resource type="Script" path="res://scripts/ui/chunky_button.gd" id="3_chunky"]
 [ext_resource type="Texture2D" path="res://assets/icons/badge_calendar.svg" id="4_calendar"]
+[ext_resource type="Script" path="res://scripts/ui/price_chart.gd" id="5_chart"]
 
 [node name="MonthSummaryPopup" type="Control"]
 layout_mode = 3
@@ -87,6 +88,62 @@ theme_type_variation = &"SubtitlePill"
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"PillMutedLabel"
+
+[node name="Highlight" type="PanelContainer" parent="Center/Dialog/Panel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"NetWorthPanel"
+
+[node name="VBox" type="VBoxContainer" parent="Center/Dialog/Panel/VBox/Highlight"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TopRow" type="HBoxContainer" parent="Center/Dialog/Panel/VBox/Highlight/VBox"]
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="Center/Dialog/Panel/VBox/Highlight/VBox/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_type_variation = &"StatNameLabel"
+text = "LBL_NET_WORTH"
+
+[node name="WorthValue" type="Label" parent="Center/Dialog/Panel/VBox/Highlight/VBox/TopRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"NetWorthValueLabel"
+text = "Rp0"
+
+[node name="WorthChange" type="Label" parent="Center/Dialog/Panel/VBox/Highlight/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"RowValueLabel"
+horizontal_alignment = 2
+
+[node name="WorthChart" type="Control" parent="Center/Dialog/Panel/VBox/Highlight/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 170)
+layout_mode = 2
+script = ExtResource("5_chart")
+light_style = true
+
+[node name="MoversTitle" type="Label" parent="Center/Dialog/Panel/VBox/Highlight/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"SmallMutedLabel"
+text = "SUMMARY_HIGHLIGHTS"
+
+[node name="Movers" type="HBoxContainer" parent="Center/Dialog/Panel/VBox/Highlight/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SkipHint" type="Label" parent="Center/Dialog/Panel/VBox/Highlight/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"SmallMutedLabel"
+text = "SUMMARY_SKIP_HINT"
+horizontal_alignment = 1
 
 [node name="ReportScroll" type="ScrollContainer" parent="Center/Dialog/Panel/VBox"]
 unique_name_in_owner = true

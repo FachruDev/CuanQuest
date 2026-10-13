@@ -16,7 +16,12 @@ signal game_ended(result: Dictionary)
 ## Target kemenangan tercapai ("millionaire" / "freedom"); pemain boleh lanjut bermain.
 signal goal_reached(goal: String)
 
-const SAVE_VERSION := 1
+## Versi slot save. Naik ke 2 di v1.5 (pasar harian); save lama ditolak, tanpa migrasi.
+const SAVE_VERSION := 2
+## Versi data pemain (user://player.json): kuis, tutorial, riwayat. Tidak ikut naik
+## agar progres kuis tidak hilang saat format slot save berubah.
+const PLAYER_VERSION := 1
+const MOVERS_SHOWN := 3
 const ASSETS_PATH := "res://data/assets.json"
 const ECONOMY_PATH := "res://data/economy.json"
 const MARKET_PATH := "res://data/market.json"
@@ -157,9 +162,11 @@ func advance_month() -> void:
 		return  # event bulan ini harus diputuskan dulu
 	var net_worth_before := net_worth()
 	var invest_before := investments_value()
+	var start_prices := _current_prices()
 	var interest := _pay_interest()
 	var news := market.step(month + 1)
 	var invest_change := investments_value() - invest_before
+	var daily_worth := _daily_worth_series(net_worth_before)
 
 	var from_month := month
 	month += 1
@@ -184,6 +191,9 @@ func advance_month() -> void:
 		"net_worth_before": net_worth_before,
 		"net_worth_after": net_worth(),
 		"cash_after": cash,
+		"daily_worth": daily_worth,
+		"start_prices": start_prices,
+		"movers": _movers_since(start_prices),
 	})
 	changed.emit()
 	if not _fast_forwarding:
@@ -194,6 +204,49 @@ func advance_month() -> void:
 	_check_unlocks(true)
 	_roll_event()
 	state_committed.emit()
+
+
+## Kekayaan bersih per tanggal (1-30) selama bulan yang baru disimulasikan, diawali
+## `start_value`. Dipakai animasi grafik di laporan bulanan. Kas & jumlah unit tidak
+## berubah di tengah bulan, jadi cukup menilai ulang portofolio dengan harga harian.
+## Gaji & biaya hidup bulan baru TIDAK ikut digambar, agar lonjakannya tidak menenggelamkan
+## pergerakan pasar; angka kekayaan di laporan tetap nilai setelahnya.
+func _daily_worth_series(start_value: float) -> Array[float]:
+	var series: Array[float] = [start_value]
+	for day in range(1, MarketAsset.DAYS_IN_MONTH + 1):
+		var value := float(cash)
+		for asset_id: String in holdings:
+			var asset := market.get_asset(asset_id)
+			value += units_of(asset_id) * (asset.price if asset.is_interest() else asset.price_on_day(day))
+		series.append(value)
+	return series
+
+
+func _current_prices() -> Dictionary:
+	var prices := {}
+	for asset: MarketAsset in market.assets.values():
+		prices[asset.id] = asset.price
+	return prices
+
+
+## Aset dengan pergerakan terbesar sejak `start_prices`, untuk kartu sorotan laporan.
+## Aset yang dimiliki didahulukan; aset yang belum terbuka dilewati.
+## -> [{"id": "BSNT", "name_key": ..., "change": 0.062, "owned": true}, ...]
+func _movers_since(start_prices: Dictionary) -> Array:
+	var candidates: Array = []
+	for asset: MarketAsset in market.assets.values():
+		if asset.is_interest() or not start_prices.has(asset.id):
+			continue
+		var owned := units_of(asset.id) > 0.0
+		if not owned and not is_asset_unlocked(asset.id):
+			continue
+		candidates.append({"id": asset.id, "name_key": asset.name_key, "owned": owned,
+			"change": asset.price / float(start_prices[asset.id]) - 1.0})
+	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		if a["owned"] != b["owned"]:
+			return a["owned"]
+		return absf(a["change"]) > absf(b["change"]))
+	return candidates.slice(0, MOVERS_SHOWN)
 
 
 ## Bunga bulanan tabungan & deposito (setelah pajak) ditambahkan ke saldo. Mengembalikan totalnya.
@@ -649,7 +702,7 @@ func consume_hint(key: String) -> bool:
 
 
 func player_to_dict() -> Dictionary:
-	return {"version": SAVE_VERSION, "quiz": quiz.to_dict(),
+	return {"version": PLAYER_VERSION, "quiz": quiz.to_dict(),
 		"tutorial_done": tutorial_done, "hints_seen": hints_seen, "history": history}
 
 
@@ -985,6 +1038,12 @@ func _merge_reports(reports: Array[Dictionary]) -> Dictionary:
 	merged["net_worth_before"] = reports[0]["net_worth_before"]
 	merged["unemployed"] = merged["salary"] == 0
 	merged["months"] = reports.size()
+	var daily: Array = reports[0].get("daily_worth", []).duplicate()
+	for r: Dictionary in reports.slice(1):
+		daily.append_array(r.get("daily_worth", []).slice(1))  # titik awal = titik akhir bulan sebelumnya
+	merged["daily_worth"] = daily
+	merged["start_prices"] = reports[0]["start_prices"]
+	merged["movers"] = _movers_since(reports[0]["start_prices"])
 	return merged
 
 

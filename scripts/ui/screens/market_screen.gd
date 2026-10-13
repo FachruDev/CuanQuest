@@ -34,7 +34,7 @@ func _ready() -> void:
 	%BackButton.pressed.connect(_show_list)
 
 	_build_asset_list()
-	UiText.build_period_buttons(%PeriodRow, %Chart, 12)
+	UiText.build_period_buttons(%PeriodRow, %Chart, 3, [1, 3, 12, 0])  # data harian
 	GameState.changed.connect(_refresh)
 	_show_list()
 
@@ -211,6 +211,8 @@ func _refresh_detail() -> void:
 		%ChangeChip.theme_type_variation = &"ChangeUp" if change > 0 else (&"ChangeDown" if change < 0 else &"ChangeFlat")
 		%ChangeChip.show()
 		%ChartCard.show()
+		%Chart.points_per_period = asset.days_per_month()
+		%Chart.set_long_data(asset.month_closes)  # periode "Semua" memakai penutupan bulanan
 		%Chart.set_data(asset.history)
 		%InfoLabel.text = tr("INFO_TRADED") % [
 			Fmt.percent_plain(asset.volatility),

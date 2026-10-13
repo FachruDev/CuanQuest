@@ -1,13 +1,14 @@
 class_name Market
 extends RefCounted
-## Simulasi pasar: menyimpan semua aset dan menggerakkan harganya tiap bulan.
+## Simulasi pasar: menyimpan semua aset dan menggerakkan harganya tiap bulan, hari demi hari.
 ## Memakai RNG ber-seed sendiri agar hasilnya bisa direproduksi (penting untuk save/load).
 ##
 ## Komponen simulasi:
 ## - Siklus pasar (bull / sideways / bear) per faktor ("stock", "crypto"), durasinya acak.
 ## - Faktor bersama: aset satu faktor cenderung bergerak searah (korelasi).
 ## - Suku bunga acuan: menentukan bunga tabungan & deposito, bisa naik/turun lewat berita.
-## - Berita: guncangan harga sekali untuk satu aset, satu faktor, atau suku bunga.
+## - Berita: guncangan harga sekali untuk satu aset, satu faktor, atau suku bunga,
+##   pada satu tanggal acak di bulan itu (terlihat sebagai lonjakan di grafik harian).
 
 const WARMUP_MONTHS := 12  # riwayat harga palsu agar grafik tidak kosong di awal
 
@@ -45,17 +46,25 @@ func setup(asset_defs: Array, market_config: Dictionary, news: Array, seed_value
 func step(month: int) -> Array[Dictionary]:
 	var news: Array[Dictionary] = []
 	var shocks: Dictionary = {}  # asset_id -> guncangan harga
+	var news_day := 0
 
 	_update_regimes(month, news)
 	if rng.randf() < config["news_chance"]:
-		_roll_news(month, news, shocks)
+		news_day = rng.randi_range(1, MarketAsset.DAYS_IN_MONTH)
+		_roll_news(month, news_day, news, shocks)
 
+	# Angka acak bersama per hari untuk tiap faktor (sumber korelasi harian).
 	# Urutan loop HARUS tetap (ikut file data), bukan urutan Dictionary `regimes`:
 	# setelah save/load lewat JSON urutan key bisa berubah, dan angka acak akan
 	# tertukar antar faktor sehingga hasil simulasi tidak lagi sama.
+	var no_factor: Array[float] = []
+	no_factor.resize(MarketAsset.DAYS_IN_MONTH)  # isi 0.0: aset tanpa faktor bergerak sendiri
 	var factor_z := {}
 	for factor: String in _factor_order():
-		factor_z[factor] = rng.randfn(0.0, 1.0)
+		var daily: Array[float] = []
+		for day in MarketAsset.DAYS_IN_MONTH:
+			daily.append(rng.randfn(0.0, 1.0))
+		factor_z[factor] = daily
 
 	for asset: MarketAsset in assets.values():
 		var regime_drift := 0.0
@@ -64,7 +73,8 @@ func step(month: int) -> Array[Dictionary]:
 			var regime: Dictionary = config["regimes"][regimes[asset.factor]["id"]]
 			regime_drift = regime["drift"] * config["factors"][asset.factor]["drift_scale"]
 			vol_mult = regime["vol_mult"]
-		asset.step(rng, factor_z.get(asset.factor, 0.0), regime_drift, vol_mult, shocks.get(asset.id, 0.0))
+		var z: Array[float] = factor_z.get(asset.factor, no_factor)
+		asset.step_month(rng, z, regime_drift, vol_mult, shocks.get(asset.id, 0.0), news_day)
 
 	for item in news:
 		news_log.push_front(item)
@@ -77,7 +87,8 @@ func step(month: int) -> Array[Dictionary]:
 func to_dict() -> Dictionary:
 	var asset_states := {}
 	for asset: MarketAsset in assets.values():
-		asset_states[asset.id] = {"price": asset.price, "history": asset.history}
+		asset_states[asset.id] = {"price": asset.price, "history": asset.history,
+			"month_closes": asset.month_closes}
 	return {
 		"rng_seed": str(rng.seed), "rng_state": str(rng.state),
 		"policy_rate": policy_rate, "regimes": regimes, "news_log": news_log,
@@ -96,6 +107,7 @@ func load_state(asset_defs: Array, market_config: Dictionary, news: Array, d: Di
 		if not saved.is_empty():
 			asset.price = saved["price"]
 			asset.history.assign(saved["history"])
+			asset.month_closes.assign(saved["month_closes"])
 		assets[asset.id] = asset
 	rng.seed = String(d["rng_seed"]).to_int()
 	rng.state = String(d["rng_state"]).to_int()
@@ -107,6 +119,7 @@ func load_state(asset_defs: Array, market_config: Dictionary, news: Array, d: Di
 	news_log.clear()
 	for item: Dictionary in d["news_log"]:
 		item["month"] = int(item["month"])
+		item["day"] = int(item.get("day", 0))
 		news_log.append(item)
 
 
@@ -146,7 +159,7 @@ func _update_regimes(month: int, news: Array[Dictionary]) -> void:
 		news.append(_make_news(month, "NEWS_REGIME_%s_%s" % [factor.to_upper(), next_id.to_upper()], "", 0.0))
 
 
-func _roll_news(month: int, news: Array[Dictionary], shocks: Dictionary) -> void:
+func _roll_news(month: int, day: int, news: Array[Dictionary], shocks: Dictionary) -> void:
 	var weights := PackedFloat32Array()
 	for def: Dictionary in news_defs:
 		weights.append(def["weight"])
@@ -170,7 +183,7 @@ func _roll_news(month: int, news: Array[Dictionary], shocks: Dictionary) -> void
 		policy_rate = clampf(policy_rate + def["rate_delta"], config["min_policy_rate"], config["max_policy_rate"])
 		_shock_factor("stock", shock, shocks)  # suku bunga naik biasanya menekan saham
 
-	news.append(_make_news(month, def["text_key"], asset_key, shock))
+	news.append(_make_news(month, def["text_key"], asset_key, shock, day))
 
 
 ## Guncangan ke semua aset satu faktor, diskalakan dengan beta masing-masing.
@@ -188,5 +201,6 @@ func _assets_of_class(asset_class: String) -> Array[MarketAsset]:
 	return result
 
 
-func _make_news(month: int, text_key: String, asset_key: String, shock: float) -> Dictionary:
-	return {"month": month, "key": text_key, "asset_key": asset_key, "shock": shock}
+## `day` = tanggal berita (1-30); 0 untuk berita siklus pasar yang berlaku sebulan penuh.
+func _make_news(month: int, text_key: String, asset_key: String, shock: float, day := 0) -> Dictionary:
+	return {"month": month, "day": day, "key": text_key, "asset_key": asset_key, "shock": shock}

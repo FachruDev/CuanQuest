@@ -440,6 +440,7 @@ ERR_ACTIVITY_BUSY,Selesaikan kejadian bulan ini dulu,Resolve this month's event 
 ERR_NO_ENERGY,Energi tidak cukup,Not enough energy
 ERR_ACTIVITY_LIMIT,Batas bulan ini tercapai,Monthly limit reached
 PERIOD_1,1B,1M
+PERIOD_3,3B,3M
 PERIOD_6,6B,6M
 PERIOD_12,1T,1Y
 PERIOD_0,Semua,All
@@ -461,3 +462,6 @@ NG_RISK_RESULT,"Profilmu: %s
 %s","Your profile: %s
 %s"
 PROFILE_RISK_TITLE,Profil Risiko,Risk Profile
+SAVE_OUTDATED,Simpanan ini dari versi game lama dan tidak kompatibel. Silakan mulai permainan baru.,This save is from an older version of the game and is not compatible. Please start a new game.
+SUMMARY_HIGHLIGHTS,Sorotan,Highlights
+SUMMARY_SKIP_HINT,Ketuk grafik untuk melewati animasi,Tap the chart to skip the animation

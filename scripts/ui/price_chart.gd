@@ -2,11 +2,17 @@ class_name PriceChart
 extends Control
 ## Line chart sederhana yang digambar manual lewat _draw().
 ## Analogi web: seperti menggambar di <canvas> dengan ctx.lineTo().
+##
+## Data bisa harian (harga aset) atau bulanan (kekayaan bersih). `points_per_period`
+## menentukan berapa titik membentuk satu "bulan" saat memilih periode.
+
+signal reveal_finished
 
 const PADDING := 16.0
 
-@export var max_points := 24   ## batas titik saat periode = 0 ("Semua")
-@export var period := 0        ## jumlah bulan yang ditampilkan; 0 = semua (dibatasi max_points)
+@export var max_points := 24   ## batas titik saat periode = 0 ("Semua") dan tidak ada data jangka panjang
+@export var period := 0        ## jumlah bulan yang ditampilkan; 0 = semua
+@export var points_per_period := 1  ## titik per bulan: 1 untuk data bulanan, 21/30 untuk data harian
 @export var up_color := Color("#2ecc71")
 @export var down_color := Color("#e74c3c")
 @export var background_color := Color("#182030")
@@ -23,10 +29,18 @@ const PADDING := 16.0
 			grid_color = Color("#f4eadb")
 		queue_redraw()
 
+## Bagian garis yang sudah tergambar (0..1), dipakai animasi play_reveal().
+var reveal := 1.0:
+	set(value):
+		reveal = clampf(value, 0.0, 1.0)
+		queue_redraw()
+
 const LIGHT_TEXT := Color("#8a6e4e")
 
 var _all: Array[float] = []   # semua data dari pemanggil
+var _long: Array[float] = []  # data jangka panjang (mis. penutupan bulanan) untuk periode "Semua"
 var _data: Array[float] = []  # bagian yang sedang digambar (sesuai periode)
+var _reveal_tween: Tween
 
 
 func _ready() -> void:
@@ -38,15 +52,46 @@ func set_data(values: Array[float]) -> void:
 	_apply_period()
 
 
-## Periode N bulan butuh N+1 titik (harga awal + N perubahan bulanan).
+## Data jangka panjang yang dipakai saat periode = 0 ("Semua"). Kosongkan untuk memakai data biasa.
+func set_long_data(values: Array[float]) -> void:
+	_long.assign(values)
+	_apply_period()
+
+
+## Periode N bulan butuh N x points_per_period + 1 titik (harga awal + perubahannya).
 func set_period(months: int) -> void:
 	period = months
 	_apply_period()
 
 
+## Animasi garis tergambar dari kiri ke kanan. Mengetuk grafik melewati animasi.
+func play_reveal(duration := 1.5) -> void:
+	skip_reveal()
+	reveal = 0.0
+	_reveal_tween = create_tween()
+	_reveal_tween.tween_property(self, "reveal", 1.0, duration) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_reveal_tween.finished.connect(reveal_finished.emit)
+
+
+func skip_reveal() -> void:
+	if _reveal_tween and _reveal_tween.is_running():
+		_reveal_tween.kill()
+		reveal = 1.0
+		reveal_finished.emit()
+
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		skip_reveal()
+
+
 func _apply_period() -> void:
-	var count := period + 1 if period > 0 else max_points
-	_data.assign(_all.slice(-count))
+	if period == 0 and not _long.is_empty():
+		_data.assign(_long)
+	else:
+		var count := period * points_per_period + 1 if period > 0 else max_points
+		_data.assign(_all.slice(-count))
 	queue_redraw()  # minta Godot memanggil _draw() di frame berikutnya
 
 
@@ -58,6 +103,7 @@ func _draw() -> void:
 				HORIZONTAL_ALIGNMENT_CENTER, size.x, 22, text_color)
 		return
 
+	# Skala sumbu Y dihitung dari SEMUA data, agar garis tidak "melompat" selama animasi.
 	var lo: float = _data.min()
 	var hi: float = _data.max()
 	if hi - lo < 0.0001:
@@ -72,16 +118,32 @@ func _draw() -> void:
 		var y := area.position.y + area.size.y * i / 4.0
 		draw_line(Vector2(area.position.x, y), Vector2(area.end.x, y), grid_color)
 
-	var points := PackedVector2Array()
+	var all_points := PackedVector2Array()
 	for i in _data.size():
 		var x := area.position.x + area.size.x * i / (_data.size() - 1)
 		var y := area.position.y + area.size.y * (1.0 - (_data[i] - lo) / (hi - lo))
-		points.append(Vector2(x, y))
+		all_points.append(Vector2(x, y))
 
-	var color := up_color if _data[-1] >= _data[0] else down_color
-	if light_style:  # area lembut di bawah garis
+	# Selama animasi: hanya sebagian titik, ujungnya diinterpolasi agar gerakannya mulus.
+	var points := all_points
+	var last_value := _data[-1]
+	if reveal < 1.0:
+		var progress := reveal * (all_points.size() - 1)
+		var whole := floori(progress)
+		points = all_points.slice(0, whole + 1)
+		if whole < all_points.size() - 1:
+			var t := progress - whole
+			points.append(all_points[whole].lerp(all_points[whole + 1], t))
+			last_value = lerpf(_data[whole], _data[whole + 1], t)
+		else:
+			last_value = _data[whole]
+		if points.size() < 2:
+			points.append(points[0])
+
+	var color := up_color if last_value >= _data[0] else down_color
+	if light_style and points[-1].x - points[0].x > 1.0:  # area lembut di bawah garis
 		var fill := points.duplicate()
-		fill.append(Vector2(area.end.x, area.end.y))
+		fill.append(Vector2(points[-1].x, area.end.y))
 		fill.append(Vector2(area.position.x, area.end.y))
 		draw_colored_polygon(fill, Color(color, 0.15))
 	draw_polyline(points, color, 4.0, true)

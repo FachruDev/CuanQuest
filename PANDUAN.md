@@ -113,57 +113,39 @@ scenes/
 - [x] **M6.5: Melengkapi isi draft.** Energi & 6 aktivitas bulanan, lompat waktu (+6 Bln / +1 Thn), riwayat transaksi, periode grafik 1B/6B/1T/Semua, grafik alokasi aset + peringatan konsentrasi, profil risiko (kuesioner + peringatan di Pasar)
 - [x] **Redesain UI "Senja Cuan"** (dikerjakan sendiri oleh pengembang)
 - [x] **APK debug v1** untuk dicoba di HP (`build/cuan-quest-debug.apk`, preset "Android")
-- [ ] **v1.5-0 langkah 1: Prototipe waktu** (`prototypes/`, lihat bagian di bawah). A (per jam), B (hari cepat), dan C (sesi pasar, arah yang dipilih) selesai, menunggu uji C
-- [ ] **v1.5-0 langkah 2: Sistem waktu hybrid di game utama** (+ Event Director, rebalancing, SQLite, kuis 6/minggu tanpa iklan)
-- [ ] **v1.5a/b/c, v2a/b/c** (lihat `MVP_Baru_Sistem_Waktu_Hybrid.md`)
+- [x] **Prototipe waktu A/B/C** (diarsipkan di cabang `archive/prototipe-waktu`; arah diganti, lihat `MVP_Cuan_Quest_Revisi3.md`)
+- [ ] **v1.5-0 "Giliran Bulanan yang Hidup"**:
+  - [x] (1) Pasar harian + animasi pergantian bulan (lihat bagian di bawah)
+  - [ ] (2) Pembagian gaji + autodebet
+  - [ ] (3) Impian + target bulanan + perayaan
+  - [ ] (4) Event Director + kuis 6/minggu tanpa iklan
+  - [ ] (5) SQLite
+- [ ] **v1.5a/b/c, v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 - [ ] **M7: Export rilis & Play Store** (setelah v2 selesai; tanpa monetisasi)
 
-## Prototipe Waktu (v1.5-0 langkah 1)
+## Prototipe Waktu (diarsipkan)
 
-Dua prototipe terpisah di `prototypes/` untuk memilih cara waktu berjalan sebelum game utama dirombak. Tidak memakai `GameState`/`SaveManager`; simpanannya ada di `user://prototype/`.
-
-- **A: Waktu per Jam** (`prototypes/time/`): 1 jam game = 2,5 detik, jam bursa, antrean pesanan, tidur & begadang.
-- **B: Hari Cepat** (`prototypes/day/`): 1 hari sekitar 1 detik, berhenti otomatis saat ada keputusan, plus aktivitas berdurasi, misi bulanan, kesehatan & kebahagiaan, dan reaksi saat harga bergerak besar. Dibuat karena di A pemain sering hanya menunggu gajian/akhir bulan.
-- **C: Sesi Pasar** (`prototypes/session/`, arah yang dipilih setelah A & B terasa kurang seru): hidup tetap per bulan lewat tombol manual seperti v1, tetapi di dalam bulan grafik berjalan sendiri selama satu sesi (120 pergerakan, sekitar 90 detik pada 1x). Pemain trading langsung dengan tombol cepat, ada berita kilat (70% kabar asli yang berlanjut, 30% rumor yang berbalik), event hidup di tengah sesi, dan laporan yang membandingkan hasil trading dengan "kalau hanya ditahan".
-
-**Kenapa sesi C punya panjang tetap:** kalau grafik berjalan tanpa batas selama pemain belum menekan Lanjut, pemain bisa menunggu harga naik terus tanpa membayar tagihan. Dengan 120 pergerakan per bulan, menekan Lanjut lebih awal menghitung sisa pergerakan secara instan, dan hasil akhirnya sama persis dengan menonton sampai habis (dicek di `test_session.gd`). `dt` per tick = 1/(120 x 12) = 1/1.440.
-
-**Cara menjalankan:**
-- Di editor: buka `prototypes/launcher.tscn` (atau langsung `time/time_proto.tscn` / `day/day_proto.tscn`), lalu tekan **F6** (Run Current Scene).
-- Di HP: pasang `build/cuan-quest-proto-waktu.apk` (preset "Android Prototipe Waktu"). Aplikasinya bernama *Cuan Proto Waktu*, membuka menu pilihan C/B/A, dan bisa terpasang berdampingan dengan game utama.
-- Uji otomatis: `godot --headless --path . --script res://prototypes/time/test_proto.gd` (juga `day/test_day.gd` dan `session/test_session.gd`)
-
-Prototipe B memakai ulang `GameClock`, `ProtoDirector`, `ProtoMetrics`, dan `ProtoDialog` dari A. Langkah waktunya 6 jam (pagi, siang, sore, malam = warna latar), pasarnya bergerak sekali sehari (`day_market.gd`, `dt` = 1/257 untuk saham dan 1/360 untuk kripto), dan isinya ada di `day_world.gd` + `day_config.json`.
-
-| File | Isi |
-|---|---|
-| `time_config.json` | Semua angka: skala waktu, jam bangun/pingsan, energi, kalender, gaji, pasar, distribusi event |
-| `game_clock.gd` | Jam game (menit sejak hari ke-0), kalender 30 hari, jeda, kecepatan, *fixed timestep* |
-| `proto_market.gd` | 1 saham (jam bursa + gap saat buka) dan 1 kripto (24/7), harga per jam, berita intraday |
-| `proto_director.gd` | Event Director mini: 0-3 event per bulan, jadwal di jam bangun, jarak minimal 4 hari |
-| `proto_world.gd` | Simulasi: kas, energi, tidur, pingsan, lompat waktu, antrean pesanan, laporan, simpan/muat |
-| `proto_metrics.gd` | Pengukur uji (waktu per kecepatan, jeda, transaksi, tidur, lompatan), bisa disalin |
-| `time_proto.gd/.tscn`, `proto_dialog.gd` | Tampilan prototipe dan popup |
-
-**Konsep penting:**
-- **Fixed timestep.** `GameClock.consume(delta)` mengumpulkan detik nyata lalu mengubahnya menjadi langkah 15 menit game. Mirip `setInterval` yang mengejar waktu tertinggal, tetapi angka acak hanya diambil per langkah, sehingga hasil simulasi sama di HP lambat maupun cepat.
-- **Jeda dengan alasan.** Jeda disimpan sebagai kumpulan alasan (`manual`, `popup`, `idle`, `background`). Jam baru berjalan setelah semua alasan dilepas, mirip *reference counting*. Dengan begitu menutup popup tidak menjalankan waktu jika pemain sebelumnya menekan Jeda.
-- **`dt` per instrumen** (MVP bagian 5.1). Saham hanya bergerak 7 jam per hari kerja, sehingga `dt = 1/1.799`; kripto `1/8.640`. Sebanyak 18% variasi saham dialokasikan ke langkah *gap* saat bursa buka. Uji otomatis memastikan drift dan volatilitas tahunan tetap sesuai `data/assets.json`.
-- **Tidur dan lompat waktu = simulasi batch.** Semua langkah yang dilewati dihitung dalam satu frame tanpa menggambar grafik, lalu UI diperbarui sekali. Lompatan berhenti saat ada event atau laporan.
-- **Hemat baterai.** `OS.low_processor_usage_mode = true` (layar hanya digambar ulang bila ada perubahan), `Engine.max_fps = 30`, UI diperbarui hanya saat waktu maju, dan tidak ada pembaruan sama sekali saat jeda.
-- **Feature tag.** Preset ekspor prototipe memberi fitur kustom `prototipe`, dan `project.godot` berisi `run/main_scene.prototipe`. Analogi web: seperti variabel `.env` per build, sehingga satu project menghasilkan dua APK dengan scene awal berbeda.
-
-**Panduan untuk penguji** ada di `prototypes/README.md`.
+Tiga prototipe sistem waktu (A: per jam, B: hari cepat, C: sesi pasar) sudah dicoba dan **tidak dipakai**: waktu yang berjalan sendiri terasa membosankan atau lag. Kodenya disimpan di cabang git `archive/prototipe-waktu` (`git switch archive/prototipe-waktu` untuk melihatnya). Kesimpulan dan arah baru ada di dokumen `MVP_Cuan_Quest_Revisi3.md`: giliran tetap bulanan, tetapi setiap bulan dibuat lebih hidup.
 
 ## Cara Kerja Simulasi Pasar (M3)
 
-Setiap bulan `Market.step()` menjalankan:
+Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**, lihat bagian berikutnya):
 1. **Siklus pasar.** Saham dan kripto masing-masing berada di fase *bull*, *sideways*, atau *bear* selama beberapa bulan acak. Saat fase berganti, muncul berita "Analis: ...".
 2. **Berita** (peluang 50%). Satu template dipilih dari `news.json` berdasarkan bobot, lalu memberi guncangan harga ke satu aset, satu kelas aset, atau suku bunga.
 3. **Harga baru:** `harga × exp(drift_bulanan − ½σ² + σ·z) × (1 + guncangan)`, dengan `z = rho·z_pasar + √(1−rho²)·z_acak`. Bagian `z_pasar` yang sama untuk semua aset membuat saham cenderung naik-turun bersamaan (korelasi).
 4. **Tabungan & deposito** tidak bergerak harganya. Bunganya (`suku bunga acuan + spread`, dipotong pajak) dibayar di `GameState._pay_interest()`.
 
 **Hasil kalibrasi** (300 simulasi × 10 tahun, median imbal hasil per tahun): RD Pasar Uang +4,6% · RD Saham +8,7% · Saham +4,5% s.d. +8,6% · Kripto +7,5% s.d. +12% (peluang rugi kripto sekitar 38%).
+
+## Pasar Harian & Animasi Pergantian Bulan (v1.5-0 langkah 1)
+
+- **Harga bergerak hari demi hari.** Saat Lanjut ditekan, `MarketAsset.step_month()` menjalankan 21 langkah (hari bursa: saham, reksa dana) atau 30 langkah (kripto) dengan `dt = 1/(12 x langkah)`. Total satu bulan tetap sama dengan simulasi bulanan v1, sehingga kalibrasi tidak berubah (dicek dengan 1.500 simulasi x 10 tahun, mesin lama vs baru).
+- **Korelasi harian:** `Market.step()` membuat 30 angka acak bersama per faktor ("stock", "crypto"), satu per hari.
+- **Berita bertanggal:** berita jatuh pada satu tanggal acak (`news["day"]`), sehingga terlihat sebagai lonjakan di grafik harian.
+- **Riwayat bertingkat:** `history` berisi harga harian 24 bulan terakhir; `month_closes` berisi penutupan setiap bulan sepanjang permainan (dipakai periode "Semua" dan persentase perubahan bulanan). Ukuran save tetap terkendali.
+- **Grafik:** `PriceChart.points_per_period` menentukan berapa titik membentuk satu bulan (1 untuk data bulanan, 21/30 untuk harian). `set_long_data()` mengisi data periode "Semua". Tab Pasar memakai periode 1B / 3B / 1T / Semua.
+- **Animasi laporan:** `GameState` menyimpan `daily_worth` (kekayaan per tanggal) dan `movers` (aset yang paling bergerak) di laporan. Popup laporan menggambar grafik dari kiri ke kanan (`PriceChart.play_reveal()`, tween properti `reveal`), memutar angka kekayaan (`tween_method`), lalu memunculkan kartu sorotan. Ketuk grafik untuk melewati.
+- **Save versi 2:** `SAVE_VERSION` naik ke 2; save lama ditolak dengan pesan `SAVE_OUTDATED`. Data pemain (`player.json`: kuis, tutorial, riwayat) memakai `PLAYER_VERSION` terpisah sehingga tidak ikut hilang.
 
 ## Event, Kuis & Unlock (M4)
 

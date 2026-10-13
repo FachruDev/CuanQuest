@@ -261,7 +261,7 @@ func _on_load(slot: String) -> void:
 	if SaveManager.load_slot(slot):
 		get_tree().reload_current_scene()  # bangun ulang semua layar dari state yang dimuat
 	else:
-		_show_save_feedback(tr("SAVE_LOAD_FAILED"), false)
+		_show_save_feedback(SaveManager.load_error_text(slot), false)
 
 
 func _show_save_feedback(text: String, ok: bool) -> void:
