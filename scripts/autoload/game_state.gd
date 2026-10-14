@@ -88,6 +88,7 @@ var energy := 0
 var energy_capacity := 0                     # energi maksimal bulan ini (dikunci di awal bulan)
 var activity_counts: Dictionary = {}         # activity_id -> berapa kali bulan ini
 var transactions: Array[Dictionary] = []     # riwayat transaksi, terbaru di depan
+var transaction_seq := 0                     # nomor urut transaksi terakhir (kunci di database)
 var risk_profile_id := "moderate"
 ## Rencana gaji (v1.5-0): porsi dalam persen gaji. Dijalankan otomatis tiap awal bulan.
 ## {"lifestyle": 0.05, "emergency": 0.1, "invest": {asset_id: 0.1}, "salary_seen": int, "confirmed": bool}
@@ -111,6 +112,9 @@ var director: Dictionary = {}                # {"quiet_months": int, "last_bad":
 var dream_defs: Array = []                   # isi data/dreams.json
 var _dream_signals: Array[Callable] = []     # impian terwujud/terlewat, dikirim setelah laporan
 var _fast_forwarding := false
+## Naik setiap game baru / dimuat (tidak disimpan). SaveManager memakainya untuk tahu apakah
+## slot di database masih "permainan yang sama" sehingga cukup ditulis bagian barunya saja.
+var run_id := 0
 var _deferred: Array[Callable] = []          # signal yang ditunda selama lompat waktu
 
 # --- Data global pemain (user://player.json), TIDAK di-reset saat game baru ---
@@ -141,6 +145,8 @@ func new_game(profile: Dictionary = {}, seed_value: int = -1) -> void:
 	avatar = int(profile.get("avatar", 0))
 	risk_profile_id = profile.get("risk_profile", "moderate")
 	transactions.clear()
+	transaction_seq = 0
+	run_id += 1
 	background = _find_option(economy["backgrounds"], profile.get("background", economy["default_background"]))
 	difficulty = _find_option(economy["difficulties"], profile.get("difficulty", economy["default_difficulty"]))
 
@@ -861,7 +867,7 @@ func player_from_dict(d: Dictionary) -> void:
 	history.assign(d.get("history", []))
 
 
-# --- Simpan / muat (format JSON, lihat SaveManager) ----------------------------
+# --- Simpan / muat (SaveManager memetakannya ke tabel SQLite) -------------------
 
 func to_dict() -> Dictionary:
 	return {
@@ -882,7 +888,7 @@ func to_dict() -> Dictionary:
 		"danger": [negative_cash_months, zero_health_months, zero_happiness_months],
 		"goals_reached": goals_reached,
 		"energy": energy, "energy_capacity": energy_capacity, "activity_counts": activity_counts,
-		"transactions": transactions, "risk_profile": risk_profile_id,
+		"transactions": transactions, "transaction_seq": transaction_seq, "risk_profile": risk_profile_id,
 		"plan": plan, "plan_applied_month": plan_applied_month, "month_income": month_income,
 		"dreams": dreams, "dreams_asked": dreams_asked, "targets": targets,
 		"turn_units": turn_units, "turn_fees": turn_fees, "turn_trades": turn_trades,
@@ -943,9 +949,13 @@ func load_from_dict(d: Dictionary) -> bool:
 	for id: String in d.get("activity_counts", {}):
 		activity_counts[id] = int(d["activity_counts"][id])
 	transactions.clear()
-	for t: Dictionary in d.get("transactions", []):
+	var saved_transactions: Array = d.get("transactions", [])
+	for i in saved_transactions.size():
+		var t: Dictionary = saved_transactions[i]
 		t["month"] = int(t["month"])
+		t["seq"] = int(t.get("seq", saved_transactions.size() - i))  # terbaru di depan
 		transactions.append(t)
+	transaction_seq = int(d.get("transaction_seq", transactions[0]["seq"] if not transactions.is_empty() else 0))
 	risk_profile_id = d.get("risk_profile", "moderate")
 	plan = default_plan().merged(d.get("plan", {}), true)
 	plan["salary_seen"] = int(plan["salary_seen"])
@@ -982,6 +992,7 @@ func load_from_dict(d: Dictionary) -> bool:
 		DataLoader.load_json(MARKET_PATH),
 		DataLoader.load_json(NEWS_PATH).get("news", []),
 		d["market"])
+	run_id += 1
 	is_active = true
 	changed.emit()
 	return true
@@ -1241,7 +1252,8 @@ func _merge_reports(reports: Array[Dictionary]) -> Dictionary:
 ## `kind`: buy | sell | forced | panic. `pnl` = untung/rugi terealisasi (khusus jual).
 func _log_transaction(kind: String, asset: MarketAsset, amount: float, units: float,
 		fee: float, pnl: float) -> void:
-	transactions.push_front({"month": month, "kind": kind, "asset_key": asset.name_key,
+	transaction_seq += 1
+	transactions.push_front({"seq": transaction_seq, "month": month, "kind": kind, "asset_key": asset.name_key,
 		"amount": amount, "units": units, "fee": fee, "pnl": pnl})
 	if transactions.size() > MAX_TRANSACTIONS:
 		transactions.resize(MAX_TRANSACTIONS)

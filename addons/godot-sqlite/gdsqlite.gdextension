@@ -1,0 +1,15 @@
+; godot-sqlite v4.9 (MIT, https://github.com/2shady4u/godot-sqlite), dirakit untuk Godot 4.7.1.
+; Cuan Quest hanya menyimpan pustaka Windows (editor & uji) dan Android arm64 (APK).
+; Platform lain dihapus agar repo kecil; unduh ulang dari rilis resmi bila dibutuhkan.
+
+[configuration]
+
+entry_symbol = "sqlite_library_init"
+compatibility_minimum = "4.7"
+
+[libraries]
+
+windows.debug.x86_64 = "res://addons/godot-sqlite/bin/libgdsqlite.windows.template_debug.x86_64.dll"
+windows.release.x86_64 = "res://addons/godot-sqlite/bin/libgdsqlite.windows.template_release.x86_64.dll"
+android.debug.arm64 = "res://addons/godot-sqlite/bin/libgdsqlite.android.template_debug.arm64.so"
+android.release.arm64 = "res://addons/godot-sqlite/bin/libgdsqlite.android.template_release.arm64.so"

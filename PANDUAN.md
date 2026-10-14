@@ -14,7 +14,7 @@
 | `%NamaNode` | `getElementById` | Hanya untuk node yang diberi *Access as Unique Name* |
 | **Container** (VBox/HBox/Margin) | Flexbox | `size_flags_horizontal = 3` ≈ `flex: 1` |
 | `res://` | Folder source project | Read-only setelah di-export ke Android |
-| `user://` | localStorage | Tempat save game (dipakai di Milestone 5) |
+| `user://` | localStorage | Tempat database simpanan `cuan_quest.db` (SQLite) & pengaturan |
 | `tr("KEY")` | i18n `t("KEY")` | Teks diambil dari `localization/strings.csv` |
 | **Instance scene** | `<MyComponent />` | Di `main.tscn`, setiap tab adalah instance dari scene lain |
 | `@export var` | Props | Bisa diisi per-instance dari Inspector (contoh: `message_key` di placeholder) |
@@ -36,12 +36,13 @@ data/
   risk_profile.json           Kuesioner & 3 profil risiko
   unlocks.json                Syarat membuka tiap tahap instrumen
 localization/strings.csv      Semua teks UI (kolom id & en)
+addons/godot-sqlite/          Plugin SQLite (GDExtension, MIT): pustaka Windows + Android arm64
 theme/main_theme.tres         Font global, warna tombol aktif, panel, progress bar
 scripts/
   autoload/game_state.gd      STATE GLOBAL: kas, bulan, kondisi, portofolio, loop bulanan, XP, unlock, event
   autoload/ad_service.gd      Iklan rewarded (STUB, nanti diganti AdMob dengan interface sama)
   autoload/settings.gd        Pengaturan perangkat (user://settings.cfg)
-  autoload/save_manager.gd    Simpan/muat file JSON di user:// + simpan otomatis
+  autoload/save_manager.gd    Simpan/muat ke database SQLite (user://cuan_quest.db) + simpan otomatis
   autoload/sfx.gd             Efek suara buatan kode + getar
   core/                       Logika murni tanpa UI (mudah dites)
     market.gd, market_asset.gd   Simulasi pasar (GBM, RNG ber-seed)
@@ -49,6 +50,7 @@ scripts/
     data_loader.gd            Baca JSON
     quiz_manager.gd           Bank soal + jatah mingguan (waktu nyata) + kredit iklan
     event_manager.gd          Pemilihan event berdasarkan syarat & bobot
+    save_db.gd                Pembungkus tipis SQLite: query, insert banyak baris, transaksi, skema
   ui/
     main.gd                   Shell: top bar, router tab, tombol Lanjut, popup
     price_chart.gd            Grafik garis (dipakai di Pasar & Portofolio)
@@ -119,7 +121,7 @@ scenes/
   - [x] (2) Pembagian gaji + autodebet; tombol +6 Bln / +1 Thn dihapus
   - [x] (3) Impian + target bulanan + perayaan
   - [x] (4) Event Director + kuis 6/minggu tanpa iklan
-  - [ ] (5) SQLite
+  - [x] (5) SQLite (semua langkah selesai; tinggal playtest)
 - [ ] **v1.5a/b/c, v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
 Rangkuman semua checklist MVP (v1, v1.5, v2, M7) ada di [docs/CHECKLIST_MVP.md](docs/CHECKLIST_MVP.md).
@@ -183,6 +185,28 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Kuis:** 6 soal per minggu nyata, tanpa iklan. Setiap soal yang dibuka memakai jatah; soal yang sudah muncul minggu ini tidak diulang di minggu yang sama (`QuizManager.shown_this_week`).
 - **Iklan dilepas dari UI:** tombol "Tonton iklan" dihapus. `AdService` masih terdaftar sebagai autoload tetapi tidak dipanggil (disimpan untuk v3). Kebijakan privasi kini menyatakan game tanpa iklan.
 
+## Penyimpanan SQLite (v1.5-0 langkah 5)
+
+- **Plugin:** `godot-sqlite` v4.9 (GDExtension, MIT) di `addons/godot-sqlite/`. Analogi web: seperti memasang paket npm berisi *native binary*. Hanya pustaka Windows (editor) dan Android arm64 (APK) yang disimpan. Plugin ini tidak menyediakan Android 32-bit, jadi preset export kini **arm64 saja**.
+- **Pembagian kerja:** `GameState` tetap store di memori dan tidak tahu soal database. `SaveManager` berperan sebagai *repository* yang memetakan `GameState.to_dict()` ke tabel, lewat `SaveDb` (pembungkus SQL). Fungsi publik `SaveManager` tidak berubah, jadi UI tidak perlu diubah.
+- **Tabel** di `user://cuan_quest.db`:
+
+| Tabel | Isi |
+|:--|:--|
+| `player` | Data pemain: kuis, tutorial, petunjuk (key -> JSON) |
+| `games` | Riwayat permainan selesai (semua; 10 terakhir tampil di Profil) |
+| `slots` | Satu baris per slot (`auto`, `slot_1..3`): versi, nama, bulan, kekayaan, dan sisa state |
+| `price_daily` | Harga harian per aset, 24 bulan terakhir (`month`, `day`) |
+| `price_monthly` | Harga penutupan bulanan per aset, sepanjang permainan |
+| `transactions` | Riwayat transaksi per slot (200 terakhir), kunci `seq` |
+
+- **Simpan bertahap:** `SaveManager._synced` mencatat sampai bulan dan transaksi ke berapa tiap slot sudah tersimpan. Simpan berikutnya hanya menulis data baru dan menghapus harga harian yang lewat 24 bulan. Setelah game baru atau dimuat (`GameState.run_id` berubah), slot ditulis ulang penuh sekali. Di PC: simpan bertahap ±10 ms, tulis penuh ±16 ms, muat ±20 ms.
+- **Kenapa sisa state disimpan biner (`var_to_bytes`), bukan JSON:** pembaca angka teks Godot meleset 1 digit terakhir pada ±10% angka desimal, walau teksnya 17 digit. Akibatnya permainan yang dimuat bisa bercabang sedikit dari aslinya (simpanan JSON lama juga begitu). Kolom `REAL` SQLite dan format biner selalu persis, sehingga "simpan → lanjut 3 bulan" kini sama persis dengan "muat → lanjut 3 bulan".
+- **Transaksi atomik:** setiap simpan dibungkus `BEGIN ... COMMIT`. Jika gagal di tengah jalan, semuanya dibatalkan (`ROLLBACK`), jadi tidak ada simpanan setengah jadi. Mode WAL mengurangi tulis ke disk (hemat baterai) dan aman bila app dimatikan Android.
+- **Impor JSON lama:** saat game dibuka dan masih ada `player.json` / `saves/*.json`, isinya dipindah ke database sekali lalu file lamanya dihapus. Save versi 2 ikut pindah utuh; save versi 1 tetap ditolak (tanpa migrasi).
+- **Melihat isi database:** buka `%APPDATA%\Godot\app_userdata\Cuan Quest\cuan_quest.db` dengan [DB Browser for SQLite](https://sqlitebrowser.org/) saat game tidak berjalan. Kolom `slots.state` berupa biner, sedangkan tabel lain bisa dibaca langsung.
+- **Uji otomatis tanpa menyentuh data asli:** jalankan Godot dengan `-- --save-root=user://_uji/`. **Semua** perintah Godot yang menjalankan kode game, termasuk `--script`, ikut menjalankan `SaveManager`. Tanpa argumen ini, data asli di `user://` ikut terbaca dan diubah.
+
 ## Event, Kuis & Unlock (M4)
 
 - **Antrean popup** (`main.gd`): setelah Lanjut bisa muncul beberapa popup berurutan, yaitu laporan, lalu instrumen baru, lalu event. Popup berikutnya tampil setelah yang sebelumnya ditutup. Tombol Lanjut nonaktif selama ada event yang belum diputuskan.
@@ -194,10 +218,11 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 
 - **Alur layar:** `title.tscn` -> `new_game.tscn` -> `tutorial.tscn` (hanya jika belum pernah) -> `main.tscn`. Perpindahan memakai `get_tree().change_scene_to_file()`, sedangkan autoload (`GameState` dkk.) tetap hidup.
 - **Dua jenis data:**
-  - *Slot save* (`user://saves/auto.json`, `slot_1..3.json`): state satu permainan, hasil `GameState.to_dict()`.
-  - *Data pemain* (`user://player.json`): jatah kuis, status tutorial, dan petunjuk yang sudah dilihat. Dipisah agar membuat save baru tidak mereset jatah kuis mingguan.
+  - *Slot save* (`auto`, `slot_1..3`): state satu permainan, hasil `GameState.to_dict()`.
+  - *Data pemain*: jatah kuis, status tutorial, dan petunjuk yang sudah dilihat. Dipisah agar membuat save baru tidak mereset jatah kuis mingguan.
+  - Sejak v1.5-0 langkah 5 keduanya disimpan di database SQLite `user://cuan_quest.db` (lihat bagian Penyimpanan SQLite); sebelumnya berupa file JSON.
 - **Kapan tersimpan otomatis:** setiap akhir bulan, setiap event diputuskan, serta saat aplikasi di-pause (Android) atau ditutup.
-- **Lokasi file di PC:** `%APPDATA%\Godot\app_userdata\Cuan Quest\`. Hapus folder `saves` untuk mulai dari nol.
+- **Lokasi file di PC:** `%APPDATA%\Godot\app_userdata\Cuan Quest\`. Hapus `cuan_quest.db` (atau Profil -> Reset Data) untuk mulai dari nol.
 - **Pelajaran dari bug:** urutan key `Dictionary` bisa berubah setelah melewati JSON. Loop yang mengambil angka acak harus memakai urutan tetap (lihat `Market._factor_order()`), kalau tidak hasil simulasi setelah load akan berbeda. Hal yang sama berlaku untuk RNG state 64-bit, yang disimpan sebagai string karena angka JSON hanya presisi 53-bit.
 - **Menjalankan scene utama langsung (F6)** tetap bisa: `main.gd` otomatis membuat game baru dengan profil default.
 
@@ -213,7 +238,7 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 | Kalah: Bangkrut | Kas minus 3 bulan berturut-turut | Sebelumnya aset dijual paksa, mulai dari risiko terendah |
 | Kalah: Kesehatan/Kebahagiaan | Bernilai 0 selama 3 bulan berturut-turut | Ada peringatan merah di laporan bulanan |
 
-- **Game over** menghapus simpanan otomatis dan mencatat hasilnya di *Riwayat Permainan* (`player.json`). Slot manual tetap ada, sehingga pemain bisa memuat ulang ke titik sebelumnya.
+- **Game over** menghapus simpanan otomatis dan mencatat hasilnya di *Riwayat Permainan* (tabel `games`). Slot manual tetap ada, sehingga pemain bisa memuat ulang ke titik sebelumnya.
 - **Analisis akhir** (`EndAnalysis`) dibuat berbasis aturan dari statistik selama bermain, misalnya rugi karena penipuan, panik jual, uang menganggur, gaya hidup mewah, biaya transaksi, dan konsentrasi aset.
 - **Efek suara** (`Sfx`) dibangkitkan dari gelombang sinus, tanpa file audio. Semua tombol otomatis berbunyi lewat signal `SceneTree.node_added`. Musik belum ada, karena butuh aset audio.
 - **Bahasa Inggris** baru mencakup tampilan; isi event/kuis/glosarium masih Bahasa Indonesia.

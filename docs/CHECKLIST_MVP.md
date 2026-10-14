@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 13 Oktober 2026 (v1.5-0 langkah 4 selesai)
+- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5-0 langkah 5 selesai; semua langkah v1.5-0 selesai, tinggal playtest)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -13,7 +13,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v1** (M1-M6.5) | Game dasar, 15 item GDD bagian 11 | ✅ 15/15 |
 | **UI "Senja Cuan"** | Redesain seluruh tampilan | ✅ |
 | **Prototipe waktu A/B/C** | Uji sistem waktu berjalan (tidak dipakai, diarsipkan) | ✅ |
-| **v1.5-0** | Giliran Bulanan yang Hidup | 🔄 4/5 langkah |
+| **v1.5-0** | Giliran Bulanan yang Hidup | 🔄 5/5 langkah; tinggal playtest |
 | **v1.5a** | Realisme ekonomi | ⬜ |
 | **v1.5b** | Utang, properti, hunian yang tumbuh | ⬜ |
 | **v1.5c** | Karier, tokoh, konten | ⬜ |
@@ -56,7 +56,7 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 | 2 | Rencana gaji + autodebet; hapus tombol +6 Bln / +1 Thn | ✅ |
 | 3 | Impian + target bulanan + perayaan | ✅ |
 | 4 | Event Director + kuis 6 soal/minggu tanpa iklan + lepas iklan | ✅ |
-| 5 | Penyimpanan SQLite | ⬜ |
+| 5 | Penyimpanan SQLite | ✅ |
 
 ### Rincian fitur
 
@@ -99,9 +99,15 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 - ✅ Tombol iklan dihapus; teks iklan di UI, `legal.json`, dan kebijakan privasi disesuaikan (game tanpa iklan)
 - 🔄 Catatan keseimbangan: event kini rata-rata 1,42/bulan (sebelumnya 0,61); simulasi 10 tahun menunjukkan gaji & kekayaan tumbuh lebih cepat karena event positif ikut lebih sering. Ditinjau saat penyeimbangan ekonomi
 
-**Langkah 5: SQLite** ⬜
-- ⬜ Cek kompatibilitas plugin `godot-sqlite` dengan Godot 4.7 dan Android
-- ⬜ Pindahkan state permainan, riwayat harga, transaksi, dan riwayat permainan ke SQLite
+**Langkah 5: SQLite** ✅
+- ✅ Plugin `godot-sqlite` v4.9 (MIT) cocok dengan Godot 4.7; Android hanya arm64, jadi APK kini arm64 saja (HP 32-bit tidak didukung)
+- ✅ Satu database `user://cuan_quest.db` berisi 6 tabel: data pemain, riwayat permainan, slot save, harga harian, harga bulanan, transaksi
+- ✅ Riwayat harga bertingkat: harian 24 bulan terakhir + penutupan bulanan sepanjang permainan
+- ✅ Simpan bertahap: hanya data baru yang ditulis (±10 ms per simpan otomatis di PC)
+- ✅ Simpan & muat persis sampai digit terakhir (sisa state disimpan biner, bukan JSON)
+- ✅ Riwayat permainan disimpan semua (tampil 10 terakhir); hapus slot ikut menghapus harga & transaksinya
+- ✅ File JSON lama (`player.json`, `saves/*.json`) diimpor otomatis sekali saat game dibuka, lalu dihapus
+- ✅ Uji otomatis: 52 pemeriksaan (bertahap == penuh, muat lalu lanjut 3 bulan == tanpa muat, batas 200 transaksi, save lama ditolak, impor JSON lama)
 
 ### Kriteria selesai v1.5-0
 
@@ -111,7 +117,7 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 - ✅ Autodebet tereksekusi setiap bulan dan dicatat di laporan serta riwayat transaksi
 - ✅ Minimal 12 impian; progres, tercapai, dan terlewat berjalan benar
 - ✅ Event Director menghasilkan 0-3 event per bulan sesuai distribusi, dan rantai event berjalan
-- ✅ Simpan dan muat menghasilkan keadaan yang sama persis (harga, RNG, antrean & jadwal event)
+- ✅ Simpan dan muat menghasilkan keadaan yang sama persis (harga, RNG, antrean & jadwal event; sejak SQLite persis sampai digit terakhir)
 - ✅ Save versi lama ditolak dengan pesan yang jelas, tanpa crash
 - ✅ Kuota kuis 6 soal per minggu, tanpa tombol iklan
 - ⬜ **Playtest:** penguji rata-rata memainkan minimal 10 bulan per sesi dan jarang merasa "hanya menekan Lanjut"
@@ -197,7 +203,8 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 
 ## M7: Rilis Play Store (setelah v2) ⬜
 
-- ⬜ Export Android rilis (keystore, ikon adaptif)
+- ⬜ Export Android rilis (keystore, ikon adaptif; arm64 saja)
+- ⬜ Layar lisensi pihak ketiga (Godot & godot-sqlite: MIT; SQLite: domain publik; font: OFL)
 - ⬜ Isi `[EMAIL KONTAK]` dan `[NAMA PENGEMBANG]` di `data/legal.json` dan `docs/kebijakan-privasi.md`
 - ⬜ Kebijakan privasi di URL publik, formulir *Data safety*
 - ⬜ Rilis Play Store (tanpa iklan dan tanpa pembelian)
