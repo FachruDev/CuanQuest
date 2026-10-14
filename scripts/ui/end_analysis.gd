@@ -34,6 +34,11 @@ static func insights(state: Node) -> Array[String]:
 	if concentration > 0.7 and state.investments_value() > 10_000_000:
 		out.append(_t("INSIGHT_CONCENTRATION") % Fmt.percent_plain(concentration))
 
+	if float(s.get("insurance_claims", 0)) > 0.0:
+		out.append(_t("INSIGHT_INSURANCE") % [Fmt.rupiah(s["insurance_claims"]), Fmt.rupiah(s["insurance_premiums"])])
+	elif float(s.get("uninsured_medical", 0)) >= 5_000_000:
+		out.append(_t("INSIGHT_UNINSURED") % Fmt.rupiah(s["uninsured_medical"]))
+
 	if state.is_financially_free():
 		out.append(_t("INSIGHT_GOOD_FREEDOM"))
 	if s["total_interest"] > 1_000_000:

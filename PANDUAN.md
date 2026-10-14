@@ -28,7 +28,8 @@ data/
   economy.json                Gaji, modal awal, pilihan makan & tempat tinggal (untuk balancing)
   market.json                 Siklus pasar, suku bunga acuan, peluang berita
   news.json                   Template berita pasar & dampaknya ke harga
-  events.json                 33 event hidup: syarat muncul, pilihan, efek
+  events.json                 42 event hidup: syarat muncul, pilihan, efek, klaim asuransi
+  insurance.json              Produk asuransi: premi, tanggungan, masa tunggu
   quiz.json                   39 soal kuis (4 topik)
   glossary.json               31 istilah glosarium
   legal.json                  Kebijakan privasi & syarat penggunaan (tampil di game)
@@ -125,7 +126,7 @@ scenes/
 - [ ] **v1.5a "Realisme Ekonomi"**:
   - [x] (1) Inflasi, suku bunga BI & daya beli
   - [x] (2) Pajak + layar konfirmasi transaksi
-  - [ ] (3) Asuransi
+  - [x] (3) Asuransi
   - [ ] (4) Stop loss & take profit
   - [ ] (5) Penyeimbangan ekonomi
 - [ ] **v1.5b/c, v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
@@ -202,6 +203,15 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Laporan & UI:** bagian Ekonomi di laporan bulanan (inflasi, daya beli kas + tabungan + pos impian yang tergerus), kartu Daya Beli di Profil, chip inflasi di Pasar.
 - **Simulasi 40 permainan x 10 tahun** (pilihan acak): indeks harga median 1,43; kekayaan nominal median Rp775 jt, kekayaan riil Rp536 jt (tanpa inflasi Rp587 jt); gaji akhir median Rp20,1 jt nominal. Semua permainan bertahan, jadi game masih tergolong mudah. Penyeimbangan dijadwalkan di langkah 5 setelah pajak & asuransi.
 - **Save lama:** slot tanpa data inflasi tetap bisa dimuat; indeks harga dianggap mulai dari 1,0 saat dimuat.
+
+## Asuransi (v1.5a langkah 3)
+
+- **Data:** `data/insurance.json` berisi produk per kategori (`health`, `life`, `vehicle`), premi (harga awal permainan, ikut inflasi), `coverage`, `critical_payout`, `premium_rate` & `deductible` (kendaraan), serta `waiting_months`.
+- **State:** `GameState.policies` = `{kategori: {"id", "since"}}`. `set_insurance()` dari popup Perlindungan; ganti produk = masa tunggu ulang. `active_policy()` hanya mengembalikan polis yang sudah melewati masa tunggu.
+- **Premi:** `_pay_premiums()` di `_start_month` setelah gaji & biaya hidup, sebelum rencana gaji. Kas kurang = polis berhenti (`insurance_lapsed` di laporan). `plan_preview()` memasukkan premi sehingga "Sisa ke kas" sudah memperhitungkannya.
+- **Klaim:** pilihan event dengan `"claim": "medical"` (ditanggung asuransi kesehatan) atau `"vehicle"` (asuransi kendaraan, dikurangi risiko sendiri). `insurance_cover(choice)` dipakai di `can_choose` (yang ditanggung tidak perlu dibayar dulu), `resolve_event`, dan label pilihan di popup event. Event `"critical": true` membayar uang pertanggungan asuransi jiwa.
+- **Kendaraan:** `vehicle()` = "car"/"motor" dari impian yang sudah terwujud (v1.5b akan menjadikannya aset sungguhan). Event dengan `"requires": "has_vehicle"` hanya muncul jika punya kendaraan; `"cost_vehicle": 0.15` = biaya 15% dari harga kendaraan.
+- **Menambah event yang bisa diklaim:** beri pilihan `"claim": "medical"` atau `"vehicle"`. Teks event tidak perlu menyebut asuransi; popup menampilkan bagian yang ditanggung secara otomatis.
 
 ## Pajak & Layar Konfirmasi Transaksi (v1.5a langkah 2)
 

@@ -52,6 +52,7 @@ func _ready() -> void:
 		_enqueue(%SummaryPopup.show_report.bind(report))
 		_enqueue_plan_review())
 	%HomeScreen.plan_requested.connect(func() -> void: _enqueue(%PlanPopup.open))
+	%HomeScreen.insurance_requested.connect(func() -> void: _enqueue(%InsurancePopup.open))
 	%MarketScreen.trade_requested.connect(func(asset_id: String, is_buy: bool, amount: int) -> void:
 		_enqueue(%TradeConfirmPopup.open.bind(asset_id, is_buy, amount)))
 	%TradeConfirmPopup.trade_done.connect(%MarketScreen.show_trade_result)
@@ -88,7 +89,7 @@ func _ready() -> void:
 	%ActivityScreen.quiz_requested.connect(func(question: Dictionary) -> void:
 		_enqueue(%QuizPopup.open.bind(question)))
 	for popup: ModalPopup in [%SummaryPopup, %InfoPopup, %EventPopup, %QuizPopup, %GlossaryPopup, %TextPopup,
-			%PlanPopup, %DreamPickerPopup, %DreamPopup, %TradeConfirmPopup]:
+			%PlanPopup, %DreamPickerPopup, %DreamPopup, %TradeConfirmPopup, %InsurancePopup]:
 		popup.closed.connect(_show_next_popup)
 
 	_build_toast()

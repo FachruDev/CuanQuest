@@ -5,12 +5,14 @@ extends ScrollContainer
 signal plan_requested
 signal dream_requested(dream_id: String)
 signal add_dream_requested
+signal insurance_requested
 
 var _food_buttons: Dictionary = {}     # option_id -> Button
 var _housing_buttons: Dictionary = {}
 var _plan_values: Dictionary = {}      # "lifestyle" | "emergency" | "dreams" | "invest" -> Label nilai
 var _dreams_box: VBoxContainer         # isi kartu Impian (dibangun ulang saat data berubah)
 var _targets_box: VBoxContainer        # isi kartu Target Bulan Ini
+var _insurance_box: VBoxContainer      # isi kartu Perlindungan (asuransi)
 
 
 func _ready() -> void:
@@ -34,6 +36,7 @@ func _refresh() -> void:
 	var salary_tax := 0 if unemployed else GameState.income_tax(GameState.salary)
 	var preview := GameState.plan_preview(GameState.plan, income)
 	var surplus: int = preview["surplus"]
+	_plan_values["insurance"].text = Fmt.signed_rupiah(-preview["insurance"])
 	_plan_values["lifestyle"].text = Fmt.signed_rupiah(-preview["lifestyle"])
 	_plan_values["emergency"].text = Fmt.rupiah(preview["emergency"])
 	_plan_values["dreams"].text = Fmt.rupiah(preview["dreams_total"])
@@ -63,6 +66,7 @@ func _refresh() -> void:
 
 	_refresh_dreams()
 	_refresh_targets()
+	_refresh_insurance()
 
 	for id: String in _food_buttons:
 		_food_buttons[id].set_pressed_no_signal(id == GameState.food_id)
@@ -77,7 +81,8 @@ func _refresh() -> void:
 func _build_plan_rows() -> void:
 	var card: VBoxContainer = %SurplusBox.get_parent()
 	var index := %SurplusBox.get_index()
-	for item: Array in [["lifestyle", "PLAN_LIFESTYLE", Palette.LOSS], ["emergency", "PLAN_EMERGENCY", Palette.TEAL],
+	for item: Array in [["insurance", "PLAN_INSURANCE", Palette.LOSS],
+			["lifestyle", "PLAN_LIFESTYLE", Palette.LOSS], ["emergency", "PLAN_EMERGENCY", Palette.TEAL],
 			["dreams", "PLAN_DREAMS", Palette.TEAL], ["invest", "PLAN_INVEST", Palette.TEAL]]:
 		var row := HBoxContainer.new()
 		var name_label := Label.new()
@@ -114,7 +119,8 @@ func _build_plan_rows() -> void:
 func _build_goal_cards() -> void:
 	var page: VBoxContainer = $VBox
 	var index := page.get_node("WellbeingCard").get_index() + 1
-	for item: Array in [["DREAMS_TITLE", "_dreams_box"], ["TARGETS_TITLE", "_targets_box"]]:
+	for item: Array in [["DREAMS_TITLE", "_dreams_box"], ["TARGETS_TITLE", "_targets_box"],
+			["INS_TITLE", "_insurance_box"]]:
 		var title := Label.new()
 		title.text = tr(item[0])
 		title.theme_type_variation = &"SubSectionLabel"
@@ -129,6 +135,38 @@ func _build_goal_cards() -> void:
 		page.move_child(card, index + 1)
 		index += 2
 		set(item[1], box)
+
+
+## Kartu Perlindungan: status asuransi per kategori + tombol "Atur asuransi".
+func _refresh_insurance() -> void:
+	_clear(_insurance_box)
+	for category: String in GameState.insurance_data["categories"]:
+		var row := HBoxContainer.new()
+		var name_label := Label.new()
+		name_label.text = tr("INS_NAME_" + category.to_upper())
+		name_label.theme_type_variation = &"RowLabel"
+		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var value := Label.new()
+		value.theme_type_variation = &"RowValueLabel"
+		var product := GameState.policy_product(category)
+		if product.is_empty():
+			value.text = tr("HOME_INS_NONE")
+			value.add_theme_color_override("font_color", Palette.MUTED)
+		elif GameState.active_policy(category).is_empty():
+			value.text = tr("HOME_INS_WAITING") % tr(product["name"])
+			value.add_theme_color_override("font_color", Palette.MUTED)
+		else:
+			value.text = tr(product["name"])
+			value.add_theme_color_override("font_color", Palette.TEAL)
+		value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		value.custom_minimum_size.x = 300
+		row.add_child(name_label)
+		row.add_child(value)
+		_insurance_box.add_child(row)
+	var button := UiText.chunky_button(tr("HOME_INS_BUTTON"), &"NeutralButton", &"NeutralButtonLabel", 68.0)
+	button.pressed.connect(insurance_requested.emit)
+	_insurance_box.add_child(button)
 
 
 func _refresh_dreams() -> void:

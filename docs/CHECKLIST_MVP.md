@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5a langkah 2 selesai)
+- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5a langkah 3 selesai)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -14,7 +14,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **UI "Senja Cuan"** | Redesain seluruh tampilan | ✅ |
 | **Prototipe waktu A/B/C** | Uji sistem waktu berjalan (tidak dipakai, diarsipkan) | ✅ |
 | **v1.5-0** | Giliran Bulanan yang Hidup | 🔄 5/5 langkah; tinggal playtest |
-| **v1.5a** | Realisme ekonomi | 🔄 2/5 langkah |
+| **v1.5a** | Realisme ekonomi | 🔄 3/5 langkah |
 | **v1.5b** | Utang, properti, hunian yang tumbuh | ⬜ |
 | **v1.5c** | Karier, tokoh, konten | ⬜ |
 | **v2a-v2d** | Instrumen lanjut, hidup penuh, dana investor, mini-game | ⬜ |
@@ -132,7 +132,7 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 |:--|:--|:--|
 | 1 | Inflasi, suku bunga BI & daya beli | ✅ |
 | 2 | Pajak + layar konfirmasi transaksi (fee, pajak, konsentrasi, indikator risiko) | ✅ |
-| 3 | Asuransi kesehatan, jiwa, kendaraan + klaim di event | ⬜ |
+| 3 | Asuransi kesehatan, jiwa, kendaraan + klaim di event | ✅ |
 | 4 | Stop loss & take profit (dicek harian) | ⬜ |
 | 5 | Penyeimbangan ekonomi (simulasi + playtest) | ⬜ |
 
@@ -161,9 +161,15 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 - ✅ Database skema 2: kolom `tax` di tabel transaksi (migrasi otomatis dari skema 1)
 - ✅ Simulasi 40 x 10 tahun: kekayaan riil median Rp488 jt; total pajak 10 tahun median Rp54,7 jt; semua permainan bertahan
 
-**Langkah 3: Asuransi** ⬜
-- ⬜ Asuransi kesehatan, jiwa, kendaraan; premi masuk rencana gaji
-- ⬜ Klaim otomatis saat event sakit / kecelakaan / kendaraan rusak
+**Langkah 3: Asuransi** ✅
+- ✅ 4 produk di `data/insurance.json`: BPJS Kesehatan (premi Rp150 rb, tanggung 80%), asuransi kesehatan swasta (Rp500 rb, 100%), asuransi jiwa berjangka (Rp150 rb, uang pertanggungan Rp100 jt saat penyakit kritis), kendaraan all risk (2,5%/tahun harga kendaraan, risiko sendiri Rp300 rb)
+- ✅ Popup Perlindungan + kartu Perlindungan di Beranda; premi tampil di rencana gaji, Arus Kas Beranda, dan laporan bulanan
+- ✅ Premi dibayar otomatis tiap awal bulan (ikut inflasi); masa tunggu 1 bulan; polis berhenti jika kas tidak cukup
+- ✅ Klaim otomatis: pilihan event bertanda `claim` (berobat: demam, rawat inap, gigi, penyakit kritis; kendaraan: kecelakaan) dan event `critical` (asuransi jiwa)
+- ✅ Event baru: Kecelakaan di Jalan (hanya jika punya kendaraan dari impian motor/mobil), Penyakit Kritis (langka, sekali seumur permainan), Tawaran Unit Link (edukasi). Total 42 event
+- ✅ Pilihan event menampilkan "bayar RpX, asuransi menanggung RpY"; hasil event menampilkan klaim
+- ✅ Analisis akhir: manfaat asuransi atau biaya berobat yang dibayar sendiri
+- ✅ Glosarium: Polis, Premi, Klaim, Masa tunggu, Risiko sendiri, Unit link, Uang pertanggungan
 
 **Langkah 4: Stop loss & take profit** ⬜
 - ⬜ Pesanan otomatis per aset, dicek setiap hari di simulasi harian, tercatat di riwayat transaksi
@@ -174,7 +180,7 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 **Kriteria selesai**
 - ✅ Uang yang hanya disimpan di tabungan terasa tergerus dari waktu ke waktu
 - ✅ Laporan bulanan menampilkan pajak dan fee dengan jelas
-- ⬜ Event sakit/kecelakaan berbeda hasilnya bagi yang berasuransi
+- ✅ Event sakit/kecelakaan berbeda hasilnya bagi yang berasuransi
 - ⬜ Stop loss & take profit tereksekusi tepat dan tercatat di riwayat
 
 ## v1.5b: Utang, Properti, dan Hunian yang Tumbuh ⬜

@@ -40,6 +40,7 @@ func _build_rows() -> void:
 	_values.clear()
 	_notes.clear()
 	%Rows.add_child(_row("basic", tr("PLAN_BASIC"), false))
+	%Rows.add_child(_row("insurance", tr("PLAN_INSURANCE"), false))
 	%Rows.add_child(_row("lifestyle", tr("PLAN_LIFESTYLE"), true))
 	%Rows.add_child(_row("emergency", tr("PLAN_EMERGENCY"), true))
 
@@ -80,7 +81,7 @@ func _row(key: String, title: String, adjustable: bool) -> VBoxContainer:
 		row.add_child(value)
 	box.add_child(row)
 	_values[key] = value
-	if key in ["basic", "lifestyle", "emergency"] or key.begins_with(DREAM_PREFIX):
+	if key in ["basic", "insurance", "lifestyle", "emergency"] or key.begins_with(DREAM_PREFIX):
 		var note := _label("", &"SmallMutedLabel")
 		box.add_child(note)
 		_notes[key] = note
@@ -127,6 +128,8 @@ func _refresh() -> void:
 	var preview := GameState.plan_preview(_draft, income)
 	_values["basic"].text = Fmt.rupiah(preview["basic"])
 	_notes["basic"].text = tr("PLAN_BASIC_NOTE")
+	_values["insurance"].text = Fmt.rupiah(preview["insurance"])
+	_notes["insurance"].text = tr("PLAN_INSURANCE_NOTE")
 
 	_values["lifestyle"].text = _share_text(_share("lifestyle"), preview["lifestyle"])
 	_notes["lifestyle"].text = tr("PLAN_LIFESTYLE_NOTE") % GameState.lifestyle_happiness(_share("lifestyle"))

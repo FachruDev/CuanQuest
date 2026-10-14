@@ -25,7 +25,10 @@ func open(event: Dictionary) -> void:
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		var text := UiText.money(tr(choice["label"]))
 		var cost := GameState.choice_cost(choice)
-		if cost > 0:
+		var covered := GameState.insurance_cover(choice)
+		if covered > 0:
+			text += " " + tr("EVENT_COST_COVERED") % [Fmt.rupiah(cost - covered), Fmt.rupiah(covered)]
+		elif cost > 0:
 			text += " (%s)" % Fmt.rupiah(cost)
 		if not GameState.can_choose(choice):
 			button.disabled = true
@@ -44,6 +47,9 @@ func open(event: Dictionary) -> void:
 func _on_choice(index: int) -> void:
 	var result := GameState.resolve_event(index)
 	%Choices.hide()
-	%ResultLabel.text = UiText.money(tr(result["result"]))
+	var text := UiText.money(tr(result["result"]))
+	for claim: Dictionary in result.get("claims", []):
+		text += "\n" + tr("EVENT_CLAIM_" + str(claim["category"]).to_upper()) % Fmt.rupiah(claim["amount"])
+	%ResultLabel.text = text
 	%ChangesLabel.text = UiText.changes_text(result["changes"])
 	%ResultBox.show()

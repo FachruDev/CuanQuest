@@ -598,3 +598,32 @@ HOME_NET_SALARY_LABEL,Gaji bersih,Net salary
 HOME_SALARY_TAX_NOTE,Gaji %s dipotong PPh 21 %s,Gross %s minus income tax %s
 INFO_TAX,Pajak beli %s | Pajak jual %s,Buy tax %s | Sell tax %s
 PROFILE_STAT_COSTS,Pajak & fee dibayar,Taxes & fees paid
+INS_TITLE,Perlindungan,Protection
+INS_BODY,"Asuransi memindahkan risiko biaya besar ke perusahaan asuransi dengan premi rutin. Premi dibayar otomatis tiap awal bulan, perlindungan berlaku setelah masa tunggu %d bulan, dan polis berhenti jika kas tidak cukup membayar premi.","Insurance transfers the risk of big costs to an insurer for a regular premium. Premiums are paid automatically at the start of each month, coverage starts after a %d-month waiting period, and the policy stops if your cash can't cover the premium."
+INS_TOTAL,Total premi %s / bulan,Total premiums %s / month
+INS_CAT_HEALTH,KESEHATAN,HEALTH
+INS_CAT_LIFE,JIWA,LIFE
+INS_CAT_VEHICLE,KENDARAAN,VEHICLE
+INS_NAME_HEALTH,Kesehatan,Health
+INS_NAME_LIFE,Jiwa,Life
+INS_NAME_VEHICLE,Kendaraan,Vehicle
+INS_NONE,Tanpa asuransi,No insurance
+INS_NONE_DESC,Semua biaya ditanggung sendiri dari kas dan dana darurat.,You pay every cost yourself from cash and your emergency fund.
+INS_PER_MONTH,%s / bulan,%s / month
+INS_NEED_VEHICLE,Belum punya kendaraan. Asuransi kendaraan tersedia setelah impian motor atau mobil terwujud.,No vehicle yet. Vehicle insurance becomes available once your motorbike or car dream comes true.
+INS_STATUS_ACTIVE,Polis aktif: %s.,Active policy: %s.
+INS_STATUS_WAITING,Masa tunggu: %s mulai melindungi %s.,Waiting period: %s starts covering you in %s.
+INS_SAVE,Simpan perlindungan,Save protection
+HOME_INS_NONE,Belum ada,None
+HOME_INS_WAITING,%s (masa tunggu),%s (waiting period)
+HOME_INS_BUTTON,Atur asuransi,Manage insurance
+PLAN_INSURANCE,Premi asuransi,Insurance premiums
+PLAN_INSURANCE_NOTE,Diatur di kartu Perlindungan di Beranda.,Managed in the Protection card on Home.
+EVENT_COST_COVERED,"(bayar %s, asuransi menanggung %s)","(you pay %s, insurance covers %s)"
+EVENT_CLAIM_HEALTH,Asuransi kesehatan menanggung %s.,Health insurance covered %s.
+EVENT_CLAIM_VEHICLE,Asuransi kendaraan menanggung %s.,Vehicle insurance covered %s.
+EVENT_CLAIM_LIFE,Asuransi jiwa membayar uang pertanggungan %s.,Life insurance paid a benefit of %s.
+REPORT_INSURANCE,Premi asuransi,Insurance premiums
+REPORT_INSURANCE_LAPSED,Polis %s berhenti karena kas tidak cukup membayar premi.,Your %s policy lapsed because cash couldn't cover the premium.
+INSIGHT_INSURANCE,"Asuransi menanggung %s biaya selama permainan, dengan total premi %s. Perlindungan membuat kejadian besar tidak menghancurkan keuanganmu.",Insurance covered %s of costs during the game for %s in total premiums. Protection keeps big events from wrecking your finances.
+INSIGHT_UNINSURED,"Kamu membayar sendiri %s biaya berobat. Asuransi kesehatan, bahkan BPJS, bisa meringankan beban seperti ini.","You paid %s in medical costs yourself. Health insurance, even BPJS, can ease costs like these."

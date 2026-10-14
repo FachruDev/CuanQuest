@@ -28,6 +28,10 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 	_add_header(box, "REPORT_EXPENSES")
 	_add_row(box, "REPORT_FOOD", Fmt.signed_rupiah(-r["food_cost"]), Palette.LOSS)
 	_add_row(box, "REPORT_HOUSING", Fmt.signed_rupiah(-r["housing_cost"]), Palette.LOSS)
+	if int(r.get("insurance_premium", 0)) > 0:
+		_add_row(box, "REPORT_INSURANCE", Fmt.signed_rupiah(-r["insurance_premium"]), Palette.LOSS)
+	for policy_name: String in r.get("insurance_lapsed", []):
+		_add_text(box, TranslationServer.translate("REPORT_INSURANCE_LAPSED") % TranslationServer.translate(policy_name), Palette.LOSS)
 	if int(r.get("lifestyle_cost", 0)) > 0:
 		_add_row(box, "REPORT_LIFESTYLE", Fmt.signed_rupiah(-r["lifestyle_cost"]), Palette.LOSS)
 

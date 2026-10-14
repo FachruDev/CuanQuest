@@ -91,4 +91,6 @@ func _is_eligible(def: Dictionary, state: Node) -> bool:
 			return not state.holdings.is_empty()
 		"low_happiness":
 			return state.happiness < 40
+		"has_vehicle":
+			return state.vehicle() != ""
 	return true

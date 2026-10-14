@@ -1,0 +1,16 @@
+{
+	"_comment": [
+		"Asuransi (v1.5a langkah 3). Premi dibayar otomatis tiap awal bulan (harga awal permainan, ikut inflasi lewat GameState.nominal).",
+		"Polis aktif setelah waiting_months bulan (masa tunggu) dan berhenti jika kas tidak cukup membayar premi.",
+		"coverage = porsi biaya event yang ditanggung (pilihan event dengan \"claim\": \"medical\" / \"vehicle\"). critical_payout = uang pertanggungan saat event bertanda \"critical\".",
+		"premium_rate (kendaraan) = premi per tahun x harga kendaraan (harga impian motor/mobil yang sudah terwujud). deductible = risiko sendiri per klaim."
+	],
+	"waiting_months": 1,
+	"categories": ["health", "life", "vehicle"],
+	"products": [
+		{ "id": "health_basic", "category": "health", "name": "BPJS Kesehatan", "desc": "Program pemerintah. Menanggung 80% biaya berobat di game; antre lebih lama dan harus lewat faskes pertama.", "premium": 150000, "coverage": 0.8 },
+		{ "id": "health_plus", "category": "health", "name": "Asuransi Kesehatan Swasta", "desc": "Menanggung 100% biaya berobat dan rawat inap, tanpa rujukan berjenjang.", "premium": 500000, "coverage": 1.0 },
+		{ "id": "life_term", "category": "life", "name": "Asuransi Jiwa Berjangka", "desc": "Membayar uang pertanggungan {rp:100000000} jika kamu terkena penyakit kritis. Di dunia nyata juga melindungi keluarga jika pencari nafkah meninggal.", "premium": 150000, "critical_payout": 100000000 },
+		{ "id": "vehicle_allrisk", "category": "vehicle", "name": "Asuransi Kendaraan All Risk", "desc": "Menanggung biaya perbaikan saat kecelakaan, dikurangi risiko sendiri {rp:300000} per klaim. Servis rutin tidak ditanggung.", "premium_rate": 0.025, "coverage": 1.0, "deductible": 300000 }
+	]
+}

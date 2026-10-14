@@ -37,6 +37,7 @@ const EVENTS_PATH := "res://data/events.json"
 const QUIZ_PATH := "res://data/quiz.json"
 const ACTIVITIES_PATH := "res://data/activities.json"
 const DREAMS_PATH := "res://data/dreams.json"
+const INSURANCE_PATH := "res://data/insurance.json"
 const RISK_PROFILE_PATH := "res://data/risk_profile.json"
 const MAX_TRANSACTIONS := 200
 
@@ -112,6 +113,9 @@ var event_queue: Array[String] = []          # event bulan ini yang menunggu gil
 var chain_events: Array[Dictionary] = []     # event lanjutan terjadwal: [{id, due}]
 var director: Dictionary = {}                # {"quiet_months": int, "last_bad": bool}
 var dream_defs: Array = []                   # isi data/dreams.json
+var insurance_data: Dictionary = {}          # isi data/insurance.json
+## Asuransi (v1.5a langkah 3): kategori -> {"id": id produk, "since": bulan polis dimulai}
+var policies: Dictionary = {}
 var _dream_signals: Array[Callable] = []     # impian terwujud/terlewat, dikirim setelah laporan
 var _fast_forwarding := false
 ## Naik setiap game baru / dimuat (tidak disimpan). SaveManager memakainya untuk tahu apakah
@@ -134,6 +138,7 @@ func _ready() -> void:
 	activity_data = DataLoader.load_json(ACTIVITIES_PATH)
 	risk_data = DataLoader.load_json(RISK_PROFILE_PATH)
 	dream_defs = DataLoader.load_json(DREAMS_PATH).get("dreams", [])
+	insurance_data = DataLoader.load_json(INSURANCE_PATH)
 
 
 ## `profile`: { "name", "avatar", "background", "difficulty" } (semua opsional).
@@ -165,6 +170,7 @@ func new_game(profile: Dictionary = {}, seed_value: int = -1) -> void:
 	plan_applied_month = -1
 	dreams.clear()
 	dreams_asked = false
+	policies.clear()
 	event_queue.clear()
 	chain_events.clear()
 	director = _new_director()
@@ -366,6 +372,7 @@ func _start_month() -> Dictionary:
 		stats["luxury_months"] += 1
 	health = clampi(health + int(food["health"]) + int(housing["health"]), 0, 100)
 	happiness = clampi(happiness + int(food["happiness"]) + int(housing["happiness"]), 0, 100)
+	var insurance := _pay_premiums()
 	# Rencana gaji baru berjalan setelah pemain menyimpannya pertama kali (lihat set_plan).
 	var budget := _apply_budget(month_income) if plan.get("confirmed", false) else {}
 	_check_dreams()
@@ -380,7 +387,123 @@ func _start_month() -> Dictionary:
 		"health_delta": health - health_before,
 		"happiness_delta": happiness - happiness_before,
 		"salary_raise": salary_raise,
-	}.merged(budget)
+	}.merged(insurance).merged(budget)
+
+
+# --- Asuransi (v1.5a langkah 3) ---------------------------------------------------
+# Premi dibayar otomatis tiap awal bulan (sebelum rencana gaji). Polis berlaku setelah masa
+# tunggu dan berhenti jika kas tidak cukup. Klaim terjadi otomatis saat event: pilihan
+# bertanda "claim" (medical/vehicle) dan event "critical" (asuransi jiwa).
+
+func insurance_products(category: String) -> Array:
+	return insurance_data.get("products", []).filter(func(p: Dictionary) -> bool:
+		return p["category"] == category)
+
+
+func insurance_product(id: String) -> Dictionary:
+	for p: Dictionary in insurance_data.get("products", []):
+		if p["id"] == id:
+			return p
+	return {}
+
+
+## Produk polis di kategori ini ({} jika tidak punya).
+func policy_product(category: String) -> Dictionary:
+	return insurance_product(policies.get(category, {}).get("id", ""))
+
+
+## Produk polis yang sudah melewati masa tunggu ({} jika belum/ tidak ada).
+func active_policy(category: String) -> Dictionary:
+	if not policies.has(category):
+		return {}
+	if month - int(policies[category]["since"]) < int(insurance_data.get("waiting_months", 1)):
+		return {}
+	return policy_product(category)
+
+
+## Premi sebulan (harga hari ini). Kendaraan: persen per tahun dari harga kendaraan.
+func premium(product: Dictionary) -> int:
+	if product.has("premium_rate"):
+		return nominal(vehicle_base_value() * float(product["premium_rate"]) / 12.0)
+	return nominal(product["premium"])
+
+
+func premiums_total() -> int:
+	var total := 0
+	for category: String in policies:
+		var product := policy_product(category)
+		if not product.is_empty():
+			total += premium(product)
+	return total
+
+
+## Pilihan dari popup Perlindungan: {kategori: id produk atau ""}. Polis baru/ganti produk
+## memulai masa tunggu dari bulan ini; premi pertama dibayar awal bulan depan.
+func set_insurance(choices: Dictionary) -> void:
+	for category: String in choices:
+		var id: String = choices[category]
+		if id == "":
+			policies.erase(category)
+		elif policies.get(category, {}).get("id", "") != id:
+			policies[category] = {"id": id, "since": month}
+	changed.emit()
+	state_committed.emit()
+
+
+## Bagian biaya pilihan event yang ditanggung asuransi aktif (0 jika tidak ada).
+func insurance_cover(choice: Dictionary) -> int:
+	var category := _claim_category(choice)
+	if category == "":
+		return 0
+	var product := active_policy(category)
+	if product.is_empty():
+		return 0
+	var cost := float(choice_cost(choice)) - nominal(product.get("deductible", 0))
+	return maxi(0, roundi(cost * float(product.get("coverage", 0.0))))
+
+
+func _claim_category(choice: Dictionary) -> String:
+	match choice.get("claim", ""):
+		"medical":
+			return "health"
+		"vehicle":
+			return "vehicle"
+	return ""
+
+
+## Kendaraan yang dimiliki dari impian yang sudah terwujud: "car", "motor", atau "".
+func vehicle() -> String:
+	for id: String in ["car", "motor"]:
+		for entry: Dictionary in dreams:
+			if entry["id"] == id and entry["status"] == "achieved":
+				return id
+	return ""
+
+
+## Harga kendaraan (harga awal permainan) untuk premi & biaya perbaikan.
+func vehicle_base_value() -> float:
+	var id := vehicle()
+	return float(dream_def(id)["cost"]) if id != "" else 0.0
+
+
+## Premi semua polis di awal bulan. Jika kas tidak cukup, polis berhenti (lapse).
+func _pay_premiums() -> Dictionary:
+	var paid := 0
+	var lapsed: Array[String] = []
+	for category: String in policies.keys():
+		var product := policy_product(category)
+		if product.is_empty() or (category == "vehicle" and vehicle() == ""):
+			policies.erase(category)
+			continue
+		var amount := premium(product)
+		if cash < amount:
+			policies.erase(category)
+			lapsed.append(product["name"])
+			continue
+		cash -= amount
+		paid += amount
+	stats["insurance_premiums"] += paid
+	return {"insurance_premium": paid, "insurance_lapsed": lapsed}
 
 
 # --- Pajak (v1.5a langkah 2) -------------------------------------------------------
@@ -454,7 +577,10 @@ func real_value(amount: float) -> float:
 	return amount / price_level()
 
 
+## Biaya pilihan event (harga hari ini). "cost_vehicle" = persen dari harga kendaraan pemain.
 func choice_cost(choice: Dictionary) -> int:
+	if choice.has("cost_vehicle"):
+		return nominal(vehicle_base_value() * float(choice["cost_vehicle"]))
 	return nominal(choice.get("cost", 0))
 
 
@@ -659,7 +785,7 @@ func _next_queued_event() -> void:
 ## Pilihan dengan biaya di muka hanya bisa dipilih jika kas cukup.
 ## Pilihan gratis selalu bisa dipilih, termasuk saat kas minus, agar game tidak macet.
 func can_choose(choice: Dictionary) -> bool:
-	var cost := choice_cost(choice)
+	var cost := choice_cost(choice) - insurance_cover(choice)  # yang ditanggung asuransi tidak perlu dibayar
 	return cost == 0 or cost <= cash
 
 
@@ -672,13 +798,28 @@ func resolve_event(choice_index: int) -> Dictionary:
 	for c: Dictionary in event["choices"]:
 		if not can_choose(c):
 			had_unaffordable = true
-	cash -= choice_cost(choice)
+	var cost := choice_cost(choice)
+	var covered := insurance_cover(choice)
+	cash -= cost - covered
+	var claims: Array[Dictionary] = []
+	if covered > 0:
+		claims.append({"category": _claim_category(choice), "amount": covered})
+	elif choice.get("claim", "") == "medical":
+		stats["uninsured_medical"] += cost
+	if event.get("critical", false):  # asuransi jiwa: uang pertanggungan penyakit kritis
+		var life := active_policy("life")
+		if not life.is_empty():
+			var payout := nominal(life["critical_payout"])
+			cash += payout
+			claims.append({"category": "life", "amount": payout})
+	for claim: Dictionary in claims:
+		stats["insurance_claims"] += claim["amount"]
 	var outcome := choice
 	if choice.has("outcomes"):
 		outcome = _pick_outcome(choice["outcomes"])
 	_apply_effects(outcome.get("effects", {}))
 	pending_event = {}
-	var result := {"result": outcome.get("result", ""), "changes": _diff(before)}
+	var result := {"result": outcome.get("result", ""), "changes": _diff(before), "claims": claims}
 	var cash_change: float = result["changes"].get("cash", 0.0)
 	stats["events"] += 1
 	if had_unaffordable:
@@ -1057,7 +1198,7 @@ func to_dict() -> Dictionary:
 		"energy": energy, "energy_capacity": energy_capacity, "activity_counts": activity_counts,
 		"transactions": transactions, "transaction_seq": transaction_seq, "risk_profile": risk_profile_id,
 		"plan": plan, "plan_applied_month": plan_applied_month, "month_income": month_income,
-		"dreams": dreams, "dreams_asked": dreams_asked, "targets": targets,
+		"dreams": dreams, "dreams_asked": dreams_asked, "targets": targets, "policies": policies,
 		"turn_units": turn_units, "turn_fees": turn_fees, "turn_trades": turn_trades, "month_costs": month_costs,
 		"event_queue": event_queue, "chain_events": chain_events, "director": director,
 	}
@@ -1136,6 +1277,10 @@ func load_from_dict(d: Dictionary) -> bool:
 		entry["saved"] = float(entry["saved"])
 		dreams.append(entry)
 	dreams_asked = d.get("dreams_asked", false)
+	policies.clear()
+	for category: String in d.get("policies", {}):
+		var saved_policy: Dictionary = d["policies"][category]
+		policies[category] = {"id": saved_policy["id"], "since": int(saved_policy["since"])}
 	targets.clear()
 	for t: Dictionary in d.get("targets", []):
 		targets.append(t)
@@ -1175,7 +1320,7 @@ func _new_stats() -> Dictionary:
 		"peak_net_worth": 0.0, "events": 0, "scam_loss": 0, "forced_sales": 0,
 		"unaffordable_choices": 0, "luxury_months": 0, "cash_heavy_months": 0,
 		"panic_sell": false, "total_lifestyle": 0, "total_autodebet": 0, "dreams_achieved": 0,
-		"targets_done": 0,
+		"targets_done": 0, "insurance_premiums": 0, "insurance_claims": 0, "uninsured_medical": 0,
 		"best_trade": {}, "worst_trade": {}, "best_event": {}, "worst_event": {},
 	}
 
@@ -1389,7 +1534,7 @@ func _merge_reports(reports: Array[Dictionary]) -> Dictionary:
 		return merged
 	for key: String in ["salary", "food_cost", "housing_cost", "invest_change", "interest",
 			"health_delta", "happiness_delta", "lifestyle_cost", "emergency_saved",
-			"income_tax", "trade_fee", "trade_tax", "interest_tax"]:
+			"income_tax", "trade_fee", "trade_tax", "interest_tax", "insurance_premium"]:
 		var total := 0.0
 		for r: Dictionary in reports:
 			total += float(r.get(key, 0))
@@ -1536,10 +1681,11 @@ func plan_preview(p: Dictionary, income: int) -> Dictionary:
 		var amount := mini(_round_thousand(income * share), needed)  # jangan menabung melebihi biayanya
 		dream_items.append({"id": entry["id"], "name": dream_def(entry["id"])["name"], "share": share, "amount": amount})
 		dreams_total += amount
-	return {"income": income, "basic": basic, "lifestyle": lifestyle, "emergency": emergency,
-		"emergency_room": room, "invest": invest, "invest_total": invest_total,
+	var insurance := premiums_total()
+	return {"income": income, "basic": basic, "insurance": insurance, "lifestyle": lifestyle,
+		"emergency": emergency, "emergency_room": room, "invest": invest, "invest_total": invest_total,
 		"dreams": dream_items, "dreams_total": dreams_total,
-		"surplus": income - basic - lifestyle - emergency - invest_total - dreams_total}
+		"surplus": income - basic - insurance - lifestyle - emergency - invest_total - dreams_total}
 
 
 ## Menjalankan rencana setelah gaji masuk: belanja gaya hidup, setor dana darurat, lalu
