@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5b langkah 1 selesai)
+- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5b langkah 2 selesai)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -15,7 +15,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **Prototipe waktu A/B/C** | Uji sistem waktu berjalan (tidak dipakai, diarsipkan) | ✅ |
 | **v1.5-0** | Giliran Bulanan yang Hidup | 🔄 5/5 langkah; tinggal playtest |
 | **v1.5a** | Realisme ekonomi | ✅ 5/5 langkah |
-| **v1.5b** | Pekerjaan & karier (melamar kerja, keahlian, jenjang) | 🔄 1/5 langkah |
+| **v1.5b** | Pekerjaan & karier (melamar kerja, keahlian, jenjang) | 🔄 2/5 langkah |
 | **v1.5c** | Utang, properti, hunian yang tumbuh | ⬜ |
 | **v1.5d** | Tokoh, riset, kontrak, konten | ⬜ |
 | **v2a-v2d** | Instrumen lanjut, hidup penuh, dana investor, mini-game | ⬜ |
@@ -205,7 +205,7 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.2 (semua keputusan 5.2.10
 | Langkah | Isi | Status |
 |:--|:--|:--|
 | 1 | Fondasi pekerjaan: jobs.json, latar SMA/D3/S1 tanpa kerja (Rp5 jt), lowongan & melamar, tab Karier awal | ✅ |
-| 2 | Karier: kinerja, beban kerja, kenaikan prestasi, promosi, berhenti, PHK + pesangon, event kerja | ⬜ |
+| 2 | Karier: kinerja, beban kerja, kenaikan prestasi, promosi, berhenti, PHK + pesangon, event kerja | ✅ |
 | 3 | Pendidikan & keahlian: kuliah D3/S1/S2, kursus, sertifikasi, beasiswa | ⬜ |
 | 4 | Tampilan & cerita: wizard Game Baru, Beranda, Profil, petunjuk | ⬜ |
 | 5 | Penyeimbangan dengan simulator | ⬜ |
@@ -223,21 +223,31 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.2 (semua keputusan 5.2.10
 - ✅ Event naik gaji/promosi/tawaran startup dihapus (39 event); PHK membuat kehilangan pekerjaan + pesangon 2x gaji; sakit kritis = cuti tanpa gaji
 - ✅ Simulator `tools/balance` bisa mencari kerja (`--background=sma|d3|s1`)
 - ✅ `SAVE_VERSION` 3 (save v1.5a ditolak); `docs/KEBUTUHAN_ASET.md` disusun ulang per versi
-- 🔁 Ikon latar, ikon bidang, dan ikon tab Karier masih memakai ikon lain (lihat `docs/KEBUTUHAN_ASET.md`)
+- 🔁 Ikon latar, ikon bidang, dan ikon tab Karier masih memakai ikon lain (lihat `docs/KEBUTUHAN_ASET.md`; aset dibuat pengembang setelah v2 selesai)
+
+**Langkah 2: Karier** ✅
+- ✅ **Kinerja** 0-100 untuk pekerjaan berjenjang: tiap bulan bergerak menuju target = 55 + keahlian dibanding syarat jabatan (-25..+20) + kesehatan & kebahagiaan (-15..+10), ditambah pilihan di event kerja. Tampil di kartu Pekerjaan (bar + predikat + penyusun target) dan laporan bulanan (bagian KARIER)
+- ✅ **Beban kerja** per jabatan menggantikan rutinitas umum (kesehatan & kebahagiaan per bulan); menganggur: kebahagiaan -2/bulan; cuti tanpa gaji: nol
+- ✅ **Kenaikan prestasi** tiap Januari di samping penyesuaian inflasi: kinerja ≥80 naik 3%, ≥60 naik 1,5% (setelah 6 bulan bekerja); tampil di laporan
+- ✅ **Promosi** lewat event: masa jabatan 12/18/24/36 bulan, kinerja ≥70, pendidikan & keahlian jabatan berikutnya (pengalaman tidak perlu); peluang 35%/bulan saat siap; gaji = gaji pasar jabatan baru (minimal naik 10%); ditolak = jeda 12 bulan. Syarat ✓/✗ tampil di kartu Pekerjaan
+- ✅ **PHK** dijadwalkan sistem: 0,1%/bulan, x5 jika kinerja <40 (x2 jika <60), x2,5 saat pasar saham bear; pesangon 1 bulan gaji per tahun masa kerja (maks. 9 bulan)
+- ✅ **Berhenti kerja** (tombol + konfirmasi), tanpa pesangon
+- ✅ **7 event kerja baru** (46 event): wawancara (negosiasi gaji sebelum tawaran muncul), tawaran promosi, lembur, proyek besar, beda pendapat dengan atasan, pelatihan kantor, headhunter (gaji pasar jabatan +20%, atau dipakai untuk minta naik gaji). Event PHK dirombak; THR hanya untuk pekerjaan berjenjang
+- ✅ Teks event bisa berisi isian `{job}`, `{company}`, `{salary}`, `{months}`, `{severance}`, `{raise}`; syarat event baru `requires: career`
+- ✅ **Kurva keahlian** (hasil simulator): tambahan keahlian x (1 - keahlian/100)², agar jenjang tinggi butuh usaha bertahun-tahun
+- ✅ Simulator mencetak jenjang, promosi, PHK, kinerja, dan gaji total; 92 uji otomatis lulus
 
 **Langkah berikutnya**
-- ⬜ Wawancara sebagai event (langkah 2)
-- ⬜ Pendidikan lewat kuliah/sertifikasi dengan biaya & waktu (langkah 3)
-- ⬜ Jalur karier minimal 5 jenjang: naik jabatan lewat kinerja, pengalaman, dan keahlian; bisa pindah kerja
-- ⬜ Beban kerja tiap pekerjaan memengaruhi energi, kesehatan, kebahagiaan (menggantikan "rutinitas kerja" umum)
-- ⬜ Kerja sampingan saat menganggur (ojol, freelance)
-- ⬜ Event naik gaji generik diganti event karier; simulasi keseimbangan diperbarui (`tools/balance`)
+- ⬜ Pendidikan lewat kuliah D3/S1/S2 dengan biaya & waktu, sertifikasi, beasiswa (langkah 3)
+- ⬜ Kartu "Kamu belum bekerja" di Beranda, wizard & petunjuk pekerjaan, ikon bidang (langkah 4)
+- ⬜ Penyeimbangan akhir dengan simulator, termasuk tipe pemain yang rajin kursus (langkah 5)
 
 **Kriteria selesai**
-- ⬜ Pemain mulai tanpa pekerjaan dan harus melamar
-- ⬜ Minimal 15 pekerjaan dan 5 jenjang karier dengan syarat jelas
-- ⬜ Keahlian & pendidikan bisa ditingkatkan dan membuka pekerjaan lebih baik
-- ⬜ Pekerjaan & karier baru bisa ditambah lewat file data saja
+- ✅ Pemain mulai tanpa pekerjaan dan harus melamar
+- ✅ Minimal 15 pekerjaan dan 5 jenjang karier dengan syarat jelas
+- ⬜ Keahlian & pendidikan bisa ditingkatkan dan membuka pekerjaan lebih baik (pendidikan: langkah 3)
+- ✅ Promosi, kenaikan gaji berbasis prestasi, PHK, dan pindah kerja berjalan
+- ✅ Pekerjaan & karier baru bisa ditambah lewat file data saja
 
 ## v1.5c: Utang, Properti, dan Hunian yang Tumbuh ⬜
 

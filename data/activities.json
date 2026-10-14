@@ -15,7 +15,7 @@
 			"effects": { "cash": 750000, "health": -2, "happiness": -1, "xp": 5 }
 		},
 		{
-			"id": "course", "name": "Kursus Online", "desc": "Tingkatkan keahlian kerja (+3 keahlian, makin kecil saat keahlian sudah tinggi).",
+			"id": "course", "name": "Kursus Online", "desc": "Tingkatkan keahlian kerja. Tambahannya makin kecil saat keahlianmu sudah tinggi.",
 			"energy": 2, "cost": 1000000, "max_per_month": 1,
 			"effects": { "skill": 3, "xp": 20 }
 		},

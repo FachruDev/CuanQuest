@@ -19,6 +19,8 @@ signal goal_reached(goal: String)
 signal dream_achieved(dream: Dictionary)
 ## Lamaran kerja diterima (v1.5b): `offers` = tawaran yang menunggu keputusan pemain.
 signal job_offers_received(offers: Array)
+## Karier berubah lewat event (v1.5b langkah 2): kind "promoted" / "laid_off"; `title` = jabatan (key teks).
+signal career_changed(kind: String, title: String)
 ## Tenggat impian terlewat; pemain memilih memperpanjang atau melepas.
 signal dream_overdue(dream: Dictionary)
 ## Target bulanan selesai di tengah bulan (untuk notifikasi singkat).
@@ -63,8 +65,10 @@ var health: int = 0                # 0..100
 var happiness: int = 0             # 0..100
 var xp: int = 0
 var unpaid_months: int = 0         # sisa bulan cuti tanpa gaji (mis. sakit kritis), pekerjaan tetap
-## Pekerjaan & karier (v1.5b). job = {} jika belum/tidak bekerja; {"id", "company", "since"}.
+## Pekerjaan & karier (v1.5b). job = {} jika belum/tidak bekerja; {"id", "company", "since", "hired"}
+## (since = mulai menjabat posisi ini, hired = mulai bekerja di perusahaan ini).
 var job: Dictionary = {}
+var performance := 0.0                   # kinerja 0-100 di pekerjaan berjenjang (v1.5b langkah 2)
 var education := 0                       # indeks jobs.json education_levels (0 = SMA)
 var skill := 0.0                         # keahlian 0-100
 var experience: Dictionary = {}          # bidang -> bulan bekerja
@@ -82,6 +86,7 @@ var last_report: Dictionary = {}
 
 var events := EventManager.new()
 var pending_event: Dictionary = {}           # event yang menunggu keputusan pemain
+var pending_vars: Dictionary = {}            # isian teks event itu ({job}, {salary}, ...), lihat _event_vars
 var delayed_effects: Array[Dictionary] = []  # { due, effects, text, chance, fail_text }
 var rng := RandomNumberGenerator.new()       # RNG event (terpisah dari RNG pasar)
 
@@ -183,6 +188,7 @@ func new_game(profile: Dictionary = {}, seed_value: int = -1) -> void:
 	job_board.clear()
 	applications.clear()
 	job_offers.clear()
+	performance = 0.0
 	health = int(economy["start_health"])
 	happiness = int(economy["start_happiness"])
 	xp = 0
@@ -203,6 +209,7 @@ func new_game(profile: Dictionary = {}, seed_value: int = -1) -> void:
 	holdings.clear()
 	unlocked_stages.clear()
 	pending_event = {}
+	pending_vars = {}
 	delayed_effects.clear()
 	stats = _new_stats()
 	month_costs = _new_month_costs()
@@ -301,7 +308,8 @@ func advance_month() -> void:
 	if not _fast_forwarding:
 		month_advanced.emit(last_report)
 	_flush_dream_signals()
-	if not job_offers.is_empty() and not _fast_forwarding:
+	# Tawaran pekerjaan berjenjang didahului event wawancara (lihat _career_events).
+	if not job_offers.is_empty() and _interview_offer_index() < 0 and not _fast_forwarding:
 		job_offers_received.emit(job_offers)
 	if _check_end():
 		return
@@ -378,15 +386,20 @@ func _pay_interest() -> float:
 
 ## Awal bulan: gaji masuk (kecuali sedang menganggur), biaya hidup terpotong,
 ## kesehatan & kebahagiaan berubah. Hasil lamaran bulan lalu diumumkan & lowongan baru muncul.
+## Januari: penyesuaian inflasi + kenaikan prestasi sesuai kinerja.
 func _start_month() -> Dictionary:
 	var food := food_option()
 	var housing := housing_option()
 	var health_before := health
 	var happiness_before := happiness
-	var salary_raise := _index_salary() if month > 0 and month % 12 == 0 and is_employed() else 0.0
+	var new_year := month > 0 and month % 12 == 0
+	var salary_raise := _index_salary() if new_year and is_employed() else 0.0
+	var merit := _merit_raise() if new_year else {}
 	var job_news := _resolve_applications()
+	var working := is_employed() and unpaid_months == 0  # cuti tanpa gaji = tidak bekerja bulan ini
 	var paid := _monthly_pay()
-	_work_month()
+	var performance_before := performance
+	_work_month(working)
 
 	energy_capacity = energy_max()
 	energy = energy_capacity
@@ -402,9 +415,9 @@ func _start_month() -> Dictionary:
 	stats["total_living"] += food_cost + housing_cost
 	if food_id == "luxury" or housing_id == "apartment":
 		stats["luxury_months"] += 1
-	health = clampi(health + int(food["health"]) + int(housing["health"]) + _drift("health", health), 0, 100)
+	health = clampi(health + int(food["health"]) + int(housing["health"]) + _drift("health", health, working), 0, 100)
 	happiness = clampi(happiness + int(food["happiness"]) + int(housing["happiness"])
-		+ _drift("happiness", happiness), 0, 100)
+		+ _drift("happiness", happiness, working), 0, 100)
 	var insurance := _pay_premiums()
 	# Rencana gaji baru berjalan setelah pemain menyimpannya pertama kali (lihat set_plan).
 	var budget := _apply_budget(month_income) if plan.get("confirmed", false) else {}
@@ -424,7 +437,9 @@ func _start_month() -> Dictionary:
 		"health_delta": health - health_before,
 		"happiness_delta": happiness - happiness_before,
 		"salary_raise": salary_raise,
-	}.merged(insurance).merged(budget)
+		"performance": roundi(performance) if working and is_career() else -1,
+		"performance_delta": roundi(performance) - roundi(performance_before),
+	}.merged(merit).merged(insurance).merged(budget)
 
 
 # --- Pekerjaan & karier (v1.5b) ------------------------------------------------------
@@ -560,11 +575,14 @@ func accept_offer(index: int) -> void:
 	var first_salary := 0
 	if not is_employed() and month_income == 0:
 		first_salary = int(offer["salary"])
-	job = {"id": offer["job_id"], "company": offer["company"], "since": month}
+	job = {"id": offer["job_id"], "company": offer["company"], "since": month, "hired": month}
 	salary = int(offer["salary"])
 	unpaid_months = 0
+	performance = float(job_data["performance"]["start"])
 	job_offers.clear()
 	stats["jobs_taken"] += 1
+	if is_career():
+		stats["top_level"] = maxi(int(stats["top_level"]), int(current_job_def()["level"]))
 	if first_salary > 0:
 		var tax := income_tax(first_salary)
 		cash += first_salary - tax
@@ -612,20 +630,29 @@ func _monthly_pay() -> int:
 	return salary
 
 
-## Bekerja sebulan: pengalaman di bidang ini +1 bulan, keahlian +1 tiap beberapa bulan.
-func _work_month() -> void:
-	if not is_employed():
+## Bekerja sebulan: pengalaman di bidang ini +1 bulan, keahlian +1 tiap beberapa bulan,
+## kinerja bergerak sebagian menuju targetnya (pekerjaan berjenjang saja, lihat performance_factors).
+func _work_month(working: bool) -> void:
+	if not working:
 		return
 	var track: String = current_job_def()["track"]
 	experience[track] = int(experience.get(track, 0)) + 1
-	var months_worked := month - int(job["since"])
+	var months_worked := months_at_company()
 	if months_worked > 0 and months_worked % int(job_data["skill_every_months"]) == 0:
 		_gain_skill(1.0)
+	if is_career():
+		var cfg: Dictionary = job_data["performance"]
+		var noise := float(cfg["noise"])
+		performance += (float(performance_factors()["target"]) - performance) * float(cfg["approach"]) \
+			+ rng.randf_range(-noise, noise)
+		performance = clampf(performance, 0.0, 100.0)
 
 
-## Keahlian naik makin pelan saat sudah tinggi (maks. 100).
+## Keahlian naik makin pelan saat sudah tinggi: tambahan x (1 - keahlian/100)^skill_curve
+## (jobs.json), mis. kursus +3 menjadi +1,5 di keahlian 30 dan +0,3 di keahlian 70. Maks. 100.
 func _gain_skill(amount: float) -> void:
-	skill = clampf(skill + amount * (1.0 - skill / 150.0), 0.0, 100.0)
+	var factor := pow(maxf(1.0 - skill / 100.0, 0.0), float(job_data.get("skill_curve", 1.0)))
+	skill = clampf(skill + amount * factor, 0.0, 100.0)
 
 
 func _leave_job() -> void:
@@ -659,6 +686,265 @@ func _refresh_job_board() -> void:
 		var base := float(def["salary"]) * float(difficulty["salary_mult"]) * rng.randf_range(float(spread[0]), float(spread[1]))
 		job_board.append({"job_id": def["id"], "company": companies[rng.randi() % companies.size()],
 			"salary": nominal(base), "applied": false})
+
+
+# --- Karier: kinerja, kenaikan prestasi, promosi, PHK (v1.5b langkah 2) ----------------
+# Hanya pekerjaan berjenjang (bukan kerja lepas). Kinerja bergerak tiap bulan menuju target
+# (keahlian vs syarat jabatan + kesehatan & kebahagiaan) dan berubah lewat event kerja.
+# Promosi & PHK datang sebagai event yang dijadwalkan di luar jatah event acak (_career_events).
+
+func is_career() -> bool:
+	return is_employed() and current_job_def().get("track", "gig") != "gig"
+
+
+## Lama di jabatan sekarang (syarat promosi).
+func months_in_role() -> int:
+	return month - int(job.get("since", month))
+
+
+## Lama di perusahaan ini (pesangon, kenaikan prestasi).
+func months_at_company() -> int:
+	return month - int(job.get("hired", job.get("since", month)))
+
+
+## Target kinerja & penyusunnya (ditampilkan di kartu Pekerjaan):
+## dasar + kecocokan keahlian dengan syarat jabatan + rata-rata kesehatan & kebahagiaan.
+func performance_factors() -> Dictionary:
+	var cfg: Dictionary = job_data["performance"]
+	var skill_fit := clampf((skill - job_skill_requirement(current_job_def())) * float(cfg["per_skill"]),
+		float(cfg["skill_min"]), float(cfg["skill_max"]))
+	var wellbeing := clampf(((health + happiness) / 2.0 - float(cfg["wellbeing_from"])) * float(cfg["wellbeing_rate"]),
+		float(cfg["wellbeing_min"]), float(cfg["wellbeing_max"]))
+	return {"skill": skill_fit, "wellbeing": wellbeing,
+		"target": clampf(float(cfg["base"]) + skill_fit + wellbeing, 0.0, 100.0)}
+
+
+## Key teks predikat kinerja ("PERF_GOOD", ...).
+func performance_label(value: float = performance) -> String:
+	for row: Array in job_data["performance"]["labels"]:
+		if roundi(value) >= int(row[0]):
+			return row[1]
+	return ""
+
+
+## Kenaikan prestasi tahunan untuk kinerja `value` (0.015 = 1,5%).
+func merit_raise_for(value: float) -> float:
+	for row: Array in job_data["merit_raise"]["by_performance"]:
+		if roundi(value) >= int(row[0]):
+			return float(row[1])
+	return 0.0
+
+
+## Penilaian kinerja tahunan (Januari): kenaikan prestasi bagi yang sudah cukup lama bekerja.
+func _merit_raise() -> Dictionary:
+	if not is_career() or unpaid_months > 0 or months_at_company() < int(job_data["merit_raise"]["min_months"]):
+		return {}
+	var pct := merit_raise_for(performance)
+	if pct > 0.0:
+		_raise_salary(pct)
+	return {"merit_raise": pct, "review_performance": roundi(performance)}
+
+
+## Jabatan berikutnya di bidang yang sama ({} jika sudah jenjang tertinggi / kerja lepas).
+func next_job_def() -> Dictionary:
+	if not is_career():
+		return {}
+	var def := current_job_def()
+	return _job_at(def["track"], int(def["level"]) + 1)
+
+
+func _job_at(track: String, level: int) -> Dictionary:
+	for def: Dictionary in job_data["jobs"]:
+		if def["track"] == track and int(def["level"]) == level:
+			return def
+	return {}
+
+
+## Gaji jabatan `def` saat promosi / dibajak: gaji pasarnya, minimal naik `min_raise` dari gaji sekarang.
+func _raised_salary(def: Dictionary, min_raise: float) -> int:
+	var market_pay := nominal(float(def["salary"]) * float(difficulty["salary_mult"]))
+	return maxi(market_pay, roundi(salary * (1.0 + min_raise) / 1000.0) * 1000)
+
+
+func promotion_salary() -> int:
+	var next := next_job_def()
+	return 0 if next.is_empty() else _raised_salary(next, float(job_data["promotion"]["min_raise"]))
+
+
+## Syarat promosi ke jenjang berikutnya: [{type: tenure|performance|education|skill, need, have, met}].
+## Promosi internal tidak butuh pengalaman bidang (itu syarat pelamar dari luar).
+func promotion_requirements() -> Array[Dictionary]:
+	var reqs: Array[Dictionary] = []
+	var next := next_job_def()
+	if next.is_empty():
+		return reqs
+	var cfg: Dictionary = job_data["promotion"]
+	var min_months: Array = cfg["min_months"]
+	var need_months := int(min_months[mini(int(current_job_def()["level"]) - 1, min_months.size() - 1)])
+	reqs.append({"type": "tenure", "need": need_months, "have": months_in_role(), "met": months_in_role() >= need_months})
+	reqs.append({"type": "performance", "need": int(cfg["performance"]), "have": roundi(performance),
+		"met": roundi(performance) >= int(cfg["performance"])})
+	for req: Dictionary in job_requirements(next):
+		if req["type"] != "experience":
+			reqs.append(req)
+	return reqs
+
+
+func promotion_ready() -> bool:
+	var reqs := promotion_requirements()
+	return not reqs.is_empty() and unpaid_months == 0 and reqs.all(func(r: Dictionary) -> bool: return r["met"])
+
+
+## Peluang PHK bulan ini: dasar, dikali saat kinerja rendah dan saat pasar saham lesu (bear).
+func layoff_chance() -> float:
+	var cfg: Dictionary = job_data["layoff"]
+	if not is_career() or unpaid_months > 0 or months_at_company() < int(cfg["min_months"]):
+		return 0.0
+	var chance := float(cfg["base"])
+	if performance < float(cfg["low_performance"]):
+		chance *= float(cfg["low_mult"])
+	elif performance < float(cfg["mid_performance"]):
+		chance *= float(cfg["mid_mult"])
+	if market.regime_of("stock") == "bear":
+		chance *= float(cfg["bear_mult"])
+	return chance
+
+
+## Pesangon PHK dalam bulan gaji: 1 bulan untuk tiap tahun masa kerja yang dimulai (maks. 9).
+func severance_months() -> int:
+	return clampi(floori(months_at_company() / 12.0) + 1, 1, int(job_data["layoff"]["severance_max"]))
+
+
+## Berhenti sendiri: tanpa pesangon, gaji berhenti mulai bulan depan.
+func resign() -> void:
+	if not is_employed() or is_over or has_pending_event():
+		return
+	stats["resigns"] += 1
+	_leave_job()
+	changed.emit()
+	state_committed.emit()
+
+
+func _promote() -> void:
+	var next := next_job_def()
+	if next.is_empty():
+		return
+	salary = int(pending_vars.get("salary", promotion_salary()))
+	job["id"] = next["id"]
+	job["since"] = month
+	stats["promotions"] += 1
+	stats["top_level"] = maxi(int(stats["top_level"]), int(next["level"]))
+
+
+func _lay_off() -> void:
+	var severance := int(pending_vars.get("severance", severance_months() * salary))
+	cash += severance
+	stats["layoffs"] += 1
+	stats["severance"] += severance
+	_leave_job()
+
+
+## Incaran headhunter: jenjang berikutnya di bidang yang sama jika pendidikan & keahlian cukup,
+## selain itu jabatan setara. Gaji = gaji pasar jabatan itu + premium (tidak menumpuk dari gaji
+## sekarang). {} jika kenaikannya kurang dari min_gain, sehingga event headhunter tidak muncul.
+func headhunter_target() -> Dictionary:
+	if not is_career():
+		return {}
+	var cfg: Dictionary = job_data["headhunter"]
+	var target := next_job_def()
+	if target.is_empty() or not job_requirements(target).all(func(r: Dictionary) -> bool:
+			return r["met"] or r["type"] == "experience"):
+		target = current_job_def()
+	var offer := nominal(float(target["salary"]) * float(difficulty["salary_mult"]) * (1.0 + float(cfg["premium"])))
+	if offer < salary * (1.0 + float(cfg["min_gain"])):
+		return {}
+	return {"def": target, "salary": offer}
+
+
+func _headhunter_offer() -> Dictionary:
+	var target := headhunter_target()
+	if target.is_empty():
+		return {}
+	var def: Dictionary = target["def"]
+	var companies: Array = track_def(def["track"])["companies"].filter(func(c: String) -> bool:
+		return c != job["company"])
+	return {"job_id": def["id"], "company": companies[rng.randi() % companies.size()],
+		"salary": target["salary"], "chance": 1.0}
+
+
+## Tawaran kerja berjenjang bergaji tertinggi bulan ini (dibahas di event wawancara), atau -1.
+func _interview_offer_index() -> int:
+	var best := -1
+	for i in job_offers.size():
+		if job_def(job_offers[i]["job_id"])["track"] == "gig":
+			continue
+		if best < 0 or job_offers[i]["salary"] > job_offers[best]["salary"]:
+			best = i
+	return best
+
+
+## Hasil negosiasi gaji di event wawancara.
+func _raise_offer(pct: float) -> void:
+	var i := int(pending_vars.get("offer_index", -1))
+	if i >= 0 and i < job_offers.size():
+		job_offers[i]["salary"] = roundi(job_offers[i]["salary"] * (1.0 + pct) / 1000.0) * 1000
+
+
+## Event karier bulan ini, di luar jatah event acak: wawancara jika ada tawaran kerja berjenjang;
+## selain itu PHK atau tawaran promosi (diundi tiap bulan).
+func _career_events() -> Array[Dictionary]:
+	var picked: Array[Dictionary] = []
+	var id := ""
+	if _interview_offer_index() >= 0:
+		id = "interview"  # sedang mempertimbangkan pindah kerja: PHK & promosi ditunda
+	elif rng.randf() < layoff_chance():
+		id = "layoff"
+	elif promotion_ready() and _event_off_cooldown("promotion") \
+			and rng.randf() < float(job_data["promotion"]["chance"]):
+		id = "promotion"
+	var def := events.find(id)
+	if not def.is_empty():
+		picked.append(def)
+	return picked
+
+
+func _event_off_cooldown(id: String) -> bool:
+	var def := events.find(id)
+	return not events.last_month.has(id) or month - int(events.last_month[id]) >= int(def.get("cooldown", 12))
+
+
+## Isian teks event yang bergantung kondisi pemain. Dihitung saat event mulai tampil dan
+## ikut disimpan, agar teks, efek, dan hasilnya konsisten (mis. gaji promosi, pesangon).
+func _event_vars(def: Dictionary) -> Dictionary:
+	match def.get("id", ""):
+		"interview":
+			var i := _interview_offer_index()
+			if i >= 0:
+				var offer: Dictionary = job_offers[i]
+				return {"offer_index": i, "job_id": offer["job_id"], "company": offer["company"], "salary": offer["salary"]}
+		"promotion":
+			return {"job_id": next_job_def()["id"], "salary": promotion_salary(), "months": months_in_role()}
+		"layoff":
+			var months := severance_months()
+			return {"job_id": job["id"], "company": job["company"], "months": months, "severance": months * salary}
+		"headhunter":
+			var offer := _headhunter_offer()
+			if not offer.is_empty():
+				return {"offer": offer, "job_id": offer["job_id"], "company": offer["company"],
+					"salary": offer["salary"], "raise": float(offer["salary"]) / maxf(salary, 1.0) - 1.0}
+	return {}
+
+
+## Event di antrean masih relevan saat gilirannya tiba? (mis. event kerja batal setelah PHK)
+func _event_still_valid(def: Dictionary) -> bool:
+	match def.get("id", ""):
+		"interview":
+			return _interview_offer_index() >= 0
+		"promotion":
+			return promotion_ready()
+		"layoff":
+			return is_career()
+	return events.requires_met(def, self)
 
 
 # --- Asuransi (v1.5a langkah 3) ---------------------------------------------------
@@ -814,28 +1100,38 @@ func _add_tax(key: String, amount: float) -> void:
 	stats["total_taxes"] += amount
 
 
-## Rutinitas & stres kerja per bulan (economy.json "monthly_drift"); di bawah ambang,
-## tubuh & pikiran pulih alami sehingga pemain pasif tidak terus merosot.
-func _drift(stat: String, value: int) -> int:
+## Perubahan kesehatan & kebahagiaan per bulan dari pekerjaan: beban kerja jabatan (jobs.json
+## "workload"), stres mencari kerja saat menganggur (economy.json "monthly_drift"), atau nol saat
+## cuti tanpa gaji. Di bawah ambang, tubuh & pikiran pulih alami agar pemain pasif tidak terus merosot.
+func _drift(stat: String, value: int, working: bool) -> int:
 	var drift: Dictionary = economy.get("monthly_drift", {})
-	var change := int(drift.get(stat, 0))
+	var change := 0
+	if working:
+		change = int(current_job_def().get("workload", {}).get(stat, 0))
+	elif not is_employed():
+		change = int(drift.get("unemployed", {}).get(stat, 0))
 	if value < int(drift.get("recover_below", 0)):
 		change += int(drift.get("recover", 0))
 	return change
 
 
 ## Penyesuaian gaji tahunan (setiap Januari) sebesar inflasi 12 bulan terakhir, agar gaji
-## tidak tergerus inflasi. Kenaikan "nyata" tetap datang dari event (naik gaji, promosi).
+## tidak tergerus inflasi. Kenaikan "nyata" datang dari prestasi & promosi (v1.5b langkah 2).
 ## Mengembalikan persentase kenaikannya (0.035 = 3,5%).
 func _index_salary() -> float:
 	var raise := snappedf(market.realized_inflation(12), 0.001)
 	if raise <= 0.0:
 		return 0.0
-	var old_salary := salary
-	salary = roundi(salary * (1.0 + raise) / 1000.0) * 1000
-	if int(plan.get("salary_seen", -1)) == old_salary:
-		plan["salary_seen"] = salary  # penyesuaian rutin: rencana dalam persen, tidak perlu ditinjau
+	_raise_salary(raise)
 	return raise
+
+
+## Kenaikan gaji rutin. Rencana gaji dalam persen, jadi tidak perlu ditinjau ulang.
+func _raise_salary(pct: float) -> void:
+	var old_salary := salary
+	salary = roundi(salary * (1.0 + pct) / 1000.0) * 1000
+	if int(plan.get("salary_seen", -1)) == old_salary:
+		plan["salary_seen"] = salary
 
 
 ## Biaya sebuah pilihan makan/tempat tinggal: harga hari ini x pengali tingkat kesulitan.
@@ -989,6 +1285,7 @@ func _roll_events() -> void:
 		var def := events.find(chained["id"])
 		if not def.is_empty():
 			queue.append(def)
+	queue.append_array(_career_events())  # wawancara / PHK / promosi, juga di luar jatah
 
 	var context := event_context()
 	var picked := 0
@@ -1012,6 +1309,7 @@ func _roll_events() -> void:
 	for event: Dictionary in queue:
 		events.mark_shown(event, month)
 	pending_event = queue[0]
+	pending_vars = _event_vars(pending_event)
 	event_queue.clear()
 	for event: Dictionary in queue.slice(1):
 		event_queue.append(event["id"])
@@ -1060,9 +1358,10 @@ func event_context() -> Dictionary:
 func _next_queued_event() -> void:
 	while not event_queue.is_empty():
 		var def := events.find(event_queue.pop_front())
-		if def.is_empty():
+		if def.is_empty() or not _event_still_valid(def):
 			continue
 		pending_event = def
+		pending_vars = _event_vars(def)
 		changed.emit()
 		event_triggered.emit(def)
 		return
@@ -1103,9 +1402,14 @@ func resolve_event(choice_index: int) -> Dictionary:
 	var outcome := choice
 	if choice.has("outcomes"):
 		outcome = _pick_outcome(choice["outcomes"])
-	_apply_effects(outcome.get("effects", {}))
+	var effects: Dictionary = outcome.get("effects", {})
+	var offers_before := job_offers.size()
+	var title_before: String = current_job_def().get("title", "")
+	_apply_effects(effects)
+	var vars := pending_vars
 	pending_event = {}
-	var result := {"result": outcome.get("result", ""), "changes": _diff(before), "claims": claims}
+	pending_vars = {}
+	var result := {"result": outcome.get("result", ""), "changes": _diff(before), "claims": claims, "vars": vars}
 	var cash_change: float = result["changes"].get("cash", 0.0)
 	stats["events"] += 1
 	if had_unaffordable:
@@ -1115,6 +1419,13 @@ func resolve_event(choice_index: int) -> Dictionary:
 	_record_extreme("best_event", "worst_event", cash_change, {"title": event["title"]})
 	changed.emit()
 	_check_unlocks(true)
+	if effects.get("promote", false):
+		career_changed.emit("promoted", current_job_def()["title"])
+	if effects.get("layoff", false):
+		career_changed.emit("laid_off", title_before)
+	# Tawaran kerja (setelah wawancara / dari headhunter) tampil sebelum event berikutnya.
+	if not job_offers.is_empty() and (event["id"] == "interview" or job_offers.size() > offers_before):
+		job_offers_received.emit(job_offers)
 	_next_queued_event()  # sebelum autosave, agar event yang tersisa ikut tersimpan sebagai pending
 	state_committed.emit()
 	return result
@@ -1140,6 +1451,16 @@ func _apply_effects(e: Dictionary) -> void:
 		_gain_skill(float(e["skill"]))
 	if e.get("lose_job", false):
 		_leave_job()
+	if is_career():
+		performance = clampf(performance + float(e.get("performance", 0)), 0.0, 100.0)
+	if e.get("promote", false):
+		_promote()
+	if e.get("layoff", false):
+		_lay_off()
+	if e.has("offer_raise"):
+		_raise_offer(float(e["offer_raise"]))
+	if e.get("headhunter", false) and pending_vars.has("offer"):
+		job_offers.append(pending_vars["offer"].duplicate())
 	if e.has("delayed"):
 		var d: Dictionary = e["delayed"].duplicate(true)
 		d["due"] = month + int(d["months"])
@@ -1170,7 +1491,8 @@ func _resolve_delayed() -> Array[String]:
 
 func _snapshot() -> Dictionary:
 	return {"cash": cash, "health": health, "happiness": happiness, "xp": xp,
-		"salary": salary, "investments": investments_value()}
+		"salary": salary, "investments": investments_value(), "skill": floori(skill),
+		"performance": roundi(performance)}
 
 
 func _diff(before: Dictionary) -> Dictionary:
@@ -1545,7 +1867,7 @@ func to_dict() -> Dictionary:
 		"food_id": food_id, "housing_id": housing_id,
 		"holdings": holdings, "unlocked_stages": unlocked_stages,
 		"net_worth_history": net_worth_history, "last_report": last_report,
-		"pending_event_id": pending_event.get("id", ""),
+		"pending_event_id": pending_event.get("id", ""), "pending_vars": pending_vars,
 		"delayed_effects": delayed_effects,
 		"events": events.to_dict(),
 		"rng_seed": str(rng.seed), "rng_state": str(rng.state),
@@ -1557,7 +1879,7 @@ func to_dict() -> Dictionary:
 		"transactions": transactions, "transaction_seq": transaction_seq, "risk_profile": risk_profile_id,
 		"plan": plan, "plan_applied_month": plan_applied_month, "month_income": month_income,
 		"dreams": dreams, "dreams_asked": dreams_asked, "targets": targets, "policies": policies, "orders": orders,
-		"job": job, "education": education, "skill": skill, "experience": experience,
+		"job": job, "performance": performance, "education": education, "skill": skill, "experience": experience,
 		"job_board": job_board, "applications": applications, "job_offers": job_offers,
 		"turn_units": turn_units, "turn_fees": turn_fees, "turn_trades": turn_trades, "month_costs": month_costs,
 		"event_queue": event_queue, "chain_events": chain_events, "director": director,
@@ -1599,6 +1921,12 @@ func load_from_dict(d: Dictionary) -> bool:
 	events.setup(DataLoader.load_json(EVENTS_PATH).get("events", []))
 	events.from_dict(d["events"])
 	pending_event = events.find(d["pending_event_id"]) if d["pending_event_id"] != "" else {}
+	pending_vars = d.get("pending_vars", {}).duplicate(true)
+	for key: String in ["offer_index", "salary", "months", "severance"]:
+		if pending_vars.has(key):
+			pending_vars[key] = int(pending_vars[key])
+	if pending_vars.has("offer"):
+		pending_vars["offer"]["salary"] = int(pending_vars["offer"]["salary"])
 	delayed_effects.clear()
 	for effect: Dictionary in d["delayed_effects"]:
 		effect["due"] = int(effect["due"])
@@ -1643,7 +1971,9 @@ func load_from_dict(d: Dictionary) -> bool:
 		policies[category] = {"id": saved_policy["id"], "since": int(saved_policy["since"])}
 	job = {}
 	if not d["job"].is_empty():
-		job = {"id": d["job"]["id"], "company": d["job"]["company"], "since": int(d["job"]["since"])}
+		job = {"id": d["job"]["id"], "company": d["job"]["company"], "since": int(d["job"]["since"]),
+			"hired": int(d["job"].get("hired", d["job"]["since"]))}
+	performance = float(d.get("performance", job_data["performance"]["start"] if not job.is_empty() else 0.0))
 	education = int(d["education"])
 	skill = float(d["skill"])
 	experience.clear()
@@ -1685,6 +2015,8 @@ func load_from_dict(d: Dictionary) -> bool:
 		DataLoader.load_json(MARKET_PATH),
 		DataLoader.load_json(NEWS_PATH).get("news", []),
 		d["market"])
+	if not pending_event.is_empty() and pending_vars.is_empty():
+		pending_vars = _event_vars(pending_event)  # save langkah 1 / antrean tanpa pending: hitung setelah pasar dimuat
 	run_id += 1
 	is_active = true
 	changed.emit()
@@ -1701,6 +2033,7 @@ func _new_stats() -> Dictionary:
 		"panic_sell": false, "total_lifestyle": 0, "total_autodebet": 0, "dreams_achieved": 0,
 		"targets_done": 0, "insurance_premiums": 0, "insurance_claims": 0, "uninsured_medical": 0, "orders_executed": 0,
 		"activity_totals": {}, "months_unemployed": 0, "applications": 0, "jobs_taken": 0,
+		"promotions": 0, "layoffs": 0, "resigns": 0, "severance": 0, "top_level": 0,
 		"best_trade": {}, "worst_trade": {}, "best_event": {}, "worst_event": {},
 	}
 

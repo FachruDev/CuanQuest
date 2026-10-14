@@ -4,6 +4,8 @@ extends ScrollContainer
 
 ## Main yang menampilkan popup kuis (lewat antrean popup), screen ini hanya meminta.
 signal quiz_requested(question: Dictionary)
+## Tombol "Berhenti kerja" ditekan; main menampilkan konfirmasi.
+signal resign_requested
 
 const TOPICS := ["basics", "risk", "scam", "instruments"]
 const BOLT_ICON := preload("res://assets/icons/bolt.svg")
@@ -175,20 +177,34 @@ func _section_title(text: String) -> Label:
 
 
 ## Pekerjaan sekarang (atau "Belum bekerja" + lamaran terkirim) dan bekal karier pemain.
+## Pekerjaan berjenjang juga menampilkan kinerja & syarat promosi (v1.5b langkah 2).
 func _refresh_job() -> void:
 	_clear(_job_box)
 	if GameState.is_employed():
 		var def := GameState.current_job_def()
 		var track := GameState.track_def(def["track"])
-		var since := int(GameState.job["since"])
+		var hired := int(GameState.job.get("hired", GameState.job["since"]))
 		_job_box.add_child(_job_head(def, "%s · %s" % [tr(track["name"]), GameState.job["company"]],
 			tr("CAREER_PER_MONTH") % Fmt.rupiah(GameState.salary)))
-		var info := tr("CAREER_SINCE") % [Fmt.game_date(since), GameState.month - since]
+		var info := tr("CAREER_SINCE") % [Fmt.game_date(hired), GameState.month - hired]
+		if GameState.is_career():
+			info = tr("CAREER_LEVEL") % int(def["level"]) + " · " + info
 		if GameState.income_volatility() > 0.0:
 			info += " · " + tr("HOME_INCOME_VARIES") % roundi(GameState.income_volatility() * 100)
 		if GameState.unpaid_months > 0:
 			info += "\n" + tr("CAREER_UNPAID") % GameState.unpaid_months
 		_job_box.add_child(_wrap(info, &"SmallMutedLabel"))
+		if GameState.is_career():
+			_add_performance()
+			_add_promotion()
+		else:
+			_job_box.add_child(_wrap(tr("CAREER_GIG_NOTE"), &"SmallMutedLabel"))
+		var resign := UiText.chunky_button(tr("CAREER_RESIGN"), &"NeutralButton", &"NeutralButtonLabel", 56.0, 20)
+		resign.custom_minimum_size.x = 240
+		resign.size_flags_horizontal = Control.SIZE_SHRINK_END
+		resign.disabled = GameState.has_pending_event() or GameState.is_over
+		resign.pressed.connect(func() -> void: resign_requested.emit())
+		_job_box.add_child(resign)
 	else:
 		var title := _label(tr("CAREER_UNEMPLOYED"), &"AssetNameLabel")
 		title.add_theme_color_override("font_color", Palette.LOSS)
@@ -211,6 +227,56 @@ func _refresh_job() -> void:
 		if months > 0:
 			chips.add_child(_text_chip(tr("CAREER_EXPERIENCE") % [tr(track["name"]), months], &"SmallChipNeutral"))
 	_job_box.add_child(chips)
+
+
+## Kinerja sekarang (angka, predikat, bar) dan penyusun targetnya + aturan kenaikan prestasi.
+func _add_performance() -> void:
+	var value := roundi(GameState.performance)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	var label := _label(tr("CAREER_PERFORMANCE") % [value, tr(GameState.performance_label())], &"ReqLabel")
+	label.add_theme_color_override("font_color",
+		Palette.GAIN if value >= 60 else (Palette.INK if value >= 40 else Palette.LOSS))
+	row.add_child(label)
+	var bar := ProgressBar.new()
+	bar.theme_type_variation = &"XpBar"
+	bar.custom_minimum_size = Vector2(0, 14)
+	bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	bar.show_percentage = false
+	bar.max_value = 100
+	bar.value = value
+	row.add_child(bar)
+	_job_box.add_child(row)
+	var factors := GameState.performance_factors()
+	var merit: Array[String] = []
+	for item: Array in GameState.job_data["merit_raise"]["by_performance"]:
+		if float(item[1]) > 0.0:
+			merit.append(tr("CAREER_MERIT_ITEM") % [_percent_short(float(item[1])), int(item[0])])
+	_job_box.add_child(_wrap(tr("CAREER_PERFORMANCE_INFO") % [roundi(factors["target"]), roundi(factors["skill"]),
+		roundi(factors["wellbeing"]), ", ".join(merit)], &"SmallMutedLabel"))
+
+
+## Jabatan berikutnya beserta syarat promosinya (✓/✗), atau keterangan jenjang tertinggi.
+func _add_promotion() -> void:
+	var next := GameState.next_job_def()
+	if next.is_empty():
+		_job_box.add_child(_wrap(tr("CAREER_PROMOTION_TOP"), &"SmallMutedLabel"))
+		return
+	_job_box.add_child(_wrap(tr("CAREER_PROMOTION_NEXT") % [tr(next["title"]),
+		tr("CAREER_PER_MONTH") % Fmt.rupiah(GameState.promotion_salary())], &"InfoLabel"))
+	var reqs := HFlowContainer.new()
+	reqs.add_theme_constant_override("h_separation", 12)
+	reqs.add_theme_constant_override("v_separation", 2)
+	for req: Dictionary in GameState.promotion_requirements():
+		var label := _label("%s %s" % ["✓" if req["met"] else "✗", _requirement_text(req, next)], &"ReqLabel")
+		label.add_theme_color_override("font_color", Palette.GAIN if req["met"] else Palette.LOSS)
+		reqs.add_child(label)
+	_job_box.add_child(reqs)
+	if GameState.promotion_ready():
+		var ready := _wrap(tr("CAREER_PROMOTION_READY"), &"SmallMutedLabel")
+		ready.add_theme_color_override("font_color", Palette.GAIN)
+		_job_box.add_child(ready)
 
 
 ## Kartu per lowongan: nama, bidang & perusahaan, gaji, syarat ✓/✗, peluang, tombol Lamar.
@@ -296,6 +362,10 @@ func _requirement_text(req: Dictionary, def: Dictionary) -> String:
 			return tr("CAREER_REQ_SKILL") % [int(req["need"]), floori(req["have"])]
 		"experience":
 			return tr("CAREER_REQ_EXPERIENCE") % [int(req["need"]), tr(GameState.track_def(def["track"])["name"]), int(req["have"])]
+		"tenure":
+			return tr("CAREER_REQ_TENURE") % [int(req["need"]), int(req["have"])]
+		"performance":
+			return tr("CAREER_REQ_PERFORMANCE") % [int(req["need"]), int(req["have"])]
 	return ""
 
 
@@ -321,6 +391,14 @@ func _text_chip(text: String, variation: StringName) -> PanelContainer:
 	elif variation == &"SmallChipNeutral":
 		label_variation = &"SmallChipNeutralLabel"
 	return _chip(_label(text, label_variation), variation)
+
+
+## 0.03 -> "3", 0.015 -> "1,5" (tanpa nol di belakang koma).
+func _percent_short(ratio: float) -> String:
+	var value := snappedf(ratio * 100.0, 0.1)
+	if is_equal_approx(value, roundf(value)):
+		return str(roundi(value))
+	return String.num(value, 1).replace(".", ",")
 
 
 func _wrap(text: String, variation: StringName) -> Label:

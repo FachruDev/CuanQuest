@@ -1,7 +1,7 @@
 {
 	"_comment": [
 		"Pekerjaan & karier (v1.5b). Gaji = harga AWAL permainan (dikali pengali gaji tingkat kesulitan & indeks harga saat lowongan muncul).",
-		"Syarat: pendidikan (education), keahlian (skill; default skill_by_level), pengalaman di bidang yang sama (experience_by_level). workload = perubahan kesehatan & kebahagiaan per bulan (dipakai mulai langkah 2).",
+		"Syarat: pendidikan (education), keahlian (skill; default skill_by_level), pengalaman di bidang yang sama (experience_by_level). workload = perubahan kesehatan & kebahagiaan per bulan selama bekerja (menggantikan rutinitas umum; saat menganggur dipakai economy.json monthly_drift.unemployed).",
 		"Peluang diterima jika semua syarat terpenuhi: chance.base + chance.per_5_skill per 5 poin keahlian di atas syarat + chance.higher_education jika pendidikan lebih tinggi, maksimal chance.max (kerja lepas: chance.gig)."
 	],
 	"education_levels": [
@@ -17,6 +17,45 @@
 	"experience_by_level": [0, 12, 24, 48, 84],
 	"chance": { "base": 0.5, "per_5_skill": 0.05, "higher_education": 0.1, "max": 0.9, "gig": 0.95 },
 	"skill_every_months": 6,
+	"_skill_curve_comment": "Tambahan keahlian dikali (1 - keahlian/100)^skill_curve (v1.5b langkah 2): belajar makin sulit saat sudah ahli, sehingga jenjang tinggi butuh usaha bertahun-tahun.",
+	"skill_curve": 2.0,
+	"performance": {
+		"_comment": [
+			"Kinerja 0-100 (v1.5b langkah 2), hanya untuk pekerjaan berjenjang. Tiap bulan bekerja, kinerja bergerak `approach` bagian menuju target, ditambah acak +-noise. Event kerja juga mengubahnya.",
+			"Target = base + (keahlian - syarat keahlian jabatan) x per_skill (dibatasi skill_min..skill_max) + (rata-rata kesehatan & kebahagiaan - wellbeing_from) x wellbeing_rate (dibatasi wellbeing_min..wellbeing_max).",
+			"labels: [kinerja minimal, key teks predikat]; start = kinerja di bulan pertama bekerja."
+		],
+		"start": 60, "base": 55, "per_skill": 1.0, "skill_min": -25, "skill_max": 20,
+		"wellbeing_from": 60, "wellbeing_rate": 0.3, "wellbeing_min": -15, "wellbeing_max": 10,
+		"approach": 0.3, "noise": 2,
+		"labels": [[80, "PERF_GREAT"], [60, "PERF_GOOD"], [40, "PERF_FAIR"], [0, "PERF_LOW"]]
+	},
+	"merit_raise": {
+		"_comment": "Kenaikan prestasi setiap Januari, di luar penyesuaian inflasi: [kinerja minimal, kenaikan gaji]. Hanya jika sudah bekerja minimal min_months bulan di perusahaan itu.",
+		"min_months": 6,
+		"by_performance": [[80, 0.03], [60, 0.015], [0, 0.0]]
+	},
+	"promotion": {
+		"_comment": "Promosi ditawarkan lewat event (peluang `chance` per bulan) jika lama di jabatan >= min_months[jenjang sekarang - 1], kinerja >= performance, serta pendidikan & keahlian memenuhi syarat jabatan berikutnya (pengalaman tidak perlu). Gaji baru = gaji pasar jabatan itu, minimal naik min_raise. Ditolak = baru ditawarkan lagi setelah cooldown event promotion.",
+		"min_months": [12, 18, 24, 36],
+		"performance": 70,
+		"chance": 0.35,
+		"min_raise": 0.1
+	},
+	"layoff": {
+		"_comment": "Peluang PHK per bulan = base, x low_mult jika kinerja < low_performance (atau x mid_mult jika < mid_performance), x bear_mult saat pasar saham sedang bear. Tidak ada PHK di min_months bulan pertama. Pesangon: 1 bulan gaji untuk tiap tahun masa kerja yang dimulai, maks. severance_max bulan.",
+		"base": 0.001,
+		"min_months": 3,
+		"low_performance": 40, "low_mult": 5,
+		"mid_performance": 60, "mid_mult": 2,
+		"bear_mult": 2.5,
+		"severance_max": 9
+	},
+	"headhunter": {
+		"_comment": "Tawaran headhunter (event): jenjang berikutnya jika pendidikan & keahlian cukup, selain itu jabatan setara di perusahaan lain. Gaji = gaji pasar jabatan itu x (1 + premium); event hanya muncul jika itu minimal min_gain di atas gaji sekarang.",
+		"premium": 0.2,
+		"min_gain": 0.1
+	},
 	"tracks": [
 		{ "id": "retail", "name": "Ritel & Layanan", "companies": ["Toko Sinar Jaya", "Mart Sejahtera", "Swalayan Nusantara", "Kafe Kopi Kita"] },
 		{ "id": "admin", "name": "Administrasi & Operasional", "companies": ["PT Maju Bersama", "PT Logistik Andalan", "CV Karya Mandiri", "PT Sentosa Abadi"] },

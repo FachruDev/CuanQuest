@@ -25,6 +25,27 @@ static func money(text: String) -> String:
 	return result
 
 
+## Teks event: token uang {rp:N} + isian event karier (v1.5b langkah 2) dari
+## GameState.pending_vars atau hasil resolve_event: {job}, {company}, {salary}, {months},
+## {severance}, {raise}.
+static func event_text(text: String, vars: Dictionary) -> String:
+	var result := money(text)
+	if vars.is_empty() or not result.contains("{"):
+		return result
+	if vars.has("job_id"):
+		result = result.replace("{job}", _t(GameState.job_def(vars["job_id"]).get("title", "")))
+	if vars.has("company"):
+		result = result.replace("{company}", vars["company"])
+	for key: String in ["salary", "severance"]:
+		if vars.has(key):
+			result = result.replace("{%s}" % key, Fmt.rupiah(vars[key]))
+	if vars.has("months"):
+		result = result.replace("{months}", str(int(vars["months"])))
+	if vars.has("raise"):
+		result = result.replace("{raise}", "%d%%" % roundi(float(vars["raise"]) * 100.0))
+	return result
+
+
 ## {"cash": -1500000, "health": 5} -> "Kas -Rp1.500.000 | Kesehatan +5"
 static func changes_text(changes: Dictionary) -> String:
 	var parts: Array[String] = []
@@ -38,6 +59,10 @@ static func changes_text(changes: Dictionary) -> String:
 		parts.append("%s %+d" % [_t("STAT_HEALTH"), int(changes["health"])])
 	if changes.has("happiness"):
 		parts.append("%s %+d" % [_t("STAT_HAPPINESS"), int(changes["happiness"])])
+	if changes.has("skill"):
+		parts.append("%s %+d" % [_t("STAT_SKILL"), int(changes["skill"])])
+	if changes.has("performance"):
+		parts.append("%s %+d" % [_t("STAT_PERFORMANCE"), int(changes["performance"])])
 	if changes.has("xp"):
 		parts.append("XP %+d" % int(changes["xp"]))
 	return " | ".join(parts)

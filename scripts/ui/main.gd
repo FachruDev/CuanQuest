@@ -60,6 +60,14 @@ func _ready() -> void:
 			text += " " + tr("TOAST_FIRST_SALARY") % Fmt.rupiah(first_salary)
 		_show_toast(text)
 		_enqueue_plan_review())  # gaji pertama/baru: susun atau tinjau rencana gaji
+	GameState.career_changed.connect(func(kind: String, title: String) -> void:
+		if kind == "promoted":
+			_show_toast(tr("TOAST_PROMOTED") % tr(title))
+			_enqueue_plan_review())  # gaji baru: tinjau rencana gaji
+	%ActivityScreen.resign_requested.connect(func() -> void:
+		_enqueue(%InfoPopup.open.bind(tr("RESIGN_TITLE"), tr("RESIGN_BODY"), tr("RESIGN_CONFIRM"), func() -> void:
+			GameState.resign()
+			_show_toast(tr("TOAST_RESIGNED")), tr("BTN_CANCEL"))))
 	%HomeScreen.insurance_requested.connect(func() -> void: _enqueue(%InsurancePopup.open))
 	%MarketScreen.trade_requested.connect(func(asset_id: String, is_buy: bool, amount: int) -> void:
 		_enqueue(%TradeConfirmPopup.open.bind(asset_id, is_buy, amount)))

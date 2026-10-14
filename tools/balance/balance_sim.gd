@@ -24,7 +24,7 @@ const PERSONAS := {
 	"acak": {"desc": "Pilihan acak", "food": "", "housing": "", "lifestyle": 0.05, "emergency": 0.1,
 		"invest": 0.0, "insurance": {}, "choice": "random", "quiz": false, "random_trades": true},
 }
-const CHECKPOINTS := [10, 20, 30]
+const CHECKPOINTS := [5, 10, 20, 30]
 
 var _rng := RandomNumberGenerator.new()
 
@@ -85,10 +85,10 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 		if GameState.month % 12 == 0:
 			_update_plan(p)
 		GameState.advance_month()
+		_resolve_events(p)  # termasuk wawancara (negosiasi gaji) sebelum tawaran diputuskan
 		_take_offer()
 		if start_salary == 0 and GameState.is_employed():
 			start_salary = roundi(GameState.salary / GameState.price_level())
-		_resolve_events(p)
 		if freedom_month < 0 and GameState.is_financially_free():
 			freedom_month = GameState.month
 		if millionaire_month < 0 and GameState.net_worth() >= float(GameState.economy["end"]["win_net_worth"]):
@@ -121,6 +121,13 @@ func _snapshot(start_salary: int) -> Dictionary:
 		"premiums": float(GameState.stats["insurance_premiums"]),
 		"uninsured": float(GameState.stats["uninsured_medical"]),
 		"events": int(GameState.stats["events"]),
+		"salary_total": float(GameState.stats["total_salary"]),
+		"living_total": float(GameState.stats["total_living"]),
+		"promotions": int(GameState.stats["promotions"]),
+		"layoffs": int(GameState.stats["layoffs"]),
+		"top_level": int(GameState.stats["top_level"]),
+		"performance": roundi(GameState.performance) if GameState.is_career() else -1,
+		"level": int(GameState.current_job_def()["level"]) if GameState.is_career() else 0,
 	}
 
 
@@ -278,7 +285,9 @@ func _choice_score(choice: Dictionary, scam: bool) -> float:
 	if scam:
 		return -_out_of_pocket(choice) - (1e9 if choice.has("outcomes") or effects.get("cash", 0.0) > 0.0 else 0.0)
 	return money * 6.0 + float(effects.get("health", 0)) + float(effects.get("happiness", 0)) \
-		+ float(effects.get("salary_pct", 0.0)) * 100.0 - float(effects.get("unemployed_months", 0)) * 10.0
+		+ float(effects.get("salary_pct", 0.0)) * 100.0 - float(effects.get("unpaid_months", 0)) * 10.0 \
+		+ float(effects.get("performance", 0)) * 0.4 + float(effects.get("skill", 0)) * 2.0 \
+		+ float(effects.get("offer_raise", 0.0)) * 150.0 + float(effects.get("promote", 0)) * 40.0
 
 
 ## Efek rata-rata pilihan (outcomes ditimbang peluangnya); cash dalam Rupiah hari ini.
@@ -292,7 +301,7 @@ func _expected_effects(choice: Dictionary) -> Dictionary:
 		parts.append([1.0, choice.get("effects", {})])
 	for part: Array in parts:
 		var effects: Dictionary = part[1]
-		for key: String in ["health", "happiness", "salary_pct", "unemployed_months"]:
+		for key: String in ["health", "happiness", "salary_pct", "unpaid_months", "performance", "skill", "offer_raise", "promote"]:
 			result[key] = float(result.get(key, 0.0)) + part[0] * float(effects.get(key, 0))
 		result["cash"] = float(result.get("cash", 0.0)) + part[0] * GameState.nominal(effects.get("cash", 0))
 	return result
@@ -314,15 +323,22 @@ func _print_summary(persona: String, results: Array[Dictionary], years: int) -> 
 			continue
 		var snaps: Array = results.map(func(r: Dictionary) -> Dictionary: return r["snapshots"][year])
 		var employed := snaps.filter(func(s: Dictionary) -> bool: return s["employed"]).size()
-		print("  tahun %2d: kekayaan riil %s | nominal median %s | gaji riil x%s | sehat %s | bahagia %s | bekerja %d%% | keahlian %d" % [
+		print("  tahun %2d: kekayaan riil %s | nominal median %s | gaji riil x%s | sehat %s | bahagia %s | bekerja %d%% | keahlian %d | jenjang %d" % [
 			year, _range(snaps, "real_worth", true), Fmt.rupiah_short(_median(snaps, "worth")),
 			Fmt.number(_median(snaps, "real_salary_growth"), 2), int(_median(snaps, "health")), int(_median(snaps, "happiness")),
-			roundi(100.0 * employed / snaps.size()), int(_median(snaps, "skill"))])
+			roundi(100.0 * employed / snaps.size()), int(_median(snaps, "skill")), int(_median(snaps, "level"))])
 	var last: int = CHECKPOINTS.filter(func(y: int) -> bool: return y <= years).max()
 	var finals: Array = results.map(func(r: Dictionary) -> Dictionary: return r["snapshots"][last])
+	print("  tahun %d: gaji total %s | biaya hidup total %s (median, nominal)" % [last,
+		Fmt.rupiah_short(_median(finals, "salary_total")), Fmt.rupiah_short(_median(finals, "living_total"))])
 	print("  tahun %d: pajak total %s | premi asuransi %s | klaim %s | berobat tanpa asuransi %s (median, nominal)" % [
 		last, Fmt.rupiah_short(_median(finals, "taxes")), Fmt.rupiah_short(_median(finals, "premiums")),
 		Fmt.rupiah_short(_median(finals, "claims")), Fmt.rupiah_short(_median(finals, "uninsured"))])
+	var laid_off := finals.filter(func(f: Dictionary) -> bool: return f["layoffs"] > 0).size()
+	var careers := finals.filter(func(f: Dictionary) -> bool: return f["performance"] >= 0)
+	print("  tahun %d: promosi median %d | pernah PHK %d%% | jenjang tertinggi median %d | kinerja median %d" % [
+		last, int(_median(finals, "promotions")), roundi(100.0 * laid_off / finals.size()),
+		int(_median(finals, "top_level")), int(_median(careers, "performance")) if not careers.is_empty() else -1])
 
 
 ## "median Rp... (p10 ... p90 ...)"

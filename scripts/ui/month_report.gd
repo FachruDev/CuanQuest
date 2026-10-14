@@ -26,8 +26,11 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 			_add_row(box, "REPORT_INCOME_TAX", Fmt.signed_rupiah(-r["income_tax"]), Palette.LOSS)
 	if float(r.get("salary_raise", 0.0)) > 0.0:
 		_add_row(box, "REPORT_SALARY_RAISE", Fmt.percent(r["salary_raise"]), Palette.GAIN)
+	if float(r.get("merit_raise", 0.0)) > 0.0:
+		_add_row_text(box, TranslationServer.translate("REPORT_MERIT_RAISE") % int(r["review_performance"]),
+			Fmt.percent(r["merit_raise"]), Palette.GAIN)
 
-	_add_applications(box, r)
+	_add_career(box, r)
 
 	_add_header(box, "REPORT_EXPENSES")
 	_add_row(box, "REPORT_FOOD", Fmt.signed_rupiah(-r["food_cost"]), Palette.LOSS)
@@ -114,13 +117,21 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 		_add_text(box, warning, Palette.LOSS)
 
 
-## Hasil lamaran kerja bulan lalu (v1.5b): diterima -> tawaran menunggu keputusan; ditolak.
-static func _add_applications(box: VBoxContainer, r: Dictionary) -> void:
+## Karier (v1.5b): kinerja bulan ini, penilaian tahunan tanpa kenaikan, dan hasil lamaran
+## kerja bulan lalu (diterima -> tawaran menunggu keputusan; ditolak).
+static func _add_career(box: VBoxContainer, r: Dictionary) -> void:
+	var performance := int(r.get("performance", -1))
 	var accepted: Array = r.get("applications_accepted", [])
 	var rejected: Array = r.get("applications_rejected", [])
-	if accepted.is_empty() and rejected.is_empty():
+	if performance < 0 and accepted.is_empty() and rejected.is_empty():
 		return
-	_add_header(box, "REPORT_APPLICATIONS")
+	_add_header(box, "REPORT_CAREER")
+	if performance >= 0:
+		var delta := int(r.get("performance_delta", 0))
+		_add_row(box, "STAT_PERFORMANCE", TranslationServer.translate("REPORT_PERFORMANCE_VALUE") % [performance,
+			TranslationServer.translate(GameState.performance_label(performance)), delta], signed_color(delta))
+	if r.has("merit_raise") and float(r["merit_raise"]) <= 0.0:
+		_add_text(box, TranslationServer.translate("REPORT_NO_MERIT") % int(r["review_performance"]), Palette.MUTED)
 	for title: String in accepted:
 		_add_text(box, TranslationServer.translate("REPORT_APPLICATION_ACCEPTED") % title, Palette.GAIN)
 	for title: String in rejected:

@@ -132,7 +132,7 @@ scenes/
   - [x] (5) Penyeimbangan ekonomi + simulator `tools/balance`
 - [ ] **v1.5b "Pekerjaan & Karier"**:
   - [x] (1) Fondasi: latar SMA/D3/S1 tanpa kerja, lowongan & melamar, tab Karier
-  - [ ] (2) Karier: kinerja, promosi, kenaikan prestasi, PHK, event kerja
+  - [x] (2) Karier: kinerja, promosi, kenaikan prestasi, PHK, event kerja
   - [ ] (3) Pendidikan & keahlian
   - [ ] (4) Tampilan & cerita
   - [ ] (5) Penyeimbangan
@@ -220,6 +220,18 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **UI:** tab Aktivitas berganti nama menjadi Karier (`activity_screen.gd`: `_refresh_job`, `_refresh_board`), popup `OfferPopup`, bagian LAMARAN KERJA di laporan, chip jabatan & pendidikan di Profil.
 - **Menambah pekerjaan:** cukup tambah entri di `jobs.json` (id unik, `track`, `level`, `title`, `education`, `salary`, `workload`; opsional `skill`, `volatility`). Bidang baru butuh entri di `tracks` dan ikon `assets/icons/tracks/<id>.svg` (opsional).
 - **Save:** `SAVE_VERSION` 3; save v1.5a ditolak dengan pesan `SAVE_OUTDATED`.
+
+## Karier: Kinerja, Promosi, PHK (v1.5b langkah 2)
+
+- **Data:** `data/jobs.json` bagian `performance` (target & kecepatan kinerja, predikat), `merit_raise` (kenaikan prestasi Januari), `promotion` (masa jabatan, kinerja minimal, peluang, kenaikan minimal), `layoff` (peluang PHK & pesangon), `headhunter`, dan `skill_curve`. Beban kerja ada di tiap pekerjaan (`workload`); stres menganggur di `economy.json` `monthly_drift.unemployed`.
+- **State** di `GameState`: `performance` (0-100), `job.hired` (mulai di perusahaan, untuk pesangon) di samping `job.since` (mulai di jabatan, untuk promosi), `pending_vars` (isian teks event yang sedang tampil).
+- **Alur bulanan:** Januari: `_index_salary()` (inflasi) lalu `_merit_raise()` (prestasi). `_work_month()` menggerakkan kinerja menuju `performance_factors()["target"]`. `_drift()` memakai beban kerja jabatan.
+- **Event karier dijadwalkan sistem**, di luar jatah event acak (`_career_events()`): wawancara jika ada tawaran kerja berjenjang; selain itu PHK (`layoff_chance()`) atau promosi (`promotion_ready()`). Analogi web: seperti cron job terpisah dari notifikasi acak. Event berjenis ini ditandai `chain_only` di `events.json` agar tidak pernah muncul acak.
+- **Isian teks event:** saat event mulai tampil, `_event_vars()` menghitung isian (`{job}`, `{company}`, `{salary}`, `{months}`, `{severance}`, `{raise}`) dan menyimpannya di `pending_vars` (ikut save). `UiText.event_text()` mengganti isian itu di popup. Analogi web: seperti props yang dihitung server saat request lalu dikirim ke template, sehingga teks dan efeknya (mis. besar pesangon) selalu sama.
+- **Antrean event:** event yang sudah tidak relevan saat gilirannya tiba (mis. event kerja setelah PHK) dilewati (`_event_still_valid()`, `EventManager.requires_met()`).
+- **Signal baru:** `career_changed(kind, title)` ("promoted" -> toast + tinjau rencana gaji, "laid_off"). `job_offers_received` untuk tawaran berjenjang baru dikirim setelah event wawancara diputuskan.
+- **UI:** kartu Pekerjaan di tab Karier (`_add_performance()`, `_add_promotion()`, tombol Berhenti kerja -> `InfoPopup` konfirmasi dengan `ok_text` "Batal"), bagian KARIER & baris kenaikan prestasi di laporan (`MonthReport._add_career()`).
+- **Menambah event kerja:** tulis di `events.json` dengan `"requires": "career"`; efek baru yang tersedia: `performance`, `promote`, `layoff`, `offer_raise`, `headhunter`.
 
 ## Penyeimbangan & Simulator (v1.5a langkah 5)
 

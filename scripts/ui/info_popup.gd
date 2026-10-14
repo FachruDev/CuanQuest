@@ -11,9 +11,12 @@ func _ready() -> void:
 	%SecondaryButton.pressed.connect(_on_secondary_pressed)
 
 
-func open(title: String, body: String, secondary_text: String = "", on_secondary: Callable = Callable()) -> void:
+## `ok_text`: label tombol utama (default "Oke"), mis. "Batal" untuk popup konfirmasi.
+func open(title: String, body: String, secondary_text: String = "", on_secondary: Callable = Callable(),
+		ok_text: String = "") -> void:
 	%TitleLabel.text = title
 	%BodyLabel.text = body
+	%OkButton.get_child(0).text = ok_text if ok_text != "" else tr("BTN_OK")
 	_on_secondary = on_secondary
 	%SecondaryButton.visible = secondary_text != ""
 	%SecondaryButton.get_child(0).text = secondary_text

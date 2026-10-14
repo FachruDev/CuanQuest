@@ -9,8 +9,9 @@ func _ready() -> void:
 
 func open(event: Dictionary) -> void:
 	%CategoryLabel.text = tr("EVENT_CAT_" + str(event["category"]).to_upper())
-	%TitleLabel.text = tr(event["title"])
-	%BodyLabel.text = UiText.money(tr(event["text"]))
+	var vars := GameState.pending_vars  # isian event karier ({job}, {salary}, ...)
+	%TitleLabel.text = UiText.event_text(tr(event["title"]), vars)
+	%BodyLabel.text = UiText.event_text(tr(event["text"]), vars)
 
 	for child in %Choices.get_children():
 		%Choices.remove_child(child)
@@ -23,7 +24,7 @@ func open(event: Dictionary) -> void:
 		button.custom_minimum_size = Vector2(0, 84)
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		var text := UiText.money(tr(choice["label"]))
+		var text := UiText.event_text(tr(choice["label"]), vars)
 		var cost := GameState.choice_cost(choice)
 		var covered := GameState.insurance_cover(choice)
 		if covered > 0:
@@ -47,7 +48,7 @@ func open(event: Dictionary) -> void:
 func _on_choice(index: int) -> void:
 	var result := GameState.resolve_event(index)
 	%Choices.hide()
-	var text := UiText.money(tr(result["result"]))
+	var text := UiText.event_text(tr(result["result"]), result.get("vars", {}))
 	for claim: Dictionary in result.get("claims", []):
 		text += "\n" + tr("EVENT_CLAIM_" + str(claim["category"]).to_upper()) % Fmt.rupiah(claim["amount"])
 	%ResultLabel.text = text

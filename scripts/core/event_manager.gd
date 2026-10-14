@@ -84,9 +84,19 @@ func _is_eligible(def: Dictionary, state: Node) -> bool:
 		return false
 	if def.has("month_of_year") and state.month % 12 != int(def["month_of_year"]):
 		return false
+	return requires_met(def, state)
+
+
+## Syarat "requires" event terhadap kondisi pemain saat ini. Juga dicek ulang saat event di
+## antrean bulan ini mendapat giliran (kondisinya bisa berubah oleh event sebelumnya).
+func requires_met(def: Dictionary, state: Node) -> bool:
 	match def.get("requires", ""):
 		"employed":
 			return state.is_employed() and state.unpaid_months == 0
+		"career":  # pekerjaan berjenjang (bukan kerja lepas), v1.5b langkah 2
+			return state.is_career() and state.unpaid_months == 0
+		"headhunter":  # pekerjaan berjenjang & ada incaran yang gajinya lebih tinggi
+			return state.is_career() and state.unpaid_months == 0 and not state.headhunter_target().is_empty()
 		"unemployed":
 			return not state.is_employed()
 		"has_investments":

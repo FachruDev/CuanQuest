@@ -701,6 +701,30 @@ TOAST_JOB,Selamat bekerja sebagai %s!,Congrats on your new job as %s!
 TOAST_FIRST_SALARY,Gaji pertama %s sudah masuk.,First salary %s received.
 HOME_UNPAID,Cuti tanpa gaji %d bulan lagi,Unpaid leave for %d more months
 REPORT_SALARY_UNPAID,Gaji (cuti tanpa gaji),Salary (unpaid leave)
-REPORT_APPLICATIONS,LAMARAN KERJA,JOB APPLICATIONS
 REPORT_APPLICATION_ACCEPTED,Diterima: %s. Lihat tawarannya setelah laporan ini.,Accepted: %s. See the offer after this report.
 REPORT_APPLICATION_REJECTED,Ditolak: %s.,Rejected: %s.
+STAT_SKILL,Keahlian,Skill
+STAT_PERFORMANCE,Kinerja,Performance
+PERF_GREAT,Sangat baik,Excellent
+PERF_GOOD,Baik,Good
+PERF_FAIR,Cukup,Fair
+PERF_LOW,Kurang,Poor
+CAREER_PERFORMANCE,Kinerja %d · %s,Performance %d · %s
+CAREER_PERFORMANCE_INFO,"Kinerja bergerak menuju %d: keahlian dibanding syarat jabatan %+d, kesehatan & kebahagiaan %+d, ditambah pilihanmu di event kerja. Kenaikan prestasi tiap Januari: %s.","Performance moves toward %d: skill vs. job requirement %+d, health & happiness %+d, plus your choices in work events. Merit raise every January: %s."
+CAREER_MERIT_ITEM,%s%% (kinerja ≥%d),%s%% (performance ≥%d)
+CAREER_PROMOTION_NEXT,Promosi berikutnya: %s (%s),Next promotion: %s (%s)
+CAREER_PROMOTION_READY,Semua syarat terpenuhi. Tunggu tawaran promosi dari atasan dalam beberapa bulan.,All requirements met. Expect a promotion offer from your boss within a few months.
+CAREER_PROMOTION_TOP,Kamu sudah di jenjang tertinggi bidang ini. Kenaikan gaji kini datang dari prestasi tahunan.,You're at the top level of this field. Raises now come from yearly merit.
+CAREER_REQ_TENURE,Masa jabatan %d bln (kamu %d),%d mo in role (you %d)
+CAREER_REQ_PERFORMANCE,Kinerja %d (kamu %d),Performance %d (you %d)
+CAREER_GIG_NOTE,"Kerja lepas tidak punya jenjang karier, THR, kenaikan prestasi, atau pesangon. Lamar lowongan berjenjang untuk membangun karier.","Gig work has no career levels, holiday bonus, merit raises, or severance. Apply to career openings to build a career."
+CAREER_RESIGN,Berhenti kerja,Resign
+RESIGN_TITLE,Berhenti Kerja?,Resign?
+RESIGN_BODY,Berhenti sendiri tidak mendapat pesangon. Gaji berhenti mulai bulan depan dan kamu perlu melamar lagi dari awal. Pastikan dana daruratmu cukup untuk beberapa bulan.,Resigning gives no severance. Your salary stops next month and you'll need to apply again from scratch. Make sure your emergency fund covers a few months.
+RESIGN_CONFIRM,"Ya, berhenti","Yes, resign"
+TOAST_RESIGNED,Kamu sudah berhenti bekerja. Cek lowongan di tab Karier.,You resigned. Check openings in the Career tab.
+TOAST_PROMOTED,Selamat atas promosimu sebagai %s!,Congrats on your promotion to %s!
+REPORT_MERIT_RAISE,Kenaikan prestasi (kinerja %d),Merit raise (performance %d)
+REPORT_CAREER,KARIER,CAREER
+REPORT_PERFORMANCE_VALUE,%d · %s (%+d),%d · %s (%+d)
+REPORT_NO_MERIT,Penilaian tahunan: kinerja %d belum cukup untuk kenaikan prestasi tahun ini.,Yearly review: performance %d isn't enough for a merit raise this year.

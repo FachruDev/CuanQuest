@@ -1,8 +1,8 @@
 {
 	"start_health": 70,
 	"start_happiness": 70,
-	"_monthly_drift_comment": "Rutinitas & stres kerja (v1.5a langkah 5): perubahan kesehatan & kebahagiaan tiap bulan, ditambah efek makanan, tempat tinggal, gaya hidup, aktivitas, dan event. Di bawah recover_below, tubuh & pikiran pulih alami +recover per bulan.",
-	"monthly_drift": { "health": -1, "happiness": -1, "recover_below": 50, "recover": 2 },
+	"_monthly_drift_comment": "Perubahan kesehatan & kebahagiaan tiap bulan di luar makanan, tempat tinggal, gaya hidup, aktivitas, dan event. Saat bekerja dipakai beban kerja jabatan (jobs.json workload, v1.5b langkah 2); saat menganggur dipakai `unemployed` (stres mencari kerja); saat cuti tanpa gaji nol. Di bawah recover_below, tubuh & pikiran pulih alami +recover per bulan.",
+	"monthly_drift": { "unemployed": { "health": 0, "happiness": -2 }, "recover_below": 50, "recover": 2 },
 	"default_background": "s1",
 	"default_difficulty": "normal",
 	"_backgrounds_comment": "Latar pendidikan (v1.5b): semua mulai tanpa pekerjaan. education = id di jobs.json education_levels; skill = keahlian awal; icon = nama ikon assets/icons/background_<icon>.svg.",
