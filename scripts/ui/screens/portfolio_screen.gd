@@ -24,8 +24,8 @@ func _ready() -> void:
 func _refresh() -> void:
 	if not is_visible_in_tree():
 		return
-	var invested := GameState.investments_value()
-	var cost := GameState.total_cost()
+	var invested := GameState.portfolio.investments_value()
+	var cost := GameState.portfolio.total_cost()
 	var pnl := invested - cost
 
 	%CashValue.text = Fmt.rupiah(GameState.cash)
@@ -50,9 +50,9 @@ func _refresh() -> void:
 ## Donat alokasi per kelas aset (kas termasuk) + legenda dengan persentase.
 func _build_allocation() -> void:
 	var totals := {"cash": maxf(GameState.cash, 0.0)}
-	for asset_id: String in GameState.holdings:
+	for asset_id: String in GameState.portfolio.holdings:
 		var asset_class: String = GameState.market.get_asset(asset_id).asset_class
-		totals[asset_class] = totals.get(asset_class, 0.0) + GameState.holding_value(asset_id)
+		totals[asset_class] = totals.get(asset_class, 0.0) + GameState.portfolio.holding_value(asset_id)
 	var grand_total := 0.0
 	for value: float in totals.values():
 		grand_total += value
@@ -73,7 +73,7 @@ func _build_allocation() -> void:
 
 	# Peringatan konsentrasi (GDD 5.8): satu aset > 70% dari investasi.
 	var share := EndAnalysis.largest_holding_share(GameState)
-	var concentrated := share > 0.7 and GameState.investments_value() > 5_000_000
+	var concentrated := share > 0.7 and GameState.portfolio.investments_value() > 5_000_000
 	%ConcentrationWarning.visible = concentrated
 	if concentrated:
 		%ConcentrationLabel.text = tr("PORT_CONCENTRATION_WARNING") % Fmt.percent_plain(share)
@@ -101,11 +101,11 @@ func _legend_row(color: Color, text: String, percent: String) -> HBoxContainer:
 ## Riwayat transaksi: chip jenis | nama aset + tanggal & fee | nominal. Dipisah garis tipis.
 func _build_transactions() -> void:
 	_clear(%TxList)
-	if GameState.transactions.is_empty():
+	if GameState.portfolio.transactions.is_empty():
 		%TxList.add_child(_label(tr("TX_EMPTY"), &"MutedLabel"))
 		return
-	for i in mini(TX_SHOWN, GameState.transactions.size()):
-		var t: Dictionary = GameState.transactions[i]
+	for i in mini(TX_SHOWN, GameState.portfolio.transactions.size()):
+		var t: Dictionary = GameState.portfolio.transactions[i]
 		var kind := str(t["kind"])
 		if i > 0:
 			var line := Panel.new()
@@ -148,21 +148,21 @@ func _build_transactions() -> void:
 
 func _build_holdings() -> void:
 	_clear(%HoldingsList)
-	if GameState.holdings.is_empty():
+	if GameState.portfolio.holdings.is_empty():
 		var empty := _label(tr("PORT_EMPTY"), &"MutedLabel")
 		empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		%HoldingsList.add_child(empty)
 		return
-	for asset_id: String in GameState.holdings:
+	for asset_id: String in GameState.portfolio.holdings:
 		%HoldingsList.add_child(_make_holding_card(asset_id))
 
 
 ## Satu kartu kepemilikan: ikon kelas | nama + unit @ harga rata-rata | nilai + untung/rugi.
 func _make_holding_card(asset_id: String) -> PanelContainer:
 	var asset := GameState.market.get_asset(asset_id)
-	var units := GameState.units_of(asset_id)
-	var cost := GameState.cost_of(asset_id)
-	var value := GameState.holding_value(asset_id)
+	var units := GameState.portfolio.units_of(asset_id)
+	var cost := GameState.portfolio.cost_of(asset_id)
+	var value := GameState.portfolio.holding_value(asset_id)
 
 	var card := PanelContainer.new()
 	card.theme_type_variation = &"HomeCard"
@@ -180,8 +180,8 @@ func _make_holding_card(asset_id: String) -> PanelContainer:
 	var detail_text: String
 	if asset.is_interest():
 		detail_text = tr("FMT_RATE_PA") % Fmt.percent_plain(GameState.market.rate_for(asset))
-		if GameState.is_locked(asset_id):
-			detail_text += " | " + tr("LBL_LOCKED_UNTIL") % Fmt.game_date(GameState.locked_until(asset_id))
+		if GameState.portfolio.is_locked(asset_id):
+			detail_text += " | " + tr("LBL_LOCKED_UNTIL") % Fmt.game_date(GameState.portfolio.locked_until(asset_id))
 	else:
 		detail_text = tr("PORT_HOLDING_DETAIL") % [Fmt.units(units), asset.price_text(cost / units)]
 	var detail := _label(detail_text, &"SmallMutedLabel")

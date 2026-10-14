@@ -1,0 +1,43 @@
+{
+	"_comment": "Pendidikan: sertifikasi, beasiswa, ujian. Format & cara menambah event: docs/PANDUAN_EVENT.md",
+	"events": [
+		{
+			"id": "course", "category": "education", "weight": 2, "min_month": 3, "max_times": 3, "cooldown": 12,
+			"title": "Sertifikasi Profesi", "text": "Ada program {cert} selama sebulan. Sertifikat ini diakui banyak perusahaan dan menambah keahlianmu.",
+			"choices": [
+				{ "label": "Ikut sertifikasi", "cost": 2500000, "effects": { "skill": 8, "performance": 3, "xp": 30, "happiness": -2 }, "result": "Lulus! Keahlianmu bertambah dan peluangmu di lowongan yang lebih tinggi ikut naik. Investasi terbaik adalah investasi pada diri sendiri." },
+				{ "label": "Lewati dulu", "effects": {}, "result": "Mungkin lain kali." }
+			]
+		},
+		{
+			"id": "scholarship", "category": "education", "weight": 2, "cooldown": 12, "max_times": 2, "requires": "studying",
+			"title": "Beasiswa Prestasi", "text": "Kampusmu membuka beasiswa prestasi yang menanggung 50% uang kuliah sampai lulus. Pendaftar harus menulis esai dan menyerahkan nilai terbaik.",
+			"choices": [
+				{ "label": "Daftar dan tulis esai sungguh-sungguh", "outcomes": [
+					{ "chance": 0.5, "effects": { "scholarship": 0.5, "happiness": 4, "xp": 20 }, "result": "Selamat, kamu lolos! Uang kuliahmu tinggal separuh sampai lulus." },
+					{ "chance": 0.5, "effects": { "happiness": -2, "xp": 10 }, "result": "Belum lolos kali ini. Pengalaman menulis esai tetap berguna untuk kesempatan berikutnya." }
+				] },
+				{ "label": "Lewati, sedang sibuk", "effects": {}, "result": "Kesempatan ini terlewat. Beasiswa biasanya dibuka lagi tahun ajaran berikutnya." }
+			]
+		},
+		{
+			"id": "company_sponsor", "category": "education", "weight": 1, "max_times": 1, "requires": "sponsor_ready",
+			"title": "Beasiswa dari Kantor", "text": "Karena kinerjamu bagus, {company} menawarkan beasiswa {program} penuh. Uang kuliah ditanggung kantor selama kamu masih bekerja di sana.",
+			"choices": [
+				{ "label": "Ambil beasiswanya", "effects": { "sponsored_study": true, "happiness": 3, "xp": 20 }, "result": "Kuliahmu dimulai bulan depan. Kuliah sambil bekerja memakai 1 energi dan sedikit kebahagiaan tiap bulan, dan beasiswanya berhenti jika kamu pindah kerja." },
+				{ "label": "Tolak, fokus bekerja dulu", "effects": {}, "result": "Tawaran seperti ini bisa datang lagi selama kinerjamu tetap baik." }
+			]
+		},
+		{
+			"id": "exam_week", "category": "education", "weight": 3, "cooldown": 6, "requires": "studying",
+			"title": "Minggu Ujian", "text": "Ujian akhir semester tinggal seminggu lagi, padahal pekerjaan dan urusan lain juga menumpuk.",
+			"choices": [
+				{ "label": "Belajar sungguh-sungguh", "effects": { "skill": 1, "xp": 15, "happiness": -2, "health": -1 }, "result": "Nilaimu bagus. Kerja kerasmu terbayar." },
+				{ "label": "Belajar seadanya", "outcomes": [
+					{ "chance": 0.75, "effects": {}, "result": "Lulus dengan nilai pas-pasan." },
+					{ "chance": 0.25, "effects": { "study_delay": 3, "happiness": -3 }, "result": "Ada mata kuliah yang harus diulang. Masa kuliahmu mundur 3 bulan dan biayanya bertambah." }
+				] }
+			]
+		}
+	]
+}

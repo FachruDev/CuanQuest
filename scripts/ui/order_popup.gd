@@ -1,7 +1,7 @@
 extends ModalPopup
 ## Popup stop loss & take profit (v1.5a langkah 4) untuk satu aset yang dimiliki.
 ## Batas dipilih sebagai jarak (persen) dari harga sekarang; yang disimpan adalah harga batasnya.
-## Pesanan dicek setiap hari saat pasar bergerak (GameState._execute_orders).
+## Pesanan dicek setiap hari saat pasar bergerak (GameState.portfolio.execute_orders).
 
 var _asset_id := ""
 var _index := {"stop_loss": 0, "take_profit": 0}  # indeks pilihan di economy.json "orders"
@@ -12,8 +12,8 @@ var _estimates: Dictionary = {}  # "stop_loss"/"take_profit" -> Label perkiraan 
 func open(asset_id: String) -> void:
 	_asset_id = asset_id
 	var asset := GameState.market.get_asset(asset_id)
-	var cfg := GameState.orders_config()
-	var order := GameState.order_of(asset_id)
+	var cfg := GameState.portfolio.orders_config()
+	var order := GameState.portfolio.order_of(asset_id)
 	if order.is_empty():
 		_index["stop_loss"] = _nearest(cfg["stop_loss_steps"], cfg["default_stop_loss"])
 		_index["take_profit"] = _nearest(cfg["take_profit_steps"], cfg["default_take_profit"])
@@ -32,7 +32,7 @@ func open(asset_id: String) -> void:
 	_values.clear()
 	_estimates.clear()
 	_row(tr("ORDER_PRICE_NOW"), asset.price_text())
-	_row(tr("ORDER_HOLDING"), Fmt.rupiah(GameState.holding_value(asset_id)))
+	_row(tr("ORDER_HOLDING"), Fmt.rupiah(GameState.portfolio.holding_value(asset_id)))
 	for kind: String in ["stop_loss", "take_profit"]:
 		%Rows.add_child(_label(tr("ORDER_" + kind.to_upper()).to_upper(), &"ReportHeaderLabel"))
 		var row := HBoxContainer.new()
@@ -54,13 +54,13 @@ func open(asset_id: String) -> void:
 	_clear(%Buttons)
 	var save := UiText.chunky_button(tr("ORDER_SAVE"), &"PrimaryButton", &"PrimaryButtonLabel", 80.0, 30)
 	save.pressed.connect(func() -> void:
-		GameState.set_order(_asset_id, _limit_price("stop_loss"), _limit_price("take_profit"))
+		GameState.portfolio.set_order(_asset_id, _limit_price("stop_loss"), _limit_price("take_profit"))
 		close())
 	%Buttons.add_child(save)
 	if not order.is_empty():
 		var remove := UiText.chunky_button(tr("ORDER_REMOVE"), &"DangerButton", &"DangerButtonLabel", 68.0, 26)
 		remove.pressed.connect(func() -> void:
-			GameState.set_order(_asset_id, 0.0, 0.0)
+			GameState.portfolio.set_order(_asset_id, 0.0, 0.0)
 			close())
 		%Buttons.add_child(remove)
 	var close_button := UiText.chunky_button(tr("BTN_CLOSE"), &"NeutralButton", &"NeutralButtonLabel", 68.0, 26)
@@ -82,13 +82,13 @@ func _refresh() -> void:
 			continue
 		var direction := -1.0 if kind == "stop_loss" else 1.0
 		_values[kind].text = tr("ORDER_VALUE") % [Fmt.percent(direction * distance), asset.price_text(price)]
-		var units := GameState.units_of(_asset_id)
-		var quote := GameState.trade_quote(_asset_id, false, ceili(units * price), price)
+		var units := GameState.portfolio.units_of(_asset_id)
+		var quote := GameState.portfolio.trade_quote(_asset_id, false, ceili(units * price), price)
 		_estimates[kind].text = tr("ORDER_ESTIMATE") % [Fmt.rupiah(quote["net"]), Fmt.signed_rupiah(quote["pnl"])]
 
 
 func _distance(kind: String) -> float:
-	var steps: Array = GameState.orders_config()[kind + "_steps"]
+	var steps: Array = GameState.portfolio.orders_config()[kind + "_steps"]
 	return float(steps[_index[kind]])
 
 
@@ -107,7 +107,7 @@ func _step_button(text: String, kind: String, direction: int) -> Button:
 	button.text = text
 	button.custom_minimum_size = Vector2(72, 56)
 	button.pressed.connect(func() -> void:
-		var count: int = GameState.orders_config()[kind + "_steps"].size()
+		var count: int = GameState.portfolio.orders_config()[kind + "_steps"].size()
 		_index[kind] = clampi(_index[kind] + direction, 0, count - 1)
 		_refresh())
 	return button

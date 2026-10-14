@@ -14,7 +14,7 @@
 	"applications_per_month": 3,
 	"apply_energy": 1,
 	"skill_by_level": [10, 25, 40, 55, 70],
-	"experience_by_level": [0, 12, 24, 48, 84],
+	"experience_by_level": [0, 12, 36, 60, 96],
 	"chance": { "base": 0.5, "per_5_skill": 0.05, "higher_education": 0.1, "max": 0.9, "gig": 0.95 },
 	"skill_every_months": 6,
 	"_skill_curve_comment": "Tambahan keahlian dikali (1 - keahlian/100)^skill_curve (v1.5b langkah 2): belajar makin sulit saat sudah ahli, sehingga jenjang tinggi butuh usaha bertahun-tahun.",
@@ -33,7 +33,7 @@
 	"merit_raise": {
 		"_comment": "Kenaikan prestasi setiap Januari, di luar penyesuaian inflasi: [kinerja minimal, kenaikan gaji]. Hanya jika sudah bekerja minimal min_months bulan di perusahaan itu.",
 		"min_months": 6,
-		"by_performance": [[80, 0.03], [60, 0.015], [0, 0.0]]
+		"by_performance": [[80, 0.02], [60, 0.01], [0, 0.0]]
 	},
 	"promotion": {
 		"_comment": "Promosi ditawarkan lewat event (peluang `chance` per bulan) jika lama di jabatan >= min_months[jenjang sekarang - 1], kinerja >= performance, serta pendidikan & keahlian memenuhi syarat jabatan berikutnya (pengalaman tidak perlu). Gaji baru = gaji pasar jabatan itu, minimal naik min_raise. Ditolak = baru ditawarkan lagi setelah cooldown event promotion.",

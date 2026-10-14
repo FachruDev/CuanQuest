@@ -1,0 +1,75 @@
+{
+	"_comment": "Kesehatan: sakit, rawat inap, olahraga, burnout, konseling, penyakit kritis. Format & cara menambah event: docs/PANDUAN_EVENT.md",
+	"events": [
+		{
+			"id": "flu", "bad": true, "category": "health", "weight": 3, "context": { "low_health": 2 },
+			"title": "Demam Tinggi", "text": "Badanmu demam tinggi sejak semalam.",
+			"choices": [
+				{ "label": "Periksa ke dokter", "cost": 500000, "claim": "medical", "effects": { "health": 4 }, "result": "Dokter memberi obat yang tepat. Kamu cepat pulih." },
+				{ "label": "Istirahat di rumah saja", "effects": { "health": -8, "happiness": -3 }, "result": "Sembuhnya lama dan kamu sempat tidak masuk kerja beberapa hari." }
+			]
+		},
+		{
+			"id": "hospital", "bad": true, "category": "health", "weight": 1, "min_month": 6, "cooldown": 24, "context": { "low_health": 3 },
+			"title": "Harus Rawat Inap", "text": "Hasil pemeriksaan menunjukkan kamu perlu rawat inap 3 hari.",
+			"choices": [
+				{ "label": "Rawat inap", "cost": 7000000, "claim": "medical", "effects": { "health": 10 }, "result": "Kamu pulih total. Inilah gunanya dana darurat (dan asuransi)." },
+				{ "label": "Rawat jalan saja", "cost": 1000000, "claim": "medical", "effects": { "health": -15, "happiness": -5 }, "result": "Lebih murah, tapi pemulihanmu lambat." },
+				{ "label": "Tidak berobat", "effects": { "health": -25, "happiness": -8 }, "result": "Kondisimu memburuk. Kesehatan adalah aset paling mahal." }
+			]
+		},
+		{
+			"id": "dental", "bad": true, "category": "health", "weight": 2, "cooldown": 18,
+			"title": "Sakit Gigi", "text": "Gigimu berdenyut hebat sampai sulit tidur.",
+			"choices": [
+				{ "label": "Ke dokter gigi", "cost": 800000, "claim": "medical", "effects": { "health": 3 }, "result": "Gigi ditambal, sakitnya hilang." },
+				{ "label": "Tahan saja dengan obat warung", "effects": { "health": -6, "happiness": -4 }, "result": "Sakitnya datang dan pergi sepanjang bulan." }
+			]
+		},
+		{
+			"id": "gym", "category": "health", "weight": 2, "cooldown": 12, "context": { "low_health": 2 },
+			"title": "Ajakan Olahraga", "text": "Teman kantor mengajakmu rutin berolahraga.",
+			"choices": [
+				{ "label": "Daftar gym 3 bulan", "cost": 1200000, "effects": { "health": 8, "happiness": 3 }, "result": "Badan jadi lebih bugar." },
+				{ "label": "Lari pagi gratis di taman", "effects": { "health": 5, "happiness": 1 }, "result": "Sehat tidak harus mahal." },
+				{ "label": "Rebahan saja", "effects": { "health": -2, "happiness": 1 }, "result": "Nyaman sekarang, tapi badan mulai terasa kaku." }
+			]
+		},
+		{
+			"id": "burnout", "category": "health", "weight": 3, "cooldown": 6, "requires": "low_happiness", "context": { "low_happiness": 2 },
+			"title": "Burnout", "text": "Akhir-akhir ini kamu merasa lelah, sulit fokus, dan kehilangan semangat.",
+			"choices": [
+				{ "label": "Ambil cuti dan liburan singkat", "cost": 1500000, "effects": { "happiness": 12, "health": 4 }, "result": "Energimu kembali terisi." },
+				{ "label": "Cuti di rumah, kurangi media sosial", "effects": { "happiness": 6, "health": 2 }, "result": "Istirahat sederhana ternyata cukup membantu." },
+				{ "label": "Paksakan terus bekerja", "effects": { "happiness": -6, "health": -6 }, "result": "Kondisimu semakin menurun." }
+			]
+		},
+		{
+			"id": "counseling", "category": "health", "weight": 2, "cooldown": 6, "requires": "low_happiness", "context": { "low_happiness": 3 },
+			"title": "Tawaran Konseling", "text": "Kantormu bekerja sama dengan psikolog. Akhir-akhir ini kamu sering merasa lelah dan murung.",
+			"choices": [
+				{ "label": "Ikut sesi konseling", "cost": 300000, "effects": { "happiness": 10, "health": 2 }, "result": "Bercerita kepada profesional membuat pikiranmu lebih ringan. Kesehatan mental sama pentingnya dengan kesehatan fisik." },
+				{ "label": "Curhat ke sahabat", "effects": { "happiness": 5 }, "result": "Sahabatmu mendengarkan dengan sabar. Kamu merasa tidak sendirian." },
+				{ "label": "Nanti saja", "effects": { "happiness": -2 }, "result": "Kamu memendamnya lagi. Jangan ragu mencari bantuan saat merasa tertekan." }
+			]
+		},
+		{
+			"id": "health_checkup", "category": "health", "weight": 2, "cooldown": 12, "context": { "low_health": 3 },
+			"title": "Cek Kesehatan", "text": "Badanmu sering lemas belakangan ini. Klinik dekat kantor menawarkan paket medical check-up.",
+			"choices": [
+				{ "label": "Ambil paket lengkap", "cost": 800000, "effects": { "health": 8 }, "result": "Hasilnya keluar dan kamu tahu apa yang perlu diperbaiki. Mencegah lebih murah daripada mengobati." },
+				{ "label": "Cek dasar di puskesmas", "cost": 100000, "effects": { "health": 4 }, "result": "Pemeriksaan dasar sudah cukup memberi gambaran kondisimu." },
+				{ "label": "Tunda dulu", "effects": { "health": -2 }, "result": "Kamu menundanya. Semoga bukan masalah serius." }
+			]
+		},
+		{
+			"id": "critical_illness", "bad": true, "critical": true, "category": "health", "weight": 0.3, "min_month": 24, "max_times": 1, "context": { "low_health": 3 },
+			"title": "Penyakit Kritis", "text": "Dokter menemukan penyakit serius yang harus segera ditangani. Kamu harus berhenti bekerja beberapa bulan untuk pemulihan.",
+			"choices": [
+				{ "label": "Perawatan lengkap di rumah sakit", "cost": 60000000, "claim": "medical", "effects": { "health": 5, "unpaid_months": 2 }, "result": "Perawatan berjalan baik dan kamu pulih lebih cepat." },
+				{ "label": "Perawatan seadanya", "cost": 10000000, "claim": "medical", "effects": { "health": -15, "happiness": -6, "unpaid_months": 3 }, "result": "Pemulihanmu lambat dan melelahkan." },
+				{ "label": "Tidak menjalani perawatan", "effects": { "health": -35, "happiness": -10, "unpaid_months": 3 }, "result": "Kondisimu memburuk. Di saat seperti inilah dana darurat dan asuransi paling dibutuhkan." }
+			]
+		}
+	]
+}

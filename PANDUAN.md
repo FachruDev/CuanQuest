@@ -28,7 +28,8 @@ data/
   economy.json                Gaji, modal awal, pilihan makan & tempat tinggal (untuk balancing)
   market.json                 Siklus pasar, suku bunga acuan, peluang berita
   news.json                   Template berita pasar & dampaknya ke harga
-  events.json                 42 event hidup: syarat muncul, pilihan, efek, klaim asuransi
+  events/<kategori>.json      49 event hidup per kategori (finance, work, education, health, social,
+                              market, scam): syarat, pilihan, efek. Cara menambah: docs/PANDUAN_EVENT.md
   insurance.json              Produk asuransi: premi, tanggungan, masa tunggu
   jobs.json                   Pekerjaan (bidang, jenjang, syarat, gaji, beban kerja) & aturan lowongan
   education.json              Program kuliah (syarat, lama, biaya, hasil) & beban kuliah
@@ -42,11 +43,20 @@ localization/strings.csv      Semua teks UI (kolom id & en)
 addons/godot-sqlite/          Plugin SQLite (GDExtension, MIT): pustaka Windows + Android arm64
 theme/main_theme.tres         Font global, warna tombol aktif, panel, progress bar
 scripts/
-  autoload/game_state.gd      STATE GLOBAL: kas, bulan, kondisi, portofolio, loop bulanan, XP, unlock, event
+  autoload/game_state.gd      ROOT STORE (class GameStore): profil, bulan, kas, kondisi, statistik, alur
+                              bulanan, efek event, simpan/muat, akhir permainan. Domain lain di game/
   autoload/ad_service.gd      Iklan rewarded (STUB, nanti diganti AdMob dengan interface sama)
   autoload/settings.gd        Pengaturan perangkat (user://settings.cfg)
   autoload/save_manager.gd    Simpan/muat ke database SQLite (user://cuan_quest.db) + simpan otomatis
   autoload/sfx.gd             Efek suara buatan kode + getar
+  game/                       Modul GameState per domain (lihat "Arsitektur GameState")
+    game_module.gd            Kelas dasar modul: reset, save_to/load_from, apply_effects, event_vars
+    career.gd                 Lowongan, lamaran, gaji, kinerja, promosi, PHK, perjalanan karier
+    education.gd              Tingkat pendidikan, kuliah, beasiswa, sertifikasi
+    portfolio.gd              Kepemilikan aset, beli/jual, stop loss/take profit, bunga, profil risiko
+    budget.gd                 Rencana gaji, autodebet, dana darurat
+    insurance.gd, dreams.gd, targets.gd, activities.gd, progress.gd
+    life_events.gd            Event Director: jadwal event, antrean, keputusan, efek tertunda
   core/                       Logika murni tanpa UI (mudah dites)
     market.gd, market_asset.gd   Simulasi pasar (GBM, RNG ber-seed)
     fmt.gd                    Format Rp1.234.567, +2,35%, tanggal game
@@ -74,7 +84,37 @@ scenes/
 ```
 
 **Alur data (satu arah, seperti Redux):**
-`Tombol ditekan → screen memanggil GameState.xxx() → GameState mengubah data → signal "changed" → semua screen menjalankan _refresh()`
+`Tombol ditekan → screen memanggil GameState.xxx() atau GameState.<modul>.xxx() → data berubah → signal "changed" → semua screen menjalankan _refresh()`
+
+## Arsitektur GameState (refactor 14 Oktober 2026)
+
+`GameState` (autoload, skrip `scripts/autoload/game_state.gd`, tipe `GameStore`) dulu berisi 3.000+ baris. Sekarang ia hanya **root store** dan logika tiap domain ada di modul `scripts/game/`. Analogi web: root store + satu *slice*/store per fitur (Redux Toolkit / Pinia).
+
+| Modul (`GameState.<nama>`) | Kelas | Isi |
+|:--|:--|:--|
+| `career` | `Career` | Lowongan, lamaran, tawaran, gaji, kinerja, kenaikan prestasi, promosi, PHK, keahlian, perjalanan karier |
+| `education` | `Education` | Tingkat pendidikan (`level`), kuliah, uang kuliah, beasiswa, kelulusan, sertifikasi |
+| `insurance` | `Insurance` | Polis, premi, klaim |
+| `events` | `LifeEvents` | Event Director: jadwal event per bulan, antrean, keputusan (`resolve`), efek tertunda; katalog di `events.catalog` (EventManager) |
+| `portfolio` | `Portfolio` | Kepemilikan, beli/jual (`trade_quote`), pesanan otomatis, bunga, riwayat transaksi, profil risiko |
+| `budget` | `Budget` | Rencana gaji (`plan`, `preview_for`), autodebet, dana darurat |
+| `dreams` | `Dreams` | Impian & kendaraan |
+| `targets` | `Targets` | Target bulanan |
+| `activities` | `Activities` | Energi & aktivitas bulanan |
+| `progress` | `Progress` | XP, level, tahap unlock, hadiah kuis |
+
+**Yang tetap di GameState:** profil, `month`, `cash`, `health`, `happiness`, `stats`, `market`, `rng`, signal, `new_game()`, `advance_month()` (orkestrasi bulanan), `apply_effects()`, `to_dict()`/`load_from_dict()`, harga & pajak (`nominal()`, `income_tax()`), dan kondisi menang/kalah.
+
+**Kontrak modul** (`scripts/game/game_module.gd`): tiap modul punya `gs` (rujukan ke GameState) dan boleh mengisi `load_data()`, `reset()`, `save_to(d)` / `load_from(d)`, `apply_effects(e)`, `event_vars(id)`. GameState memanggilnya berurutan lewat daftar `modules`. Format save tetap datar (SAVE_VERSION 3), jadi save lama tetap bisa dimuat.
+
+**Contoh pemakaian dari UI:** `GameState.career.apply_job(i)`, `GameState.education.enroll("d3")`, `GameState.portfolio.buy("RDPU", 1_000_000)`, `GameState.events.resolve(index)`, `GameState.budget.preview_for(plan, income)`.
+
+**Menambah fitur baru:**
+- Fitur di domain yang sudah ada → tambahkan di modulnya (mis. utang kendaraan di `portfolio` atau modul baru `debt`).
+- Domain baru → buat `scripts/game/<nama>.gd` (`class_name X extends GameModule`), isi `reset/save_to/load_from`, lalu daftarkan di `GameState` (`var x := X.new(self)` + masukkan ke `modules`).
+- Event baru → cukup data, lihat [docs/PANDUAN_EVENT.md](docs/PANDUAN_EVENT.md).
+
+**Cara refactor ini diuji:** "golden runner" memainkan 6 permainan × 96 bulan dengan seed tetap dan menulis seluruh state akhir; hasil sebelum dan sesudah refactor identik byte demi byte, ditambah 197 uji otomatis dan output simulator yang identik.
 
 **Loop bulanan** (`GameState.advance_month()`):
 1. Pasar bergerak (akhir bulan berjalan), lalu perubahan nilai investasi dicatat
@@ -131,12 +171,12 @@ scenes/
   - [x] (3) Asuransi
   - [x] (4) Stop loss & take profit
   - [x] (5) Penyeimbangan ekonomi + simulator `tools/balance`
-- [ ] **v1.5b "Pekerjaan & Karier"**:
+- [x] **v1.5b "Pekerjaan & Karier"**:
   - [x] (1) Fondasi: latar SMA/D3/S1 tanpa kerja, lowongan & melamar, tab Karier
   - [x] (2) Karier: kinerja, promosi, kenaikan prestasi, PHK, event kerja
   - [x] (3) Pendidikan & keahlian
   - [x] (4) Tampilan & cerita
-  - [ ] (5) Penyeimbangan
+  - [x] (5) Penyeimbangan
 - [ ] **v1.5c/d, v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
 Rangkuman semua checklist MVP (v1, v1.5, v2, M7) ada di [docs/CHECKLIST_MVP.md](docs/CHECKLIST_MVP.md).
@@ -152,7 +192,7 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 1. **Siklus pasar.** Saham dan kripto masing-masing berada di fase *bull*, *sideways*, atau *bear* selama beberapa bulan acak. Saat fase berganti, muncul berita "Analis: ...".
 2. **Berita** (peluang 50%). Satu template dipilih dari `news.json` berdasarkan bobot, lalu memberi guncangan harga ke satu aset, satu kelas aset, atau suku bunga.
 3. **Harga baru:** `harga × exp(drift_bulanan − ½σ² + σ·z) × (1 + guncangan)`, dengan `z = rho·z_pasar + √(1−rho²)·z_acak`. Bagian `z_pasar` yang sama untuk semua aset membuat saham cenderung naik-turun bersamaan (korelasi).
-4. **Tabungan & deposito** tidak bergerak harganya. Bunganya (`suku bunga acuan + spread`, dipotong pajak) dibayar di `GameState._pay_interest()`.
+4. **Tabungan & deposito** tidak bergerak harganya. Bunganya (`suku bunga acuan + spread`, dipotong pajak) dibayar di `GameState.portfolio.pay_interest()`.
 
 **Hasil kalibrasi** (300 simulasi × 10 tahun, median imbal hasil per tahun): RD Pasar Uang +4,6% · RD Saham +8,7% · Saham +4,5% s.d. +8,6% · Kripto +7,5% s.d. +12% (peluang rugi kripto sekitar 38%).
 
@@ -168,8 +208,8 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 
 ## Rencana Gaji & Autodebet (v1.5-0 langkah 2)
 
-- **Rencana dalam persen gaji** (`GameState.plan`): gaya hidup, dana darurat, dan investasi otomatis per aset. Karena berupa persen, rencana otomatis menyesuaikan saat gaji naik, turun, atau saat menganggur (gaji 0 berarti tidak ada yang dibagi).
-- **Satu sumber hitungan:** `GameState.plan_preview(plan, penghasilan)` dipakai popup Rencana Gaji, kartu Beranda, dan eksekusi di awal bulan, sehingga angka yang dilihat pemain selalu sama dengan yang dijalankan.
+- **Rencana dalam persen gaji** (`GameState.budget.plan`): gaya hidup, dana darurat, dan investasi otomatis per aset. Karena berupa persen, rencana otomatis menyesuaikan saat gaji naik, turun, atau saat menganggur (gaji 0 berarti tidak ada yang dibagi).
+- **Satu sumber hitungan:** `GameState.budget.preview_for(plan, penghasilan)` dipakai popup Rencana Gaji, kartu Beranda, dan eksekusi di awal bulan, sehingga angka yang dilihat pemain selalu sama dengan yang dijalankan.
 - **Urutan di awal bulan** (`_apply_budget`, dipanggil dari `_start_month`): gaji masuk → makan & tempat tinggal → gaya hidup (memengaruhi kebahagiaan) → setor dana darurat ke Tabungan sampai target 6 bulan pengeluaran pokok → autodebet per aset. Pos yang kasnya tidak cukup dilewati dan dicatat di laporan.
 - **Kapan popup muncul:** di bulan pertama (rencana belum pernah disimpan), setelah laporan bila gaji pokok berubah, atau saat pemain menekan "Atur rencana gaji" di Beranda. Rencana pertama langsung dijalankan untuk bulan itu karena gajinya sudah masuk.
 - **Konfigurasi** ada di `data/economy.json` bagian `budget` (langkah 5%, batas porsi, aset dana darurat, efek kebahagiaan gaya hidup).
@@ -183,7 +223,7 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Terwujud** otomatis saat dana mencukupi (setelah setoran bulanan atau manual): dana dipakai, kelebihannya kembali ke kas, lalu kebahagiaan & XP naik dan muncul perayaan (confetti).
 - **Tenggat terlewat:** popup wajib memilih perpanjang 12 bulan (kebahagiaan -3) atau lepaskan (dana kembali ke kas, kebahagiaan -5).
 - **Kas minus:** setelah investasi dijual paksa, dana pos impian ikut dipakai sebelum dihitung bangkrut.
-- **Target bulanan** (`GameState.targets`): 2 target acak per bulan dari daftar yang masuk akal (investasi manual, aktivitas tertentu, kas akhir bulan, naikkan kesehatan/kebahagiaan, kuis benar, setor ke impian, tidak menjual rugi). Hadiah kecil, gagal tidak dihukum. Target "akhir bulan" dinilai di `_finalize_targets()` saat Lanjut ditekan.
+- **Target bulanan** (`GameState.targets.items`): 2 target acak per bulan dari daftar yang masuk akal (investasi manual, aktivitas tertentu, kas akhir bulan, naikkan kesehatan/kebahagiaan, kuis benar, setor ke impian, tidak menjual rugi). Hadiah kecil, gagal tidak dihukum. Target "akhir bulan" dinilai di `targets.finalize()` saat Lanjut ditekan.
 - **Pembanding "kalau tidak bertransaksi":** portofolio dicatat di awal giliran (`_snapshot_turn`); saat Lanjut, selisihnya = (perubahan unit x pergerakan harga bulan itu) - fee. Autodebet tidak dihitung sebagai transaksi manual.
 - **Perayaan & umpan balik:** `Confetti.burst()` (digambar lewat kode) untuk impian terwujud, tahap baru, dan target kemenangan; notifikasi singkat (toast) untuk target selesai dan naik level; kartu progres impian di sorotan laporan bulanan.
 - **Urutan popup:** sinyal impian dikirim setelah laporan (`_flush_dream_signals`), sehingga urutannya laporan → perayaan/tenggat → tahap baru → event.
@@ -191,9 +231,9 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 ## Event Director & Kuis Tanpa Iklan (v1.5-0 langkah 4)
 
 - **Jumlah event per bulan** diambil dari `difficulties[].event_counts` di `economy.json` (bobot untuk 0/1/2/3 event; Normal 15/40/30/15). Setelah 2 bulan tanpa event acak, bulan berikutnya memakai `quiet_counts` sehingga pasti ada kejadian.
-- **Urutan per bulan** (`GameState._roll_events`): event kalender (mis. THR, `guaranteed`) → event lanjutan yang jatuh tempo (`chain_events`) → event acak. Event kalender & lanjutan tidak mengurangi jatah acak.
-- **Diputuskan satu per satu:** event pertama jadi `pending_event`, sisanya di `event_queue`. Setelah satu diputuskan, `_next_queued_event()` memunculkan berikutnya. Tombol Lanjut terkunci sampai semua selesai.
-- **Konteks:** `event_context()` menghitung kondisi pemain (kas berlebih/tipis, kesehatan/kebahagiaan rendah, memegang saham/kripto). Event dengan tag `"context"` di `events.json` bobotnya dikali saat kondisinya aktif, mis. investasi bodong ×3 saat kas berlebih, pinjol ×4 saat kas tipis.
+- **Urutan per bulan** (`GameState.events.roll`): event kalender (mis. THR, `guaranteed`) → event lanjutan yang jatuh tempo (`chain_events`) → event acak. Event kalender & lanjutan tidak mengurangi jatah acak.
+- **Diputuskan satu per satu:** event pertama jadi `pending_event`, sisanya di `event_queue`. Setelah satu diputuskan, `events._next_queued()` memunculkan berikutnya. Tombol Lanjut terkunci sampai semua selesai.
+- **Konteks:** `events.context_flags()` menghitung kondisi pemain (kas berlebih/tipis, kesehatan/kebahagiaan rendah, memegang saham/kripto). Event dengan tag `"context"` di data event (`data/events/*.json`) bobotnya dikali saat kondisinya aktif, mis. investasi bodong ×3 saat kas berlebih, pinjol ×4 saat kas tipis.
 - **Anti-sial beruntun:** setelah event buruk, bobot event buruk berikutnya dikali `bad_after_bad` (0,5).
 - **Rantai event:** efek `"chain": {"event": id, "months": [min, max]}` menjadwalkan event lanjutan (`chain_only: true`, tidak pernah muncul acak). Contoh: pinjaman teman → Janji Temanmu; investasi bodong → Pengelola Kabur; pinjol → Penagih Pinjol.
 - **Hasil simulasi** (20 permainan x 10 tahun, pilihan acak): sebaran 15/41/30/13%, rata-rata 1,42 event/bulan (sebelumnya 0,61). Karena event positif seperti kenaikan gaji ikut lebih sering, median gaji akhir naik dari Rp9,4 jt ke Rp13,4 jt dan median kekayaan dari Rp402 jt ke Rp558 jt. Perlu ditinjau saat penyeimbangan (inflasi v1.5a akan menekannya).
@@ -206,7 +246,7 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Bank Indonesia:** target suku bunga = 2,25% + inflasi + 0,5 x (inflasi - 3,5%). Setiap bulan, jika selisih dengan suku bunga sekarang >= 0,4%, ada peluang 40% BI bergerak 0,25% dan mengumumkannya lewat berita (`NEWS_BI_RATE_UP/DOWN`, angka suku bunga baru ada di `value` berita). Hasil simulasi: ±2 kali per tahun, kisaran 3,5-8,5%.
 - **Dampak suku bunga:** bunga tabungan & deposito (`rate_for`), imbal hasil RD pasar uang (`rate_linked` di `assets.json`), dan guncangan saham pada tanggal pengumuman. Berita bisa punya beberapa guncangan di tanggal berbeda dalam sebulan (`MarketAsset.step_month(..., day_shocks)`).
 - **Harga hari ini:** semua harga di file data adalah harga AWAL permainan. `GameState.nominal(harga)` mengalikannya dengan indeks harga. Dipakai oleh `option_cost` (makan & sewa), `choice_cost` (event), `activity_cost`, `dream_cost`, hadiah kuis, dan nominal target bulanan.
-- **Token di teks:** angka uang di `events.json` & `dreams.json` ditulis `{rp:3000000}`. `UiText.money(teks)` menggantinya dengan nominal hari ini (`Fmt.rupiah_words`: "Rp3,1 juta"). Analogi web: seperti placeholder i18n `{{amount}}` yang diisi saat render. **Teks event baru yang menyebut uang wajib memakai token ini.**
+- **Token di teks:** angka uang di data event & `dreams.json` ditulis `{rp:3000000}`. `UiText.money(teks)` menggantinya dengan nominal hari ini (`Fmt.rupiah_words`: "Rp3,1 juta"). Analogi web: seperti placeholder i18n `{{amount}}` yang diisi saat render. **Teks event baru yang menyebut uang wajib memakai token ini.**
 - **Gaji:** setiap Januari gaji naik sebesar inflasi 12 bulan terakhir (`_index_salary`). Rencana gaji dalam persen, jadi tidak perlu popup tinjau ulang.
 - **Laporan & UI:** bagian Ekonomi di laporan bulanan (inflasi, daya beli kas + tabungan + pos impian yang tergerus), kartu Daya Beli di Profil, chip inflasi di Pasar.
 - **Simulasi 40 permainan x 10 tahun** (pilihan acak): indeks harga median 1,43; kekayaan nominal median Rp775 jt, kekayaan riil Rp536 jt (tanpa inflasi Rp587 jt); gaji akhir median Rp20,1 jt nominal. Semua permainan bertahan, jadi game masih tergolong mudah. Penyeimbangan dijadwalkan di langkah 5 setelah pajak & asuransi.
@@ -216,15 +256,15 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 
 - **Data:** `data/jobs.json` berisi tingkat pendidikan, aturan lowongan (`board`), batas lamaran, syarat keahlian & pengalaman per jenjang, rumus peluang (`chance`), bidang (`tracks` + nama perusahaan), dan 28 pekerjaan. Latar belakang (`economy.json` `backgrounds`) kini menentukan usia, pendidikan, keahlian awal, dan tempat tinggal; modal awal ada di `difficulties[].start_cash`.
 - **State** di `GameState`: `job` (`{id, company, since}` atau `{}`), `salary` (gaji bruto pekerjaan sekarang, 0 jika belum bekerja), `education` (indeks), `skill`, `experience` (bidang -> bulan), `job_board`, `applications`, `job_offers`. `unpaid_months` = cuti tanpa gaji (pekerjaan tetap).
-- **Alur bulanan** (`_start_month`): hasil lamaran bulan lalu diundi (`_resolve_applications`) -> gaji (`_monthly_pay`, kerja lepas naik-turun) -> pengalaman & keahlian (`_work_month`) -> biaya hidup dst. -> lowongan baru (`_refresh_job_board`). Tawaran dikirim lewat signal `job_offers_received` setelah laporan; `accept_offer()` membayar gaji pertama jika bulan ini belum ada gaji.
-- **Syarat & peluang:** `job_requirements()` (untuk ✓/✗ di UI), `meets_requirements()`, `hire_chance()`; `apply_block_reason()` menjelaskan kenapa tombol Lamar nonaktif. Analogi web: seperti endpoint validasi yang dipakai form (tombol nonaktif + pesan) dan endpoint submit.
+- **Alur bulanan** (`_start_month`): hasil lamaran bulan lalu diundi (`_resolve_applications`) -> gaji (`_monthly_pay`, kerja lepas naik-turun) -> pengalaman & keahlian (`_work_month`) -> biaya hidup dst. -> lowongan baru (`_refresh_job_board`). Tawaran dikirim lewat signal `job_offers_received` setelah laporan; `career.accept_offer()` membayar gaji pertama jika bulan ini belum ada gaji.
+- **Syarat & peluang:** `career.requirements()` (untuk ✓/✗ di UI), `career.meets_requirements()`, `career.hire_chance()`; `career.apply_block_reason()` menjelaskan kenapa tombol Lamar nonaktif. Analogi web: seperti endpoint validasi yang dipakai form (tombol nonaktif + pesan) dan endpoint submit.
 - **UI:** tab Aktivitas berganti nama menjadi Karier (`activity_screen.gd`: `_refresh_job`, `_refresh_board`), popup `OfferPopup`, bagian LAMARAN KERJA di laporan, chip jabatan & pendidikan di Profil.
 - **Menambah pekerjaan:** cukup tambah entri di `jobs.json` (id unik, `track`, `level`, `title`, `education`, `salary`, `workload`; opsional `skill`, `volatility`). Bidang baru butuh entri di `tracks` dan ikon `assets/icons/tracks/<id>.svg` (opsional).
 - **Save:** `SAVE_VERSION` 3; save v1.5a ditolak dengan pesan `SAVE_OUTDATED`.
 
 ## Tampilan & Cerita Karier (v1.5b langkah 4)
 
-- **Perjalanan karier:** `GameState.career_log` (`{month, kind, job_id, company, program}`, maks. 60) diisi `_log_career()` saat diterima kerja, promosi, PHK, berhenti, lulus, dan berhenti kuliah. Ditampilkan lewat `UiText.fill_career_log()` di Profil dan layar akhir.
+- **Perjalanan karier:** `GameState.career.history` (`{month, kind, job_id, company, program}`, maks. 60) diisi `career.record()` saat diterima kerja, promosi, PHK, berhenti, lulus, dan berhenti kuliah. Ditampilkan lewat `UiText.fill_career_log()` di Profil dan layar akhir.
 - **Cerita sekali per permainan:** `GameState.story_seen` + `mark_story(key)` (berbeda dari `hints_seen` yang berlaku untuk semua permainan). Cerita "Hari Pertama" (`STORY_START_<SMA|D3|S1>`) dimunculkan `main.gd` saat bulan 0 dan belum bekerja.
 - **Beranda:** kartu Karier (`_refresh_career()`), `GameState.runway_months()` untuk sisa modal, dan catatan beban kerja (`_refresh_workload()`). Signal `career_requested` -> `main._show_screen(3)`.
 - **Ikon bidang:** `UiText.track_icon()` / `track_tile()` dipakai tab Karier dan Beranda. Begitu `assets/icons/tracks/<bidang>.svg` ada, ikon itu otomatis menggantikan ikon sementara.
@@ -235,8 +275,8 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 
 - **Data:** `data/education.json` berisi program kuliah (`months` per pendidikan asal, `cost` per bulan, `result`, `skill`), beban kuliah (`load`), dan syarat beasiswa kantor (`sponsor`). Nama sertifikasi per bidang ada di `jobs.json` (`tracks[].certification`, `default_certification`). Aktivitas boleh punya `cooldown_months` (Kursus Online: sekali tiap 3 bulan).
 - **State** di `GameState`: `study` (`{}` atau `{id, months_left, months_total, since, scholarship, sponsor, paid_month}`). Analogi web: seperti langganan berbayar per bulan yang punya tanggal mulai, sisa periode, dan diskon.
-- **Alur bulanan:** `_study_month()` dipanggil di `_start_month()` setelah premi asuransi: lulus jika `months_left` habis (`_graduate()`), selain itu bayar `tuition_fee()` (kas, lalu tabungan dana darurat lewat `_draw_savings()`), kurangi `months_left`, dan catat `paid_month` (dipakai `energy_max()` untuk beban energi). Uang tidak cukup = cuti sebulan.
-- **Fungsi utama:** `available_programs()`, `program_option()`, `enroll_block_reason()`, `enroll()`, `quit_study()`, `tuition_fee()`, `graduation_month()`, `sponsor_program()`, `certification_name()`. Beasiswa kantor berakhir saat pindah atau keluar kerja (`_check_sponsor()`).
+- **Alur bulanan:** `education.study_month()` dipanggil di `_start_month()` setelah premi asuransi: lulus jika `months_left` habis (`education._graduate()`), selain itu bayar `education.tuition_fee()` (kas, lalu tabungan dana darurat lewat `budget.draw_emergency()`), kurangi `months_left`, dan catat `paid_month` (dipakai `activities.energy_max()` untuk beban energi). Uang tidak cukup = cuti sebulan.
+- **Fungsi utama:** `education.available_programs()`, `education.program_option()`, `education.enroll_block_reason()`, `education.enroll()`, `education.quit_study()`, `education.tuition_fee()`, `education.graduation_month()`, `education.sponsor_program()`, `education.certification_name()`. Beasiswa kantor berakhir saat pindah atau keluar kerja (`education.check_sponsor()`).
 - **Event:** kategori `education`; syarat `requires: studying | sponsor_ready`; efek `scholarship`, `sponsored_study`, `study_delay`; isian teks `{program}` dan `{cert}`.
 - **Signal:** `graduated(program, result, skill_gain)` dikirim setelah laporan bulanan (antrean `_report_signals`, dulu `_dream_signals`) -> popup "Selamat Lulus!" dengan confetti.
 - **UI:** kartu Pendidikan & Keahlian di tab Karier (`_refresh_education()`, `_add_study()`, `_add_program()`), konfirmasi daftar/berhenti kuliah di `main.gd` (`_confirm_enroll()`), baris Uang kuliah di Rencana Gaji, Beranda, dan laporan.
@@ -246,13 +286,33 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 
 - **Data:** `data/jobs.json` bagian `performance` (target & kecepatan kinerja, predikat), `merit_raise` (kenaikan prestasi Januari), `promotion` (masa jabatan, kinerja minimal, peluang, kenaikan minimal), `layoff` (peluang PHK & pesangon), `headhunter`, dan `skill_curve`. Beban kerja ada di tiap pekerjaan (`workload`); stres menganggur di `economy.json` `monthly_drift.unemployed`.
 - **State** di `GameState`: `performance` (0-100), `job.hired` (mulai di perusahaan, untuk pesangon) di samping `job.since` (mulai di jabatan, untuk promosi), `pending_vars` (isian teks event yang sedang tampil).
-- **Alur bulanan:** Januari: `_index_salary()` (inflasi) lalu `_merit_raise()` (prestasi). `_work_month()` menggerakkan kinerja menuju `performance_factors()["target"]`. `_drift()` memakai beban kerja jabatan.
-- **Event karier dijadwalkan sistem**, di luar jatah event acak (`_career_events()`): wawancara jika ada tawaran kerja berjenjang; selain itu PHK (`layoff_chance()`) atau promosi (`promotion_ready()`). Analogi web: seperti cron job terpisah dari notifikasi acak. Event berjenis ini ditandai `chain_only` di `events.json` agar tidak pernah muncul acak.
-- **Isian teks event:** saat event mulai tampil, `_event_vars()` menghitung isian (`{job}`, `{company}`, `{salary}`, `{months}`, `{severance}`, `{raise}`) dan menyimpannya di `pending_vars` (ikut save). `UiText.event_text()` mengganti isian itu di popup. Analogi web: seperti props yang dihitung server saat request lalu dikirim ke template, sehingga teks dan efeknya (mis. besar pesangon) selalu sama.
-- **Antrean event:** event yang sudah tidak relevan saat gilirannya tiba (mis. event kerja setelah PHK) dilewati (`_event_still_valid()`, `EventManager.requires_met()`).
+- **Alur bulanan:** Januari: `career.index_salary()` (inflasi) lalu `career.merit_raise()` (prestasi). `career.work_month()` menggerakkan kinerja menuju `performance_factors()["target"]`. `_drift()` memakai beban kerja jabatan.
+- **Event karier dijadwalkan sistem**, di luar jatah event acak (`career.scheduled_events()`): wawancara jika ada tawaran kerja berjenjang; selain itu PHK (`career.layoff_chance()`) atau promosi (`career.promotion_ready()`). Analogi web: seperti cron job terpisah dari notifikasi acak. Event berjenis ini ditandai `chain_only` di `data/events/work.json` agar tidak pernah muncul acak.
+- **Isian teks event:** saat event mulai tampil, `events._vars_for()` menghitung isian (`{job}`, `{company}`, `{salary}`, `{months}`, `{severance}`, `{raise}`) dan menyimpannya di `pending_vars` (ikut save). `UiText.event_text()` mengganti isian itu di popup. Analogi web: seperti props yang dihitung server saat request lalu dikirim ke template, sehingga teks dan efeknya (mis. besar pesangon) selalu sama.
+- **Antrean event:** event yang sudah tidak relevan saat gilirannya tiba (mis. event kerja setelah PHK) dilewati (`events._still_valid()`, `EventManager.requires_met()`).
 - **Signal baru:** `career_changed(kind, title)` ("promoted" -> toast + tinjau rencana gaji, "laid_off"). `job_offers_received` untuk tawaran berjenjang baru dikirim setelah event wawancara diputuskan.
 - **UI:** kartu Pekerjaan di tab Karier (`_add_performance()`, `_add_promotion()`, tombol Berhenti kerja -> `InfoPopup` konfirmasi dengan `ok_text` "Batal"), bagian KARIER & baris kenaikan prestasi di laporan (`MonthReport._add_career()`).
-- **Menambah event kerja:** tulis di `events.json` dengan `"requires": "career"`; efek baru yang tersedia: `performance`, `promote`, `layoff`, `offer_raise`, `headhunter`.
+- **Menambah event kerja:** tulis di `data/events/work.json` dengan `"requires": "career"`; efek baru yang tersedia: `performance`, `promote`, `layoff`, `offer_raise`, `headhunter`.
+
+## Penyeimbangan Karier (v1.5b langkah 5)
+
+- **Simulator** kini punya 6 tipe pemain (tambahan **pelajar**: hemat + kuliah + kursus) dan opsi `--background=sma|d3|s1`. Ringkasan per tipe juga mencetak bulan kerja pertama, gaji riil absolut, jenjang, pendidikan, promosi, PHK, uang kuliah, dan gaji total.
+  `Godot_v4.7.2-stable_win64_console.exe --headless --path . res://tools/balance/balance_sim.tscn -- --save-root=user://_sim/ --games=40 --years=30 --background=s1`
+- **Kebebasan finansial** (`GameState.is_financially_free()`) memakai `monthly_spending()` = biaya hidup + premi + belanja gaya hidup rencana gaji. Analogi: target FIRE dihitung dari seluruh pengeluaran, bukan hanya sewa & makan.
+- **Diubah:** kenaikan prestasi 2%/1% (`jobs.json` `merit_raise`), syarat pengalaman pelamar luar 0/12/36/60/96 (`experience_by_level`), tinggal bersama keluarga kebahagiaan -2, pemulihan dalam di `economy.json` `monthly_drift` (`deep_below` 25, `deep_recover` 4).
+- **Hasil:**
+
+| Tipe pemain (Normal, 40 permainan) | Latar S1: bebas finansial | S1: gaji riil 30 thn | Latar SMA: bebas finansial | SMA: gaji riil 30 thn |
+|:--|:--|:--|:--|:--|
+| Hemat & investasi rutin | 100%, median tahun 12,6 | x4,5 (jenjang 4) | 98%, tahun 18,4 | x2,7 (D3, jenjang 3) |
+| Menabung saja | 100%, tahun 14,8 | x4,9 | 73%, tahun 23,6 | x2,7 |
+| Gaya hidup mewah | 0% (3% bangkrut) | x5,4 | 0% (55% bangkrut) | x1,7 |
+| Spekulasi | 100%, tahun 14,6 (kekayaan p10-p90 Rp2,2 M-Rp64,7 M) | x3,8 | 90%, tahun 17,3 | x2,2 |
+| Pilihan acak | 50%, tahun 26,3 | x4,0 | 18%, tahun 28,5 (0 kalah karena kebahagiaan) | x2,2 |
+| Pelajar (kuliah + kursus) | 100%, tahun 10,8 | x6,0 | 98%, tahun 15,8 | x7,3 (S2, jenjang 5) |
+
+- Tingkat kesulitan (S1 hemat): bebas finansial tahun 10,6 / 12,6 / 15,5 di Santai / Normal / Sulit.
+- **Catatan:** pemain bergaji tinggi yang tetap hidup sederhana masih cepat bebas finansial (S1 hemat ±usia 35). v1.5c (rumah, kendaraan, cicilan) akan menambah pengeluaran besar; ukur ulang dengan simulator setelahnya.
 
 ## Penyeimbangan & Simulator (v1.5a langkah 5)
 
@@ -276,8 +336,8 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 
 ## Stop Loss & Take Profit (v1.5a langkah 4)
 
-- **State:** `GameState.orders` = `{asset_id: {"stop_loss": harga, "take_profit": harga}}` (0 = mati). Dipasang lewat `set_order()` dari `OrderPopup` (tombol di kartu kepemilikan tab Pasar). Pilihan jarak di `economy.json` bagian `orders`.
-- **Eksekusi** (`_execute_orders()` di `advance_month`, setelah `market.step()`): untuk setiap pesanan (urutan id tetap), harga harian bulan itu dicek dari hari pertama. Harga pertama yang menyentuh batas menjual semua unit lewat `sell(..., kind, at_price)`, sehingga fee, pajak, statistik, dan riwayat transaksi sama dengan penjualan biasa. Analogi web: seperti cron job yang memproses order bersyarat terhadap data harga per hari.
+- **State:** `GameState.portfolio.orders` = `{asset_id: {"stop_loss": harga, "take_profit": harga}}` (0 = mati). Dipasang lewat `portfolio.set_order()` dari `OrderPopup` (tombol di kartu kepemilikan tab Pasar). Pilihan jarak di `economy.json` bagian `orders`.
+- **Eksekusi** (`portfolio.execute_orders()` di `advance_month`, setelah `market.step()`): untuk setiap pesanan (urutan id tetap), harga harian bulan itu dicek dari hari pertama. Harga pertama yang menyentuh batas menjual semua unit lewat `portfolio.sell(..., kind, at_price)`, sehingga fee, pajak, statistik, dan riwayat transaksi sama dengan penjualan biasa. Analogi web: seperti cron job yang memproses order bersyarat terhadap data harga per hari.
 - **Tanggal:** langkah harga ke-`i` (0-based) = tanggal `floor(i x 30 / langkah per bulan) + 1`, kebalikan dari `MarketAsset.price_on_day()`.
 - **Laporan:** `orders` di laporan berisi yang terpicu. "Perubahan nilai" = nilai investasi sekarang + nilai jual pesanan - nilai awal; grafik harian menilai aset yang terjual dengan harga harian sampai tanggal terpicu. Pembanding "kalau tidak bertransaksi" tetap hanya untuk transaksi manual (dihitung sebelum pesanan dijalankan).
 - **Catatan desain:** pesanan menjual semua unit (tidak sebagian) dan berlaku untuk semua unit, termasuk yang dibeli setelah pesanan dipasang.
@@ -285,18 +345,18 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 ## Asuransi (v1.5a langkah 3)
 
 - **Data:** `data/insurance.json` berisi produk per kategori (`health`, `life`, `vehicle`), premi (harga awal permainan, ikut inflasi), `coverage`, `critical_payout`, `premium_rate` & `deductible` (kendaraan), serta `waiting_months`.
-- **State:** `GameState.policies` = `{kategori: {"id", "since"}}`. `set_insurance()` dari popup Perlindungan; ganti produk = masa tunggu ulang. `active_policy()` hanya mengembalikan polis yang sudah melewati masa tunggu.
-- **Premi:** `_pay_premiums()` di `_start_month` setelah gaji & biaya hidup, sebelum rencana gaji. Kas kurang = polis berhenti (`insurance_lapsed` di laporan). `plan_preview()` memasukkan premi sehingga "Sisa ke kas" sudah memperhitungkannya.
-- **Klaim:** pilihan event dengan `"claim": "medical"` (ditanggung asuransi kesehatan) atau `"vehicle"` (asuransi kendaraan, dikurangi risiko sendiri). `insurance_cover(choice)` dipakai di `can_choose` (yang ditanggung tidak perlu dibayar dulu), `resolve_event`, dan label pilihan di popup event. Event `"critical": true` membayar uang pertanggungan asuransi jiwa.
-- **Kendaraan:** `vehicle()` = "car"/"motor" dari impian yang sudah terwujud (v1.5c akan menjadikannya aset sungguhan). Event dengan `"requires": "has_vehicle"` hanya muncul jika punya kendaraan; `"cost_vehicle": 0.15` = biaya 15% dari harga kendaraan.
+- **State:** `GameState.insurance.policies` = `{kategori: {"id", "since"}}`. `insurance.set_policies()` dari popup Perlindungan; ganti produk = masa tunggu ulang. `insurance.active_policy()` hanya mengembalikan polis yang sudah melewati masa tunggu.
+- **Premi:** `insurance.pay_premiums()` di `_start_month` setelah gaji & biaya hidup, sebelum rencana gaji. Kas kurang = polis berhenti (`insurance_lapsed` di laporan). `budget.preview_for()` memasukkan premi sehingga "Sisa ke kas" sudah memperhitungkannya.
+- **Klaim:** pilihan event dengan `"claim": "medical"` (ditanggung asuransi kesehatan) atau `"vehicle"` (asuransi kendaraan, dikurangi risiko sendiri). `insurance.cover(choice)` dipakai di `can_choose` (yang ditanggung tidak perlu dibayar dulu), `resolve_event`, dan label pilihan di popup event. Event `"critical": true` membayar uang pertanggungan asuransi jiwa.
+- **Kendaraan:** `dreams.vehicle()` = "car"/"motor" dari impian yang sudah terwujud (v1.5c akan menjadikannya aset sungguhan). Event dengan `"requires": "has_vehicle"` hanya muncul jika punya kendaraan; `"cost_vehicle": 0.15` = biaya 15% dari harga kendaraan.
 - **Menambah event yang bisa diklaim:** beri pilihan `"claim": "medical"` atau `"vehicle"`. Teks event tidak perlu menyebut asuransi; popup menampilkan bagian yang ditanggung secara otomatis.
 
 ## Pajak & Layar Konfirmasi Transaksi (v1.5a langkah 2)
 
 - **PPh 21** (`GameState.income_tax`, `economy.json` bagian `income_tax`): gaji sebulan disetahunkan, dikurangi PTKP (Rp54 jt, lajang), lalu tarif bertingkat 5% (s.d. Rp60 jt), 15% (s.d. Rp250 jt), 25% (s.d. Rp500 jt), 30% (s.d. Rp5 M), 35%. PTKP & batas lapisan ikut indeks harga. Contoh: gaji Rp5,5 jt kena Rp50 ribu/bulan, Rp20 jt kena Rp1,83 jt/bulan.
-- **`salary` = gaji bruto.** Kas menerima gaji bersih; rencana gaji, Beranda, dan popup rencana memakai `net_salary()`.
+- **`salary` = gaji bruto.** Kas menerima gaji bersih; rencana gaji, Beranda, dan popup rencana memakai `career.net_salary()`.
 - **Pajak investasi** di `assets.json`: `buy_tax` / `sell_tax` (saham: jual 0,1%; kripto: beli 0,11% + jual 0,1%). Pajak bunga deposito 20% (`interest_tax`) kini dicatat terpisah.
-- **Satu sumber hitungan:** `GameState.trade_quote(asset, beli?, jumlah)` mengembalikan fee, pajak, penalti, yang masuk/diterima, unit, untung/rugi, dan peringatan. Layar konfirmasi, `buy()`, dan `sell()` memakai fungsi yang sama, jadi angka di layar = angka yang dijalankan. Analogi web: endpoint "preview checkout" yang dipakai juga saat order dibuat.
+- **Satu sumber hitungan:** `GameState.portfolio.trade_quote(asset, beli?, jumlah)` mengembalikan fee, pajak, penalti, yang masuk/diterima, unit, untung/rugi, dan peringatan. Layar konfirmasi, `portfolio.buy()`, dan `portfolio.sell()` memakai fungsi yang sama, jadi angka di layar = angka yang dijalankan. Analogi web: endpoint "preview checkout" yang dipakai juga saat order dibuat.
 - **Alur UI:** tombol Beli/Jual di tab Pasar -> `market_screen.trade_requested` -> `main` membuka `TradeConfirmPopup` -> "Ya, beli/jual" menjalankan transaksi -> `trade_done` -> pesan hasil di tab Pasar.
 - **Peringatan** (`economy.json` bagian `trade_warnings`): di atas profil risiko, satu aset > 60% investasi, dana darurat belum cukup sebelum beli aset berisiko (risiko >= 3), sisa kas < biaya hidup sebulan, jual rugi, penalti deposito.
 - **Laporan:** `month_costs` mengumpulkan fee & pajak transaksi (termasuk autodebet dan jual paksa) serta pajak bunga sejak laporan terakhir, lalu direset setelah laporan dibuat.
@@ -389,7 +449,7 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 
 ## Latihan M4 (opsional)
 
-1. Tulis event baru di `data/events.json`: salin event `found_money`, ganti `id`, judul, dan efeknya. Coba pakai `outcomes` agar hasilnya acak.
+1. Tulis event baru di `data/events/finance.json` (panduan lengkap: `docs/PANDUAN_EVENT.md`): salin event `found_money`, ganti `id`, judul, dan efeknya. Coba pakai `outcomes` agar hasilnya acak.
 2. Tambah soal baru di `data/quiz.json` (ingat: `answer` dimulai dari 0).
 3. Ubah `event_chance` di `data/economy.json` menjadi `1.0`, lalu rasakan bedanya jika setiap bulan ada event.
 

@@ -10,7 +10,7 @@ extends RefCounted
 ## - slots         : satu baris per slot save (auto, slot_1..3) + sisa state (biner, lihat SaveManager)
 ## - price_daily   : harga harian per aset, 24 bulan terakhir (riwayat bertingkat)
 ## - price_monthly : harga penutupan bulanan per aset, sepanjang permainan
-## - transactions  : riwayat transaksi per slot (maks GameState.MAX_TRANSACTIONS)
+## - transactions  : riwayat transaksi per slot (maks GameState.portfolio.MAX_TRANSACTIONS)
 
 ## Versi skema. Naikkan saat struktur tabel berubah, lalu tambahkan langkah di MIGRATIONS.
 ## Analogi web: file migrasi di Laravel/Prisma; PRAGMA user_version = nomor migrasi terakhir.

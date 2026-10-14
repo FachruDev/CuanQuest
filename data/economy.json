@@ -1,8 +1,8 @@
 {
 	"start_health": 70,
 	"start_happiness": 70,
-	"_monthly_drift_comment": "Perubahan kesehatan & kebahagiaan tiap bulan di luar makanan, tempat tinggal, gaya hidup, aktivitas, dan event. Saat bekerja dipakai beban kerja jabatan (jobs.json workload, v1.5b langkah 2); saat menganggur dipakai `unemployed` (stres mencari kerja); saat cuti tanpa gaji nol. Di bawah recover_below, tubuh & pikiran pulih alami +recover per bulan.",
-	"monthly_drift": { "unemployed": { "health": 0, "happiness": -2 }, "recover_below": 50, "recover": 2 },
+	"_monthly_drift_comment": "Perubahan kesehatan & kebahagiaan tiap bulan di luar makanan, tempat tinggal, gaya hidup, aktivitas, dan event. Saat bekerja dipakai beban kerja jabatan (jobs.json workload, v1.5b langkah 2); saat menganggur dipakai `unemployed` (stres mencari kerja); saat cuti tanpa gaji nol. Di bawah recover_below, tubuh & pikiran pulih alami +recover per bulan; di bawah deep_below pulih +deep_recover (v1.5b langkah 5).",
+	"monthly_drift": { "unemployed": { "health": 0, "happiness": -2 }, "recover_below": 50, "recover": 2, "deep_below": 25, "deep_recover": 4 },
 	"default_background": "s1",
 	"default_difficulty": "normal",
 	"_backgrounds_comment": "Latar pendidikan (v1.5b): semua mulai tanpa pekerjaan. education = id di jobs.json education_levels; skill = keahlian awal; icon = nama ikon assets/icons/background_<icon>.svg.",
@@ -125,7 +125,7 @@
 		{ "id": "luxury", "name_key": "FOOD_LUXURY", "cost": 3500000, "health": 2, "happiness": 3 }
 	],
 	"housing": [
-		{ "id": "family", "name_key": "HOUSING_FAMILY", "cost": 500000, "health": 0, "happiness": -3 },
+		{ "id": "family", "name_key": "HOUSING_FAMILY", "cost": 500000, "health": 0, "happiness": -2 },
 		{ "id": "kos", "name_key": "HOUSING_KOS", "cost": 1300000, "health": 0, "happiness": 0 },
 		{ "id": "apartment", "name_key": "HOUSING_APARTMENT", "cost": 3500000, "health": 1, "happiness": 3 }
 	]

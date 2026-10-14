@@ -31,7 +31,7 @@ static func insights(state: Node) -> Array[String]:
 	if s["total_fees"] > 1_000_000 and s["total_fees"] > s["total_interest"]:
 		out.append(_t("INSIGHT_FEES") % Fmt.rupiah(s["total_fees"]))
 	var concentration := largest_holding_share(state)
-	if concentration > 0.7 and state.investments_value() > 10_000_000:
+	if concentration > 0.7 and state.portfolio.investments_value() > 10_000_000:
 		out.append(_t("INSIGHT_CONCENTRATION") % Fmt.percent_plain(concentration))
 
 	if float(s.get("insurance_claims", 0)) > 0.0:
@@ -62,12 +62,12 @@ static func insights(state: Node) -> Array[String]:
 
 ## Porsi aset terbesar dari total investasi (0..1).
 static func largest_holding_share(state: Node) -> float:
-	var total: float = state.investments_value()
+	var total: float = state.portfolio.investments_value()
 	if total <= 0:
 		return 0.0
 	var largest := 0.0
-	for asset_id: String in state.holdings:
-		largest = maxf(largest, state.holding_value(asset_id))
+	for asset_id: String in state.portfolio.holdings:
+		largest = maxf(largest, state.portfolio.holding_value(asset_id))
 	return largest / total
 
 

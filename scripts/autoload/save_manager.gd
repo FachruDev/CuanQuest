@@ -236,7 +236,7 @@ func _write_transactions(slot: String, transactions: Array, synced_seq: int) -> 
 	var newest: int = values[0][1]
 	return db.insert_many("transactions", TX_COLUMNS, values) \
 		and db.exec("DELETE FROM transactions WHERE slot = ? AND seq <= ?;",
-			[slot, newest - GameState.MAX_TRANSACTIONS])
+			[slot, newest - GameState.portfolio.MAX_TRANSACTIONS])
 
 
 ## Catatan "sudah tersimpan sampai mana" untuk simpan bertahap berikutnya.
@@ -279,7 +279,7 @@ func _read_state(slot: String) -> Dictionary:
 	var transactions: Array = []
 	for row: Dictionary in db.rows(
 			"SELECT seq, month, kind, asset_key, amount, units, fee, tax, pnl FROM transactions WHERE slot = ? ORDER BY seq DESC LIMIT ?;",
-			[slot, GameState.MAX_TRANSACTIONS]):
+			[slot, GameState.portfolio.MAX_TRANSACTIONS]):
 		transactions.append({"seq": int(row["seq"]), "month": int(row["month"]), "kind": String(row["kind"]),
 			"asset_key": String(row["asset_key"]), "amount": float(row["amount"]), "units": float(row["units"]),
 			"fee": float(row["fee"]), "tax": float(row["tax"]), "pnl": float(row["pnl"])})

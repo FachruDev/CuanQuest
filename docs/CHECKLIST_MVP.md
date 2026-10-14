@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5b langkah 4 selesai)
+- **Terakhir diperbarui:** 14 Oktober 2026 (perapian kode + v1.5b langkah 5 selesai: v1.5b lengkap)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -15,7 +15,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **Prototipe waktu A/B/C** | Uji sistem waktu berjalan (tidak dipakai, diarsipkan) | ✅ |
 | **v1.5-0** | Giliran Bulanan yang Hidup | 🔄 5/5 langkah; tinggal playtest |
 | **v1.5a** | Realisme ekonomi | ✅ 5/5 langkah |
-| **v1.5b** | Pekerjaan & karier (melamar kerja, keahlian, jenjang) | 🔄 4/5 langkah |
+| **v1.5b** | Pekerjaan & karier (melamar kerja, keahlian, jenjang) | ✅ 5/5 langkah |
 | **v1.5c** | Utang, properti, hunian yang tumbuh | ⬜ |
 | **v1.5d** | Tokoh, riset, kontrak, konten | ⬜ |
 | **v2a-v2d** | Instrumen lanjut, hidup penuh, dana investor, mini-game | ⬜ |
@@ -91,7 +91,7 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 **Langkah 4: Event Director, kuis, iklan** ✅
 - ✅ 0-3 event per bulan sesuai tingkat kesulitan (Santai 25/45/25/5, Normal 15/40/30/15, Sulit 10/30/35/25 %)
 - ✅ Event diputuskan satu per satu; tombol Lanjut terkunci sampai semua selesai
-- ✅ Bobot event menyesuaikan kondisi pemain (kas berlebih/tipis, kesehatan/kebahagiaan rendah, memegang saham/kripto) lewat tag `context` di `events.json`
+- ✅ Bobot event menyesuaikan kondisi pemain (kas berlebih/tipis, kesehatan/kebahagiaan rendah, memegang saham/kripto) lewat tag `context` di data event (`data/events/*.json`)
 - ✅ Anti-sial beruntun dan peluang naik setelah 2 bulan tenang
 - ✅ Rantai event: pinjaman teman → Janji Temanmu, investasi bodong → Pengelola Kabur, pinjol → Penagih Pinjol
 - ✅ 3 event kontekstual baru: Tawaran Konseling, Harbolnas 12.12, Cek Kesehatan (total 39 event)
@@ -208,7 +208,7 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.2 (semua keputusan 5.2.10
 | 2 | Karier: kinerja, beban kerja, kenaikan prestasi, promosi, berhenti, PHK + pesangon, event kerja | ✅ |
 | 3 | Pendidikan & keahlian: kuliah D3/S1/S2, kursus, sertifikasi, beasiswa | ✅ |
 | 4 | Tampilan & cerita: wizard Game Baru, Beranda, Profil, petunjuk | ✅ |
-| 5 | Penyeimbangan dengan simulator | ⬜ |
+| 5 | Penyeimbangan dengan simulator | ✅ |
 
 ### Rincian fitur
 
@@ -258,8 +258,20 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.2 (semua keputusan 5.2.10
 - ✅ Ikon bidang sementara kini berbeda per bidang (dompet, map, brankas, kaca pembesar, lampu, tas kerja) sampai aset bidang dibuat
 - ✅ 43 uji otomatis baru (cerita, perjalanan karier, sisa modal, analisis akhir) + uji karier & pendidikan tetap lulus
 
+**Perapian kode (sebelum langkah 5)** ✅
+- ✅ `game_state.gd` (3.070 baris) dipecah menjadi root store (±750 baris) + 10 modul di `scripts/game/` (Career, Education, Insurance, Portfolio, Budget, Dreams, Targets, LifeEvents, Activities, Progress) dengan kelas dasar `GameModule`; UI memanggil `GameState.<modul>.<fungsi>()`
+- ✅ Event dipecah per kategori ke `data/events/<kategori>.json` + panduan `docs/PANDUAN_EVENT.md` (field, efek per modul, syarat, isian teks)
+- ✅ Perilaku tidak berubah: "golden runner" (6 permainan x 96 bulan) menghasilkan state akhir identik byte demi byte, 197 uji lulus, output simulator identik; format save tetap (save lama bisa dimuat)
+
+**Langkah 5: Penyeimbangan** ✅
+- ✅ Kebebasan finansial kini membandingkan pendapatan pasif dengan **seluruh pengeluaran rutin** (biaya hidup + premi + gaya hidup sesuai rencana gaji), bukan hanya makan & tempat tinggal; gaya hidup yang naik bersama gaji ikut menjauhkan tujuan
+- ✅ Kenaikan prestasi 2% (kinerja ≥80) / 1% (≥60); syarat pengalaman pelamar luar 0/12/36/60/96 bulan
+- ✅ Tinggal bersama keluarga: kebahagiaan -2 (dari -3); pemulihan alami +4 saat kesehatan/kebahagiaan di bawah 25 (sebelumnya pemain acak berlatar SMA sering kalah karena kebahagiaan habis)
+- ✅ Simulator mencetak bulan kerja pertama dan gaji riil absolut
+- ✅ Target: S1 bekerja di bulan 1 (p90 bulan 1); SMA yang kuliah menyusul gaji S1 hemat sebelum tahun ke-10 (Rp17,9 jt vs Rp14,3 jt); menganggur lebih dari 1-2 bulan berbahaya bagi SMA (modal ±1 bulan biaya hidup); karier baik x4-5 gaji riil dalam 30 tahun (target x3 dilonggarkan, lihat dokumen MVP); investasi rutin 2,3x menabung saja; tingkat kesulitan terasa (tahun 10,6 / 12,6 / 15,5)
+
 **Langkah berikutnya**
-- ⬜ Penyeimbangan akhir dengan simulator (langkah 5), termasuk: gaji riil karier baik sekitar x3 dalam 30 tahun, dan tipe pemain acak berlatar SMA yang sering kalah karena kebahagiaan habis (tinggal bersama keluarga -3/bulan, sudah terjadi sejak langkah 1)
+- ⬜ v1.5c: utang, properti, hunian yang tumbuh (pengeluaran besar yang membuat kebebasan finansial lebih menantang bagi pemain bergaji tinggi; ukur ulang dengan simulator)
 
 **Kriteria selesai**
 - ✅ Pemain mulai tanpa pekerjaan dan harus melamar

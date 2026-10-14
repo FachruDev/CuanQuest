@@ -9,7 +9,7 @@ func _ready() -> void:
 
 func open(event: Dictionary) -> void:
 	%CategoryLabel.text = tr("EVENT_CAT_" + str(event["category"]).to_upper())
-	var vars := GameState.pending_vars  # isian event karier ({job}, {salary}, ...)
+	var vars := GameState.events.pending_vars  # isian event karier ({job}, {salary}, ...)
 	%TitleLabel.text = UiText.event_text(tr(event["title"]), vars)
 	%BodyLabel.text = UiText.event_text(tr(event["text"]), vars)
 
@@ -25,13 +25,13 @@ func open(event: Dictionary) -> void:
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		var text := UiText.event_text(tr(choice["label"]), vars)
-		var cost := GameState.choice_cost(choice)
-		var covered := GameState.insurance_cover(choice)
+		var cost := GameState.events.choice_cost(choice)
+		var covered := GameState.insurance.cover(choice)
 		if covered > 0:
 			text += " " + tr("EVENT_COST_COVERED") % [Fmt.rupiah(cost - covered), Fmt.rupiah(covered)]
 		elif cost > 0:
 			text += " (%s)" % Fmt.rupiah(cost)
-		if not GameState.can_choose(choice):
+		if not GameState.events.can_choose(choice):
 			button.disabled = true
 			text += "\n" + tr("EVENT_NOT_ENOUGH_CASH")
 		button.text = text
@@ -46,7 +46,7 @@ func open(event: Dictionary) -> void:
 
 
 func _on_choice(index: int) -> void:
-	var result := GameState.resolve_event(index)
+	var result := GameState.events.resolve(index)
 	%Choices.hide()
 	var text := UiText.event_text(tr(result["result"]), result.get("vars", {}))
 	for claim: Dictionary in result.get("claims", []):

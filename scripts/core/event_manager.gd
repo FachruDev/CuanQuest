@@ -1,12 +1,29 @@
 class_name EventManager
 extends RefCounted
-## Memilih event hidup yang memenuhi syarat, berdasarkan bobot.
-## Efek dari pilihan pemain diterapkan oleh GameState (karena menyentuh kas, gaji, dll).
-## Berapa event per bulan ditentukan Event Director di GameState (_roll_events).
+## Katalog event hidup: memuat data/events/<kategori>.json, memeriksa syarat, dan memilih
+## event berdasarkan bobot. Berapa event per bulan ditentukan LifeEvents (GameState.events);
+## efek pilihan pemain dijalankan GameState.apply_effects() lewat modul pemiliknya.
+## Cara menambah event: docs/PANDUAN_EVENT.md.
+
+## Urutan kategori = urutan file dimuat. Kategori baru: tambah di sini + teks EVENT_CAT_<KATEGORI>.
+const CATEGORIES := ["finance", "work", "education", "health", "social", "market", "scam"]
+const DATA_PATH := "res://data/events/%s.json"
 
 var defs: Array = []
 var counts: Dictionary = {}       # event_id -> berapa kali sudah muncul
 var last_month: Dictionary = {}   # event_id -> bulan terakhir muncul
+
+
+## Semua event dari file per kategori. Event yang `category`-nya tidak sama dengan nama file
+## diberi peringatan agar mudah ditemukan saat menambah event.
+static func load_defs() -> Array:
+	var all: Array = []
+	for category: String in CATEGORIES:
+		for def: Dictionary in DataLoader.load_json(DATA_PATH % category).get("events", []):
+			if def.get("category", "") != category:
+				push_warning("Event %s ada di %s.json tapi kategorinya %s" % [def["id"], category, def.get("category")])
+			all.append(def)
+	return all
 
 
 func setup(event_defs: Array) -> void:
@@ -92,21 +109,21 @@ func _is_eligible(def: Dictionary, state: Node) -> bool:
 func requires_met(def: Dictionary, state: Node) -> bool:
 	match def.get("requires", ""):
 		"employed":
-			return state.is_employed() and state.unpaid_months == 0
+			return state.career.is_employed() and state.career.unpaid_months == 0
 		"career":  # pekerjaan berjenjang (bukan kerja lepas), v1.5b langkah 2
-			return state.is_career() and state.unpaid_months == 0
+			return state.career.is_career() and state.career.unpaid_months == 0
 		"headhunter":  # pekerjaan berjenjang & ada incaran yang gajinya lebih tinggi
-			return state.is_career() and state.unpaid_months == 0 and not state.headhunter_target().is_empty()
+			return state.career.is_career() and state.career.unpaid_months == 0 and not state.career.headhunter_target().is_empty()
 		"studying":  # sedang kuliah (sudah berjalan), v1.5b langkah 3
-			return state.is_studying() and state.month >= int(state.study["since"])
+			return state.education.is_studying() and state.month >= int(state.education.study["since"])
 		"sponsor_ready":  # syarat beasiswa kantor
-			return not state.sponsor_program().is_empty()
+			return not state.education.sponsor_program().is_empty()
 		"unemployed":
-			return not state.is_employed()
+			return not state.career.is_employed()
 		"has_investments":
-			return not state.holdings.is_empty()
+			return not state.portfolio.holdings.is_empty()
 		"low_happiness":
 			return state.happiness < 40
 		"has_vehicle":
-			return state.vehicle() != ""
+			return state.dreams.vehicle() != ""
 	return true

@@ -8,26 +8,26 @@ var _selected := 0
 
 
 func open() -> void:
-	if GameState.job_offers.is_empty():
+	if GameState.career.job_offers.is_empty():
 		closed.emit()  # tawaran sudah diambil/ditolak; lanjut ke popup berikutnya di antrean
 		return
 	_selected = 0  # pilihan awal: gaji tertinggi
-	for i in GameState.job_offers.size():
-		if GameState.job_offers[i]["salary"] > GameState.job_offers[_selected]["salary"]:
+	for i in GameState.career.job_offers.size():
+		if GameState.career.job_offers[i]["salary"] > GameState.career.job_offers[_selected]["salary"]:
 			_selected = i
 	%Title.text = tr("OFFER_TITLE")
 	%SubtitleHolder.show()
-	%Subtitle.text = tr("OFFER_SUBTITLE") % GameState.job_offers.size()
+	%Subtitle.text = tr("OFFER_SUBTITLE") % GameState.career.job_offers.size()
 	%Body.show()
-	if GameState.is_employed():
-		%Body.text = tr("OFFER_BODY_SWITCH") % [tr(GameState.current_job_def()["title"]), Fmt.rupiah(GameState.salary)]
+	if GameState.career.is_employed():
+		%Body.text = tr("OFFER_BODY_SWITCH") % [tr(GameState.career.current_job_def()["title"]), Fmt.rupiah(GameState.career.salary)]
 	else:
 		%Body.text = tr("OFFER_BODY")
 	_clear(%Rows)
 	var group := ButtonGroup.new()
-	for i in GameState.job_offers.size():
-		var offer: Dictionary = GameState.job_offers[i]
-		var def := GameState.job_def(offer["job_id"])
+	for i in GameState.career.job_offers.size():
+		var offer: Dictionary = GameState.career.job_offers[i]
+		var def := GameState.career.job_def(offer["job_id"])
 		var button := Button.new()
 		button.toggle_mode = true
 		button.button_group = group
@@ -36,7 +36,7 @@ func open() -> void:
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		button.custom_minimum_size = Vector2(0, 92)
 		button.text = "%s · %s\n%s · %s" % [tr(def["title"]), offer["company"],
-			tr("CAREER_PER_MONTH") % Fmt.rupiah(offer["salary"]), tr(GameState.track_def(def["track"])["name"])]
+			tr("CAREER_PER_MONTH") % Fmt.rupiah(offer["salary"]), tr(GameState.career.track_def(def["track"])["name"])]
 		button.button_pressed = i == _selected
 		button.toggled.connect(func(on: bool) -> void:
 			if on:
@@ -49,7 +49,7 @@ func open() -> void:
 	%Buttons.add_child(accept)
 	var decline := UiText.chunky_button(tr("OFFER_DECLINE"), &"NeutralButton", &"NeutralButtonLabel", 68.0, 26)
 	decline.pressed.connect(func() -> void:
-		GameState.decline_offers()
+		GameState.career.decline_offers()
 		close())
 	%Buttons.add_child(decline)
 	Sfx.play("success")
@@ -58,10 +58,10 @@ func open() -> void:
 
 
 func _on_accept() -> void:
-	var offer: Dictionary = GameState.job_offers[_selected]
-	var title: String = GameState.job_def(offer["job_id"])["title"]
+	var offer: Dictionary = GameState.career.job_offers[_selected]
+	var title: String = GameState.career.job_def(offer["job_id"])["title"]
 	var cash_before := GameState.cash
-	GameState.accept_offer(_selected)
+	GameState.career.accept_offer(_selected)
 	close()
 	offer_accepted.emit(title, GameState.cash - cash_before)
 

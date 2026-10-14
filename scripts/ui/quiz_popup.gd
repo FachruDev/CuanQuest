@@ -37,7 +37,7 @@ func open(question: Dictionary) -> void:
 
 
 func _on_answer(index: int) -> void:
-	var result := GameState.answer_quiz(_question, index)
+	var result := GameState.progress.answer_quiz(_question, index)
 	var correct_index := int(_question["answer"])
 	for i in _buttons.size():
 		_buttons[i].disabled = true

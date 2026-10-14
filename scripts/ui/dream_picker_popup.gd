@@ -13,9 +13,9 @@ var _confirm: Button
 
 
 func open() -> void:
-	var first := not GameState.dreams_asked
-	var slots := int(GameState.dreams_config()["max_active"]) - GameState.active_dreams().size()
-	_limit = mini(slots, int(GameState.dreams_config()["max_pick_start"])) if first else slots
+	var first := not GameState.dreams.asked
+	var slots := int(GameState.dreams.config()["max_active"]) - GameState.dreams.active().size()
+	_limit = mini(slots, int(GameState.dreams.config()["max_pick_start"])) if first else slots
 	%Title.text = tr("PICKER_TITLE")
 	%SubtitleHolder.hide()
 	%Body.text = tr("PICKER_INTRO") % _limit
@@ -33,7 +33,7 @@ func _build_list() -> void:
 		%Rows.remove_child(child)
 		child.queue_free()
 	_buttons.clear()
-	var available := GameState.available_dreams()
+	var available := GameState.dreams.available()
 	if available.is_empty():
 		var empty := Label.new()
 		empty.text = tr("PICKER_NONE")
@@ -47,7 +47,7 @@ func _build_list() -> void:
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		button.custom_minimum_size = Vector2(0, 92)
-		button.text = "%s\n%s" % [tr(def["name"]), tr("PICKER_ITEM") % [Fmt.rupiah(GameState.dream_cost(def)),
+		button.text = "%s\n%s" % [tr(def["name"]), tr("PICKER_ITEM") % [Fmt.rupiah(GameState.dreams.cost_of(def)),
 			UiText.horizon_text(def["horizon"]), int(def["months"])]]
 		button.tooltip_text = UiText.money(tr(def["desc"]))
 		button.toggled.connect(_refresh.unbind(1))
@@ -86,12 +86,12 @@ func _selected() -> Array[String]:
 
 
 func _on_confirm() -> void:
-	GameState.pick_dreams(_selected())
+	GameState.dreams.pick(_selected())
 	Sfx.play("success")
 	dreams_picked.emit()
 	close()
 
 
 func _on_later() -> void:
-	GameState.mark_dreams_asked()
+	GameState.dreams.mark_asked()
 	close()

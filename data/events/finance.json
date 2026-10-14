@@ -1,0 +1,109 @@
+{
+	"_comment": "Keuangan sehari-hari: kerusakan, tagihan, THR, belanja, rezeki tak terduga, asuransi. Format & cara menambah event: docs/PANDUAN_EVENT.md",
+	"events": [
+		{
+			"id": "motor_broken", "bad": true, "category": "finance", "weight": 3,
+			"title": "Motor Mogok", "text": "Motormu mogok di tengah jalan dan butuh servis besar.",
+			"choices": [
+				{ "label": "Servis di bengkel resmi", "cost": 1500000, "effects": {}, "result": "Motor kembali prima dan bergaransi." },
+				{ "label": "Servis di bengkel pinggir jalan", "cost": 600000, "outcomes": [
+					{ "chance": 0.6, "effects": {}, "result": "Untung, motor jalan lagi dengan normal." },
+					{ "chance": 0.4, "effects": { "cash": -1000000 }, "result": "Seminggu kemudian rusak lagi. Akhirnya tetap harus ke bengkel resmi." }
+				] },
+				{ "label": "Naik angkutan umum saja dulu", "effects": { "happiness": -4, "health": -1 }, "result": "Lebih hemat, tapi perjalanan jadi melelahkan." }
+			]
+		},
+		{
+			"id": "thr", "category": "finance", "weight": 1, "guaranteed": true, "month_of_year": 3, "cooldown": 11, "requires": "career",
+			"title": "THR Cair!", "text": "Tunjangan Hari Raya sebesar satu kali gaji masuk ke rekeningmu. Mau dipakai untuk apa?",
+			"choices": [
+				{ "label": "Simpan semuanya untuk tabungan/investasi", "effects": { "cash_salary": 1.0, "xp": 10 }, "result": "Disiplin! THR utuh masuk ke kas." },
+				{ "label": "Separuh ditabung, separuh untuk keluarga & baju baru", "effects": { "cash_salary": 0.5, "happiness": 6 }, "result": "Seimbang: keluarga senang, tabungan tetap bertambah." },
+				{ "label": "Habiskan untuk mudik mewah & belanja", "effects": { "happiness": 10 }, "result": "Lebaran meriah, tapi THR habis tak bersisa." }
+			]
+		},
+		{
+			"id": "phone_broken", "bad": true, "category": "finance", "weight": 2, "min_month": 4, "cooldown": 18,
+			"title": "HP Jatuh dan Rusak", "text": "Layar HP-mu pecah dan tidak bisa menyala.",
+			"choices": [
+				{ "label": "Beli HP flagship terbaru", "cost": 8000000, "effects": { "happiness": 6 }, "result": "HP baru yang keren. Dompet menangis." },
+				{ "label": "Beli HP kelas menengah", "cost": 3000000, "effects": { "happiness": 2 }, "result": "Fungsinya cukup untuk kebutuhan sehari-hari." },
+				{ "label": "Servis saja", "cost": 700000, "effects": { "happiness": -2 }, "result": "Layar diganti, HP lama hidup kembali." },
+				{ "label": "Pakai HP cadangan yang lama", "effects": { "happiness": -4 }, "result": "HP lama lambat dan baterainya cepat habis, tapi masih bisa dipakai." }
+			]
+		},
+		{
+			"id": "flash_sale", "category": "finance", "weight": 2, "cooldown": 6, "context": { "cash_rich": 1.5 },
+			"title": "Diskon Besar Tanggal Kembar", "text": "Aplikasi belanja mengadakan diskon besar-besaran. Keranjangmu sudah penuh.",
+			"choices": [
+				{ "label": "Checkout semua isi keranjang", "cost": 2500000, "effects": { "happiness": 4 }, "result": "Paket berdatangan. Senangnya sebentar, tagihannya terasa lama." },
+				{ "label": "Beli yang benar-benar dibutuhkan", "cost": 500000, "effects": { "happiness": 1, "xp": 5 }, "result": "Belanja cerdas: hanya kebutuhan." },
+				{ "label": "Tutup aplikasinya", "effects": { "xp": 5 }, "result": "Diskon terbaik adalah tidak belanja barang yang tidak perlu." }
+			]
+		},
+		{
+			"id": "contest_win", "category": "finance", "weight": 1, "max_times": 2,
+			"title": "Menang Lomba Menulis", "text": "Artikelmu tentang literasi keuangan memenangkan lomba menulis!",
+			"choices": [
+				{ "label": "Terima hadiahnya", "effects": { "cash": 1500000, "happiness": 5, "xp": 10 }, "result": "Hadiah {rp:1500000} masuk ke rekeningmu." }
+			]
+		},
+		{
+			"id": "tax_refund", "category": "finance", "weight": 1, "min_month": 12, "max_times": 3,
+			"title": "Kelebihan Bayar Pajak", "text": "Laporan pajak tahunanmu menunjukkan kelebihan bayar, dan dananya dikembalikan.",
+			"choices": [
+				{ "label": "Asyik!", "effects": { "cash": 800000 }, "result": "{rp:800000} dikembalikan ke rekeningmu." }
+			]
+		},
+		{
+			"id": "kos_repair", "bad": true, "category": "finance", "weight": 2, "cooldown": 12,
+			"title": "Kerusakan di Kamar", "text": "Pipa air di kamarmu bocor dan merusak beberapa barang.",
+			"choices": [
+				{ "label": "Ganti barang yang rusak", "cost": 600000, "effects": {}, "result": "Kamar kembali rapi." },
+				{ "label": "Biarkan saja", "effects": { "happiness": -3 }, "result": "Kamar jadi kurang nyaman." }
+			]
+		},
+		{
+			"id": "electric_bill", "bad": true, "category": "finance", "weight": 2, "cooldown": 12,
+			"title": "Tagihan Listrik Membengkak", "text": "Pemakaian AC berlebihan membuat tagihan listrik bulan ini membengkak.",
+			"choices": [
+				{ "label": "Bayar dan mulai hemat energi", "effects": { "cash": -400000, "xp": 5 }, "result": "Pelajaran: pengeluaran kecil yang rutin bisa membesar." },
+				{ "label": "Bayar saja", "effects": { "cash": -400000 }, "result": "Tagihan lunas." }
+			]
+		},
+		{
+			"id": "found_money", "category": "finance", "weight": 1, "max_times": 2,
+			"title": "Rezeki Nomplok", "text": "Kamu menemukan uang di saku celana lama!",
+			"choices": [
+				{ "label": "Lumayan!", "effects": { "cash": 150000, "happiness": 2 }, "result": "{rp:150000} yang tak terduga." }
+			]
+		},
+		{
+			"id": "harbolnas", "category": "finance", "weight": 3, "month_of_year": 11, "cooldown": 11,
+			"title": "Harbolnas 12.12", "text": "Semua aplikasi belanja penuh diskon dan gratis ongkir. Keranjangmu sudah penuh.",
+			"choices": [
+				{ "label": "Checkout semuanya", "cost": 2500000, "effects": { "happiness": 4 }, "result": "Paket berdatangan. Senang sesaat, tapi apakah semuanya benar-benar kamu butuhkan?" },
+				{ "label": "Beli yang memang dibutuhkan saja", "cost": 500000, "effects": { "happiness": 2, "xp": 5 }, "result": "Belanja dengan daftar membuatmu tetap hemat." },
+				{ "label": "Kosongkan keranjang", "effects": { "happiness": -1, "xp": 10 }, "result": "Diskon terbaik adalah tidak membeli barang yang tidak perlu." }
+			]
+		},
+		{
+			"id": "vehicle_accident", "bad": true, "category": "finance", "weight": 2, "cooldown": 18, "requires": "has_vehicle",
+			"title": "Kecelakaan di Jalan", "text": "Kendaraanmu ditabrak dari belakang saat lampu merah. Kamu hanya lecet, tapi kendaraanmu rusak cukup parah.",
+			"choices": [
+				{ "label": "Perbaiki di bengkel resmi", "cost_vehicle": 0.15, "claim": "vehicle", "effects": { "health": -2 }, "result": "Kendaraanmu kembali seperti baru." },
+				{ "label": "Perbaiki seadanya di bengkel biasa", "cost_vehicle": 0.06, "claim": "vehicle", "effects": { "health": -2, "happiness": -3 }, "result": "Bisa jalan lagi, walau bekas benturannya masih terlihat." },
+				{ "label": "Biarkan dulu, naik angkutan umum", "effects": { "health": -2, "happiness": -6 }, "result": "Kendaraanmu teronggok di garasi. Perjalanan setiap hari jadi melelahkan." }
+			]
+		},
+		{
+			"id": "unit_link", "category": "finance", "weight": 1, "min_month": 6, "max_times": 1,
+			"title": "Tawaran Unit Link", "text": "Agen asuransi menawarkan unit link: premi {rp:1000000} per bulan, katanya sekaligus asuransi dan investasi dengan hasil tinggi.",
+			"choices": [
+				{ "label": "Ambil unit link", "cost": 3000000, "effects": { "happiness": -3 }, "result": "Setelah membaca polisnya, ternyata premi bulan-bulan awal hampir habis untuk biaya akuisisi. Kamu berhenti dan {rp:3000000} melayang. Pisahkan asuransi dan investasi." },
+				{ "label": "Pilih asuransi jiwa berjangka saja", "effects": { "xp": 15 }, "result": "Preminya jauh lebih murah dan sisa uangnya bisa kamu investasikan sendiri. Atur di kartu Perlindungan di Beranda." },
+				{ "label": "Tolak dengan sopan", "effects": { "xp": 5 }, "result": "Kamu memutuskan mempelajari asuransi lebih dulu sebelum membeli." }
+			]
+		}
+	]
+}

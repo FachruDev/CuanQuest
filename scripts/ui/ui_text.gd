@@ -38,14 +38,14 @@ static func money(text: String) -> String:
 
 
 ## Teks event: token uang {rp:N} + isian event karier & pendidikan (v1.5b) dari
-## GameState.pending_vars atau hasil resolve_event: {job}, {company}, {salary}, {months},
+## GameState.events.pending_vars atau hasil resolve_event: {job}, {company}, {salary}, {months},
 ## {severance}, {raise}, {program}, {cert}.
 static func event_text(text: String, vars: Dictionary) -> String:
 	var result := money(text)
 	if vars.is_empty() or not result.contains("{"):
 		return result
 	if vars.has("job_id"):
-		result = result.replace("{job}", _t(GameState.job_def(vars["job_id"]).get("title", "")))
+		result = result.replace("{job}", _t(GameState.career.job_def(vars["job_id"]).get("title", "")))
 	if vars.has("company"):
 		result = result.replace("{company}", vars["company"])
 	for key: String in ["salary", "severance"]:
@@ -56,7 +56,7 @@ static func event_text(text: String, vars: Dictionary) -> String:
 	if vars.has("raise"):
 		result = result.replace("{raise}", "%d%%" % roundi(float(vars["raise"]) * 100.0))
 	if vars.has("program_id"):
-		result = result.replace("{program}", _t(GameState.program_def(vars["program_id"]).get("name", "")))
+		result = result.replace("{program}", _t(GameState.education.program_def(vars["program_id"]).get("name", "")))
 	if vars.has("cert"):
 		result = result.replace("{cert}", _t(vars["cert"]))
 	return result
@@ -73,9 +73,9 @@ static func track_tile(track: String) -> StringName:
 
 ## Satu baris perjalanan karier: "Mar Tahun 1 · Mulai bekerja sebagai Kasir di Toko Sinar Jaya".
 static func career_log_text(entry: Dictionary) -> String:
-	var title := _t(GameState.job_def(entry.get("job_id", "")).get("title", ""))
+	var title := _t(GameState.career.job_def(entry.get("job_id", "")).get("title", ""))
 	var company: String = entry.get("company", "")
-	var program := _t(GameState.program_def(entry.get("program", "")).get("name", ""))
+	var program := _t(GameState.education.program_def(entry.get("program", "")).get("name", ""))
 	var text := ""
 	match entry["kind"]:
 		"hired":
@@ -98,7 +98,7 @@ static func fill_career_log(box: VBoxContainer, limit: int) -> void:
 	for child in box.get_children():
 		box.remove_child(child)
 		child.queue_free()
-	var entries := GameState.career_log.duplicate()
+	var entries := GameState.career.history.duplicate()
 	entries.reverse()
 	if entries.is_empty():
 		box.add_child(_log_label(_t("CAREER_LOG_EMPTY"), &"SmallMutedLabel"))
@@ -148,7 +148,7 @@ static func fill_requirements(box: VBoxContainer, stage: Dictionary) -> void:
 		box.remove_child(child)
 		child.queue_free()
 	for req: Dictionary in stage["requirements"]:
-		var status := GameState.requirement_status(req)
+		var status := GameState.progress.requirement_status(req)
 		var label := Label.new()
 		label.text = ("%s  %s" % [_t("REQ_DONE") if status["met"] else _t("REQ_TODO"), requirement_text(req, status)])
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -223,7 +223,7 @@ static func target_text(target: Dictionary) -> String:
 		"health", "happiness":
 			return _t(key) % int(target["goal"])
 		"activity":
-			for def: Dictionary in GameState.activity_defs():
+			for def: Dictionary in GameState.activities.defs():
 				if def["id"] == target["param"]:
 					return _t(key) % _t(def["name"])
 	return _t(key)

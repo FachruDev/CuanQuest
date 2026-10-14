@@ -186,7 +186,7 @@ func _build_background_cards() -> void:
 		chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		chip.add_child(_label(tr("NG_BACKGROUND_CHIP") % [
-			GameState.education_name(GameState.education_index(option["education"])), int(option["skill"])], &"SalaryLabel"))
+			GameState.education.level_name(GameState.education.level_index(option["education"])), int(option["skill"])], &"SalaryLabel"))
 		title_row.add_child(chip)
 		text.add_child(title_row)
 		var desc := _label(tr(option["desc_key"]), &"OptionDescLabel")
@@ -234,7 +234,7 @@ func _build_difficulty() -> void:
 
 ## Tiap pertanyaan punya 3 jawaban berskor 0-2; jawaban tengah dipilih sebagai default.
 func _build_risk_questions() -> void:
-	var questions := GameState.risk_questions()
+	var questions := GameState.portfolio.risk_questions()
 	for qi in questions.size():
 		var question: Dictionary = questions[qi]
 		_risk_scores.append(1)
@@ -281,7 +281,7 @@ func _build_risk_questions() -> void:
 
 
 func _build_meter() -> void:
-	for profile: Dictionary in GameState.risk_profiles():
+	for profile: Dictionary in GameState.portfolio.risk_profiles():
 		var column := VBoxContainer.new()
 		column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		column.add_theme_constant_override("separation", 4)
@@ -300,13 +300,13 @@ func _risk_profile_id() -> String:
 	var total := 0
 	for score in _risk_scores:
 		total += score
-	return GameState.profile_from_score(total)
+	return GameState.portfolio.profile_from_score(total)
 
 
 func _update_risk_result() -> void:
 	var id := _risk_profile_id()
 	var look: Array = PROFILE_LOOK.get(id, PROFILE_LOOK["moderate"])
-	for profile: Dictionary in GameState.risk_profiles():
+	for profile: Dictionary in GameState.portfolio.risk_profiles():
 		if profile["id"] == id:
 			%ProfileName.text = tr(profile["name"])
 			%ProfileDesc.text = tr(profile["desc"])

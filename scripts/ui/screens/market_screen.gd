@@ -125,7 +125,7 @@ func _refresh_list() -> void:
 	for asset_id: String in _rows:
 		var asset := market.get_asset(asset_id)
 		var labels: Dictionary = _rows[asset_id]
-		var unlocked := GameState.is_asset_unlocked(asset_id)
+		var unlocked := GameState.progress.is_asset_unlocked(asset_id)
 		labels["button"].modulate = Color.WHITE if unlocked else Color(1, 1, 1, 0.5)
 		labels["risk"].text = tr("RISK_%d" % asset.risk) if unlocked else tr("MARKET_LOCKED_ROW") % asset.stage
 		labels["risk"].add_theme_color_override("font_color", RISK_COLORS[asset.risk - 1] if unlocked else Palette.MUTED)
@@ -198,8 +198,8 @@ func _refresh_detail() -> void:
 	%ClassLabel.text = "%s · %s" % [tr("CLASS_" + asset.asset_class.to_upper()), tr("RISK_%d" % asset.risk)]
 	%ClassLabel.add_theme_color_override("font_color", RISK_COLORS[asset.risk - 1])
 	%DescLabel.text = tr("DESC_" + asset.asset_class.to_upper())
-	%RiskWarning.visible = GameState.exceeds_risk_profile(asset)
-	%RiskWarningLabel.text = tr("MARKET_RISK_WARNING") % tr(GameState.risk_profile()["name"])
+	%RiskWarning.visible = GameState.portfolio.exceeds_risk_profile(asset)
+	%RiskWarningLabel.text = tr("MARKET_RISK_WARNING") % tr(GameState.portfolio.risk_profile()["name"])
 
 	if asset.is_interest():
 		var rate := GameState.market.rate_for(asset)
@@ -231,23 +231,23 @@ func _refresh_detail() -> void:
 			info += "\n" + tr("INFO_TAX") % [Fmt.percent_plain(asset.buy_tax), Fmt.percent_plain(asset.sell_tax)]
 		%InfoLabel.text = info
 
-	var unlocked := GameState.is_asset_unlocked(_selected_id)
+	var unlocked := GameState.progress.is_asset_unlocked(_selected_id)
 	%TradeBox.visible = unlocked
 	%LockedBox.visible = not unlocked
 	if not unlocked:
-		UiText.fill_requirements(%LockedReqs, GameState.stage_def(asset.stage))
+		UiText.fill_requirements(%LockedReqs, GameState.progress.stage_def(asset.stage))
 
-	var units := GameState.units_of(_selected_id)
+	var units := GameState.portfolio.units_of(_selected_id)
 	if units > 0.0:
-		var value := GameState.holding_value(_selected_id)
-		var cost := GameState.cost_of(_selected_id)
+		var value := GameState.portfolio.holding_value(_selected_id)
+		var cost := GameState.portfolio.cost_of(_selected_id)
 		var text: String
 		if asset.is_interest():
 			text = tr("LBL_BALANCE") % [Fmt.rupiah(value), Fmt.signed_rupiah(value - cost)]
 		else:
 			text = tr("LBL_HOLDING") % [Fmt.units(units), Fmt.rupiah(value), Fmt.percent((value - cost) / cost)]
-		if GameState.is_locked(_selected_id):
-			text += "\n" + tr("LBL_LOCKED_UNTIL") % Fmt.game_date(GameState.locked_until(_selected_id))
+		if GameState.portfolio.is_locked(_selected_id):
+			text += "\n" + tr("LBL_LOCKED_UNTIL") % Fmt.game_date(GameState.portfolio.locked_until(_selected_id))
 		%HoldingLabel.text = text
 	else:
 		%HoldingLabel.text = tr("LBL_NO_HOLDING")
@@ -256,12 +256,12 @@ func _refresh_detail() -> void:
 
 ## Status stop loss / take profit di kartu kepemilikan (hanya aset berharga harian yang dimiliki).
 func _refresh_order(asset: MarketAsset) -> void:
-	var available := GameState.can_have_order(asset.id)
+	var available := GameState.portfolio.can_have_order(asset.id)
 	%OrderLabel.visible = available
 	%OrderHolder.visible = available
 	if not available:
 		return
-	var order := GameState.order_of(asset.id)
+	var order := GameState.portfolio.order_of(asset.id)
 	if order.is_empty():
 		%OrderLabel.text = tr("MARKET_ORDER_NONE")
 		return
@@ -279,17 +279,17 @@ func _set_mode(new_mode: Mode) -> void:
 
 
 func _fill_percent(percent: float) -> void:
-	var base: float = GameState.cash if mode == Mode.BUY else GameState.holding_value(_selected_id)
+	var base: float = GameState.cash if mode == Mode.BUY else GameState.portfolio.holding_value(_selected_id)
 	var amount := floori(maxf(base, 0.0) * percent)
 	if mode == Mode.SELL and percent >= 1.0:
 		amount = ceili(base)  # pastikan "100%" benar-benar menjual semua
 	%AmountEdit.text = str(amount)
 
 
-## Cek dulu lewat GameState.trade_quote(); jika valid, minta konfirmasi (layar rincian di main).
+## Cek dulu lewat GameState.portfolio.trade_quote(); jika valid, minta konfirmasi (layar rincian di main).
 func _on_confirm_pressed() -> void:
 	var amount := _parse_amount(%AmountEdit.text)
-	var quote := GameState.trade_quote(_selected_id, mode == Mode.BUY, amount)
+	var quote := GameState.portfolio.trade_quote(_selected_id, mode == Mode.BUY, amount)
 	if not quote["ok"]:
 		_show_message(tr(quote["error"]), true)
 		return

@@ -1,0 +1,70 @@
+{
+	"_comment": "Sosial & keluarga: kondangan, liburan, pinjaman teman, orang tua, donasi, ulang tahun. Format & cara menambah event: docs/PANDUAN_EVENT.md",
+	"events": [
+		{
+			"id": "kondangan", "category": "social", "weight": 3, "cooldown": 6,
+			"title": "Musim Kondangan", "text": "Bulan ini ada 3 undangan pernikahan dari teman dan saudara.",
+			"choices": [
+				{ "label": "Datang ke semuanya", "cost": 900000, "effects": { "happiness": 4 }, "result": "Silaturahmi terjaga, amplop terkirim." },
+				{ "label": "Datang ke yang paling dekat saja", "cost": 300000, "effects": { "happiness": 1 }, "result": "Pilihan yang hemat dan tetap sopan." },
+				{ "label": "Titip ucapan lewat chat", "effects": { "happiness": -2 }, "result": "Hemat, tapi ada rasa tidak enak." }
+			]
+		},
+		{
+			"id": "vacation", "category": "social", "weight": 2, "cooldown": 12, "context": { "low_happiness": 2 },
+			"title": "Ajakan Liburan ke Bali", "text": "Teman-teman mengajakmu liburan ke Bali selama 4 hari.",
+			"choices": [
+				{ "label": "Ikut liburan", "cost": 4000000, "effects": { "happiness": 12, "health": 2 }, "result": "Liburan yang menyenangkan! Pikiranmu segar kembali." },
+				{ "label": "Usul liburan murah di dalam kota", "cost": 1000000, "effects": { "happiness": 5 }, "result": "Tetap seru dengan biaya jauh lebih kecil." },
+				{ "label": "Tolak, sedang menabung", "effects": { "happiness": -4 }, "result": "Teman-teman mengerti, tapi kamu agak iri melihat foto-foto mereka." }
+			]
+		},
+		{
+			"id": "friend_loan", "category": "social", "weight": 2, "min_month": 3, "cooldown": 12, "context": { "cash_rich": 2 },
+			"title": "Teman Mau Pinjam Uang", "text": "Sahabatmu butuh pinjaman {rp:2000000} dan berjanji mengembalikan dalam 3 bulan.",
+			"choices": [
+				{ "label": "Pinjamkan", "cost": 2000000, "effects": { "chain": { "event": "friend_loan_due", "months": [2, 3] } }, "result": "Kamu meminjamkan {rp:2000000}. Prinsipnya: pinjamkan hanya uang yang siap kamu ikhlaskan." },
+				{ "label": "Tolak dengan halus", "effects": { "happiness": -2 }, "result": "Agak canggung, tapi keuanganmu aman." }
+			]
+		},
+		{
+			"id": "parents", "bad": true, "category": "social", "weight": 1, "min_month": 6, "cooldown": 18,
+			"title": "Orang Tua Butuh Bantuan", "text": "Atap rumah orang tuamu bocor parah dan perlu diperbaiki.",
+			"choices": [
+				{ "label": "Bantu {rp:3000000}", "cost": 3000000, "effects": { "happiness": 6 }, "result": "Orang tuamu sangat terbantu." },
+				{ "label": "Bantu {rp:1000000}", "cost": 1000000, "effects": { "happiness": 2 }, "result": "Bantuanmu tetap berarti." },
+				{ "label": "Belum bisa membantu", "effects": { "happiness": -6 }, "result": "Kamu merasa bersalah. Dana darurat juga melindungi orang-orang terdekat." }
+			]
+		},
+		{
+			"id": "donation", "category": "social", "weight": 2, "cooldown": 12,
+			"title": "Penggalangan Dana Bencana", "text": "Terjadi banjir besar di kota tetangga. Ada penggalangan dana untuk para korban.",
+			"choices": [
+				{ "label": "Donasi {rp:500000}", "cost": 500000, "effects": { "happiness": 5 }, "result": "Bantuanmu tersalurkan ke para korban." },
+				{ "label": "Donasi {rp:100000}", "cost": 100000, "effects": { "happiness": 2 }, "result": "Sedikit demi sedikit, bantuan terkumpul." },
+				{ "label": "Bantu menyebarkan informasi", "effects": { "happiness": 1 }, "result": "Informasimu membantu penggalangan dana menjangkau lebih banyak orang." }
+			]
+		},
+		{
+			"id": "birthday", "category": "social", "weight": 1, "cooldown": 12,
+			"title": "Ulang Tahunmu", "text": "Hari ini kamu berulang tahun. Teman-teman menunggu traktiran.",
+			"choices": [
+				{ "label": "Traktir di restoran", "cost": 1200000, "effects": { "happiness": 6 }, "result": "Ulang tahun yang meriah!" },
+				{ "label": "Rayakan sederhana dengan kue", "cost": 200000, "effects": { "happiness": 3 }, "result": "Sederhana tapi hangat." },
+				{ "label": "Tidak usah dirayakan", "effects": { "happiness": -2 }, "result": "Hari berlalu seperti biasa." }
+			]
+		},
+		{
+			"id": "friend_loan_due", "chain_only": true, "category": "social", "weight": 1,
+			"title": "Janji Temanmu", "text": "Beberapa bulan lalu kamu meminjamkan {rp:2000000}. Sekarang waktunya temanmu mengembalikan.",
+			"choices": [
+				{ "label": "Tagih dengan sopan", "outcomes": [
+					{ "chance": 0.6, "effects": { "cash": 2000000, "happiness": 3 }, "result": "Temanmu membayar penuh dan berterima kasih atas bantuanmu." },
+					{ "chance": 0.4, "effects": { "happiness": -4 }, "result": "Temanmu menghindar dan sulit dihubungi. Pelajaran mahal: pinjamkan hanya uang yang siap kamu ikhlaskan." }
+				] },
+				{ "label": "Beri waktu 2 bulan lagi", "effects": { "happiness": 1, "chain": { "event": "friend_loan_due", "months": [2, 2] } }, "result": "Kamu memberi kelonggaran. Semoga dia menepati janjinya." },
+				{ "label": "Ikhlaskan saja", "effects": { "happiness": 2, "xp": 5 }, "result": "Kamu mengikhlaskan uangnya. Pertemanan terjaga, tapi dompetmu yang menanggung." }
+			]
+		}
+	]
+}

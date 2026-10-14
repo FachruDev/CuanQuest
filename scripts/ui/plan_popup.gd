@@ -1,7 +1,7 @@
 extends ModalPopup
 ## Popup "Rencana Gaji" (v1.5-0 langkah 2): pemain membagi gaji ke gaya hidup, dana darurat,
 ## dan investasi otomatis, dalam persen gaji. Perubahan disimpan di draf dan baru berlaku
-## setelah "Simpan rencana". Hitungan rupiah memakai GameState.plan_preview(), sehingga
+## setelah "Simpan rencana". Hitungan rupiah memakai GameState.budget.preview_for(), sehingga
 ## angka di sini sama persis dengan yang dijalankan di awal bulan.
 
 const MAX_ROWS_HEIGHT := 540.0
@@ -20,11 +20,11 @@ func _ready() -> void:
 
 
 func open() -> void:
-	_draft = GameState.plan.duplicate(true)
-	var first: bool = not GameState.plan.get("confirmed", false)
+	_draft = GameState.budget.plan.duplicate(true)
+	var first: bool = not GameState.budget.plan.get("confirmed", false)
 	%CloseButton.visible = not first  # rencana pertama harus disimpan dulu
-	%ReviewLabel.visible = not first and GameState.plan_needs_review()
-	%Subtitle.text = tr("PLAN_SUBTITLE") % Fmt.rupiah(GameState.net_salary())
+	%ReviewLabel.visible = not first and GameState.budget.needs_review()
+	%Subtitle.text = tr("PLAN_SUBTITLE") % Fmt.rupiah(GameState.career.net_salary())
 	_build_rows()
 	_refresh()
 	%Scroll.scroll_vertical = 0
@@ -41,22 +41,22 @@ func _build_rows() -> void:
 	_notes.clear()
 	%Rows.add_child(_row("basic", tr("PLAN_BASIC"), false))
 	%Rows.add_child(_row("insurance", tr("PLAN_INSURANCE"), false))
-	if GameState.is_studying():
+	if GameState.education.is_studying():
 		%Rows.add_child(_row("tuition", tr("PLAN_TUITION"), false))
 	%Rows.add_child(_row("lifestyle", tr("PLAN_LIFESTYLE"), true))
 	%Rows.add_child(_row("emergency", tr("PLAN_EMERGENCY"), true))
 
-	var active := GameState.active_dreams()
+	var active := GameState.dreams.active()
 	if not active.is_empty():
 		%Rows.add_child(_label(tr("PLAN_DREAMS"), &"ReportHeaderLabel"))
 		%Rows.add_child(_label(tr("PLAN_DREAMS_NOTE"), &"SmallMutedLabel"))
 		for entry: Dictionary in active:
-			%Rows.add_child(_row(DREAM_PREFIX + entry["id"], tr(GameState.dream_def(entry["id"])["name"]), true))
+			%Rows.add_child(_row(DREAM_PREFIX + entry["id"], tr(GameState.dreams.find_def(entry["id"])["name"]), true))
 
 	%Rows.add_child(_label(tr("PLAN_INVEST"), &"ReportHeaderLabel"))
 	var invest_note := _label(tr("PLAN_INVEST_NOTE"), &"SmallMutedLabel")
 	%Rows.add_child(invest_note)
-	var assets := GameState.autodebet_assets()
+	var assets := GameState.budget.autodebet_assets()
 	for asset: MarketAsset in assets:
 		%Rows.add_child(_row(asset.id, tr(asset.name_key), true))
 	if assets.size() < GameState.market.assets.size():
@@ -100,7 +100,7 @@ func _step_button(text: String, key: String, direction: int) -> Button:
 
 
 func _on_step(key: String, direction: int) -> void:
-	var cfg := GameState.budget_config()
+	var cfg := GameState.budget.config()
 	var step := float(cfg["step"])
 	var limit := float(cfg["invest_max_each"])
 	if key == "lifestyle":
@@ -126,8 +126,8 @@ func _share(key: String) -> float:
 
 
 func _refresh() -> void:
-	var income := GameState.net_salary()  # rencana dihitung dari gaji setelah PPh 21
-	var preview := GameState.plan_preview(_draft, income)
+	var income := GameState.career.net_salary()  # rencana dihitung dari gaji setelah PPh 21
+	var preview := GameState.budget.preview_for(_draft, income)
 	_values["basic"].text = Fmt.rupiah(preview["basic"])
 	_notes["basic"].text = tr("PLAN_BASIC_NOTE")
 	_values["insurance"].text = Fmt.rupiah(preview["insurance"])
@@ -137,16 +137,16 @@ func _refresh() -> void:
 		_notes["tuition"].text = tr("PLAN_TUITION_NOTE")
 
 	_values["lifestyle"].text = _share_text(_share("lifestyle"), preview["lifestyle"])
-	_notes["lifestyle"].text = tr("PLAN_LIFESTYLE_NOTE") % GameState.lifestyle_happiness(_share("lifestyle"))
+	_notes["lifestyle"].text = tr("PLAN_LIFESTYLE_NOTE") % GameState.budget.lifestyle_happiness(_share("lifestyle"))
 
 	_values["emergency"].text = _share_text(_share("emergency"), preview["emergency"])
 	if float(preview["emergency_room"]) <= 0.0:
 		_notes["emergency"].text = tr("PLAN_EMERGENCY_DONE")
 	else:
-		var asset := GameState.market.get_asset(GameState.emergency_asset_id())
+		var asset := GameState.market.get_asset(GameState.budget.emergency_asset_id())
 		_notes["emergency"].text = tr("PLAN_EMERGENCY_NOTE") % [tr(asset.name_key),
-			Fmt.rupiah(GameState.emergency_balance()), Fmt.rupiah(GameState.emergency_target()),
-			int(GameState.budget_config()["emergency_target_months"])]
+			Fmt.rupiah(GameState.budget.emergency_balance()), Fmt.rupiah(GameState.budget.emergency_target()),
+			int(GameState.budget.config()["emergency_target_months"])]
 
 	for key: String in _values:
 		if key in ["basic", "lifestyle", "emergency"]:
@@ -159,7 +159,7 @@ func _refresh() -> void:
 		_values[key].text = _share_text(_share(key), amount)
 		if key.begins_with(DREAM_PREFIX):
 			_notes[key].text = tr("PLAN_DREAM_NEEDED") % Fmt.rupiah(
-				GameState.dream_needed_monthly(GameState.active_dream(id)))
+				GameState.dreams.needed_monthly(GameState.dreams.get_active(id)))
 
 	var surplus: int = preview["surplus"]
 	%SurplusValue.text = Fmt.signed_rupiah(surplus)
@@ -175,14 +175,14 @@ func _share_text(share: float, amount: int) -> String:
 
 
 func _on_save() -> void:
-	GameState.set_plan(_draft)
+	GameState.budget.set_plan(_draft)
 	Sfx.play("success")
 	close()
 
 
 ## Ditutup tanpa menyimpan: perubahan gaji dianggap sudah dilihat agar popup tidak muncul terus.
 func _on_close() -> void:
-	GameState.acknowledge_plan_review()
+	GameState.budget.acknowledge_review()
 	close()
 
 

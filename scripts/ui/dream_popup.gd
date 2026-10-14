@@ -17,11 +17,11 @@ func open_detail(dream_id: String) -> void:
 	_fit_scroll()
 
 
-## Mode tenggat terlewat. `view` = GameState.dream_view(entri).
+## Mode tenggat terlewat. `view` = GameState.dreams.view_of(entri).
 func open_overdue(view: Dictionary) -> void:
 	_dream_id = view["id"]
 	var def: Dictionary = view["def"]
-	var cfg := GameState.dreams_config()
+	var cfg := GameState.dreams.config()
 	%Title.text = tr("DREAM_OVERDUE_TITLE")
 	%SubtitleHolder.show()
 	%Subtitle.text = tr(def["name"])
@@ -32,13 +32,13 @@ func open_overdue(view: Dictionary) -> void:
 	var extend := UiText.chunky_button(tr("DREAM_EXTEND") % [int(cfg["extend_months"]), int(cfg["extend_happiness"])],
 		&"PrimaryButton", &"PrimaryButtonLabel", 88.0, 24)
 	extend.pressed.connect(func() -> void:
-		GameState.extend_dream(_dream_id)
+		GameState.dreams.extend(_dream_id)
 		close())
 	%Buttons.add_child(extend)
 	var release := UiText.chunky_button(tr("DREAM_RELEASE_OVERDUE") % int(cfg["release_happiness"]),
 		&"DangerButton", &"DangerButtonLabel", 88.0, 22)
 	release.pressed.connect(func() -> void:
-		GameState.release_dream(_dream_id)
+		GameState.dreams.release(_dream_id)
 		close())
 	%Buttons.add_child(release)
 	Sfx.play("alert")
@@ -47,11 +47,11 @@ func open_overdue(view: Dictionary) -> void:
 
 
 func _fill_detail() -> void:
-	var entry := GameState.active_dream(_dream_id)
+	var entry := GameState.dreams.get_active(_dream_id)
 	if entry.is_empty():
 		close()
 		return
-	var view := GameState.dream_view(entry)
+	var view := GameState.dreams.view_of(entry)
 	var def: Dictionary = view["def"]
 	%Title.text = tr(def["name"])
 	%SubtitleHolder.show()
@@ -63,13 +63,13 @@ func _fill_detail() -> void:
 	%Rows.add_child(_label(tr("DREAM_PROGRESS") % [Fmt.rupiah(view["saved"]), Fmt.rupiah(view["cost"])], &"RowValueLabel"))
 	var months_left := int(entry["deadline"]) - GameState.month
 	%Rows.add_child(_label(tr("DREAM_DEADLINE") % [Fmt.game_date(entry["deadline"]), months_left], &"InfoLabel"))
-	%Rows.add_child(_label(tr("DREAM_NEEDED") % Fmt.rupiah(GameState.dream_needed_monthly(entry)), &"InfoLabel"))
+	%Rows.add_child(_label(tr("DREAM_NEEDED") % Fmt.rupiah(GameState.dreams.needed_monthly(entry)), &"InfoLabel"))
 	%Rows.add_child(_label(tr("DREAM_HINT_" + str(def["horizon"]).to_upper()), &"SmallMutedLabel"))
 
 	%Rows.add_child(_label(tr("DREAM_DEPOSIT"), &"ReportHeaderLabel"))
 	var deposit_row := HBoxContainer.new()
 	deposit_row.add_theme_constant_override("separation", 8)
-	for amount: int in GameState.dreams_config()["deposit_amounts"]:
+	for amount: int in GameState.dreams.config()["deposit_amounts"]:
 		var button := Button.new()
 		button.theme_type_variation = &"QuickButton"
 		button.text = UiText.amount_short(amount)
@@ -90,9 +90,9 @@ func _fill_detail() -> void:
 
 
 func _on_deposit(amount: int) -> void:
-	if GameState.deposit_dream(_dream_id, amount):
+	if GameState.dreams.deposit(_dream_id, amount):
 		Sfx.play("coin")
-	if GameState.active_dream(_dream_id).is_empty():
+	if GameState.dreams.get_active(_dream_id).is_empty():
 		close()  # dananya cukup: impian terwujud, perayaan muncul lewat antrean popup
 	else:
 		_fill_detail()
@@ -103,10 +103,10 @@ func _on_release() -> void:
 	if not _release_armed:
 		_release_armed = true
 		var label: Label = _release_button.get_child(0)
-		label.text = tr("DREAM_RELEASE_CONFIRM") % int(GameState.dreams_config()["release_happiness"])
+		label.text = tr("DREAM_RELEASE_CONFIRM") % int(GameState.dreams.config()["release_happiness"])
 		label.add_theme_font_size_override("font_size", 20)
 		return
-	GameState.release_dream(_dream_id)
+	GameState.dreams.release(_dream_id)
 	close()
 
 

@@ -38,19 +38,19 @@ func _refresh() -> void:
 	%HappinessValue.text = "%d / 100" % GameState.happiness
 
 	var expenses := GameState.monthly_expenses()
-	var unemployed := not GameState.is_employed() or GameState.unpaid_months > 0
-	var income := 0 if unemployed else GameState.net_salary()
-	var salary_tax := 0 if unemployed else GameState.income_tax(GameState.salary)
-	var preview := GameState.plan_preview(GameState.plan, income)
+	var unemployed := not GameState.career.is_employed() or GameState.career.unpaid_months > 0
+	var income := 0 if unemployed else GameState.career.net_salary()
+	var salary_tax := 0 if unemployed else GameState.income_tax(GameState.career.salary)
+	var preview := GameState.budget.preview_for(GameState.budget.plan, income)
 	var surplus: int = preview["surplus"]
 	_plan_values["insurance"].text = Fmt.signed_rupiah(-preview["insurance"])
 	_plan_values["tuition"].text = Fmt.signed_rupiah(-preview["tuition"])
-	_plan_values["tuition"].get_parent().visible = GameState.is_studying()
+	_plan_values["tuition"].get_parent().visible = GameState.education.is_studying()
 	_plan_values["lifestyle"].text = Fmt.signed_rupiah(-preview["lifestyle"])
 	_plan_values["emergency"].text = Fmt.rupiah(preview["emergency"])
 	_plan_values["dreams"].text = Fmt.rupiah(preview["dreams_total"])
 	_plan_values["invest"].text = Fmt.rupiah(preview["invest_total"])
-	var volatility := GameState.income_volatility()
+	var volatility := GameState.career.income_volatility()
 
 	%SalaryName.text = tr("HOME_INCOME_AVG_LABEL" if volatility > 0.0 else
 		("HOME_NET_SALARY_LABEL" if salary_tax > 0 else "HOME_SALARY_LABEL"))
@@ -58,14 +58,14 @@ func _refresh() -> void:
 	%SalaryValue.add_theme_color_override("font_color", Palette.LOSS if unemployed else Palette.GAIN)
 	%SalaryNote.visible = unemployed or volatility > 0.0 or salary_tax > 0
 	if unemployed:
-		%SalaryNote.text = tr("HOME_UNEMPLOYED") if not GameState.is_employed() \
-			else tr("HOME_UNPAID") % GameState.unpaid_months
+		%SalaryNote.text = tr("HOME_UNEMPLOYED") if not GameState.career.is_employed() \
+			else tr("HOME_UNPAID") % GameState.career.unpaid_months
 		%SalaryNote.add_theme_color_override("font_color", Palette.LOSS)
 	elif volatility > 0.0:
 		%SalaryNote.text = tr("HOME_INCOME_VARIES") % roundi(volatility * 100)
 		%SalaryNote.remove_theme_color_override("font_color")
 	elif salary_tax > 0:
-		%SalaryNote.text = tr("HOME_SALARY_TAX_NOTE") % [Fmt.rupiah(GameState.salary), Fmt.rupiah(salary_tax)]
+		%SalaryNote.text = tr("HOME_SALARY_TAX_NOTE") % [Fmt.rupiah(GameState.career.salary), Fmt.rupiah(salary_tax)]
 		%SalaryNote.remove_theme_color_override("font_color")
 
 	%ExpenseValue.text = Fmt.signed_rupiah(-expenses)
@@ -170,7 +170,7 @@ func _build_career_card() -> void:
 ## Bekerja: jabatan, kinerja & promosi berikutnya. Keduanya menampilkan kuliah yang berjalan.
 func _refresh_career() -> void:
 	_clear(_career_box)
-	if not GameState.is_employed():
+	if not GameState.career.is_employed():
 		var title := _wrap_label(tr("HOME_JOBLESS_TITLE"), &"AssetNameLabel")
 		title.add_theme_color_override("font_color", Palette.LOSS)
 		_career_box.add_child(title)
@@ -180,11 +180,11 @@ func _refresh_career() -> void:
 			runway_label.add_theme_color_override("font_color", Palette.LOSS)
 		_career_box.add_child(runway_label)
 		var hint := tr("HOME_JOBLESS_HINT")
-		if not GameState.applications.is_empty():
-			hint = tr("HOME_APPLIED") % GameState.applications.size()
+		if not GameState.career.applications.is_empty():
+			hint = tr("HOME_APPLIED") % GameState.career.applications.size()
 		_career_box.add_child(_wrap_label(hint, &"SmallMutedLabel"))
 	else:
-		var def := GameState.current_job_def()
+		var def := GameState.career.current_job_def()
 		var head := HBoxContainer.new()
 		head.add_theme_constant_override("separation", 12)
 		head.add_child(UiText.icon_tile(UiText.track_icon(def["track"]), UiText.track_tile(def["track"])))
@@ -192,26 +192,26 @@ func _refresh_career() -> void:
 		texts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		texts.add_theme_constant_override("separation", 0)
 		texts.add_child(_wrap_label(tr(def["title"]), &"AssetNameLabel"))
-		var sub: String = GameState.job["company"]
-		if GameState.is_career():
+		var sub: String = GameState.career.job["company"]
+		if GameState.career.is_career():
 			sub = tr("CAREER_LEVEL") % int(def["level"]) + " · " + sub
 		texts.add_child(_wrap_label(sub, &"SmallMutedLabel"))
 		head.add_child(texts)
 		_career_box.add_child(head)
-		if GameState.unpaid_months > 0:
-			var leave := _wrap_label(tr("HOME_UNPAID") % GameState.unpaid_months, &"RowLabel")
+		if GameState.career.unpaid_months > 0:
+			var leave := _wrap_label(tr("HOME_UNPAID") % GameState.career.unpaid_months, &"RowLabel")
 			leave.add_theme_color_override("font_color", Palette.LOSS)
 			_career_box.add_child(leave)
-		if GameState.is_career():
+		if GameState.career.is_career():
 			_career_box.add_child(_wrap_label(_promotion_summary(), &"RowLabel"))
-	if GameState.is_studying():
-		var study := GameState.study
-		var program := tr(GameState.program_def(study["id"])["name"])
+	if GameState.education.is_studying():
+		var study := GameState.education.study
+		var program := tr(GameState.education.program_def(study["id"])["name"])
 		var total := int(study["months_total"])
 		var text := tr("HOME_STUDY_STARTS") % program if GameState.month < int(study["since"]) \
 			else tr("HOME_STUDYING") % [program, total - int(study["months_left"]), total]
 		_career_box.add_child(_wrap_label(text, &"SmallMutedLabel"))
-	var employed := GameState.is_employed()
+	var employed := GameState.career.is_employed()
 	var button := UiText.chunky_button(tr("HOME_OPEN_CAREER") if employed else tr("HOME_SEE_OPENINGS"),
 		&"NeutralButton" if employed else &"PrimaryButton",
 		&"NeutralButtonLabel" if employed else &"PrimaryButtonLabel", 68.0)
@@ -221,11 +221,11 @@ func _refresh_career() -> void:
 
 ## "Kinerja 72 · Baik · Promosi berikutnya: Developer (2 syarat lagi)".
 func _promotion_summary() -> String:
-	var text := tr("CAREER_PERFORMANCE") % [roundi(GameState.performance), tr(GameState.performance_label())]
-	var next := GameState.next_job_def()
+	var text := tr("CAREER_PERFORMANCE") % [roundi(GameState.career.performance), tr(GameState.career.performance_label())]
+	var next := GameState.career.next_job_def()
 	if next.is_empty():
 		return text
-	var missing := GameState.promotion_requirements().filter(func(r: Dictionary) -> bool: return not r["met"]).size()
+	var missing := GameState.career.promotion_requirements().filter(func(r: Dictionary) -> bool: return not r["met"]).size()
 	if missing == 0:
 		return text + " · " + tr("HOME_PROMOTION_READY") % tr(next["title"])
 	return text + " · " + tr("HOME_NEXT_PROMOTION") % [tr(next["title"]), missing]
@@ -235,17 +235,17 @@ func _promotion_summary() -> String:
 ## cuti, dan beban kuliah.
 func _refresh_workload() -> void:
 	var text := ""
-	if not GameState.is_employed():
+	if not GameState.career.is_employed():
 		var unemployed: Dictionary = GameState.economy["monthly_drift"].get("unemployed", {})
 		text = tr("HOME_JOBLESS_NOTE") % int(unemployed.get("happiness", 0))
-	elif GameState.unpaid_months > 0:
+	elif GameState.career.unpaid_months > 0:
 		text = tr("HOME_LEAVE_NOTE")
 	else:
-		var def := GameState.current_job_def()
+		var def := GameState.career.current_job_def()
 		var workload: Dictionary = def.get("workload", {})
 		text = tr("HOME_WORKLOAD_NOTE") % [tr(def["title"]), int(workload.get("health", 0)), int(workload.get("happiness", 0))]
-	if GameState.is_studying():
-		var load: Dictionary = GameState.education_data["load"]
+	if GameState.education.is_studying():
+		var load: Dictionary = GameState.education.data["load"]
 		text += " " + tr("HOME_STUDY_NOTE") % [int(load["energy"]), -int(load["happiness"])]
 	_workload_label.text = text
 
@@ -253,7 +253,7 @@ func _refresh_workload() -> void:
 ## Kartu Perlindungan: status asuransi per kategori + tombol "Atur asuransi".
 func _refresh_insurance() -> void:
 	_clear(_insurance_box)
-	for category: String in GameState.insurance_data["categories"]:
+	for category: String in GameState.insurance.data["categories"]:
 		var row := HBoxContainer.new()
 		var name_label := Label.new()
 		name_label.text = tr("INS_NAME_" + category.to_upper())
@@ -261,11 +261,11 @@ func _refresh_insurance() -> void:
 		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		var value := Label.new()
 		value.theme_type_variation = &"RowValueLabel"
-		var product := GameState.policy_product(category)
+		var product := GameState.insurance.policy_product(category)
 		if product.is_empty():
 			value.text = tr("HOME_INS_NONE")
 			value.add_theme_color_override("font_color", Palette.MUTED)
-		elif GameState.active_policy(category).is_empty():
+		elif GameState.insurance.active_policy(category).is_empty():
 			value.text = tr("HOME_INS_WAITING") % tr(product["name"])
 			value.add_theme_color_override("font_color", Palette.MUTED)
 		else:
@@ -284,12 +284,12 @@ func _refresh_insurance() -> void:
 
 func _refresh_dreams() -> void:
 	_clear(_dreams_box)
-	var active := GameState.active_dreams()
+	var active := GameState.dreams.active()
 	if active.is_empty():
 		_dreams_box.add_child(_wrap_label(tr("DREAMS_EMPTY"), &"MutedLabel"))
 	for entry: Dictionary in active:
-		_dreams_box.add_child(_dream_row(GameState.dream_view(entry)))
-	if GameState.can_add_dream() and not GameState.available_dreams().is_empty():
+		_dreams_box.add_child(_dream_row(GameState.dreams.view_of(entry)))
+	if GameState.dreams.can_add() and not GameState.dreams.available().is_empty():
 		var add := UiText.chunky_button(tr("DREAMS_ADD"), &"NeutralButton", &"NeutralButtonLabel", 68.0)
 		add.pressed.connect(add_dream_requested.emit)
 		_dreams_box.add_child(add)
@@ -342,7 +342,7 @@ func _dream_row(view: Dictionary) -> Button:
 
 func _refresh_targets() -> void:
 	_clear(_targets_box)
-	for target: Dictionary in GameState.targets:
+	for target: Dictionary in GameState.targets.items:
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 10)
 		var text := UiText.target_text(target)
@@ -357,7 +357,7 @@ func _refresh_targets() -> void:
 		status_label.add_theme_color_override("font_color", status["color"])
 		row.add_child(status_label)
 		_targets_box.add_child(row)
-	var cfg := GameState.targets_config()
+	var cfg := GameState.targets.config()
 	_targets_box.add_child(_wrap_label(tr("TARGETS_REWARD") % [int(cfg["reward_happiness"]), int(cfg["reward_xp"])],
 		&"SmallMutedLabel"))
 

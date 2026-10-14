@@ -33,9 +33,9 @@ func _ready() -> void:
 	%Avatar.display_name = GameState.player_name
 	%NameLabel.text = GameState.player_name
 	var months := int(r["month"])
-	var job_title := tr(GameState.current_job_def()["title"]) if GameState.is_employed() else tr("CAREER_UNEMPLOYED")
+	var job_title := tr(GameState.career.current_job_def()["title"]) if GameState.career.is_employed() else tr("CAREER_UNEMPLOYED")
 	%InfoChips.add_child(_chip(job_title, &"MoodGold"))
-	%InfoChips.add_child(_chip(GameState.education_name(GameState.education), &"MoodNeutral"))
+	%InfoChips.add_child(_chip(GameState.education.level_name(GameState.education.level), &"MoodNeutral"))
 	%InfoChips.add_child(_chip(tr("END_AGE") % int(r["age"]), &"MoodNeutral"))
 	%InfoChips.add_child(_chip(tr("END_PLAYED") % [floori(months / 12.0), months % 12], &"MoodNeutral"))
 	%ScoreLabel.text = tr("END_SCORE") % int(r["score"])
@@ -50,7 +50,7 @@ func _ready() -> void:
 	_add_stat("END_STAT_FEES", Fmt.rupiah(s["total_fees"]))
 	_add_stat("END_STAT_EVENTS", str(int(s["events"])))
 	_add_stat("END_STAT_QUIZ", str(GameState.quiz.correct_ids.size()))
-	_add_stat("END_STAT_LEVEL", str(GameState.level()))
+	_add_stat("END_STAT_LEVEL", str(GameState.progress.level()))
 	_add_stat("END_STAT_PROMOTIONS", str(int(s["promotions"])))
 	_add_stat("END_STAT_UNEMPLOYED", str(int(s["months_unemployed"])))
 	_add_career_log()

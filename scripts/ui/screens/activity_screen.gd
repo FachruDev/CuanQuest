@@ -51,11 +51,11 @@ func _refresh() -> void:
 	_refresh_activities()
 
 	var per_level := int(GameState.economy["xp_per_level"])
-	%LevelNumber.text = str(GameState.level())
-	%LevelLabel.text = tr("ACT_LEVEL") % GameState.level()
-	%XpLabel.text = tr("ACT_XP_DETAIL") % [GameState.xp, GameState.xp_in_level(), per_level]
+	%LevelNumber.text = str(GameState.progress.level())
+	%LevelLabel.text = tr("ACT_LEVEL") % GameState.progress.level()
+	%XpLabel.text = tr("ACT_XP_DETAIL") % [GameState.progress.xp, GameState.progress.xp_in_level(), per_level]
 	%XpBar.max_value = per_level
-	%XpBar.value = GameState.xp_in_level()
+	%XpBar.value = GameState.progress.xp_in_level()
 
 	var quiz := GameState.quiz
 	var free_left := quiz.free_left()
@@ -77,8 +77,8 @@ func _refresh() -> void:
 ## Satu ikon petir per poin energi bulan ini: kuning = tersisa, ungu redup = terpakai.
 func _refresh_energy() -> void:
 	%EnergyTitle.text = "%s · %s" % [tr("ACT_ENERGY_TITLE"),
-		tr("ACT_ENERGY_COUNT") % [GameState.energy, GameState.energy_capacity]]
-	while %EnergyIcons.get_child_count() < GameState.energy_capacity:
+		tr("ACT_ENERGY_COUNT") % [GameState.activities.energy, GameState.activities.energy_capacity]]
+	while %EnergyIcons.get_child_count() < GameState.activities.energy_capacity:
 		var bolt := TextureRect.new()
 		bolt.texture = BOLT_ICON
 		bolt.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -86,16 +86,16 @@ func _refresh_energy() -> void:
 		%EnergyIcons.add_child(bolt)
 	for i in %EnergyIcons.get_child_count():
 		var bolt: TextureRect = %EnergyIcons.get_child(i)
-		bolt.visible = i < GameState.energy_capacity
-		bolt.self_modulate = BOLT_FULL if i < GameState.energy else BOLT_EMPTY
+		bolt.visible = i < GameState.activities.energy_capacity
+		bolt.self_modulate = BOLT_FULL if i < GameState.activities.energy else BOLT_EMPTY
 
 
 ## Kartu tahap unlock: hijau jika sudah terbuka; jika belum, daftar syarat merah/hijau.
 func _build_unlocks() -> void:
 	_clear(%UnlockList)
-	for stage: Dictionary in GameState.stage_defs:
+	for stage: Dictionary in GameState.progress.stage_defs:
 		var stage_num := int(stage["stage"])
-		var unlocked := GameState.is_stage_unlocked(stage_num)
+		var unlocked := GameState.progress.is_stage_unlocked(stage_num)
 		var card := PanelContainer.new()
 		card.theme_type_variation = &"UnlockOpenCard" if unlocked else &"HomeCard"
 		var box := VBoxContainer.new()
@@ -140,7 +140,7 @@ func _build_unlocks() -> void:
 
 
 func _on_start_quiz() -> void:
-	var question := GameState.start_quiz()
+	var question := GameState.progress.start_quiz()
 	if not question.is_empty():
 		quiz_requested.emit(question)
 
@@ -187,21 +187,21 @@ func _section_title(text: String) -> Label:
 ## Pekerjaan berjenjang juga menampilkan kinerja & syarat promosi (v1.5b langkah 2).
 func _refresh_job() -> void:
 	_clear(_job_box)
-	if GameState.is_employed():
-		var def := GameState.current_job_def()
-		var track := GameState.track_def(def["track"])
-		var hired := int(GameState.job.get("hired", GameState.job["since"]))
-		_job_box.add_child(_job_head(def, "%s · %s" % [tr(track["name"]), GameState.job["company"]],
-			tr("CAREER_PER_MONTH") % Fmt.rupiah(GameState.salary)))
+	if GameState.career.is_employed():
+		var def := GameState.career.current_job_def()
+		var track := GameState.career.track_def(def["track"])
+		var hired := int(GameState.career.job.get("hired", GameState.career.job["since"]))
+		_job_box.add_child(_job_head(def, "%s · %s" % [tr(track["name"]), GameState.career.job["company"]],
+			tr("CAREER_PER_MONTH") % Fmt.rupiah(GameState.career.salary)))
 		var info := tr("CAREER_SINCE") % [Fmt.game_date(hired), GameState.month - hired]
-		if GameState.is_career():
+		if GameState.career.is_career():
 			info = tr("CAREER_LEVEL") % int(def["level"]) + " · " + info
-		if GameState.income_volatility() > 0.0:
-			info += " · " + tr("HOME_INCOME_VARIES") % roundi(GameState.income_volatility() * 100)
-		if GameState.unpaid_months > 0:
-			info += "\n" + tr("CAREER_UNPAID") % GameState.unpaid_months
+		if GameState.career.income_volatility() > 0.0:
+			info += " · " + tr("HOME_INCOME_VARIES") % roundi(GameState.career.income_volatility() * 100)
+		if GameState.career.unpaid_months > 0:
+			info += "\n" + tr("CAREER_UNPAID") % GameState.career.unpaid_months
 		_job_box.add_child(_wrap(info, &"SmallMutedLabel"))
-		if GameState.is_career():
+		if GameState.career.is_career():
 			_add_performance()
 			_add_promotion()
 		else:
@@ -209,7 +209,7 @@ func _refresh_job() -> void:
 		var resign := UiText.chunky_button(tr("CAREER_RESIGN"), &"NeutralButton", &"NeutralButtonLabel", 56.0, 20)
 		resign.custom_minimum_size.x = 240
 		resign.size_flags_horizontal = Control.SIZE_SHRINK_END
-		resign.disabled = GameState.has_pending_event() or GameState.is_over
+		resign.disabled = GameState.events.has_pending() or GameState.is_over
 		resign.pressed.connect(func() -> void: resign_requested.emit())
 		_job_box.add_child(resign)
 	else:
@@ -217,20 +217,20 @@ func _refresh_job() -> void:
 		title.add_theme_color_override("font_color", Palette.LOSS)
 		_job_box.add_child(title)
 		_job_box.add_child(_wrap(tr("CAREER_UNEMPLOYED_HINT"), &"SmallMutedLabel"))
-	if not GameState.applications.is_empty():
+	if not GameState.career.applications.is_empty():
 		var sent: Array[String] = []
-		for application: Dictionary in GameState.applications:
-			sent.append(tr("CAREER_SENT_ITEM") % [tr(GameState.job_def(application["job_id"])["title"]),
+		for application: Dictionary in GameState.career.applications:
+			sent.append(tr("CAREER_SENT_ITEM") % [tr(GameState.career.job_def(application["job_id"])["title"]),
 				roundi(float(application["chance"]) * 100)])
 		_job_box.add_child(_wrap(tr("CAREER_SENT") % ", ".join(sent), &"InfoLabel"))
 
 
 ## Kinerja sekarang (angka, predikat, bar) dan penyusun targetnya + aturan kenaikan prestasi.
 func _add_performance() -> void:
-	var value := roundi(GameState.performance)
+	var value := roundi(GameState.career.performance)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
-	var label := _label(tr("CAREER_PERFORMANCE") % [value, tr(GameState.performance_label())], &"ReqLabel")
+	var label := _label(tr("CAREER_PERFORMANCE") % [value, tr(GameState.career.performance_label())], &"ReqLabel")
 	label.add_theme_color_override("font_color",
 		Palette.GAIN if value >= 60 else (Palette.INK if value >= 40 else Palette.LOSS))
 	row.add_child(label)
@@ -244,9 +244,9 @@ func _add_performance() -> void:
 	bar.value = value
 	row.add_child(bar)
 	_job_box.add_child(row)
-	var factors := GameState.performance_factors()
+	var factors := GameState.career.performance_factors()
 	var merit: Array[String] = []
-	for item: Array in GameState.job_data["merit_raise"]["by_performance"]:
+	for item: Array in GameState.career.data["merit_raise"]["by_performance"]:
 		if float(item[1]) > 0.0:
 			merit.append(tr("CAREER_MERIT_ITEM") % [_percent_short(float(item[1])), int(item[0])])
 	_job_box.add_child(_wrap(tr("CAREER_PERFORMANCE_INFO") % [roundi(factors["target"]), roundi(factors["skill"]),
@@ -255,21 +255,21 @@ func _add_performance() -> void:
 
 ## Jabatan berikutnya beserta syarat promosinya (✓/✗), atau keterangan jenjang tertinggi.
 func _add_promotion() -> void:
-	var next := GameState.next_job_def()
+	var next := GameState.career.next_job_def()
 	if next.is_empty():
 		_job_box.add_child(_wrap(tr("CAREER_PROMOTION_TOP"), &"SmallMutedLabel"))
 		return
 	_job_box.add_child(_wrap(tr("CAREER_PROMOTION_NEXT") % [tr(next["title"]),
-		tr("CAREER_PER_MONTH") % Fmt.rupiah(GameState.promotion_salary())], &"InfoLabel"))
+		tr("CAREER_PER_MONTH") % Fmt.rupiah(GameState.career.promotion_salary())], &"InfoLabel"))
 	var reqs := HFlowContainer.new()
 	reqs.add_theme_constant_override("h_separation", 12)
 	reqs.add_theme_constant_override("v_separation", 2)
-	for req: Dictionary in GameState.promotion_requirements():
+	for req: Dictionary in GameState.career.promotion_requirements():
 		var label := _label("%s %s" % ["✓" if req["met"] else "✗", _requirement_text(req, next)], &"ReqLabel")
 		label.add_theme_color_override("font_color", Palette.GAIN if req["met"] else Palette.LOSS)
 		reqs.add_child(label)
 	_job_box.add_child(reqs)
-	if GameState.promotion_ready():
+	if GameState.career.promotion_ready():
 		var ready := _wrap(tr("CAREER_PROMOTION_READY"), &"SmallMutedLabel")
 		ready.add_theme_color_override("font_color", Palette.GAIN)
 		_job_box.add_child(ready)
@@ -278,12 +278,12 @@ func _add_promotion() -> void:
 ## Kartu per lowongan: nama, bidang & perusahaan, gaji, syarat ✓/✗, peluang, tombol Lamar.
 func _refresh_board() -> void:
 	_clear(_board_box)
-	_board_box.add_child(_wrap(tr("CAREER_BOARD_HINT") % [int(GameState.job_data["applications_per_month"]),
-		int(GameState.job_data["apply_energy"])], &"SmallMutedLabel"))
-	for i in GameState.job_board.size():
-		var opening: Dictionary = GameState.job_board[i]
-		var def := GameState.job_def(opening["job_id"])
-		var track := GameState.track_def(def["track"])
+	_board_box.add_child(_wrap(tr("CAREER_BOARD_HINT") % [int(GameState.career.data["applications_per_month"]),
+		int(GameState.career.data["apply_energy"])], &"SmallMutedLabel"))
+	for i in GameState.career.job_board.size():
+		var opening: Dictionary = GameState.career.job_board[i]
+		var def := GameState.career.job_def(opening["job_id"])
+		var track := GameState.career.track_def(def["track"])
 		var card := PanelContainer.new()
 		card.theme_type_variation = &"HomeCard"
 		var box := VBoxContainer.new()
@@ -297,7 +297,7 @@ func _refresh_board() -> void:
 		var reqs := HFlowContainer.new()
 		reqs.add_theme_constant_override("h_separation", 12)
 		reqs.add_theme_constant_override("v_separation", 2)
-		for req: Dictionary in GameState.job_requirements(def):
+		for req: Dictionary in GameState.career.requirements(def):
 			var label := _label("%s %s" % ["✓" if req["met"] else "✗", _requirement_text(req, def)], &"ReqLabel")
 			label.add_theme_color_override("font_color", Palette.GAIN if req["met"] else Palette.LOSS)
 			reqs.add_child(label)
@@ -307,7 +307,7 @@ func _refresh_board() -> void:
 
 		var footer := HBoxContainer.new()
 		footer.add_theme_constant_override("separation", 8)
-		var chance := GameState.hire_chance(def)
+		var chance := GameState.career.hire_chance(def)
 		var chance_chip := _text_chip(tr("CAREER_CHANCE") % roundi(chance * 100),
 			&"MoodGreen" if chance >= 0.7 else (&"MoodGold" if chance > 0.0 else &"MoodRed"))
 		chance_chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -319,7 +319,7 @@ func _refresh_board() -> void:
 		var spacer := Control.new()
 		spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		footer.add_child(spacer)
-		var reason := GameState.apply_block_reason(i)
+		var reason := GameState.career.apply_block_reason(i)
 		var button := UiText.chunky_button(tr("CAREER_APPLY") if reason == "" else tr(reason + "_SHORT"),
 			&"PrimaryButton" if reason == "" else &"NeutralButton",
 			&"PrimaryButtonLabel" if reason == "" else &"NeutralButtonLabel", 60.0, 20)
@@ -355,11 +355,11 @@ func _head(icon: String, tile: StringName, title: String, sub: String, value: St
 func _requirement_text(req: Dictionary, def: Dictionary) -> String:
 	match req["type"]:
 		"education":
-			return tr("CAREER_REQ_EDUCATION") % GameState.education_name(int(req["need"]))
+			return tr("CAREER_REQ_EDUCATION") % GameState.education.level_name(int(req["need"]))
 		"skill":
 			return tr("CAREER_REQ_SKILL") % [int(req["need"]), floori(req["have"])]
 		"experience":
-			return tr("CAREER_REQ_EXPERIENCE") % [int(req["need"]), tr(GameState.track_def(def["track"])["name"]), int(req["have"])]
+			return tr("CAREER_REQ_EXPERIENCE") % [int(req["need"]), tr(GameState.career.track_def(def["track"])["name"]), int(req["have"])]
 		"tenure":
 			return tr("CAREER_REQ_TENURE") % [int(req["need"]), int(req["have"])]
 		"performance":
@@ -368,12 +368,12 @@ func _requirement_text(req: Dictionary, def: Dictionary) -> String:
 
 
 func _on_apply(index: int) -> void:
-	var result := GameState.apply_job(index)
+	var result := GameState.career.apply_job(index)
 	%FeedbackBox.show()
 	if result["ok"]:
 		Sfx.play("success")
-		var opening: Dictionary = GameState.job_board[index]
-		%ActivityFeedback.text = tr("CAREER_APPLIED") % tr(GameState.job_def(opening["job_id"])["title"])
+		var opening: Dictionary = GameState.career.job_board[index]
+		%ActivityFeedback.text = tr("CAREER_APPLIED") % tr(GameState.career.job_def(opening["job_id"])["title"])
 		%FeedbackBox.theme_type_variation = &"FeedbackGood"
 		%ActivityFeedback.add_theme_color_override("font_color", Color("#1e5e45"))
 	else:
@@ -391,35 +391,35 @@ func _refresh_education() -> void:
 	var chips := HFlowContainer.new()
 	chips.add_theme_constant_override("h_separation", 6)
 	chips.add_theme_constant_override("v_separation", 6)
-	chips.add_child(_text_chip(tr("CAREER_EDUCATION") % GameState.education_name(GameState.education), &"SmallChipGold"))
-	chips.add_child(_text_chip(tr("CAREER_SKILL") % floori(GameState.skill), &"SmallChipGold"))
-	for track: Dictionary in GameState.job_data["tracks"]:
-		var months := int(GameState.experience.get(track["id"], 0))
+	chips.add_child(_text_chip(tr("CAREER_EDUCATION") % GameState.education.level_name(GameState.education.level), &"SmallChipGold"))
+	chips.add_child(_text_chip(tr("CAREER_SKILL") % floori(GameState.career.skill), &"SmallChipGold"))
+	for track: Dictionary in GameState.career.data["tracks"]:
+		var months := int(GameState.career.experience.get(track["id"], 0))
 		if months > 0:
 			chips.add_child(_text_chip(tr("CAREER_EXPERIENCE") % [tr(track["name"]), months], &"SmallChipNeutral"))
 	_education_box.add_child(chips)
-	var factor := pow(maxf(1.0 - GameState.skill / 100.0, 0.0), float(GameState.job_data.get("skill_curve", 1.0)))
+	var factor := pow(maxf(1.0 - GameState.career.skill / 100.0, 0.0), float(GameState.career.data.get("skill_curve", 1.0)))
 	_education_box.add_child(_wrap(tr("EDU_SKILL_NOTE") % roundi(factor * 100.0), &"SmallMutedLabel"))
 
-	if GameState.is_studying():
+	if GameState.education.is_studying():
 		_add_study()
 		return
-	var options := GameState.available_programs()
+	var options := GameState.education.available_programs()
 	if options.is_empty():
-		_education_box.add_child(_wrap(tr("EDU_TOP") % GameState.education_name(GameState.education), &"InfoLabel"))
+		_education_box.add_child(_wrap(tr("EDU_TOP") % GameState.education.level_name(GameState.education.level), &"InfoLabel"))
 	for option: Dictionary in options:
 		_add_program(option)
 
 
 ## Kuliah yang sedang berjalan: kemajuan, uang kuliah, beasiswa, beban, tombol berhenti.
 func _add_study() -> void:
-	var study := GameState.study
-	var def := GameState.program_def(study["id"])
+	var study := GameState.education.study
+	var def := GameState.education.program_def(study["id"])
 	var total := int(study["months_total"])
 	var done := total - int(study["months_left"])
-	var sub := tr("EDU_GRADUATES") % Fmt.game_date(GameState.graduation_month())
+	var sub := tr("EDU_GRADUATES") % Fmt.game_date(GameState.education.graduation_month())
 	sub = (tr("EDU_PROGRESS") % [done, total] if GameState.month >= int(study["since"]) else tr("EDU_STARTS_NEXT")) + " · " + sub
-	var fee := GameState.tuition_fee()
+	var fee := GameState.education.tuition_fee()
 	_education_box.add_child(_head(_program_icon(def), &"IconTileBlue", tr(def["name"]), sub,
 		tr("CAREER_PER_MONTH") % Fmt.rupiah(fee) if fee > 0 else tr("EDU_FREE")))
 	var bar := ProgressBar.new()
@@ -430,17 +430,17 @@ func _add_study() -> void:
 	bar.value = done
 	_education_box.add_child(bar)
 	var notes: Array[String] = []
-	if GameState.study_sponsored():
+	if GameState.education.study_sponsored():
 		notes.append(tr("EDU_SPONSORED") % study["sponsor"])
 	elif float(study["scholarship"]) > 0.0:
 		notes.append(tr("EDU_SCHOLARSHIP") % roundi(float(study["scholarship"]) * 100.0))
-	var load: Dictionary = GameState.education_data["load"]
+	var load: Dictionary = GameState.education.data["load"]
 	notes.append(tr("EDU_LOAD") % [int(load["energy"]), -int(load["happiness"])])
 	_education_box.add_child(_wrap("\n".join(notes), &"SmallMutedLabel"))
 	var quit := UiText.chunky_button(tr("EDU_QUIT"), &"NeutralButton", &"NeutralButtonLabel", 56.0, 20)
 	quit.custom_minimum_size.x = 240
 	quit.size_flags_horizontal = Control.SIZE_SHRINK_END
-	quit.disabled = GameState.has_pending_event() or GameState.is_over
+	quit.disabled = GameState.events.has_pending() or GameState.is_over
 	quit.pressed.connect(func() -> void: quit_study_requested.emit())
 	_education_box.add_child(quit)
 
@@ -455,10 +455,10 @@ func _add_program(option: Dictionary) -> void:
 	box.add_child(_head(_program_icon(def), &"IconTileBlue", tr(def["name"]),
 		tr("EDU_PROGRAM_SUB") % [months, def["result"]], tr("CAREER_PER_MONTH") % Fmt.rupiah(fee)))
 	box.add_child(_wrap(tr(def["desc"]), &"SmallMutedLabel"))
-	var load: Dictionary = GameState.education_data["load"]
+	var load: Dictionary = GameState.education.data["load"]
 	box.add_child(_wrap(tr("EDU_PROGRAM_INFO") % [Fmt.rupiah(fee * months), int(def["skill"]),
 		int(load["energy"]), -int(load["happiness"])], &"SmallMutedLabel"))
-	var reason := GameState.enroll_block_reason(def["id"])
+	var reason := GameState.education.enroll_block_reason(def["id"])
 	var button := UiText.chunky_button(tr("EDU_ENROLL") if reason == "" else tr(reason + "_SHORT"),
 		&"PrimaryButton" if reason == "" else &"NeutralButton",
 		&"PrimaryButtonLabel" if reason == "" else &"NeutralButtonLabel", 60.0, 20)
@@ -503,7 +503,7 @@ func _wrap(text: String, variation: StringName) -> Label:
 
 ## Satu kartu per aktivitas: ikon | nama, chip (energi, biaya, jumlah dipakai), deskripsi, alasan terkunci.
 func _build_activities() -> void:
-	for def: Dictionary in GameState.activity_defs():
+	for def: Dictionary in GameState.activities.defs():
 		var id: String = def["id"]
 		var button := ChunkyButton.new()
 		button.theme_type_variation = &"ActivityRowButton"
@@ -558,16 +558,16 @@ func _build_activities() -> void:
 
 
 func _refresh_activities() -> void:
-	for def: Dictionary in GameState.activity_defs():
+	for def: Dictionary in GameState.activities.defs():
 		var row: Dictionary = _activity_rows[def["id"]]
-		var cost := GameState.activity_cost(def)
+		var cost := GameState.activities.cost(def)
 		row["cost"].text = Fmt.rupiah(cost) if cost > 0 else tr("ACT_FREE")
-		var used: int = GameState.activity_counts.get(def["id"], 0)
+		var used: int = GameState.activities.counts.get(def["id"], 0)
 		row["used"].text = tr("ACT_ITEM_USED") % [used, int(def.get("max_per_month", 1))]
-		var reason := GameState.activity_block_reason(def)
+		var reason := GameState.activities.block_reason(def)
 		row["reason"].text = tr(reason) if reason != "" else ""
 		if reason == "ERR_ACTIVITY_COOLDOWN":
-			row["reason"].text = tr(reason) % GameState.activity_cooldown_left(def)
+			row["reason"].text = tr(reason) % GameState.activities.cooldown_left(def)
 		row["reason"].visible = reason != ""
 		row["button"].disabled = reason != ""
 		for node: Control in row["faded"]:
@@ -575,7 +575,7 @@ func _refresh_activities() -> void:
 
 
 func _on_activity(activity_id: String) -> void:
-	var result := GameState.do_activity(activity_id)
+	var result := GameState.activities.perform(activity_id)
 	%FeedbackBox.show()
 	if result["ok"]:
 		Sfx.play("success")

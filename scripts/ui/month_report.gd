@@ -138,7 +138,7 @@ static func _add_career(box: VBoxContainer, r: Dictionary) -> void:
 	if performance >= 0:
 		var delta := int(r.get("performance_delta", 0))
 		_add_row(box, "STAT_PERFORMANCE", TranslationServer.translate("REPORT_PERFORMANCE_VALUE") % [performance,
-			TranslationServer.translate(GameState.performance_label(performance)), delta], signed_color(delta))
+			TranslationServer.translate(GameState.career.performance_label(performance)), delta], signed_color(delta))
 	if r.has("merit_raise") and float(r["merit_raise"]) <= 0.0:
 		_add_text(box, TranslationServer.translate("REPORT_NO_MERIT") % int(r["review_performance"]), Palette.MUTED)
 	for title: String in accepted:

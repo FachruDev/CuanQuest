@@ -1,25 +1,25 @@
 extends ModalPopup
 ## Popup "Perlindungan" (v1.5a langkah 3): pilih asuransi kesehatan, jiwa, dan kendaraan.
 ## Premi dibayar otomatis tiap awal bulan; perlindungan berlaku setelah masa tunggu.
-## Pilihan baru disimpan lewat GameState.set_insurance() saat menekan Simpan.
+## Pilihan baru disimpan lewat GameState.insurance.set_policies() saat menekan Simpan.
 
 var _choices: Dictionary = {}  # kategori -> id produk ("" = tanpa asuransi)
 
 
 func open() -> void:
 	_choices.clear()
-	for category: String in GameState.insurance_data["categories"]:
-		_choices[category] = GameState.policies.get(category, {}).get("id", "")
+	for category: String in GameState.insurance.data["categories"]:
+		_choices[category] = GameState.insurance.policies.get(category, {}).get("id", "")
 	%Title.text = tr("INS_TITLE")
 	%SubtitleHolder.show()
 	%Body.show()
-	%Body.text = tr("INS_BODY") % int(GameState.insurance_data.get("waiting_months", 1))
+	%Body.text = tr("INS_BODY") % int(GameState.insurance.data.get("waiting_months", 1))
 	_build_rows()
 	_refresh()
 	_clear(%Buttons)
 	var save := UiText.chunky_button(tr("INS_SAVE"), &"PrimaryButton", &"PrimaryButtonLabel", 80.0, 30)
 	save.pressed.connect(func() -> void:
-		GameState.set_insurance(_choices)
+		GameState.insurance.set_policies(_choices)
 		close())
 	%Buttons.add_child(save)
 	var close_button := UiText.chunky_button(tr("BTN_CLOSE"), &"NeutralButton", &"NeutralButtonLabel", 68.0, 26)
@@ -33,14 +33,14 @@ func open() -> void:
 ## Per kategori: judul, kartu "Tanpa asuransi" + produk (seperti radio button), status polis.
 func _build_rows() -> void:
 	_clear(%Rows)
-	for category: String in GameState.insurance_data["categories"]:
+	for category: String in GameState.insurance.data["categories"]:
 		%Rows.add_child(_label(tr("INS_CAT_" + category.to_upper()), &"ReportHeaderLabel"))
-		if category == "vehicle" and GameState.vehicle() == "":
+		if category == "vehicle" and GameState.dreams.vehicle() == "":
 			%Rows.add_child(_label(tr("INS_NEED_VEHICLE"), &"SmallMutedLabel"))
 			continue
 		var group := ButtonGroup.new()
 		var options: Array = [{}]
-		options.append_array(GameState.insurance_products(category))
+		options.append_array(GameState.insurance.products_in(category))
 		for product: Dictionary in options:
 			var id: String = product.get("id", "")
 			var button := Button.new()
@@ -65,27 +65,27 @@ func _build_rows() -> void:
 func _option_text(product: Dictionary) -> String:
 	if product.is_empty():
 		return "%s\n%s" % [tr("INS_NONE"), tr("INS_NONE_DESC")]
-	return "%s · %s\n%s" % [tr(product["name"]), tr("INS_PER_MONTH") % Fmt.rupiah(GameState.premium(product)),
+	return "%s · %s\n%s" % [tr(product["name"]), tr("INS_PER_MONTH") % Fmt.rupiah(GameState.insurance.premium(product)),
 		UiText.money(tr(product["desc"]))]
 
 
 ## "Polis aktif" atau "Masa tunggu: berlaku mulai Maret Tahun 2" untuk polis yang dimiliki.
 func _status_text(category: String) -> String:
-	if not GameState.policies.has(category):
+	if not GameState.insurance.policies.has(category):
 		return ""
-	var product := GameState.policy_product(category)
-	if not GameState.active_policy(category).is_empty():
+	var product := GameState.insurance.policy_product(category)
+	if not GameState.insurance.active_policy(category).is_empty():
 		return tr("INS_STATUS_ACTIVE") % tr(product["name"])
-	var from := int(GameState.policies[category]["since"]) + int(GameState.insurance_data.get("waiting_months", 1))
+	var from := int(GameState.insurance.policies[category]["since"]) + int(GameState.insurance.data.get("waiting_months", 1))
 	return tr("INS_STATUS_WAITING") % [tr(product["name"]), Fmt.game_date(from)]
 
 
 func _refresh() -> void:
 	var total := 0
 	for category: String in _choices:
-		var product := GameState.insurance_product(_choices[category])
-		if not product.is_empty() and not (category == "vehicle" and GameState.vehicle() == ""):
-			total += GameState.premium(product)
+		var product := GameState.insurance.find_product(_choices[category])
+		if not product.is_empty() and not (category == "vehicle" and GameState.dreams.vehicle() == ""):
+			total += GameState.insurance.premium(product)
 	%Subtitle.text = tr("INS_TOTAL") % Fmt.rupiah(total)
 
 

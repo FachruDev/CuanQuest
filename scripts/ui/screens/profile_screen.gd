@@ -36,19 +36,19 @@ func _refresh() -> void:
 	%Avatar.display_name = GameState.player_name
 	%NameLabel.text = GameState.player_name
 	_clear(%InfoChips)
-	var job_title := tr(GameState.current_job_def()["title"]) if GameState.is_employed() else tr("CAREER_UNEMPLOYED")
+	var job_title := tr(GameState.career.current_job_def()["title"]) if GameState.career.is_employed() else tr("CAREER_UNEMPLOYED")
 	%InfoChips.add_child(_chip(job_title, &"MoodGold"))
-	%InfoChips.add_child(_chip(GameState.education_name(GameState.education), &"MoodNeutral"))
+	%InfoChips.add_child(_chip(GameState.education.level_name(GameState.education.level), &"MoodNeutral"))
 	%InfoChips.add_child(_chip(tr("PROFILE_AGE") % GameState.age(), &"MoodNeutral"))
 	%InfoChips.add_child(_chip(tr("PROFILE_DIFFICULTY") % tr(GameState.difficulty["name_key"]), &"MoodNeutral"))
-	%InfoChips.add_child(_chip(tr("ACT_LEVEL") % GameState.level(), &"MoodGold"))
+	%InfoChips.add_child(_chip(tr("ACT_LEVEL") % GameState.progress.level(), &"MoodGold"))
 
 	var end_cfg: Dictionary = GameState.economy["end"]
 	var target: float = end_cfg["win_net_worth"]
 	%MillionaireBar.max_value = target
 	%MillionaireBar.value = clampf(GameState.net_worth(), 0, target)
 	%MillionaireValue.text = tr("GOAL_PROGRESS_VALUE") % [Fmt.rupiah(GameState.net_worth()), Fmt.rupiah(target)]
-	var expenses := float(GameState.monthly_expenses())
+	var expenses := float(GameState.monthly_spending())  # biaya hidup + premi + gaya hidup
 	%FreedomBar.max_value = expenses
 	%FreedomBar.value = clampf(GameState.passive_income(), 0, expenses)
 	%FreedomValue.text = tr("GOAL_FREEDOM_VALUE") % [Fmt.rupiah(GameState.passive_income()), Fmt.rupiah(expenses)]
@@ -93,14 +93,14 @@ func _refresh_power() -> void:
 
 func _setup_risk_profile() -> void:
 	var group := ButtonGroup.new()
-	for p: Dictionary in GameState.risk_profiles():
+	for p: Dictionary in GameState.portfolio.risk_profiles():
 		var id: String = p["id"]
-		var button := _segment(tr(p["name"]), group, id == GameState.risk_profile_id)
+		var button := _segment(tr(p["name"]), group, id == GameState.portfolio.risk_profile_id)
 		button.pressed.connect(func() -> void:
-			GameState.set_risk_profile(id)
-			%RiskDesc.text = tr(GameState.risk_profile()["desc"]))
+			GameState.portfolio.set_risk_profile(id)
+			%RiskDesc.text = tr(GameState.portfolio.risk_profile()["desc"]))
 		%RiskRow.add_child(button)
-	%RiskDesc.text = tr(GameState.risk_profile()["desc"])
+	%RiskDesc.text = tr(GameState.portfolio.risk_profile()["desc"])
 
 
 # --- Pengaturan ---------------------------------------------------------------

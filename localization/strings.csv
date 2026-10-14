@@ -343,9 +343,9 @@ Mau mengakhiri permainan sekarang dan melihat laporan akhir, atau lanjut bermain
 
 End the game now and see the final report, or keep playing?"
 GOAL_TITLE_FREEDOM,Kebebasan Finansial!,Financial Freedom!
-GOAL_BODY_FREEDOM,"Menurut aturan 4%, investasimu kini bisa menutup seluruh biaya hidup bulanan tanpa habis. Kamu menang!
+GOAL_BODY_FREEDOM,"Menurut aturan 4%, investasimu kini bisa menutup seluruh pengeluaran rutin bulanan (biaya hidup, premi, dan gaya hidup) tanpa habis. Kamu menang!
 
-Mau mengakhiri permainan sekarang, atau lanjut bermain?","By the 4% rule, your investments can now cover all monthly living costs indefinitely. You win!
+Mau mengakhiri permainan sekarang, atau lanjut bermain?","By the 4% rule, your investments can now cover all your regular monthly spending (living costs, premiums, and lifestyle) indefinitely. You win!
 
 End the game now, or keep playing?"
 GOAL_FINISH_NOW,Akhiri & lihat laporan akhir,End & see final report
@@ -353,7 +353,7 @@ END_TITLE_WIN,Kamu Menang!,You Win!
 END_TITLE_LOSE,Permainan Berakhir,Game Over
 END_TITLE_RETIRED,Selamat Pensiun!,Happy Retirement!
 END_REASON_MILLIONAIRE,Kekayaan bersihmu mencapai Rp1 miliar.,Your net worth reached Rp1 billion.
-END_REASON_FREEDOM,Kamu mencapai kebebasan finansial: investasi menutup seluruh biaya hidup.,You reached financial freedom: investments cover all living costs.
+END_REASON_FREEDOM,Kamu mencapai kebebasan finansial: investasi menutup seluruh pengeluaran rutin.,You reached financial freedom: investments cover all your regular spending.
 END_REASON_BANKRUPT,Kas minus terlalu lama dan tidak ada lagi aset yang bisa dijual. Kamu bangkrut.,Cash stayed negative too long with nothing left to sell. You went bankrupt.
 END_REASON_HEALTH,Kesehatanmu habis terlalu lama. Kamu tidak sanggup lagi bekerja.,Your health stayed at zero too long. You can no longer work.
 END_REASON_HAPPINESS,Kebahagiaanmu habis terlalu lama. Kamu kehilangan semangat hidup dan berhenti dari semuanya.,Your happiness stayed at zero too long. You gave up on everything.
@@ -396,14 +396,14 @@ INSIGHT_CASH_IDLE,Sebagian besar kekayaanmu lama mengendap di kas tanpa bunga. B
 INSIGHT_LIFESTYLE,"Lebih dari separuh waktu kamu memilih gaya hidup mewah. Nyaman, tapi memperlambat pertumbuhan kekayaan.","More than half the time you chose a luxury lifestyle. Comfortable, but it slowed your wealth growth."
 INSIGHT_FEES,"Biaya transaksimu mencapai %s, lebih besar dari bunga yang diterima. Terlalu sering jual-beli menggerus keuntungan.","Your transaction fees reached %s, more than the interest you earned. Frequent trading eats into returns."
 INSIGHT_CONCENTRATION,%s investasimu ada di satu aset. Diversifikasi membuat portofolio lebih tahan guncangan.,%s of your investments sit in a single asset. Diversification makes a portfolio more resilient.
-INSIGHT_GOOD_FREEDOM,Hebat! Investasimu sudah cukup untuk menutup biaya hidup dengan aturan 4%.,Great! Your investments cover living costs under the 4% rule.
+INSIGHT_GOOD_FREEDOM,Hebat! Investasimu sudah cukup untuk menutup seluruh pengeluaran rutin dengan aturan 4%.,Great! Your investments cover all your regular spending under the 4% rule.
 INSIGHT_GOOD_INTEREST,Kamu menerima total %s dari bunga. Uang yang bekerja untukmu itulah inti investasi.,You received %s in interest. Money working for you is the heart of investing.
 INSIGHT_DEFAULT,Perjalanan yang seimbang. Coba latar belakang atau tingkat kesulitan lain untuk tantangan baru!,A balanced journey. Try another background or difficulty for a new challenge!
 PROFILE_GOALS_TITLE,Target Kemenangan,Win Goals
 GOAL_MILLIONAIRE_NAME,Kekayaan bersih,Net worth
 GOAL_PROGRESS_VALUE,%s / %s,%s / %s
 GOAL_FREEDOM_NAME,Pendapatan pasif (aturan 4%),Passive income (4% rule)
-GOAL_FREEDOM_VALUE,%s / %s per bulan,%s / %s per month
+GOAL_FREEDOM_VALUE,%s / %s pengeluaran rutin per bulan,%s / %s regular spending per month
 GOAL_HINT,Capai salah satunya untuk menang. Atau bertahan hingga usia pensiun 60 tahun dengan skor warisan setinggi mungkin.,Reach either goal to win. Or survive to retirement at 60 with the highest legacy score you can.
 PROFILE_STATS_TITLE,Statistik,Statistics
 PROFILE_STAT_PEAK,Kekayaan tertinggi,Peak net worth

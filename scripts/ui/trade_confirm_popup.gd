@@ -1,7 +1,7 @@
 extends ModalPopup
 ## Layar konfirmasi beli/jual (v1.5a langkah 2): rincian fee & pajak, meter risiko, dan
 ## peringatan (profil risiko, konsentrasi, dana darurat, sisa kas, jual rugi, penalti).
-## Angkanya dari GameState.trade_quote(), sama persis dengan yang dijalankan buy()/sell().
+## Angkanya dari GameState.portfolio.trade_quote(), sama persis dengan yang dijalankan buy()/sell().
 
 signal trade_done(result: Dictionary)
 
@@ -18,7 +18,7 @@ func open(asset_id: String, is_buy: bool, amount: int) -> void:
 	_asset_id = asset_id
 	_is_buy = is_buy
 	_amount = amount
-	var q := GameState.trade_quote(asset_id, is_buy, amount)
+	var q := GameState.portfolio.trade_quote(asset_id, is_buy, amount)
 	var asset := GameState.market.get_asset(asset_id)
 	%Title.text = tr("TRADE_TITLE_BUY" if is_buy else "TRADE_TITLE_SELL")
 	%SubtitleHolder.show()
@@ -69,7 +69,7 @@ func open(asset_id: String, is_buy: bool, amount: int) -> void:
 
 
 func _on_confirm() -> void:
-	var result := GameState.buy(_asset_id, _amount) if _is_buy else GameState.sell(_asset_id, _amount)
+	var result := GameState.portfolio.buy(_asset_id, _amount) if _is_buy else GameState.portfolio.sell(_asset_id, _amount)
 	close()
 	trade_done.emit(result)
 
@@ -97,7 +97,7 @@ func _risk_meter(asset: MarketAsset) -> VBoxContainer:
 	level.add_theme_color_override("font_color", RISK_COLORS[asset.risk - 1])
 	row.add_child(level)
 	box.add_child(row)
-	var profile := GameState.risk_profile()
+	var profile := GameState.portfolio.risk_profile()
 	box.add_child(_label(tr("TRADE_PROFILE") % [tr(profile["name"]), int(profile["max_asset_risk"])], &"SmallMutedLabel"))
 	return box
 

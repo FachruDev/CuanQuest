@@ -66,12 +66,12 @@ func _ready() -> void:
 			_enqueue_plan_review())  # gaji baru: tinjau rencana gaji
 	%ActivityScreen.resign_requested.connect(func() -> void:
 		_enqueue(%InfoPopup.open.bind(tr("RESIGN_TITLE"), tr("RESIGN_BODY"), tr("RESIGN_CONFIRM"), func() -> void:
-			GameState.resign()
+			GameState.career.resign()
 			_show_toast(tr("TOAST_RESIGNED")), tr("BTN_CANCEL"))))
 	%ActivityScreen.enroll_requested.connect(_confirm_enroll)
 	%ActivityScreen.quit_study_requested.connect(func() -> void:
 		_enqueue(%InfoPopup.open.bind(tr("EDU_QUIT_TITLE"), tr("EDU_QUIT_BODY"), tr("EDU_QUIT_CONFIRM"),
-			GameState.quit_study, tr("BTN_CANCEL"))))
+			GameState.education.quit_study, tr("BTN_CANCEL"))))
 	GameState.graduated.connect(func(program: String, result: String, skill_gain: int) -> void:
 		_enqueue(_celebrating(%InfoPopup.open.bind(tr("EDU_GRADUATED_TITLE"),
 			tr("EDU_GRADUATED_BODY") % [tr(program), result, result, skill_gain]))))
@@ -103,7 +103,7 @@ func _ready() -> void:
 	%HomeScreen.add_dream_requested.connect(func() -> void: _enqueue(%DreamPickerPopup.open))
 	# Impian baru di tengah permainan: buka Rencana Gaji agar porsi pos impiannya bisa dicek.
 	%DreamPickerPopup.dreams_picked.connect(func() -> void:
-		if GameState.plan.get("confirmed", false):
+		if GameState.budget.plan.get("confirmed", false):
 			_enqueue(%PlanPopup.open))
 	# Game berakhir: popup yang masih mengantre (event, unlock) dibuang karena tidak relevan lagi.
 	# Popup yang sedang tampil (mis. laporan bulan terakhir) tetap dibaca dulu, lalu pindah ke layar akhir.
@@ -119,25 +119,25 @@ func _ready() -> void:
 		popup.closed.connect(_show_next_popup)
 
 	_build_toast()
-	_last_level = GameState.level()
+	_last_level = GameState.progress.level()
 	_show_screen(0)
 	_refresh_top_bar()
 	# Cerita hari pertama (v1.5b langkah 4): belum bekerja, modal kecil, ajak ke Lowongan.
-	if GameState.month == 0 and not GameState.is_employed() and GameState.mark_story("start"):
+	if GameState.month == 0 and not GameState.career.is_employed() and GameState.mark_story("start"):
 		var story := tr("STORY_START_" + str(GameState.background["id"]).to_upper()) \
 			% Fmt.rupiah_words(GameState.nominal(GameState.difficulty["start_cash"]))
 		_enqueue(%InfoPopup.open.bind(tr("STORY_START_TITLE"), story, tr("HOME_SEE_OPENINGS"), _show_screen.bind(3)))
 	# Event yang belum diputuskan saat game disimpan muncul lagi setelah dimuat.
-	if GameState.has_pending_event():
-		_enqueue(%EventPopup.open.bind(GameState.pending_event))
-	if not GameState.job_offers.is_empty():  # tawaran kerja yang belum diputuskan
+	if GameState.events.has_pending():
+		_enqueue(%EventPopup.open.bind(GameState.events.pending))
+	if not GameState.career.job_offers.is_empty():  # tawaran kerja yang belum diputuskan
 		_enqueue(%OfferPopup.open)
 	# Permainan baru: pilih impian dulu, lalu susun rencana gaji pertama.
-	if not GameState.dreams_asked:
+	if not GameState.dreams.asked:
 		_enqueue(%DreamPickerPopup.open)
 	_enqueue_plan_review()
-	for dream: Dictionary in GameState.overdue_dreams():  # tenggat terlewat sebelum game ditutup
-		_enqueue(%DreamPopup.open_overdue.bind(GameState.dream_view(dream)))
+	for dream: Dictionary in GameState.dreams.overdue():  # tenggat terlewat sebelum game ditutup
+		_enqueue(%DreamPopup.open_overdue.bind(GameState.dreams.view_of(dream)))
 
 
 func _show_screen(index: int) -> void:
@@ -154,12 +154,12 @@ func _refresh_top_bar() -> void:
 	%NetWorthValue.text = Fmt.rupiah(GameState.net_worth())
 	%DateLabel.text = Fmt.game_date(GameState.month)
 	%AgeLabel.text = tr("TOPBAR_AGE") % GameState.age()
-	%LevelLabel.text = tr("TOPBAR_LEVEL") % GameState.level()
-	if GameState.level() > _last_level:
-		_show_toast(tr("TOAST_LEVEL") % GameState.level())
-	_last_level = GameState.level()
+	%LevelLabel.text = tr("TOPBAR_LEVEL") % GameState.progress.level()
+	if GameState.progress.level() > _last_level:
+		_show_toast(tr("TOAST_LEVEL") % GameState.progress.level())
+	_last_level = GameState.progress.level()
 	_refresh_energy()
-	var busy := GameState.has_pending_event() or GameState.is_over
+	var busy := GameState.events.has_pending() or GameState.is_over
 	%NextButton.disabled = busy
 	%NextButton.get_child(0).modulate.a = 0.45 if busy else 1.0
 
@@ -167,7 +167,7 @@ func _refresh_top_bar() -> void:
 ## Satu ikon petir per poin energi bulan ini: kuning = tersisa, ungu redup = terpakai.
 func _refresh_energy() -> void:
 	var icons: Control = %EnergyIcons
-	while icons.get_child_count() < GameState.energy_capacity:
+	while icons.get_child_count() < GameState.activities.energy_capacity:
 		var bolt := TextureRect.new()
 		bolt.texture = BOLT_ICON
 		bolt.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -176,9 +176,9 @@ func _refresh_energy() -> void:
 		icons.add_child(bolt)
 	for i in icons.get_child_count():
 		var bolt: TextureRect = icons.get_child(i)
-		bolt.visible = i < GameState.energy_capacity
-		bolt.self_modulate = BOLT_FULL if i < GameState.energy else BOLT_EMPTY
-	%EnergyPill.tooltip_text = tr("TOPBAR_ENERGY") % [GameState.energy, GameState.energy_capacity]
+		bolt.visible = i < GameState.activities.energy_capacity
+		bolt.self_modulate = BOLT_FULL if i < GameState.activities.energy else BOLT_EMPTY
+	%EnergyPill.tooltip_text = tr("TOPBAR_ENERGY") % [GameState.activities.energy, GameState.activities.energy_capacity]
 
 
 ## Tab aktif: ikon & label tinta di atas pil emas; tab lain: cokelat redup.
@@ -232,15 +232,15 @@ func _show_toast(text: String) -> void:
 
 ## Konfirmasi daftar kuliah: lama, biaya per bulan & total, beban energi & kebahagiaan.
 func _confirm_enroll(program_id: String) -> void:
-	var option := GameState.program_option(program_id)
+	var option := GameState.education.program_option(program_id)
 	if option.is_empty():
 		return
-	var load: Dictionary = GameState.education_data["load"]
+	var load: Dictionary = GameState.education.data["load"]
 	var fee := int(option["fee"])
 	var body := tr("EDU_ENROLL_BODY") % [int(option["months"]), Fmt.rupiah(fee),
 		Fmt.rupiah(fee * int(option["months"])), int(load["energy"]), -int(load["happiness"])]
 	_enqueue(%InfoPopup.open.bind(tr(option["def"]["name"]), body, tr("EDU_ENROLL_CONFIRM"), func() -> void:
-		if GameState.enroll(program_id)["ok"]:
+		if GameState.education.enroll(program_id)["ok"]:
 			_show_toast(tr("TOAST_ENROLLED") % tr(option["def"]["name"])), tr("BTN_CANCEL")))
 
 
@@ -248,7 +248,7 @@ func _confirm_enroll(program_id: String) -> void:
 ## gilirannya tiba, karena event di antrean bisa saja mengubah gaji lebih dulu.
 func _enqueue_plan_review() -> void:
 	_enqueue(func() -> void:
-		if GameState.plan_needs_review() and not GameState.is_over:
+		if GameState.budget.needs_review() and not GameState.is_over:
 			%PlanPopup.open()
 		else:
 			_show_next_popup())
