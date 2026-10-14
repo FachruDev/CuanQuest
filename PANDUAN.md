@@ -127,7 +127,7 @@ scenes/
   - [x] (1) Inflasi, suku bunga BI & daya beli
   - [x] (2) Pajak + layar konfirmasi transaksi
   - [x] (3) Asuransi
-  - [ ] (4) Stop loss & take profit
+  - [x] (4) Stop loss & take profit
   - [ ] (5) Penyeimbangan ekonomi
 - [ ] **v1.5b/c, v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
@@ -203,6 +203,14 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Laporan & UI:** bagian Ekonomi di laporan bulanan (inflasi, daya beli kas + tabungan + pos impian yang tergerus), kartu Daya Beli di Profil, chip inflasi di Pasar.
 - **Simulasi 40 permainan x 10 tahun** (pilihan acak): indeks harga median 1,43; kekayaan nominal median Rp775 jt, kekayaan riil Rp536 jt (tanpa inflasi Rp587 jt); gaji akhir median Rp20,1 jt nominal. Semua permainan bertahan, jadi game masih tergolong mudah. Penyeimbangan dijadwalkan di langkah 5 setelah pajak & asuransi.
 - **Save lama:** slot tanpa data inflasi tetap bisa dimuat; indeks harga dianggap mulai dari 1,0 saat dimuat.
+
+## Stop Loss & Take Profit (v1.5a langkah 4)
+
+- **State:** `GameState.orders` = `{asset_id: {"stop_loss": harga, "take_profit": harga}}` (0 = mati). Dipasang lewat `set_order()` dari `OrderPopup` (tombol di kartu kepemilikan tab Pasar). Pilihan jarak di `economy.json` bagian `orders`.
+- **Eksekusi** (`_execute_orders()` di `advance_month`, setelah `market.step()`): untuk setiap pesanan (urutan id tetap), harga harian bulan itu dicek dari hari pertama. Harga pertama yang menyentuh batas menjual semua unit lewat `sell(..., kind, at_price)`, sehingga fee, pajak, statistik, dan riwayat transaksi sama dengan penjualan biasa. Analogi web: seperti cron job yang memproses order bersyarat terhadap data harga per hari.
+- **Tanggal:** langkah harga ke-`i` (0-based) = tanggal `floor(i x 30 / langkah per bulan) + 1`, kebalikan dari `MarketAsset.price_on_day()`.
+- **Laporan:** `orders` di laporan berisi yang terpicu. "Perubahan nilai" = nilai investasi sekarang + nilai jual pesanan - nilai awal; grafik harian menilai aset yang terjual dengan harga harian sampai tanggal terpicu. Pembanding "kalau tidak bertransaksi" tetap hanya untuk transaksi manual (dihitung sebelum pesanan dijalankan).
+- **Catatan desain:** pesanan menjual semua unit (tidak sebagian) dan berlaku untuk semua unit, termasuk yang dibeli setelah pesanan dipasang.
 
 ## Asuransi (v1.5a langkah 3)
 

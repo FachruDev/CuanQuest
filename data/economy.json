@@ -94,6 +94,13 @@
 		"ptkp": 54000000,
 		"brackets": [[60000000, 0.05], [250000000, 0.15], [500000000, 0.25], [5000000000, 0.30], [null, 0.35]]
 	},
+	"orders": {
+		"_comment": "Stop loss & take profit (v1.5a langkah 4): pilihan jarak batas dari harga sekarang (0 = mati). Pesanan dicek setiap hari dan menjual semua unit saat tersentuh.",
+		"stop_loss_steps": [0, 0.05, 0.1, 0.15, 0.2, 0.3, 0.5],
+		"take_profit_steps": [0, 0.1, 0.2, 0.3, 0.5, 1.0, 2.0],
+		"default_stop_loss": 0.1,
+		"default_take_profit": 0.2
+	},
 	"trade_warnings": {
 		"_comment": "Peringatan di layar konfirmasi beli (v1.5a langkah 2). concentration = porsi satu aset dari total investasi setelah beli; berlaku jika total investasi >= concentration_min (harga awal, ikut inflasi). risky_from = level risiko aset yang memicu peringatan dana darurat.",
 		"concentration": 0.6,

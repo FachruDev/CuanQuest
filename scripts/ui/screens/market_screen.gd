@@ -15,6 +15,8 @@ enum Mode { BUY, SELL }
 
 ## Tombol Beli/Jual ditekan: main membuka layar konfirmasi (rincian fee, pajak, peringatan).
 signal trade_requested(asset_id: String, is_buy: bool, amount: int)
+## Tombol "Atur stop loss / take profit" ditekan: main membuka popup pesanan otomatis.
+signal order_requested(asset_id: String)
 
 var mode := Mode.BUY
 var _selected_id := ""
@@ -34,6 +36,9 @@ func _ready() -> void:
 
 	%AmountEdit.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_NUMBER
 	%ConfirmButton.pressed.connect(_on_confirm_pressed)
+	var order_button := UiText.chunky_button(tr("MARKET_ORDER_BUTTON"), &"NeutralButton", &"NeutralButtonLabel", 64.0, 24)
+	order_button.pressed.connect(func() -> void: order_requested.emit(_selected_id))
+	%OrderHolder.add_child(order_button)
 	%BackButton.pressed.connect(_show_list)
 
 	_build_asset_list()
@@ -246,6 +251,25 @@ func _refresh_detail() -> void:
 		%HoldingLabel.text = text
 	else:
 		%HoldingLabel.text = tr("LBL_NO_HOLDING")
+	_refresh_order(asset)
+
+
+## Status stop loss / take profit di kartu kepemilikan (hanya aset berharga harian yang dimiliki).
+func _refresh_order(asset: MarketAsset) -> void:
+	var available := GameState.can_have_order(asset.id)
+	%OrderLabel.visible = available
+	%OrderHolder.visible = available
+	if not available:
+		return
+	var order := GameState.order_of(asset.id)
+	if order.is_empty():
+		%OrderLabel.text = tr("MARKET_ORDER_NONE")
+		return
+	var off := tr("ORDER_OFF")
+	var sl := float(order["stop_loss"])
+	var tp := float(order["take_profit"])
+	%OrderLabel.text = tr("MARKET_ORDER_STATUS") % [asset.price_text(sl) if sl > 0.0 else off,
+		asset.price_text(tp) if tp > 0.0 else off]
 
 
 func _set_mode(new_mode: Mode) -> void:

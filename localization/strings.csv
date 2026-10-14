@@ -627,3 +627,25 @@ REPORT_INSURANCE,Premi asuransi,Insurance premiums
 REPORT_INSURANCE_LAPSED,Polis %s berhenti karena kas tidak cukup membayar premi.,Your %s policy lapsed because cash couldn't cover the premium.
 INSIGHT_INSURANCE,"Asuransi menanggung %s biaya selama permainan, dengan total premi %s. Perlindungan membuat kejadian besar tidak menghancurkan keuanganmu.",Insurance covered %s of costs during the game for %s in total premiums. Protection keeps big events from wrecking your finances.
 INSIGHT_UNINSURED,"Kamu membayar sendiri %s biaya berobat. Asuransi kesehatan, bahkan BPJS, bisa meringankan beban seperti ini.","You paid %s in medical costs yourself. Health insurance, even BPJS, can ease costs like these."
+ORDER_TITLE,Stop Loss & Take Profit,Stop Loss & Take Profit
+ORDER_BODY,"Pesanan dicek setiap hari. Jika harga harian menyentuh batas, semua unit aset ini dijual otomatis di harga hari itu, lalu pesanan selesai. Fee dan pajak jual tetap berlaku.","Orders are checked every day. If the daily price touches a limit, all units of this asset are sold automatically at that day's price and the order ends. Selling fees and taxes still apply."
+ORDER_PRICE_NOW,Harga sekarang,Current price
+ORDER_HOLDING,Nilai yang dimiliki,Holding value
+ORDER_STOP_LOSS,Stop loss,Stop loss
+ORDER_TAKE_PROFIT,Take profit,Take profit
+ORDER_OFF,Mati,Off
+ORDER_VALUE,%s · %s,%s · %s
+ORDER_SL_NOTE,"Jual jika harga turun ke batas ini, untuk membatasi rugi.","Sell if the price falls to this limit, to cap your loss."
+ORDER_TP_NOTE,"Jual jika harga naik ke batas ini, untuk mengunci untung.","Sell if the price rises to this limit, to lock in gains."
+ORDER_ESTIMATE,Perkiraan uang diterima %s (untung/rugi %s).,Estimated proceeds %s (gain/loss %s).
+ORDER_SAVE,Simpan pesanan,Save order
+ORDER_REMOVE,Hapus pesanan,Remove order
+MARKET_ORDER_BUTTON,Atur stop loss / take profit,Set stop loss / take profit
+MARKET_ORDER_NONE,Belum ada pesanan otomatis.,No automatic orders yet.
+MARKET_ORDER_STATUS,Stop loss %s · Take profit %s,Stop loss %s · Take profit %s
+REPORT_ORDERS,PESANAN OTOMATIS,AUTOMATIC ORDERS
+REPORT_ORDER_STOP_LOSS,Stop loss %s,Stop loss %s
+REPORT_ORDER_TAKE_PROFIT,Take profit %s,Take profit %s
+REPORT_ORDER_DETAIL,"Terpicu tanggal %d di %s, untung/rugi %s. Harga akhir bulan %s.","Triggered on day %d at %s, gain/loss %s. Month-end price %s."
+TX_STOP_LOSS,Stop loss,Stop loss
+TX_TAKE_PROFIT,Take profit,Take profit

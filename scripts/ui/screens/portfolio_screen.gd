@@ -9,7 +9,8 @@ const CLASS_COLORS := {
 	"mutual_fund": Color("#f6b93b"), "stock": Color("#f07a5f"), "crypto": Color("#7a4fb0"),
 }
 ## Chip jenis transaksi: beli hijau, jual emas, jual paksa/panik merah.
-const TX_CHIPS := {"buy": &"MoodGreen", "auto": &"MoodGreen", "sell": &"MoodGold", "forced": &"MoodRed", "panic": &"MoodRed"}
+const TX_CHIPS := {"buy": &"MoodGreen", "auto": &"MoodGreen", "sell": &"MoodGold", "forced": &"MoodRed", "panic": &"MoodRed",
+	"stop_loss": &"MoodRed", "take_profit": &"MoodGreen"}
 const BUY_KINDS := ["buy", "auto"]  # transaksi beli tidak punya untung/rugi terealisasi
 
 

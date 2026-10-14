@@ -116,6 +116,9 @@ var dream_defs: Array = []                   # isi data/dreams.json
 var insurance_data: Dictionary = {}          # isi data/insurance.json
 ## Asuransi (v1.5a langkah 3): kategori -> {"id": id produk, "since": bulan polis dimulai}
 var policies: Dictionary = {}
+## Stop loss & take profit (v1.5a langkah 4): asset_id -> {"stop_loss": harga, "take_profit": harga}
+## (0 = tidak dipakai). Dicek setiap hari saat pasar bergerak; lihat _execute_orders().
+var orders: Dictionary = {}
 var _dream_signals: Array[Callable] = []     # impian terwujud/terlewat, dikirim setelah laporan
 var _fast_forwarding := false
 ## Naik setiap game baru / dimuat (tidak disimpan). SaveManager memakainya untuk tahu apakah
@@ -171,6 +174,7 @@ func new_game(profile: Dictionary = {}, seed_value: int = -1) -> void:
 	dreams.clear()
 	dreams_asked = false
 	policies.clear()
+	orders.clear()
 	event_queue.clear()
 	chain_events.clear()
 	director = _new_director()
@@ -223,9 +227,13 @@ func advance_month() -> void:
 	var interest := _pay_interest() + _pay_dream_interest()
 	var news := market.step(month + 1)
 	var month_inflation := price_level() / level_before - 1.0
-	var invest_change := investments_value() - invest_before
-	var daily_worth := _daily_worth_series(net_worth_before)
-	var trade := _turn_trade_result(start_prices)
+	var trade := _turn_trade_result(start_prices)  # transaksi manual, sebelum pesanan otomatis
+	var executed := _execute_orders()
+	var sold_value := 0.0
+	for sale: Dictionary in executed:
+		sold_value += float(sale["units"]) * float(sale["price"])
+	var invest_change := investments_value() + sold_value - invest_before
+	var daily_worth := _daily_worth_series(net_worth_before, executed)
 
 	var from_month := month
 	month += 1
@@ -260,6 +268,7 @@ func advance_month() -> void:
 		"dreams_progress": _dreams_progress(),
 		"trade_fee": month_costs["trade_fee"],
 		"trade_tax": month_costs["trade_tax"],
+		"orders": executed,
 		"interest_tax": month_costs["interest_tax"],
 		"inflation_month": month_inflation,
 		"inflation_year": market.inflation,
@@ -285,13 +294,19 @@ func advance_month() -> void:
 ## berubah di tengah bulan, jadi cukup menilai ulang portofolio dengan harga harian.
 ## Gaji & biaya hidup bulan baru TIDAK ikut digambar, agar lonjakannya tidak menenggelamkan
 ## pergerakan pasar; angka kekayaan di laporan tetap nilai setelahnya.
-func _daily_worth_series(start_value: float) -> Array[float]:
+## `executed`: pesanan otomatis bulan ini. Sebelum tanggal terpicu, aset itu masih dipegang
+## (dinilai dengan harga harian); sejak tanggal itu, uang hasil jualnya sudah di kas.
+func _daily_worth_series(start_value: float, executed: Array[Dictionary] = []) -> Array[float]:
 	var series: Array[float] = [start_value]
 	for day in range(1, MarketAsset.DAYS_IN_MONTH + 1):
 		var value := float(cash) + dream_funds()
 		for asset_id: String in holdings:
 			var asset := market.get_asset(asset_id)
 			value += units_of(asset_id) * (asset.price if asset.is_interest() else asset.price_on_day(day))
+		for sale: Dictionary in executed:
+			if day < int(sale["day"]):
+				var sold := market.get_asset(sale["asset_id"])
+				value += float(sale["units"]) * sold.price_on_day(day) - float(sale["proceeds"])
 		series.append(value)
 	return series
 
@@ -1003,10 +1018,12 @@ func net_worth() -> float:
 ## buy(), dan sell() (mirip fungsi hitung total checkout yang dipakai UI dan backend).
 ## Beli: `amount` = uang yang dibayar (fee & pajak diambil dari situ).
 ## Jual: `amount` = nilai pasar aset yang dijual (fee, pajak, & penalti dipotong dari situ).
+## `at_price` > 0: harga per unit tertentu (mis. harga hari stop loss terpicu), bukan harga sekarang.
 ## -> {ok, error, buy, asset_id, amount, units, fee, tax, penalty, net, pnl, warnings}
 ##    net: beli = yang benar-benar masuk ke investasi; jual = uang yang diterima.
-func trade_quote(asset_id: String, is_buy: bool, amount: int) -> Dictionary:
+func trade_quote(asset_id: String, is_buy: bool, amount: int, at_price: float = 0.0) -> Dictionary:
 	var asset := market.get_asset(asset_id)
+	var price := at_price if at_price > 0.0 else asset.price
 	var q := {"ok": false, "error": "", "buy": is_buy, "asset_id": asset_id, "amount": amount,
 		"units": 0.0, "fee": 0.0, "tax": 0.0, "penalty": 0.0, "net": 0.0, "pnl": 0.0, "warnings": []}
 	if is_buy and not is_asset_unlocked(asset_id):
@@ -1021,16 +1038,16 @@ func trade_quote(asset_id: String, is_buy: bool, amount: int) -> Dictionary:
 		q["fee"] = amount * asset.buy_fee
 		q["tax"] = amount * asset.buy_tax
 		q["net"] = amount - q["fee"] - q["tax"]
-		q["units"] = q["net"] / asset.price
+		q["units"] = q["net"] / price
 	else:
 		var held := units_of(asset_id)
-		var units := amount / asset.price
+		var units := amount / price
 		if held <= 0.0 or units > held * 1.0001:
 			q["error"] = "ERR_NOT_ENOUGH_UNITS"
 			return q
 		if units >= held * 0.999:
 			units = held  # jual semua, hindari sisa "debu" 0.0001 unit
-		var gross := units * asset.price
+		var gross := units * price
 		q["units"] = units
 		q["fee"] = gross * asset.sell_fee
 		q["tax"] = gross * asset.sell_tax
@@ -1103,9 +1120,10 @@ func buy(asset_id: String, amount: int, kind: String = "buy") -> Dictionary:
 
 
 ## Jual aset senilai `amount` Rupiah (berdasarkan harga pasar sebelum fee).
-## `kind`: sell (manual) | forced (jual paksa saat kas minus) | panic (event panik jual).
-func sell(asset_id: String, amount: int, kind: String = "sell") -> Dictionary:
-	var q := trade_quote(asset_id, false, amount)
+## `kind`: sell (manual) | forced (jual paksa saat kas minus) | panic (event panik jual)
+##         | stop_loss | take_profit (pesanan otomatis, dijual di `at_price`).
+func sell(asset_id: String, amount: int, kind: String = "sell", at_price: float = 0.0) -> Dictionary:
+	var q := trade_quote(asset_id, false, amount, at_price)
 	if not q["ok"]:
 		return {"ok": false, "error": q["error"]}
 	var asset := market.get_asset(asset_id)
@@ -1121,6 +1139,7 @@ func sell(asset_id: String, amount: int, kind: String = "sell") -> Dictionary:
 	h["units"] -= units
 	if h["units"] <= 0.0:
 		holdings.erase(asset_id)
+		orders.erase(asset_id)  # tidak ada lagi yang dijaga pesanan otomatis
 	cash += proceeds
 	_add_trade_costs(fee, tax)
 	_record_extreme("best_trade", "worst_trade", proceeds - cost_sold, {"asset_key": asset.name_key})
@@ -1132,7 +1151,70 @@ func sell(asset_id: String, amount: int, kind: String = "sell") -> Dictionary:
 			_fail_target("no_loss")
 
 	changed.emit()
-	return {"ok": true, "units": units, "fee": fee, "tax": tax, "proceeds": proceeds, "penalty": q["penalty"] > 0.0}
+	return {"ok": true, "units": units, "fee": fee, "tax": tax, "proceeds": proceeds,
+		"pnl": proceeds - cost_sold, "penalty": q["penalty"] > 0.0}
+
+
+# --- Stop loss & take profit (v1.5a langkah 4) ----------------------------------------
+
+func orders_config() -> Dictionary:
+	return economy["orders"]
+
+
+## Pesanan bisa dipasang pada aset berharga harian yang sedang dimiliki (bukan tabungan/deposito).
+func can_have_order(asset_id: String) -> bool:
+	return holdings.has(asset_id) and not market.get_asset(asset_id).is_interest()
+
+
+## {"stop_loss": harga, "take_profit": harga} atau {} jika tidak ada pesanan.
+func order_of(asset_id: String) -> Dictionary:
+	return orders.get(asset_id, {})
+
+
+## Pasang/ubah pesanan (harga batas per unit). Keduanya 0 = hapus pesanan.
+func set_order(asset_id: String, stop_loss: float, take_profit: float) -> void:
+	if stop_loss <= 0.0 and take_profit <= 0.0:
+		orders.erase(asset_id)
+	elif can_have_order(asset_id):
+		orders[asset_id] = {"stop_loss": maxf(stop_loss, 0.0), "take_profit": maxf(take_profit, 0.0)}
+	changed.emit()
+	state_committed.emit()
+
+
+## Dicek hari demi hari pada harga bulan yang baru disimulasikan. Pesanan yang tersentuh
+## menjual SEMUA unit aset itu di harga hari tersebut, lalu selesai. Mengembalikan daftar
+## yang terpicu untuk laporan: [{asset_id, asset_key, kind, day, price, end_price, units, proceeds, pnl}]
+func _execute_orders() -> Array[Dictionary]:
+	var executed: Array[Dictionary] = []
+	var ids: Array = orders.keys()
+	ids.sort()  # urutan tetap agar hasil simulasi sama setelah simpan/muat
+	for asset_id: String in ids:
+		if not can_have_order(asset_id):
+			orders.erase(asset_id)
+			continue
+		var asset := market.get_asset(asset_id)
+		var order: Dictionary = orders[asset_id]
+		var steps := asset.days_per_month()
+		for i in steps:
+			var price: float = asset.history[asset.history.size() - steps + i]
+			var kind := ""
+			if float(order["stop_loss"]) > 0.0 and price <= float(order["stop_loss"]):
+				kind = "stop_loss"
+			elif float(order["take_profit"]) > 0.0 and price >= float(order["take_profit"]):
+				kind = "take_profit"
+			if kind == "":
+				continue
+			var units := units_of(asset_id)
+			var result := sell(asset_id, ceili(units * price), kind, price)
+			if result["ok"]:
+				executed.append({"asset_id": asset_id, "asset_key": asset.name_key, "kind": kind,
+					"day": floori(i * MarketAsset.DAYS_IN_MONTH / float(steps)) + 1,  # tanggal pertama langkah ke-i
+					"price": price, "end_price": asset.price, "units": units,
+					"proceeds": result["proceeds"], "pnl": result["pnl"]})
+				stats["orders_executed"] += 1
+			orders.erase(asset_id)
+			break
+	return executed
 
 
 ## Deposito yang belum jatuh tempo kena penalti jika dicairkan.
@@ -1198,7 +1280,7 @@ func to_dict() -> Dictionary:
 		"energy": energy, "energy_capacity": energy_capacity, "activity_counts": activity_counts,
 		"transactions": transactions, "transaction_seq": transaction_seq, "risk_profile": risk_profile_id,
 		"plan": plan, "plan_applied_month": plan_applied_month, "month_income": month_income,
-		"dreams": dreams, "dreams_asked": dreams_asked, "targets": targets, "policies": policies,
+		"dreams": dreams, "dreams_asked": dreams_asked, "targets": targets, "policies": policies, "orders": orders,
 		"turn_units": turn_units, "turn_fees": turn_fees, "turn_trades": turn_trades, "month_costs": month_costs,
 		"event_queue": event_queue, "chain_events": chain_events, "director": director,
 	}
@@ -1281,6 +1363,10 @@ func load_from_dict(d: Dictionary) -> bool:
 	for category: String in d.get("policies", {}):
 		var saved_policy: Dictionary = d["policies"][category]
 		policies[category] = {"id": saved_policy["id"], "since": int(saved_policy["since"])}
+	orders.clear()
+	for asset_id: String in d.get("orders", {}):
+		var saved_order: Dictionary = d["orders"][asset_id]
+		orders[asset_id] = {"stop_loss": float(saved_order["stop_loss"]), "take_profit": float(saved_order["take_profit"])}
 	targets.clear()
 	for t: Dictionary in d.get("targets", []):
 		targets.append(t)
@@ -1320,7 +1406,7 @@ func _new_stats() -> Dictionary:
 		"peak_net_worth": 0.0, "events": 0, "scam_loss": 0, "forced_sales": 0,
 		"unaffordable_choices": 0, "luxury_months": 0, "cash_heavy_months": 0,
 		"panic_sell": false, "total_lifestyle": 0, "total_autodebet": 0, "dreams_achieved": 0,
-		"targets_done": 0, "insurance_premiums": 0, "insurance_claims": 0, "uninsured_medical": 0,
+		"targets_done": 0, "insurance_premiums": 0, "insurance_claims": 0, "uninsured_medical": 0, "orders_executed": 0,
 		"best_trade": {}, "worst_trade": {}, "best_event": {}, "worst_event": {},
 	}
 
@@ -1542,13 +1628,16 @@ func _merge_reports(reports: Array[Dictionary]) -> Dictionary:
 	var news: Array = []
 	var delayed: Array = []
 	var forced: Array = []
+	var executed_orders: Array = []
 	for r: Dictionary in reports:
 		news.append_array(r.get("news", []))
 		delayed.append_array(r.get("delayed", []))
 		forced.append_array(r.get("forced_sales", []))
+		executed_orders.append_array(r.get("orders", []))
 	merged["news"] = news.slice(-5)  # cukup 5 berita terakhir agar laporan tidak terlalu panjang
 	merged["delayed"] = delayed
 	merged["forced_sales"] = forced
+	merged["orders"] = executed_orders
 	merged["from_month"] = reports[0]["from_month"]
 	merged["net_worth_before"] = reports[0]["net_worth_before"]
 	merged["unemployed"] = merged["salary"] == 0

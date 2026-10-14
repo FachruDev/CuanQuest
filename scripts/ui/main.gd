@@ -56,6 +56,8 @@ func _ready() -> void:
 	%MarketScreen.trade_requested.connect(func(asset_id: String, is_buy: bool, amount: int) -> void:
 		_enqueue(%TradeConfirmPopup.open.bind(asset_id, is_buy, amount)))
 	%TradeConfirmPopup.trade_done.connect(%MarketScreen.show_trade_result)
+	%MarketScreen.order_requested.connect(func(asset_id: String) -> void:
+		_enqueue(%OrderPopup.open.bind(asset_id)))
 	GameState.stage_unlocked.connect(func(stage: Dictionary) -> void:
 		_enqueue(_celebrating(%InfoPopup.open.bind(tr("UNLOCK_POPUP_TITLE"),
 			tr("UNLOCK_POPUP_BODY") % [tr(stage["name_key"]), UiText.stage_assets_text(int(stage["stage"]))]))))
@@ -89,7 +91,7 @@ func _ready() -> void:
 	%ActivityScreen.quiz_requested.connect(func(question: Dictionary) -> void:
 		_enqueue(%QuizPopup.open.bind(question)))
 	for popup: ModalPopup in [%SummaryPopup, %InfoPopup, %EventPopup, %QuizPopup, %GlossaryPopup, %TextPopup,
-			%PlanPopup, %DreamPickerPopup, %DreamPopup, %TradeConfirmPopup, %InsurancePopup]:
+			%PlanPopup, %DreamPickerPopup, %DreamPopup, %TradeConfirmPopup, %InsurancePopup, %OrderPopup]:
 		popup.closed.connect(_show_next_popup)
 
 	_build_toast()

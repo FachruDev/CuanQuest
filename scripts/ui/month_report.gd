@@ -56,6 +56,7 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 		_add_row(box, "REPORT_INTEREST", Fmt.signed_rupiah(r["interest"]), Palette.GAIN)
 	_add_row(box, "REPORT_INVEST_CHANGE", Fmt.signed_rupiah(r["invest_change"]), signed_color(r["invest_change"]))
 
+	_add_orders(box, r)
 	_add_costs(box, r)
 
 	if r.has("inflation_month"):
@@ -107,6 +108,21 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 			TranslationServer.translate(sale["asset_key"]), Fmt.rupiah(sale["proceeds"])], Palette.LOSS)
 	for warning: String in r.get("warnings", []):
 		_add_text(box, warning, Palette.LOSS)
+
+
+## Stop loss / take profit yang terpicu bulan ini (v1.5a langkah 4): tanggal, harga, untung/rugi,
+## dan harga akhir bulan sebagai pembanding (apakah menjual lebih awal menguntungkan?).
+static func _add_orders(box: VBoxContainer, r: Dictionary) -> void:
+	var executed: Array = r.get("orders", [])
+	if executed.is_empty():
+		return
+	_add_header(box, "REPORT_ORDERS")
+	for sale: Dictionary in executed:
+		var asset := GameState.market.get_asset(sale["asset_id"])
+		var title := TranslationServer.translate("REPORT_ORDER_" + str(sale["kind"]).to_upper()) % TranslationServer.translate(sale["asset_key"])
+		_add_row_text(box, title, Fmt.signed_rupiah(sale["proceeds"]), Palette.GAIN)
+		_add_text(box, TranslationServer.translate("REPORT_ORDER_DETAIL") % [int(sale["day"]),
+			asset.price_text(sale["price"]), Fmt.signed_rupiah(sale["pnl"]), asset.price_text(sale["end_price"])], Palette.MUTED)
 
 
 ## Pajak & biaya bulan ini (v1.5a langkah 2): fee & pajak transaksi (termasuk autodebet dan

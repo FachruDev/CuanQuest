@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5a langkah 3 selesai)
+- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5a langkah 4 selesai)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -14,7 +14,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **UI "Senja Cuan"** | Redesain seluruh tampilan | ✅ |
 | **Prototipe waktu A/B/C** | Uji sistem waktu berjalan (tidak dipakai, diarsipkan) | ✅ |
 | **v1.5-0** | Giliran Bulanan yang Hidup | 🔄 5/5 langkah; tinggal playtest |
-| **v1.5a** | Realisme ekonomi | 🔄 3/5 langkah |
+| **v1.5a** | Realisme ekonomi | 🔄 4/5 langkah |
 | **v1.5b** | Utang, properti, hunian yang tumbuh | ⬜ |
 | **v1.5c** | Karier, tokoh, konten | ⬜ |
 | **v2a-v2d** | Instrumen lanjut, hidup penuh, dana investor, mini-game | ⬜ |
@@ -133,7 +133,7 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 | 1 | Inflasi, suku bunga BI & daya beli | ✅ |
 | 2 | Pajak + layar konfirmasi transaksi (fee, pajak, konsentrasi, indikator risiko) | ✅ |
 | 3 | Asuransi kesehatan, jiwa, kendaraan + klaim di event | ✅ |
-| 4 | Stop loss & take profit (dicek harian) | ⬜ |
+| 4 | Stop loss & take profit (dicek harian) | ✅ |
 | 5 | Penyeimbangan ekonomi (simulasi + playtest) | ⬜ |
 
 ### Rincian fitur
@@ -171,8 +171,13 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 - ✅ Analisis akhir: manfaat asuransi atau biaya berobat yang dibayar sendiri
 - ✅ Glosarium: Polis, Premi, Klaim, Masa tunggu, Risiko sendiri, Unit link, Uang pertanggungan
 
-**Langkah 4: Stop loss & take profit** ⬜
-- ⬜ Pesanan otomatis per aset, dicek setiap hari di simulasi harian, tercatat di riwayat transaksi
+**Langkah 4: Stop loss & take profit** ✅
+- ✅ Popup "Stop Loss & Take Profit" dari kartu kepemilikan di detail aset (saham, kripto, reksa dana); batas dipilih sebagai jarak dari harga sekarang (stop loss 5-50%, take profit 10-200%) dengan perkiraan uang diterima & untung/rugi
+- ✅ Dicek setiap hari bursa/kalender di simulasi harian; harga harian pertama yang menyentuh batas menjual semua unit di harga hari itu (kena fee & pajak), lalu pesanan selesai
+- ✅ Tercatat di riwayat transaksi (Stop loss / Take profit) dan laporan bulanan bagian PESANAN OTOMATIS: tanggal, harga, untung/rugi, harga akhir bulan sebagai pembanding
+- ✅ Grafik kekayaan harian & perubahan nilai investasi memperhitungkan penjualan di tengah bulan
+- ✅ Jual semua secara manual menghapus pesanan; simpan & muat tetap persis
+- ✅ Glosarium: Stop loss, Take profit
 
 **Langkah 5: Penyeimbangan** ⬜
 - ⬜ Simulasi ulang setelah pajak & asuransi; atur event positif, kenaikan gaji, dan biaya agar game tidak terlalu mudah
@@ -181,7 +186,7 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 - ✅ Uang yang hanya disimpan di tabungan terasa tergerus dari waktu ke waktu
 - ✅ Laporan bulanan menampilkan pajak dan fee dengan jelas
 - ✅ Event sakit/kecelakaan berbeda hasilnya bagi yang berasuransi
-- ⬜ Stop loss & take profit tereksekusi tepat dan tercatat di riwayat
+- ✅ Stop loss & take profit tereksekusi tepat dan tercatat di riwayat
 
 ## v1.5b: Utang, Properti, dan Hunian yang Tumbuh ⬜
 
