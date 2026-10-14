@@ -124,7 +124,7 @@ scenes/
   - [x] (5) SQLite (semua langkah selesai; tinggal playtest)
 - [ ] **v1.5a "Realisme Ekonomi"**:
   - [x] (1) Inflasi, suku bunga BI & daya beli
-  - [ ] (2) Pajak + layar konfirmasi transaksi
+  - [x] (2) Pajak + layar konfirmasi transaksi
   - [ ] (3) Asuransi
   - [ ] (4) Stop loss & take profit
   - [ ] (5) Penyeimbangan ekonomi
@@ -202,6 +202,17 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Laporan & UI:** bagian Ekonomi di laporan bulanan (inflasi, daya beli kas + tabungan + pos impian yang tergerus), kartu Daya Beli di Profil, chip inflasi di Pasar.
 - **Simulasi 40 permainan x 10 tahun** (pilihan acak): indeks harga median 1,43; kekayaan nominal median Rp775 jt, kekayaan riil Rp536 jt (tanpa inflasi Rp587 jt); gaji akhir median Rp20,1 jt nominal. Semua permainan bertahan, jadi game masih tergolong mudah. Penyeimbangan dijadwalkan di langkah 5 setelah pajak & asuransi.
 - **Save lama:** slot tanpa data inflasi tetap bisa dimuat; indeks harga dianggap mulai dari 1,0 saat dimuat.
+
+## Pajak & Layar Konfirmasi Transaksi (v1.5a langkah 2)
+
+- **PPh 21** (`GameState.income_tax`, `economy.json` bagian `income_tax`): gaji sebulan disetahunkan, dikurangi PTKP (Rp54 jt, lajang), lalu tarif bertingkat 5% (s.d. Rp60 jt), 15% (s.d. Rp250 jt), 25% (s.d. Rp500 jt), 30% (s.d. Rp5 M), 35%. PTKP & batas lapisan ikut indeks harga. Contoh: gaji Rp5,5 jt kena Rp50 ribu/bulan, Rp20 jt kena Rp1,83 jt/bulan.
+- **`salary` = gaji bruto.** Kas menerima gaji bersih; rencana gaji, Beranda, dan popup rencana memakai `net_salary()`.
+- **Pajak investasi** di `assets.json`: `buy_tax` / `sell_tax` (saham: jual 0,1%; kripto: beli 0,11% + jual 0,1%). Pajak bunga deposito 20% (`interest_tax`) kini dicatat terpisah.
+- **Satu sumber hitungan:** `GameState.trade_quote(asset, beli?, jumlah)` mengembalikan fee, pajak, penalti, yang masuk/diterima, unit, untung/rugi, dan peringatan. Layar konfirmasi, `buy()`, dan `sell()` memakai fungsi yang sama, jadi angka di layar = angka yang dijalankan. Analogi web: endpoint "preview checkout" yang dipakai juga saat order dibuat.
+- **Alur UI:** tombol Beli/Jual di tab Pasar -> `market_screen.trade_requested` -> `main` membuka `TradeConfirmPopup` -> "Ya, beli/jual" menjalankan transaksi -> `trade_done` -> pesan hasil di tab Pasar.
+- **Peringatan** (`economy.json` bagian `trade_warnings`): di atas profil risiko, satu aset > 60% investasi, dana darurat belum cukup sebelum beli aset berisiko (risiko >= 3), sisa kas < biaya hidup sebulan, jual rugi, penalti deposito.
+- **Laporan:** `month_costs` mengumpulkan fee & pajak transaksi (termasuk autodebet dan jual paksa) serta pajak bunga sejak laporan terakhir, lalu direset setelah laporan dibuat.
+- **Migrasi database:** `SaveDb.SCHEMA_VERSION` = 2; `MIGRATIONS` berisi `ALTER TABLE transactions ADD COLUMN tax`. Database lama dimigrasi otomatis saat dibuka (seperti `php artisan migrate`), database baru langsung dibuat dengan skema terbaru.
 
 ## Penyimpanan SQLite (v1.5-0 langkah 5)
 

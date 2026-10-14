@@ -20,6 +20,8 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 		_add_row(box, "REPORT_SALARY_UNEMPLOYED", Fmt.rupiah(0), Palette.LOSS)
 	else:
 		_add_row(box, "REPORT_SALARY", Fmt.signed_rupiah(r["salary"]), Palette.GAIN)
+		if int(r.get("income_tax", 0)) > 0:
+			_add_row(box, "REPORT_INCOME_TAX", Fmt.signed_rupiah(-r["income_tax"]), Palette.LOSS)
 	if float(r.get("salary_raise", 0.0)) > 0.0:
 		_add_row(box, "REPORT_SALARY_RAISE", Fmt.percent(r["salary_raise"]), Palette.GAIN)
 
@@ -49,6 +51,8 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 	if r.get("interest", 0.0) > 0.0:
 		_add_row(box, "REPORT_INTEREST", Fmt.signed_rupiah(r["interest"]), Palette.GAIN)
 	_add_row(box, "REPORT_INVEST_CHANGE", Fmt.signed_rupiah(r["invest_change"]), signed_color(r["invest_change"]))
+
+	_add_costs(box, r)
 
 	if r.has("inflation_month"):
 		_add_header(box, "REPORT_ECONOMY")
@@ -99,6 +103,25 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 			TranslationServer.translate(sale["asset_key"]), Fmt.rupiah(sale["proceeds"])], Palette.LOSS)
 	for warning: String in r.get("warnings", []):
 		_add_text(box, warning, Palette.LOSS)
+
+
+## Pajak & biaya bulan ini (v1.5a langkah 2): fee & pajak transaksi (termasuk autodebet dan
+## jual paksa), pajak bunga, lalu total termasuk PPh 21.
+static func _add_costs(box: VBoxContainer, r: Dictionary) -> void:
+	var trade_fee := float(r.get("trade_fee", 0.0))
+	var trade_tax := float(r.get("trade_tax", 0.0))
+	var interest_tax := float(r.get("interest_tax", 0.0))
+	if trade_fee + trade_tax + interest_tax < 1.0:
+		return
+	_add_header(box, "REPORT_COSTS")
+	if trade_fee >= 1.0:
+		_add_row(box, "REPORT_TRADE_FEE", Fmt.signed_rupiah(-trade_fee), Palette.LOSS)
+	if trade_tax >= 1.0:
+		_add_row(box, "REPORT_TRADE_TAX", Fmt.signed_rupiah(-trade_tax), Palette.LOSS)
+	if interest_tax >= 1.0:
+		_add_row(box, "REPORT_INTEREST_TAX", Fmt.signed_rupiah(-interest_tax), Palette.LOSS)
+	var total := trade_fee + trade_tax + interest_tax + float(r.get("income_tax", 0))
+	_add_text(box, TranslationServer.translate("REPORT_COSTS_TOTAL") % Fmt.rupiah(total), Palette.MUTED)
 
 
 ## "+Rp1.250.000 (+3,10%)"

@@ -124,7 +124,11 @@ func _build_transactions() -> void:
 		middle.add_theme_constant_override("separation", 0)
 		var name_label := _label(tr(t["asset_key"]), &"AssetNameLabel")
 		name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		var meta := _label(tr("TX_META") % [Fmt.game_date(t["month"]), Fmt.rupiah(t["fee"])], &"SmallMutedLabel")
+		var tax := float(t.get("tax", 0.0))
+		var meta_text := tr("TX_META") % [Fmt.game_date(t["month"]), Fmt.rupiah(t["fee"])]
+		if tax > 0.0:
+			meta_text = tr("TX_META_TAX") % [Fmt.game_date(t["month"]), Fmt.rupiah(t["fee"]), Fmt.rupiah(tax)]
+		var meta := _label(meta_text, &"SmallMutedLabel")
 		meta.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		middle.add_child(name_label)
 		middle.add_child(meta)

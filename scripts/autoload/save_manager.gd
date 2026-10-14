@@ -20,7 +20,7 @@ const HISTORY_SHOWN := 10  # riwayat permainan yang dimuat ke GameState.history
 const LEGACY_PLAYER := "player.json"
 const LEGACY_SAVE_DIR := "saves/"
 const TX_COLUMNS: PackedStringArray = [
-	"slot", "seq", "month", "kind", "asset_key", "amount", "units", "fee", "pnl"]
+	"slot", "seq", "month", "kind", "asset_key", "amount", "units", "fee", "tax", "pnl"]
 
 var db := SaveDb.new()
 var _root := "user://"
@@ -230,7 +230,7 @@ func _write_transactions(slot: String, transactions: Array, synced_seq: int) -> 
 		if seq <= synced_seq:
 			break
 		values.append([slot, seq, int(t["month"]), String(t["kind"]), String(t["asset_key"]),
-			float(t["amount"]), float(t["units"]), float(t["fee"]), float(t.get("pnl", 0.0))])
+			float(t["amount"]), float(t["units"]), float(t["fee"]), float(t.get("tax", 0.0)), float(t.get("pnl", 0.0))])
 	if values.is_empty():
 		return true
 	var newest: int = values[0][1]
@@ -278,11 +278,11 @@ func _read_state(slot: String) -> Dictionary:
 			assets[row["asset_id"]]["month_closes"].append(float(row["price"]))
 	var transactions: Array = []
 	for row: Dictionary in db.rows(
-			"SELECT seq, month, kind, asset_key, amount, units, fee, pnl FROM transactions WHERE slot = ? ORDER BY seq DESC LIMIT ?;",
+			"SELECT seq, month, kind, asset_key, amount, units, fee, tax, pnl FROM transactions WHERE slot = ? ORDER BY seq DESC LIMIT ?;",
 			[slot, GameState.MAX_TRANSACTIONS]):
 		transactions.append({"seq": int(row["seq"]), "month": int(row["month"]), "kind": String(row["kind"]),
 			"asset_key": String(row["asset_key"]), "amount": float(row["amount"]), "units": float(row["units"]),
-			"fee": float(row["fee"]), "pnl": float(row["pnl"])})
+			"fee": float(row["fee"]), "tax": float(row["tax"]), "pnl": float(row["pnl"])})
 	state["transactions"] = transactions
 	return state
 

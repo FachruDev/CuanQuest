@@ -12,7 +12,13 @@ extends RefCounted
 ## - price_monthly : harga penutupan bulanan per aset, sepanjang permainan
 ## - transactions  : riwayat transaksi per slot (maks GameState.MAX_TRANSACTIONS)
 
-const SCHEMA_VERSION := 1
+## Versi skema. Naikkan saat struktur tabel berubah, lalu tambahkan langkah di MIGRATIONS.
+## Analogi web: file migrasi di Laravel/Prisma; PRAGMA user_version = nomor migrasi terakhir.
+const SCHEMA_VERSION := 2
+## Perubahan untuk database lama: versi tujuan -> perintah SQL.
+const MIGRATIONS := {
+	2: ["ALTER TABLE transactions ADD COLUMN tax REAL NOT NULL DEFAULT 0;"],  # v1.5a: pajak transaksi
+}
 ## Baris per perintah INSERT. Satu INSERT berisi banyak baris jauh lebih cepat daripada
 ## INSERT per baris; batas SQLite 32.766 parameter per perintah.
 const ROWS_PER_INSERT := 300
@@ -158,11 +164,17 @@ func _create_schema() -> bool:
 			amount    REAL NOT NULL,
 			units     REAL NOT NULL,
 			fee       REAL NOT NULL,
+			tax       REAL NOT NULL DEFAULT 0,
 			pnl       REAL NOT NULL,
 			PRIMARY KEY (slot, seq)
 		) WITHOUT ROWID;""",
-		"PRAGMA user_version = %d;" % SCHEMA_VERSION,
 	]
+	# Database baru langsung dibuat dengan skema terbaru; database lama (versi 1..) menjalankan
+	# migrasi yang belum pernah dijalankan.
+	if version > 0:
+		for target: int in range(version + 1, SCHEMA_VERSION + 1):
+			statements.append_array(MIGRATIONS.get(target, []))
+	statements.append("PRAGMA user_version = %d;" % SCHEMA_VERSION)
 	return transaction(func() -> bool:
 		for sql in statements:
 			if not exec(sql):

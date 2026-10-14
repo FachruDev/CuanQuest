@@ -58,6 +58,7 @@ func _refresh() -> void:
 	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_MONTHS", str(GameState.month)))
 	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_EVENTS", str(int(s["events"]))))
 	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_QUIZ", str(GameState.quiz.correct_ids.size())))
+	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_COSTS", Fmt.rupiah(float(s["total_taxes"]) + float(s["total_fees"]))))
 	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_BEST",
 		("%s %s" % [tr(best["asset_key"]), Fmt.signed_rupiah(best["value"])]) if not best.is_empty() else "-"))
 

@@ -30,7 +30,8 @@ func _refresh() -> void:
 
 	var expenses := GameState.monthly_expenses()
 	var unemployed := GameState.unemployed_months > 0
-	var income := 0 if unemployed else GameState.salary
+	var income := 0 if unemployed else GameState.net_salary()
+	var salary_tax := 0 if unemployed else GameState.income_tax(GameState.salary)
 	var preview := GameState.plan_preview(GameState.plan, income)
 	var surplus: int = preview["surplus"]
 	_plan_values["lifestyle"].text = Fmt.signed_rupiah(-preview["lifestyle"])
@@ -39,15 +40,19 @@ func _refresh() -> void:
 	_plan_values["invest"].text = Fmt.rupiah(preview["invest_total"])
 	var volatility := float(GameState.background["income_volatility"])
 
-	%SalaryName.text = tr("HOME_INCOME_AVG_LABEL" if volatility > 0.0 else "HOME_SALARY_LABEL")
+	%SalaryName.text = tr("HOME_INCOME_AVG_LABEL" if volatility > 0.0 else
+		("HOME_NET_SALARY_LABEL" if salary_tax > 0 else "HOME_SALARY_LABEL"))
 	%SalaryValue.text = Fmt.signed_rupiah(income)
 	%SalaryValue.add_theme_color_override("font_color", Palette.LOSS if unemployed else Palette.GAIN)
-	%SalaryNote.visible = unemployed or volatility > 0.0
+	%SalaryNote.visible = unemployed or volatility > 0.0 or salary_tax > 0
 	if unemployed:
 		%SalaryNote.text = tr("HOME_UNEMPLOYED") % GameState.unemployed_months
 		%SalaryNote.add_theme_color_override("font_color", Palette.LOSS)
 	elif volatility > 0.0:
 		%SalaryNote.text = tr("HOME_INCOME_VARIES") % roundi(volatility * 100)
+		%SalaryNote.remove_theme_color_override("font_color")
+	elif salary_tax > 0:
+		%SalaryNote.text = tr("HOME_SALARY_TAX_NOTE") % [Fmt.rupiah(GameState.salary), Fmt.rupiah(salary_tax)]
 		%SalaryNote.remove_theme_color_override("font_color")
 
 	%ExpenseValue.text = Fmt.signed_rupiah(-expenses)

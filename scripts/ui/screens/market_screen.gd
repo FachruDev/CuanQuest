@@ -13,6 +13,9 @@ const NEWS_SHOWN := 4
 
 enum Mode { BUY, SELL }
 
+## Tombol Beli/Jual ditekan: main membuka layar konfirmasi (rincian fee, pajak, peringatan).
+signal trade_requested(asset_id: String, is_buy: bool, amount: int)
+
 var mode := Mode.BUY
 var _selected_id := ""
 var _rows: Dictionary = {}  # asset_id -> { "button": Button, "risk": Label, "price": Label, "change": Label }
@@ -215,10 +218,13 @@ func _refresh_detail() -> void:
 		%Chart.points_per_period = asset.days_per_month()
 		%Chart.set_long_data(asset.month_closes)  # periode "Semua" memakai penutupan bulanan
 		%Chart.set_data(asset.history)
-		%InfoLabel.text = tr("INFO_TRADED") % [
+		var info := tr("INFO_TRADED") % [
 			Fmt.percent_plain(asset.volatility),
 			Fmt.percent_plain(asset.buy_fee),
 			Fmt.percent_plain(asset.sell_fee)]
+		if asset.buy_tax > 0.0 or asset.sell_tax > 0.0:
+			info += "\n" + tr("INFO_TAX") % [Fmt.percent_plain(asset.buy_tax), Fmt.percent_plain(asset.sell_tax)]
+		%InfoLabel.text = info
 
 	var unlocked := GameState.is_asset_unlocked(_selected_id)
 	%TradeBox.visible = unlocked
@@ -256,32 +262,41 @@ func _fill_percent(percent: float) -> void:
 	%AmountEdit.text = str(amount)
 
 
+## Cek dulu lewat GameState.trade_quote(); jika valid, minta konfirmasi (layar rincian di main).
 func _on_confirm_pressed() -> void:
 	var amount := _parse_amount(%AmountEdit.text)
-	var result: Dictionary
-	if mode == Mode.BUY:
-		result = GameState.buy(_selected_id, amount)
-		if result.ok and GameState.market.get_asset(_selected_id).is_interest():
-			_show_message(tr("MSG_DEPOSIT_OK") % Fmt.rupiah(amount))
-		elif result.ok:
-			_show_message(tr("MSG_BUY_OK") % [Fmt.units(result.units), Fmt.rupiah(result.fee)])
-	else:
-		result = GameState.sell(_selected_id, amount)
-		if result.ok:
-			var msg: String
-			if GameState.market.get_asset(_selected_id).is_interest():
-				msg = tr("MSG_WITHDRAW_OK") % [Fmt.rupiah(result.proceeds), Fmt.rupiah(result.fee)]
-			else:
-				msg = tr("MSG_SELL_OK") % [
-					Fmt.units(result.units), Fmt.rupiah(result.proceeds), Fmt.rupiah(result.fee)]
-			if result.penalty:
-				msg += " " + tr("MSG_PENALTY")
-			_show_message(msg)
+	var quote := GameState.trade_quote(_selected_id, mode == Mode.BUY, amount)
+	if not quote["ok"]:
+		_show_message(tr(quote["error"]), true)
+		return
+	%FeedbackLabel.text = ""
+	trade_requested.emit(_selected_id, mode == Mode.BUY, amount)
 
-	if result.ok:
-		%AmountEdit.text = ""
-	else:
+
+## Hasil transaksi dari layar konfirmasi.
+func show_trade_result(result: Dictionary) -> void:
+	if _selected_id == "":
+		return
+	if not result.ok:
 		_show_message(tr(result.error), true)
+		return
+	%AmountEdit.text = ""
+	var asset := GameState.market.get_asset(_selected_id)
+	var costs: float = result.fee + result.tax
+	if mode == Mode.BUY:
+		if asset.is_interest():
+			_show_message(tr("MSG_DEPOSIT_OK") % Fmt.rupiah(result.units * asset.price))
+		else:
+			_show_message(tr("MSG_BUY_OK") % [Fmt.units(result.units), Fmt.rupiah(costs)])
+		return
+	var msg: String
+	if asset.is_interest():
+		msg = tr("MSG_WITHDRAW_OK") % [Fmt.rupiah(result.proceeds), Fmt.rupiah(costs)]
+	else:
+		msg = tr("MSG_SELL_OK") % [Fmt.units(result.units), Fmt.rupiah(result.proceeds), Fmt.rupiah(costs)]
+	if result.penalty:
+		msg += " " + tr("MSG_PENALTY")
+	_show_message(msg)
 
 
 func _show_message(text: String, is_error := false) -> void:

@@ -86,6 +86,20 @@
 		"emergency_target_months": 6,
 		"lifestyle_happiness": [[0.0, -2], [0.05, 0], [0.1, 1], [0.2, 2], [0.3, 3]]
 	},
+	"income_tax": {
+		"_comment": [
+			"PPh 21 disederhanakan (v1.5a langkah 2, tarif UU HPP): gaji setahun dikurangi PTKP (lajang tanpa tanggungan), lalu tarif bertingkat per lapisan.",
+			"brackets: [batas atas lapisan per tahun, tarif]; null = tanpa batas. PTKP & batas lapisan ikut indeks harga (GameState.nominal) agar beban pajak tidak naik hanya karena inflasi."
+		],
+		"ptkp": 54000000,
+		"brackets": [[60000000, 0.05], [250000000, 0.15], [500000000, 0.25], [5000000000, 0.30], [null, 0.35]]
+	},
+	"trade_warnings": {
+		"_comment": "Peringatan di layar konfirmasi beli (v1.5a langkah 2). concentration = porsi satu aset dari total investasi setelah beli; berlaku jika total investasi >= concentration_min (harga awal, ikut inflasi). risky_from = level risiko aset yang memicu peringatan dana darurat.",
+		"concentration": 0.6,
+		"concentration_min": 5000000,
+		"risky_from": 3
+	},
 	"xp_per_month": 2,
 	"xp_per_level": 60,
 	"quiz": {

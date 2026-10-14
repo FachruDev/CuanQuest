@@ -24,7 +24,7 @@ func open() -> void:
 	var first: bool = not GameState.plan.get("confirmed", false)
 	%CloseButton.visible = not first  # rencana pertama harus disimpan dulu
 	%ReviewLabel.visible = not first and GameState.plan_needs_review()
-	%Subtitle.text = tr("PLAN_SUBTITLE") % Fmt.rupiah(GameState.salary)
+	%Subtitle.text = tr("PLAN_SUBTITLE") % Fmt.rupiah(GameState.net_salary())
 	_build_rows()
 	_refresh()
 	%Scroll.scroll_vertical = 0
@@ -123,7 +123,7 @@ func _share(key: String) -> float:
 
 
 func _refresh() -> void:
-	var income := GameState.salary
+	var income := GameState.net_salary()  # rencana dihitung dari gaji setelah PPh 21
 	var preview := GameState.plan_preview(_draft, income)
 	_values["basic"].text = Fmt.rupiah(preview["basic"])
 	_notes["basic"].text = tr("PLAN_BASIC_NOTE")

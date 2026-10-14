@@ -103,7 +103,9 @@ var dreams_asked := false                    # pemain sudah ditawari memilih imp
 var targets: Array[Dictionary] = []
 # Transaksi manual selama giliran ini, untuk pembanding "kalau tidak bertransaksi" di laporan.
 var turn_units: Dictionary = {}              # asset_id -> unit saat giliran dimulai
-var turn_fees := 0.0
+var turn_fees := 0.0                         # fee + pajak transaksi manual giliran ini
+## Pajak & biaya sejak laporan terakhir (v1.5a langkah 2), ditampilkan di laporan bulanan.
+var month_costs: Dictionary = {}             # {"trade_fee", "trade_tax", "interest_tax"}
 var turn_trades := 0
 ## Event Director (v1.5-0 langkah 4)
 var event_queue: Array[String] = []          # event bulan ini yang menunggu giliran (setelah pending_event)
@@ -173,6 +175,7 @@ func new_game(profile: Dictionary = {}, seed_value: int = -1) -> void:
 	pending_event = {}
 	delayed_effects.clear()
 	stats = _new_stats()
+	month_costs = _new_month_costs()
 	negative_cash_months = 0
 	zero_health_months = 0
 	zero_happiness_months = 0
@@ -249,12 +252,16 @@ func advance_month() -> void:
 		"turn_trades": trade["trades"],
 		"turn_fees": trade["fees"],
 		"dreams_progress": _dreams_progress(),
+		"trade_fee": month_costs["trade_fee"],
+		"trade_tax": month_costs["trade_tax"],
+		"interest_tax": month_costs["interest_tax"],
 		"inflation_month": month_inflation,
 		"inflation_year": market.inflation,
 		"erosion": idle_money * month_inflation,
 	})
 	_queue_overdue_dreams()
 	_snapshot_turn()
+	month_costs = _new_month_costs()  # pajak & biaya sudah masuk laporan ini
 	changed.emit()
 	if not _fast_forwarding:
 		month_advanced.emit(last_report)
@@ -317,10 +324,11 @@ func _pay_interest() -> float:
 		var asset := market.get_asset(asset_id)
 		if not asset.is_interest():
 			continue
-		var monthly_rate := market.rate_for(asset) * (1.0 - asset.interest_tax) / 12.0
-		var gain: float = holdings[asset_id]["units"] * monthly_rate
-		holdings[asset_id]["units"] += gain
-		total += gain
+		var gross: float = holdings[asset_id]["units"] * market.rate_for(asset) / 12.0
+		var tax := gross * asset.interest_tax  # pajak final bunga (deposito 20%)
+		holdings[asset_id]["units"] += gross - tax
+		total += gross - tax
+		_add_tax("interest_tax", tax)
 	stats["total_interest"] += total
 	return total
 
@@ -348,21 +356,24 @@ func _start_month() -> Dictionary:
 
 	var food_cost := option_cost(food)
 	var housing_cost := option_cost(housing)
-	cash += paid - food_cost - housing_cost
-	month_income = paid
+	var salary_tax := income_tax(paid)
+	cash += paid - salary_tax - food_cost - housing_cost
+	month_income = paid - salary_tax  # gaji bersih: dasar rencana gaji
 	stats["total_salary"] += paid
+	stats["total_taxes"] += salary_tax
 	stats["total_living"] += food_cost + housing_cost
 	if food_id == "luxury" or housing_id == "apartment":
 		stats["luxury_months"] += 1
 	health = clampi(health + int(food["health"]) + int(housing["health"]), 0, 100)
 	happiness = clampi(happiness + int(food["happiness"]) + int(housing["happiness"]), 0, 100)
 	# Rencana gaji baru berjalan setelah pemain menyimpannya pertama kali (lihat set_plan).
-	var budget := _apply_budget(paid) if plan.get("confirmed", false) else {}
+	var budget := _apply_budget(month_income) if plan.get("confirmed", false) else {}
 	_check_dreams()
 	targets = _new_targets()
 
 	return {
 		"salary": paid,
+		"income_tax": salary_tax,
 		"unemployed": paid == 0,
 		"food_cost": food_cost,
 		"housing_cost": housing_cost,
@@ -370,6 +381,39 @@ func _start_month() -> Dictionary:
 		"happiness_delta": happiness - happiness_before,
 		"salary_raise": salary_raise,
 	}.merged(budget)
+
+
+# --- Pajak (v1.5a langkah 2) -------------------------------------------------------
+
+## PPh 21 sebulan untuk penghasilan bruto sebulan `monthly`: disetahunkan, dikurangi PTKP,
+## lalu tarif bertingkat per lapisan (economy.json "income_tax"). PTKP & batas lapisan
+## ikut indeks harga, jadi beban pajak tidak naik hanya karena inflasi.
+func income_tax(monthly: int) -> int:
+	var cfg: Dictionary = economy["income_tax"]
+	var taxable := monthly * 12.0 - nominal(cfg["ptkp"])
+	var tax := 0.0
+	var lower := 0.0
+	for bracket: Array in cfg["brackets"]:
+		if taxable <= lower:
+			break
+		var upper := INF if bracket[0] == null else float(nominal(bracket[0]))
+		tax += (minf(taxable, upper) - lower) * float(bracket[1])
+		lower = upper
+	return roundi(tax / 12.0)
+
+
+## Gaji yang diterima setelah PPh 21 (dasar rencana gaji di popup & Beranda).
+func net_salary() -> int:
+	return salary - income_tax(salary)
+
+
+func _new_month_costs() -> Dictionary:
+	return {"trade_fee": 0.0, "trade_tax": 0.0, "interest_tax": 0.0}
+
+
+func _add_tax(key: String, amount: float) -> void:
+	month_costs[key] += amount
+	stats["total_taxes"] += amount
 
 
 ## Penyesuaian gaji tahunan (setiap Januari) sebesar inflasi 12 bulan terakhir, agar gaji
@@ -812,20 +856,92 @@ func net_worth() -> float:
 	return cash + investments_value() + dream_funds()
 
 
-## Beli aset senilai `amount` Rupiah (sudah termasuk fee).
-## Mengembalikan { ok, error, units, fee } supaya UI bisa menampilkan pesan.
+# --- Transaksi: rincian fee & pajak (v1.5a langkah 2) -----------------------------
+
+## Rincian satu transaksi SEBELUM dijalankan. Satu sumber hitungan untuk layar konfirmasi,
+## buy(), dan sell() (mirip fungsi hitung total checkout yang dipakai UI dan backend).
+## Beli: `amount` = uang yang dibayar (fee & pajak diambil dari situ).
+## Jual: `amount` = nilai pasar aset yang dijual (fee, pajak, & penalti dipotong dari situ).
+## -> {ok, error, buy, asset_id, amount, units, fee, tax, penalty, net, pnl, warnings}
+##    net: beli = yang benar-benar masuk ke investasi; jual = uang yang diterima.
+func trade_quote(asset_id: String, is_buy: bool, amount: int) -> Dictionary:
+	var asset := market.get_asset(asset_id)
+	var q := {"ok": false, "error": "", "buy": is_buy, "asset_id": asset_id, "amount": amount,
+		"units": 0.0, "fee": 0.0, "tax": 0.0, "penalty": 0.0, "net": 0.0, "pnl": 0.0, "warnings": []}
+	if is_buy and not is_asset_unlocked(asset_id):
+		q["error"] = "ERR_LOCKED"
+	elif amount <= 0:
+		q["error"] = "ERR_AMOUNT_INVALID"
+	elif is_buy and amount > cash:
+		q["error"] = "ERR_NOT_ENOUGH_CASH"
+	if q["error"] != "":
+		return q
+	if is_buy:
+		q["fee"] = amount * asset.buy_fee
+		q["tax"] = amount * asset.buy_tax
+		q["net"] = amount - q["fee"] - q["tax"]
+		q["units"] = q["net"] / asset.price
+	else:
+		var held := units_of(asset_id)
+		var units := amount / asset.price
+		if held <= 0.0 or units > held * 1.0001:
+			q["error"] = "ERR_NOT_ENOUGH_UNITS"
+			return q
+		if units >= held * 0.999:
+			units = held  # jual semua, hindari sisa "debu" 0.0001 unit
+		var gross := units * asset.price
+		q["units"] = units
+		q["fee"] = gross * asset.sell_fee
+		q["tax"] = gross * asset.sell_tax
+		q["penalty"] = gross * asset.early_penalty if is_locked(asset_id) else 0.0
+		q["net"] = floorf(gross - q["fee"] - q["tax"] - q["penalty"])
+		q["pnl"] = q["net"] - cost_of(asset_id) * (units / held)
+	q["ok"] = true
+	q["warnings"] = _trade_warnings(asset, q)
+	return q
+
+
+## Peringatan untuk layar konfirmasi: [{"id": risk|concentration|emergency|low_cash|penalty|loss, "args": [...]}]
+func _trade_warnings(asset: MarketAsset, q: Dictionary) -> Array[Dictionary]:
+	var cfg: Dictionary = economy["trade_warnings"]
+	var warnings: Array[Dictionary] = []
+	if q["buy"]:
+		var risky := asset.risk >= int(cfg["risky_from"])
+		if exceeds_risk_profile(asset):
+			warnings.append({"id": "risk", "args": [risk_profile()["name"]]})
+		var invest_after: float = investments_value() + q["net"]
+		var share: float = (holding_value(asset.id) + q["net"]) / maxf(invest_after, 1.0)
+		if risky and invest_after >= nominal(cfg["concentration_min"]) and share > float(cfg["concentration"]):
+			warnings.append({"id": "concentration", "args": [share]})
+		if risky and emergency_balance() < emergency_target():
+			warnings.append({"id": "emergency", "args": [emergency_balance(), emergency_target()]})
+		if asset.asset_class != "savings" and cash - int(q["amount"]) < monthly_expenses():
+			warnings.append({"id": "low_cash", "args": [monthly_expenses()]})
+	else:
+		if q["penalty"] > 0.0:
+			warnings.append({"id": "penalty", "args": [locked_until(asset.id)]})
+		if q["pnl"] < 0.0:
+			warnings.append({"id": "loss", "args": [-q["pnl"]]})
+	return warnings
+
+
+func _add_trade_costs(fee: float, tax: float) -> void:
+	month_costs["trade_fee"] += fee
+	stats["total_fees"] += fee
+	_add_tax("trade_tax", tax)
+
+
+## Beli aset senilai `amount` Rupiah (sudah termasuk fee & pajak, lihat trade_quote).
+## Mengembalikan { ok, error, units, fee, tax } supaya UI bisa menampilkan pesan.
 ## `kind`: buy (manual) | auto (autodebet dari rencana gaji).
 func buy(asset_id: String, amount: int, kind: String = "buy") -> Dictionary:
-	if not is_asset_unlocked(asset_id):
-		return {"ok": false, "error": "ERR_LOCKED"}
-	if amount <= 0:
-		return {"ok": false, "error": "ERR_AMOUNT_INVALID"}
-	if amount > cash:
-		return {"ok": false, "error": "ERR_NOT_ENOUGH_CASH"}
-
+	var q := trade_quote(asset_id, true, amount)
+	if not q["ok"]:
+		return {"ok": false, "error": q["error"]}
 	var asset := market.get_asset(asset_id)
-	var fee := amount * asset.buy_fee
-	var units := (amount - fee) / asset.price
+	var fee: float = q["fee"]
+	var tax: float = q["tax"]
+	var units: float = q["units"]
 
 	var h: Dictionary = holdings.get(asset_id, {"units": 0.0, "cost": 0.0, "locked_until": 0})
 	h["units"] += units
@@ -834,37 +950,29 @@ func buy(asset_id: String, amount: int, kind: String = "buy") -> Dictionary:
 		h["locked_until"] = month + asset.lock_months  # setoran baru memperpanjang tenor
 	holdings[asset_id] = h
 	cash -= amount
-	stats["total_fees"] += fee
-	_log_transaction(kind, asset, amount, units, fee, 0.0)
+	_add_trade_costs(fee, tax)
+	_log_transaction(kind, asset, amount, units, fee, tax, 0.0)
 	if kind == "buy":  # autodebet tidak dihitung sebagai transaksi manual
-		turn_fees += fee
+		turn_fees += fee + tax
 		turn_trades += 1
 		_progress_target("invest", amount)
 
 	changed.emit()
-	return {"ok": true, "units": units, "fee": fee}
+	return {"ok": true, "units": units, "fee": fee, "tax": tax}
 
 
 ## Jual aset senilai `amount` Rupiah (berdasarkan harga pasar sebelum fee).
 ## `kind`: sell (manual) | forced (jual paksa saat kas minus) | panic (event panik jual).
 func sell(asset_id: String, amount: int, kind: String = "sell") -> Dictionary:
-	var held := units_of(asset_id)
-	if amount <= 0:
-		return {"ok": false, "error": "ERR_AMOUNT_INVALID"}
-	if held <= 0.0:
-		return {"ok": false, "error": "ERR_NOT_ENOUGH_UNITS"}
-
+	var q := trade_quote(asset_id, false, amount)
+	if not q["ok"]:
+		return {"ok": false, "error": q["error"]}
 	var asset := market.get_asset(asset_id)
-	var units := amount / asset.price
-	if units > held * 1.0001:
-		return {"ok": false, "error": "ERR_NOT_ENOUGH_UNITS"}
-	if units >= held * 0.999:
-		units = held  # jual semua, hindari sisa "debu" 0.0001 unit
-
-	var penalty := is_locked(asset_id)
-	var gross := units * asset.price
-	var fee := gross * (asset.sell_fee + (asset.early_penalty if penalty else 0.0))
-	var proceeds := floori(gross - fee)
+	var held := units_of(asset_id)
+	var units: float = q["units"]
+	var fee: float = q["fee"] + q["penalty"]  # penalti pencairan dini dicatat bersama fee
+	var tax: float = q["tax"]
+	var proceeds := int(q["net"])
 
 	var h: Dictionary = holdings[asset_id]
 	var cost_sold: float = h["cost"] * (units / held)
@@ -873,17 +981,17 @@ func sell(asset_id: String, amount: int, kind: String = "sell") -> Dictionary:
 	if h["units"] <= 0.0:
 		holdings.erase(asset_id)
 	cash += proceeds
-	stats["total_fees"] += fee
+	_add_trade_costs(fee, tax)
 	_record_extreme("best_trade", "worst_trade", proceeds - cost_sold, {"asset_key": asset.name_key})
-	_log_transaction(kind, asset, proceeds, units, fee, proceeds - cost_sold)
+	_log_transaction(kind, asset, proceeds, units, fee, tax, proceeds - cost_sold)
 	if kind in ["sell", "panic"]:
-		turn_fees += fee
+		turn_fees += fee + tax
 		turn_trades += 1
 		if proceeds - cost_sold < 0.0:
 			_fail_target("no_loss")
 
 	changed.emit()
-	return {"ok": true, "units": units, "fee": fee, "proceeds": proceeds, "penalty": penalty}
+	return {"ok": true, "units": units, "fee": fee, "tax": tax, "proceeds": proceeds, "penalty": q["penalty"] > 0.0}
 
 
 ## Deposito yang belum jatuh tempo kena penalti jika dicairkan.
@@ -950,7 +1058,7 @@ func to_dict() -> Dictionary:
 		"transactions": transactions, "transaction_seq": transaction_seq, "risk_profile": risk_profile_id,
 		"plan": plan, "plan_applied_month": plan_applied_month, "month_income": month_income,
 		"dreams": dreams, "dreams_asked": dreams_asked, "targets": targets,
-		"turn_units": turn_units, "turn_fees": turn_fees, "turn_trades": turn_trades,
+		"turn_units": turn_units, "turn_fees": turn_fees, "turn_trades": turn_trades, "month_costs": month_costs,
 		"event_queue": event_queue, "chain_events": chain_events, "director": director,
 	}
 
@@ -1013,6 +1121,7 @@ func load_from_dict(d: Dictionary) -> bool:
 		var t: Dictionary = saved_transactions[i]
 		t["month"] = int(t["month"])
 		t["seq"] = int(t.get("seq", saved_transactions.size() - i))  # terbaru di depan
+		t["tax"] = float(t.get("tax", 0.0))
 		transactions.append(t)
 	transaction_seq = int(d.get("transaction_seq", transactions[0]["seq"] if not transactions.is_empty() else 0))
 	risk_profile_id = d.get("risk_profile", "moderate")
@@ -1032,6 +1141,7 @@ func load_from_dict(d: Dictionary) -> bool:
 		targets.append(t)
 	turn_units = d.get("turn_units", {})
 	turn_fees = float(d.get("turn_fees", 0.0))
+	month_costs = _new_month_costs().merged(d.get("month_costs", {}), true)
 	turn_trades = int(d.get("turn_trades", 0))
 	_dream_signals.clear()
 	event_queue.assign(d.get("event_queue", []))
@@ -1061,7 +1171,7 @@ func load_from_dict(d: Dictionary) -> bool:
 
 func _new_stats() -> Dictionary:
 	return {
-		"total_salary": 0, "total_living": 0, "total_interest": 0.0, "total_fees": 0.0,
+		"total_salary": 0, "total_living": 0, "total_interest": 0.0, "total_fees": 0.0, "total_taxes": 0.0,
 		"peak_net_worth": 0.0, "events": 0, "scam_loss": 0, "forced_sales": 0,
 		"unaffordable_choices": 0, "luxury_months": 0, "cash_heavy_months": 0,
 		"panic_sell": false, "total_lifestyle": 0, "total_autodebet": 0, "dreams_achieved": 0,
@@ -1098,7 +1208,7 @@ func _cover_negative_cash() -> Array[Dictionary]:
 		if cash >= 0:
 			break
 		var asset := market.get_asset(asset_id)
-		var fee_rate := asset.sell_fee + (asset.early_penalty if is_locked(asset_id) else 0.0)
+		var fee_rate := asset.sell_fee + asset.sell_tax + (asset.early_penalty if is_locked(asset_id) else 0.0)
 		var needed := ceili(-cash / (1.0 - fee_rate)) + 1000
 		var result := sell(asset_id, mini(needed, ceili(holding_value(asset_id))), "forced")
 		if result["ok"]:
@@ -1278,7 +1388,8 @@ func _merge_reports(reports: Array[Dictionary]) -> Dictionary:
 	if reports.size() == 1:
 		return merged
 	for key: String in ["salary", "food_cost", "housing_cost", "invest_change", "interest",
-			"health_delta", "happiness_delta", "lifestyle_cost", "emergency_saved"]:
+			"health_delta", "happiness_delta", "lifestyle_cost", "emergency_saved",
+			"income_tax", "trade_fee", "trade_tax", "interest_tax"]:
 		var total := 0.0
 		for r: Dictionary in reports:
 			total += float(r.get(key, 0))
@@ -1318,12 +1429,12 @@ func _merge_reports(reports: Array[Dictionary]) -> Dictionary:
 
 # --- Riwayat transaksi (M6.5) ----------------------------------------------------
 
-## `kind`: buy | sell | forced | panic. `pnl` = untung/rugi terealisasi (khusus jual).
+## `kind`: buy | auto | sell | forced | panic. `pnl` = untung/rugi terealisasi (khusus jual).
 func _log_transaction(kind: String, asset: MarketAsset, amount: float, units: float,
-		fee: float, pnl: float) -> void:
+		fee: float, tax: float, pnl: float) -> void:
 	transaction_seq += 1
 	transactions.push_front({"seq": transaction_seq, "month": month, "kind": kind, "asset_key": asset.name_key,
-		"amount": amount, "units": units, "fee": fee, "pnl": pnl})
+		"amount": amount, "units": units, "fee": fee, "tax": tax, "pnl": pnl})
 	if transactions.size() > MAX_TRANSACTIONS:
 		transactions.resize(MAX_TRANSACTIONS)
 
@@ -1663,12 +1774,14 @@ func _flush_dream_signals() -> void:
 ## Pos impian berbunga seperti tabungan (setelah pajak). Mengembalikan totalnya.
 func _pay_dream_interest() -> float:
 	var asset := market.get_asset(dreams_config()["interest_asset"])
-	var rate := market.rate_for(asset) * (1.0 - asset.interest_tax) / 12.0
+	var rate := market.rate_for(asset) / 12.0
 	var total := 0.0
 	for entry: Dictionary in active_dreams():
-		var gain: float = entry["saved"] * rate
-		entry["saved"] += gain
-		total += gain
+		var gross: float = entry["saved"] * rate
+		var tax := gross * asset.interest_tax
+		entry["saved"] += gross - tax
+		total += gross - tax
+		_add_tax("interest_tax", tax)
 	return total
 
 

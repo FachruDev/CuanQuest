@@ -13,8 +13,8 @@ HINT_AMOUNT,Nominal (Rp),Amount (Rp)
 ERR_AMOUNT_INVALID,Masukkan nominal yang valid.,Enter a valid amount.
 ERR_NOT_ENOUGH_CASH,Kas tidak cukup.,Not enough cash.
 ERR_NOT_ENOUGH_UNITS,Kepemilikan tidak cukup.,Not enough holdings.
-MSG_BUY_OK,Berhasil beli %s unit (fee %s).,Bought %s units (fee %s).
-MSG_SELL_OK,"Berhasil jual %s unit, uang masuk %s (fee %s).","Sold %s units, received %s (fee %s)."
+MSG_BUY_OK,Berhasil beli %s unit (fee & pajak %s).,Bought %s units (fees & tax %s).
+MSG_SELL_OK,"Berhasil jual %s unit, uang masuk %s (fee & pajak %s).","Sold %s units, received %s (fees & tax %s)."
 FMT_DATE,%s Tahun %d,%s Year %d
 MONTH_1,Januari,January
 MONTH_2,Februari,February
@@ -462,7 +462,7 @@ SAVE_OUTDATED,Simpanan ini dari versi game lama dan tidak kompatibel. Silakan mu
 SUMMARY_HIGHLIGHTS,Sorotan,Highlights
 SUMMARY_SKIP_HINT,Ketuk grafik untuk melewati animasi,Tap the chart to skip the animation
 PLAN_TITLE,Rencana Gaji,Salary Plan
-PLAN_SUBTITLE,Gaji %s / bulan,Salary %s / month
+PLAN_SUBTITLE,Gaji bersih %s / bulan,Net salary %s / month
 PLAN_INTRO,Bayar dirimu dulu: sisihkan dana darurat dan investasi sebelum belanja. Rencana ini berjalan otomatis setiap gajian.,Pay yourself first: set aside your emergency fund and investments before spending. This plan runs automatically every payday.
 PLAN_REVIEW_SALARY,Gajimu berubah. Cek lagi rencanamu.,Your salary changed. Review your plan.
 PLAN_BASIC,Kebutuhan pokok,Basic needs
@@ -562,3 +562,39 @@ POWER_PRICES,Harga naik sejak awal,Prices since the start
 POWER_REAL_WORTH,Kekayaan riil (harga awal permainan): %s. Nominalnya %s.,Real net worth (starting prices): %s. Nominal value %s.
 POWER_HINT_LOSING,"Bunga tabungan di bawah inflasi: uang yang hanya disimpan di tabungan pelan-pelan kehilangan daya beli. Deposito, reksa dana, dan saham bisa membantu mengejar inflasi.","Savings interest is below inflation: money that only sits in savings slowly loses purchasing power. Deposits, mutual funds, and stocks can help keep up."
 POWER_HINT_OK,"Bunga tabungan sedang di atas inflasi, tapi kondisi ini bisa berubah kapan saja.","Savings interest is above inflation right now, but that can change anytime."
+TRADE_TITLE_BUY,Konfirmasi Beli,Confirm Purchase
+TRADE_TITLE_SELL,Konfirmasi Jual,Confirm Sale
+TRADE_RISK,Risiko,Risk
+TRADE_PROFILE,Profil %s: risiko maksimal %d dari 5,%s profile: maximum risk %d of 5
+TRADE_PRICE,Harga per unit,Price per unit
+TRADE_AMOUNT_BUY,Uang dibayar,You pay
+TRADE_AMOUNT_SELL,Nilai jual (harga pasar),Sale value (market price)
+TRADE_FEE,Fee transaksi (%s),Transaction fee (%s)
+TRADE_TAX_BUY,Pajak beli / PPN (%s),Purchase tax / VAT (%s)
+TRADE_TAX_SELL,Pajak final jual (%s),Final tax on sale (%s)
+TRADE_PENALTY,Penalti cair sebelum jatuh tempo (%s),Early withdrawal penalty (%s)
+TRADE_NO_COSTS,Tanpa fee dan pajak transaksi.,No fees or transaction taxes.
+TRADE_NET_BUY,Masuk ke investasi,Invested
+TRADE_UNITS,Unit didapat,Units received
+TRADE_NET_SELL,Uang diterima,You receive
+TRADE_PNL,Untung/rugi terealisasi,Realized gain/loss
+TRADE_CONFIRM_BUY,"Ya, beli","Yes, buy"
+TRADE_CONFIRM_SELL,"Ya, jual","Yes, sell"
+BTN_CANCEL,Batal,Cancel
+TRADE_WARN_RISK,Risiko aset ini di atas profil risikomu (%s).,This asset is riskier than your risk profile (%s).
+TRADE_WARN_CONCENTRATION,"Setelah transaksi ini, %s investasimu ada di satu aset. Sebar ke beberapa aset agar tidak terlalu bergantung pada satu harga.","After this trade, %s of your investments sit in one asset. Spread across several assets so you don't depend on a single price."
+TRADE_WARN_EMERGENCY,Dana daruratmu baru %s dari target %s. Sebaiknya lengkapi dulu sebelum membeli aset berisiko.,Your emergency fund is %s of a %s target. Consider completing it before buying risky assets.
+TRADE_WARN_LOW_CASH,Sisa kasmu akan kurang dari biaya hidup sebulan (%s).,Your remaining cash will be less than one month of living costs (%s).
+TRADE_WARN_PENALTY,Deposito ini baru jatuh tempo %s; mencairkannya sekarang kena penalti.,This deposit matures in %s; withdrawing now incurs a penalty.
+TRADE_WARN_LOSS,"Kamu akan merealisasikan rugi %s. Pastikan ini keputusan terencana, bukan karena panik.","You will realize a loss of %s. Make sure this is a planned decision, not panic."
+REPORT_INCOME_TAX,PPh 21 (pajak gaji),Income tax (PPh 21)
+REPORT_COSTS,PAJAK & BIAYA,TAXES & FEES
+REPORT_TRADE_FEE,Fee transaksi,Transaction fees
+REPORT_TRADE_TAX,Pajak transaksi,Transaction taxes
+REPORT_INTEREST_TAX,Pajak bunga,Interest tax
+REPORT_COSTS_TOTAL,Total pajak & biaya bulan ini %s (termasuk PPh 21).,Total taxes & fees this month: %s (including income tax).
+TX_META_TAX,%s · fee %s · pajak %s,%s · fee %s · tax %s
+HOME_NET_SALARY_LABEL,Gaji bersih,Net salary
+HOME_SALARY_TAX_NOTE,Gaji %s dipotong PPh 21 %s,Gross %s minus income tax %s
+INFO_TAX,Pajak beli %s | Pajak jual %s,Buy tax %s | Sell tax %s
+PROFILE_STAT_COSTS,Pajak & fee dibayar,Taxes & fees paid

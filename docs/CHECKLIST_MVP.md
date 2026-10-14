@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5a langkah 1 selesai)
+- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5a langkah 2 selesai)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -14,7 +14,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **UI "Senja Cuan"** | Redesain seluruh tampilan | ✅ |
 | **Prototipe waktu A/B/C** | Uji sistem waktu berjalan (tidak dipakai, diarsipkan) | ✅ |
 | **v1.5-0** | Giliran Bulanan yang Hidup | 🔄 5/5 langkah; tinggal playtest |
-| **v1.5a** | Realisme ekonomi | 🔄 1/5 langkah |
+| **v1.5a** | Realisme ekonomi | 🔄 2/5 langkah |
 | **v1.5b** | Utang, properti, hunian yang tumbuh | ⬜ |
 | **v1.5c** | Karier, tokoh, konten | ⬜ |
 | **v2a-v2d** | Instrumen lanjut, hidup penuh, dana investor, mini-game | ⬜ |
@@ -131,7 +131,7 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 | Langkah | Isi | Status |
 |:--|:--|:--|
 | 1 | Inflasi, suku bunga BI & daya beli | ✅ |
-| 2 | Pajak + layar konfirmasi transaksi (fee, pajak, konsentrasi, indikator risiko) | ⬜ |
+| 2 | Pajak + layar konfirmasi transaksi (fee, pajak, konsentrasi, indikator risiko) | ✅ |
 | 3 | Asuransi kesehatan, jiwa, kendaraan + klaim di event | ⬜ |
 | 4 | Stop loss & take profit (dicek harian) | ⬜ |
 | 5 | Penyeimbangan ekonomi (simulasi + playtest) | ⬜ |
@@ -150,11 +150,16 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 - ✅ Simulasi 40 x 10 tahun: indeks harga median 1,43; kekayaan riil median Rp536 jt (tanpa inflasi Rp587 jt)
 - ℹ️ Target menang "Miliarder" tetap Rp1 miliar nominal; target "Bebas finansial" otomatis ikut inflasi karena memakai biaya hidup
 
-**Langkah 2: Pajak & layar konfirmasi** ⬜
-- ⬜ Pajak penghasilan dipotong dari gaji (aturan Indonesia yang disederhanakan)
-- ⬜ Pajak investasi: final saat jual saham & kripto, pajak bunga deposito (sudah ada)
-- ⬜ Layar konfirmasi beli/jual: fee, pajak, total, peringatan konsentrasi, indikator risiko sesuai profil risiko
-- ⬜ Laporan bulanan menampilkan pajak dan fee
+**Langkah 2: Pajak & layar konfirmasi** ✅
+- ✅ PPh 21 dipotong dari gaji: gaji setahun - PTKP Rp54 jt, tarif 5/15/25/30/35% (PTKP & lapisan ikut inflasi)
+- ✅ Rencana gaji & Beranda memakai gaji bersih; Beranda menampilkan potongan PPh 21
+- ✅ Pajak investasi: saham pajak final 0,1% saat jual (fee broker 0,15%), kripto PPN 0,11% saat beli + PPh 0,1% saat jual, bunga deposito 20% (tercatat), reksa dana bebas pajak
+- ✅ Layar konfirmasi beli/jual: harga, fee, pajak, penalti deposito, yang masuk/diterima, unit, untung/rugi, meter risiko 1-5 + batas profil risiko
+- ✅ Peringatan: di atas profil risiko, konsentrasi > 60% di satu aset, dana darurat belum cukup, sisa kas < biaya hidup sebulan, jual rugi, penalti deposito
+- ✅ Laporan bulanan: PPh 21 di pemasukan + bagian PAJAK & BIAYA (fee, pajak transaksi, pajak bunga, total)
+- ✅ Riwayat transaksi menampilkan pajak; Profil menampilkan total pajak & fee dibayar
+- ✅ Database skema 2: kolom `tax` di tabel transaksi (migrasi otomatis dari skema 1)
+- ✅ Simulasi 40 x 10 tahun: kekayaan riil median Rp488 jt; total pajak 10 tahun median Rp54,7 jt; semua permainan bertahan
 
 **Langkah 3: Asuransi** ⬜
 - ⬜ Asuransi kesehatan, jiwa, kendaraan; premi masuk rencana gaji
@@ -168,7 +173,7 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 
 **Kriteria selesai**
 - ✅ Uang yang hanya disimpan di tabungan terasa tergerus dari waktu ke waktu
-- ⬜ Laporan bulanan menampilkan pajak dan fee dengan jelas
+- ✅ Laporan bulanan menampilkan pajak dan fee dengan jelas
 - ⬜ Event sakit/kecelakaan berbeda hasilnya bagi yang berasuransi
 - ⬜ Stop loss & take profit tereksekusi tepat dan tercatat di riwayat
 
