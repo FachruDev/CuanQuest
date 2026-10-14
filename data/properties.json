@@ -1,0 +1,48 @@
+{
+	"_comment": [
+		"Properti (v1.5c langkah 3). Uang = harga awal permainan (ikut indeks harga).",
+		"Harga = price x indeks harga (inflasi) x indeks properti per jenis. Indeks properti bergerak tiap bulan: growth = kenaikan harga riil per tahun, volatility = gejolak per tahun.",
+		"Biaya beli (tunai, tidak bisa dari KPR): buy_tax (BPHTB) + buy_fee (notaris/AJB) x harga. Biaya jual: sell_tax (PPh final) + sell_fee (agen) x harga saat laku; laku setelah sell_months [min, max] bulan.",
+		"Biaya rutin per tahun: pbb_rate + maintenance (per properti) x harga, dibayar bulanan.",
+		"Disewakan: sewa kotor per tahun = rent_yield x harga, dipotong rent_tax (PPh final sewa). Mencari penyewa butuh vacancy_months [min, max] bulan; kontrak lease_months bulan; saat kontrak habis, peluang renew_chance penyewa memperpanjang.",
+		"happiness = kebahagiaan per bulan jika dihuni (livable = bisa dihuni; rentable false = wajib dihuni sendiri, seperti aturan rumah subsidi). loans = produk KPR yang bisa dipakai (loans.json).",
+		"Teks ditulis langsung dalam bahasa Indonesia dan ditampilkan lewat tr()."
+	],
+	"buy_tax": 0.05,
+	"buy_fee": 0.01,
+	"sell_tax": 0.025,
+	"sell_fee": 0.025,
+	"sell_months": [1, 3],
+	"pbb_rate": 0.002,
+	"rent_tax": 0.10,
+	"vacancy_months": [1, 2],
+	"lease_months": 12,
+	"renew_chance": 0.7,
+	"properties": [
+		{
+			"id": "subsidi", "name": "Rumah Subsidi", "livable": true, "rentable": false, "loans": ["kpr_subsidi", "kpr"],
+			"desc": "Rumah tipe 36 di pinggir kota, program pemerintah untuk pembeli rumah pertama berpenghasilan rendah. Jauh dari pusat kota, tapi cicilannya ringan. Wajib dihuni sendiri, tidak boleh disewakan.",
+			"price": 180000000, "rent_yield": 0.05, "growth": 0.005, "volatility": 0.03, "maintenance": 0.01, "happiness": 1
+		},
+		{
+			"id": "studio", "name": "Apartemen Studio", "livable": true, "loans": ["kpr"],
+			"desc": "Unit studio 24 m² dekat stasiun. Mudah disewakan ke pekerja, tapi harganya cenderung stagnan dan ada biaya pengelolaan (IPL).",
+			"price": 450000000, "rent_yield": 0.06, "growth": 0.0, "volatility": 0.03, "maintenance": 0.015, "happiness": 2
+		},
+		{
+			"id": "house45", "name": "Rumah Tipe 45", "livable": true, "loans": ["kpr"],
+			"desc": "Rumah 2 kamar di perumahan dalam kota. Pilihan banyak keluarga muda: harganya naik pelan tapi stabil.",
+			"price": 900000000, "rent_yield": 0.04, "growth": 0.015, "volatility": 0.04, "maintenance": 0.01, "happiness": 3
+		},
+		{
+			"id": "house90", "name": "Rumah Besar", "livable": true, "loans": ["kpr"],
+			"desc": "Rumah tipe 90 dengan halaman di kawasan mapan. Nyaman dan bergengsi, tapi sewanya relatif kecil dibanding harganya.",
+			"price": 2500000000, "rent_yield": 0.035, "growth": 0.015, "volatility": 0.04, "maintenance": 0.01, "happiness": 4
+		},
+		{
+			"id": "land", "name": "Tanah Kavling", "livable": false, "loans": [],
+			"desc": "Tanah 150 m² di daerah yang sedang berkembang. Tidak menghasilkan sewa dan harus dibeli tunai, tapi harganya bisa naik lebih cepat, atau tidak.",
+			"price": 300000000, "rent_yield": 0.0, "growth": 0.025, "volatility": 0.08, "maintenance": 0.0, "happiness": 0
+		}
+	]
+}

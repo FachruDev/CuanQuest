@@ -24,6 +24,8 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 		_add_row(box, "REPORT_SALARY", Fmt.signed_rupiah(r["salary"]), Palette.GAIN)
 		if int(r.get("income_tax", 0)) > 0:
 			_add_row(box, "REPORT_INCOME_TAX", Fmt.signed_rupiah(-r["income_tax"]), Palette.LOSS)
+	if int(r.get("rent_income", 0)) > 0:
+		_add_row(box, "REPORT_RENT", Fmt.signed_rupiah(r["rent_income"]), Palette.GAIN)
 	if float(r.get("salary_raise", 0.0)) > 0.0:
 		_add_row(box, "REPORT_SALARY_RAISE", Fmt.percent(r["salary_raise"]), Palette.GAIN)
 	if float(r.get("merit_raise", 0.0)) > 0.0:
@@ -36,6 +38,15 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 	_add_header(box, "REPORT_EXPENSES")
 	_add_row(box, "REPORT_FOOD", Fmt.signed_rupiah(-r["food_cost"]), Palette.LOSS)
 	_add_row(box, "REPORT_HOUSING", Fmt.signed_rupiah(-r["housing_cost"]), Palette.LOSS)
+	if int(r.get("property_cost", 0)) > 0:
+		_add_row(box, "REPORT_PROPERTY", Fmt.signed_rupiah(-r["property_cost"]), Palette.LOSS)
+	for note: Dictionary in r.get("property_notes", []):
+		_add_text(box, TranslationServer.translate(note["key"]) % TranslationServer.translate(note["name"]), Palette.MUTED)
+	for sale: Dictionary in r.get("property_sold", []):
+		_add_text(box, TranslationServer.translate("REPORT_PROPERTY_SOLD") % [TranslationServer.translate(sale["name"]),
+			Fmt.rupiah(sale["net"]), Fmt.signed_rupiah(sale["gain"])], Palette.GAIN if int(sale["net"]) >= 0 else Palette.LOSS)
+		if sale.get("was_home", false):
+			_add_text(box, TranslationServer.translate("REPORT_MOVED_OUT"), Palette.MUTED)
 	if int(r.get("vehicle_cost", 0)) > 0:
 		_add_row(box, "REPORT_VEHICLE", Fmt.signed_rupiah(-r["vehicle_cost"]), Palette.LOSS)
 	if int(r.get("vehicle_depreciation", 0)) >= 1000:
@@ -133,10 +144,15 @@ static func _add_debt(box: VBoxContainer, r: Dictionary) -> void:
 	var missed: Array = r.get("loan_missed", [])
 	var closed: Array = r.get("loan_closed", [])
 	var defaults: Array = r.get("loan_defaults", [])
+	var rate_changes: Array = r.get("loan_rate_changes", [])
 	var score_change := int(r.get("credit_score", 0)) - int(r.get("credit_before", r.get("credit_score", 0)))
-	if missed.is_empty() and closed.is_empty() and defaults.is_empty() and score_change == 0:
+	if missed.is_empty() and closed.is_empty() and defaults.is_empty() and rate_changes.is_empty() and score_change == 0:
 		return
 	_add_header(box, "REPORT_DEBT")
+	for item: Dictionary in rate_changes:
+		_add_text(box, TranslationServer.translate("REPORT_LOAN_RATE") % [item["name"], Fmt.percent_plain(item["from"]),
+			Fmt.percent_plain(item["to"]), Fmt.rupiah(item["payment"])],
+			Palette.LOSS if float(item["to"]) > float(item["from"]) else Palette.GAIN)
 	for item: Dictionary in missed:
 		_add_text(box, TranslationServer.translate("REPORT_LOAN_MISSED") % [item["name"], int(item["months"]),
 			int(item["limit"]), Fmt.rupiah(item["arrears"])], Palette.LOSS)

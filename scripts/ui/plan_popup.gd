@@ -42,6 +42,10 @@ func _build_rows() -> void:
 	%Rows.add_child(_row("basic", tr("PLAN_BASIC"), false))
 	if GameState.vehicles.has_any():
 		%Rows.add_child(_row("vehicle", tr("PLAN_VEHICLE"), false))
+	if not GameState.properties.owned.is_empty():
+		%Rows.add_child(_row("property", tr("PLAN_PROPERTY"), false))
+	if GameState.properties.expected_rent() > 0:
+		%Rows.add_child(_row("rent", tr("PLAN_RENT"), false))
 	if not GameState.debt.loans.is_empty():
 		%Rows.add_child(_row("debt", tr("PLAN_DEBT"), false))
 	%Rows.add_child(_row("insurance", tr("PLAN_INSURANCE"), false))
@@ -87,7 +91,8 @@ func _row(key: String, title: String, adjustable: bool) -> VBoxContainer:
 		row.add_child(value)
 	box.add_child(row)
 	_values[key] = value
-	if key in ["basic", "vehicle", "debt", "insurance", "tuition", "lifestyle", "emergency"] or key.begins_with(DREAM_PREFIX):
+	if key in ["basic", "vehicle", "property", "rent", "debt", "insurance", "tuition", "lifestyle", "emergency"] \
+			or key.begins_with(DREAM_PREFIX):
 		var note := _label("", &"SmallMutedLabel")
 		box.add_child(note)
 		_notes[key] = note
@@ -134,6 +139,12 @@ func _refresh() -> void:
 	var preview := GameState.budget.preview_for(_draft, income)
 	_values["basic"].text = Fmt.rupiah(preview["basic"])
 	_notes["basic"].text = tr("PLAN_BASIC_NOTE")
+	if _values.has("property"):
+		_values["property"].text = Fmt.rupiah(preview["property"])
+		_notes["property"].text = tr("PLAN_PROPERTY_NOTE")
+	if _values.has("rent"):
+		_values["rent"].text = Fmt.signed_rupiah(preview["rent"])
+		_notes["rent"].text = tr("PLAN_RENT_NOTE")
 	if _values.has("vehicle"):
 		_values["vehicle"].text = Fmt.rupiah(preview["vehicle"])
 		_notes["vehicle"].text = tr("PLAN_VEHICLE_NOTE")
@@ -159,7 +170,7 @@ func _refresh() -> void:
 			int(GameState.budget.config()["emergency_target_months"])]
 
 	for key: String in _values:
-		if key in ["basic", "vehicle", "debt", "insurance", "tuition", "lifestyle", "emergency"]:
+		if key in ["basic", "vehicle", "property", "rent", "debt", "insurance", "tuition", "lifestyle", "emergency"]:
 			continue  # baris tetap & baris dengan hitungan sendiri (diisi di atas)
 		var amount := 0
 		var id := key.trim_prefix(DREAM_PREFIX)

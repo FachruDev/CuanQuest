@@ -4,7 +4,8 @@
 		"Bunga per tahun = suku bunga acuan BI saat pinjaman cair + rate_spread + penyesuaian tingkat skor kredit (credit.grades[].rate). Cicilan anuitas: sama tiap bulan, porsi bunga besar di awal.",
 		"Disetujui jika semua syarat terpenuhi: pekerjaan (requires: career = pegawai, employed = termasuk kerja lepas) & lama di perusahaan (min_months), skor kredit >= credit.min_score, tidak sedang menunggak, jumlah pinjaman aktif produk ini < max_active, dan total cicilan <= dsr_limit x gaji bruto.",
 		"Menunggak: tunggakan + denda late_fee x tunggakan per bulan. default_after bulan berturut-turut menunggak: pinjaman tanpa agunan ditagih seluruhnya sekaligus; pinjaman beragunan (collateral) -> agunan ditarik & dilelang seharga seize_value_ratio x nilai pasar, sisa hasil lelang dikembalikan.",
-		"Kredit beragunan (collateral: vehicle) tidak muncul di tombol Ajukan pinjaman; diajukan dari layar beli kendaraan. min_dp = uang muka minimal, dp_steps = pilihan uang muka.",
+		"Kredit beragunan (collateral: vehicle / property) tidak muncul di tombol Ajukan pinjaman; diajukan dari layar beli kendaraan / properti. min_dp = uang muka minimal, dp_steps = pilihan uang muka.",
+		"KPR: bunga tetap (rate_spread di atas suku bunga BI) selama fixed_months bulan, lalu mengambang = suku bunga BI + float_spread, disesuaikan tiap bulan. fixed_rate = bunga tetap sepanjang tenor (KPR subsidi). max_salary = gaji bruto maksimal (harga awal, ikut inflasi); first_home = belum punya properti lain.",
 		"amounts = pilihan jumlah pinjaman (dibatasi max_salary_mult x gaji bruto). prepay_penalty = penalti pelunasan dipercepat (persen sisa pokok).",
 		"Teks ditulis langsung dalam bahasa Indonesia dan ditampilkan lewat tr(), seperti event, impian, dan asuransi."
 	],
@@ -51,6 +52,20 @@
 			"requires": "career", "min_months": 12, "max_active": 1,
 			"rate_spread": 0.035, "tenors": [12, 24, 36, 48, 60],
 			"min_dp": 0.25, "dp_steps": [0.25, 0.3, 0.4, 0.5, 0.6, 0.7], "prepay_penalty": 0.03
+		},
+		{
+			"id": "kpr", "name": "KPR", "short": "KPR", "collateral": "property",
+			"desc": "Kredit Pemilikan Rumah dari bank. Bunga tetap 3 tahun pertama, lalu mengambang mengikuti suku bunga BI, jadi cicilan bisa naik. Rumah menjadi jaminan dan dilelang jika kamu menunggak 3 bulan.",
+			"requires": "career", "min_months": 12, "max_active": 2,
+			"rate_spread": -0.0075, "fixed_months": 36, "float_spread": 0.055, "tenors": [60, 120, 180, 240],
+			"min_dp": 0.1, "dp_steps": [0.1, 0.2, 0.3, 0.4, 0.5], "prepay_penalty": 0.02
+		},
+		{
+			"id": "kpr_subsidi", "name": "KPR Subsidi (FLPP)", "short": "KPR subsidi", "collateral": "property",
+			"desc": "KPR program pemerintah untuk rumah subsidi: bunga tetap 5% sepanjang tenor dan uang muka mulai 1%. Khusus rumah pertama dan gaji maksimal Rp8 juta.",
+			"requires": "employed", "min_months": 12, "max_active": 1, "max_salary": 8000000, "first_home": true,
+			"fixed_rate": 0.05, "tenors": [120, 180, 240],
+			"min_dp": 0.01, "dp_steps": [0.01, 0.05, 0.1, 0.2], "prepay_penalty": 0.0
 		}
 	]
 }

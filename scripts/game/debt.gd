@@ -1,8 +1,9 @@
 class_name Debt
 extends GameModule
 ## Utang & kredit (v1.5c): pinjaman bank, cicilan anuitas bulanan, tunggakan & denda, gagal bayar
-## (macet), pelunasan dipercepat, dan skor kredit. Kredit beragunan (kendaraan, langkah 2) menarik
-## agunannya saat macet. Data: data/loans.json.
+## (macet), pelunasan dipercepat, dan skor kredit. Kredit beragunan (kendaraan, langkah 2; properti,
+## langkah 3) menarik agunannya saat macet. KPR: bunga tetap beberapa tahun, lalu mengambang mengikuti
+## suku bunga BI. Data: data/loans.json.
 ##
 ## Analogi web: mirip modul tagihan langganan. Tiap bulan tagihan ditarik otomatis; yang gagal
 ## ditarik menumpuk menjadi tunggakan, dan setelah beberapa kali gagal seluruh sisa ditagih.
@@ -11,9 +12,11 @@ const LOANS_PATH := "res://data/loans.json"
 
 var data: Dictionary = {}  # isi data/loans.json
 ## Pinjaman aktif: [{id, product, principal, balance, rate, months_total, months_left, start_month,
-## arrears, missed, interest_paid, collateral}]. balance = sisa pokok; rate = bunga per tahun (dikunci
-## saat cair); arrears = tunggakan + denda (Rupiah); missed = bulan menunggak berturut-turut;
-## collateral = agunan {"type": "vehicle", "id": "motor"} atau {} (tanpa agunan).
+## arrears, missed, interest_paid, collateral, fixed_until, float_spread}]. balance = sisa pokok;
+## rate = bunga per tahun (dikunci saat cair); arrears = tunggakan + denda (Rupiah); missed = bulan
+## menunggak berturut-turut; collateral = agunan {"type": "vehicle", "id": "motor"} /
+## {"type": "property", "id": uid} atau {} (tanpa agunan); fixed_until = bulan mulai bunga mengambang
+## (-1 = tetap sampai lunas), float_spread = tambahan di atas suku bunga BI saat mengambang.
 var loans: Array[Dictionary] = []
 var credit_score := 60  # 0-100, lihat loans.json "credit"
 var loan_seq := 0  # nomor pinjaman terakhir (id pinjaman berikutnya = loan_seq + 1)
@@ -43,6 +46,8 @@ func load_from(d: Dictionary) -> void:
 		for key: String in ["balance", "rate", "interest_paid"]:
 			loan[key] = float(loan[key])
 		loan["collateral"] = loan.get("collateral", {})
+		loan["fixed_until"] = int(loan.get("fixed_until", -1))
+		loan["float_spread"] = float(loan.get("float_spread", 0.0))
 		loans.append(loan)
 	credit_score = int(d.get("credit_score", credit_score))
 	loan_seq = int(d.get("loan_seq", 0))
@@ -80,8 +85,18 @@ func score_ok() -> bool:
 
 
 ## Bunga per tahun jika mengajukan sekarang: suku bunga BI + spread produk + penyesuaian skor.
+## Produk berbunga tetap dari pemerintah ("fixed_rate", KPR subsidi) tidak ikut BI maupun skor.
 func rate_for(prod: Dictionary) -> float:
+	if prod.has("fixed_rate"):
+		return float(prod["fixed_rate"])
 	return snappedf(gs.market.policy_rate + float(prod["rate_spread"]) + float(grade()["rate"]), 0.0001)
+
+
+## Bunga mengambang KPR jika suku bunga BI tetap seperti sekarang (0 jika produk tidak mengambang).
+func float_rate_for(prod: Dictionary) -> float:
+	if not prod.has("float_spread"):
+		return 0.0
+	return snappedf(gs.market.policy_rate + float(prod["float_spread"]) + float(grade()["rate"]), 0.0001)
 
 
 # --- Hitungan cicilan (anuitas) -------------------------------------------------------
@@ -107,14 +122,24 @@ static func payment_for(balance: float, rate: float, months: int) -> int:
 
 
 ## Total yang dibayar jika semua cicilan lancar (hitungan sama persis dengan pay_installments).
-static func schedule_total(amount: float, rate: float, months: int) -> int:
+## KPR: `float_after` cicilan pertama berbunga `rate`, sisanya berbunga `float_rate`.
+static func schedule_total(amount: float, rate: float, months: int, float_after: int = -1, float_rate: float = 0.0) -> int:
 	var balance := amount
 	var total := 0
-	for left in range(months, 0, -1):
-		var payment := payment_for(balance, rate, left)
+	for i in months:
+		var r := float_rate if float_after >= 0 and i >= float_after else rate
+		var payment := payment_for(balance, r, months - i)
 		total += payment
-		balance = maxf(0.0, balance * (1.0 + rate / 12.0) - payment)
+		balance = maxf(0.0, balance * (1.0 + r / 12.0) - payment)
 	return total
+
+
+## Sisa pokok setelah `paid` cicilan lancar berbunga `rate` (untuk perkiraan cicilan KPR mengambang).
+static func balance_after(amount: float, rate: float, months: int, paid: int) -> float:
+	var balance := amount
+	for i in mini(paid, months):
+		balance = maxf(0.0, balance * (1.0 + rate / 12.0) - payment_for(balance, rate, months - i))
+	return balance
 
 
 func installment(loan: Dictionary) -> int:
@@ -209,6 +234,12 @@ func requirements(prod: Dictionary, amount: int, payment: int) -> Array[Dictiona
 	var need_months := int(prod.get("min_months", 0))
 	reqs.append({"type": "job", "career": needs_career, "need": need_months, "have": months,
 		"met": working and months >= need_months})
+	if prod.has("max_salary"):  # KPR subsidi: gaji maksimal (ikut inflasi)
+		var cap := gs.nominal(prod["max_salary"])
+		reqs.append({"type": "max_salary", "need": cap, "have": gs.career.salary,
+			"met": gs.career.salary > 0 and gs.career.salary <= cap})
+	if prod.get("first_home", false):
+		reqs.append({"type": "first_home", "met": gs.properties.owned.is_empty()})
 	reqs.append({"type": "score", "need": int(data["credit"]["min_score"]), "have": credit_score, "met": score_ok()})
 	reqs.append({"type": "arrears", "met": not has_arrears()})
 	if prod.has("max_active"):
@@ -223,16 +254,26 @@ func requirements(prod: Dictionary, amount: int, payment: int) -> Array[Dictiona
 
 
 ## Hitungan pengajuan sebelum dikirim: satu sumber angka untuk popup pinjaman dan take().
-## -> {ok, product, amount, tenor, rate, payment, total, interest, dsr, dsr_limit, requirements}
+## KPR mengambang: total & cicilan setelah masa bunga tetap adalah PERKIRAAN (jika suku bunga BI
+## tidak berubah). Syarat rasio cicilan memakai cicilan masa bunga tetap, seperti bank.
+## -> {ok, product, amount, tenor, rate, payment, total, interest, dsr, dsr_limit, requirements,
+##     fixed_months, float_rate, payment_after}
 func quote(product_id: String, amount: int, tenor: int) -> Dictionary:
 	var prod := product(product_id)
 	var rate := rate_for(prod)
 	var payment := payment_for(amount, rate, tenor)
-	var total := schedule_total(amount, rate, tenor)
+	var fixed_months := int(prod.get("fixed_months", 0))
+	var float_rate := float_rate_for(prod)
+	var floating := fixed_months > 0 and fixed_months < tenor
+	var total := schedule_total(amount, rate, tenor, fixed_months if floating else -1, float_rate)
+	var payment_after := payment_for(balance_after(amount, rate, tenor, fixed_months), float_rate,
+		tenor - fixed_months) if floating else 0
 	var reqs := requirements(prod, amount, payment)
 	return {"ok": reqs.all(func(r: Dictionary) -> bool: return r["met"]), "product": prod, "amount": amount,
 		"tenor": tenor, "rate": rate, "payment": payment, "total": total, "interest": total - amount,
-		"dsr": dsr_with(payment), "dsr_limit": float(data["dsr_limit"]), "requirements": reqs}
+		"dsr": dsr_with(payment), "dsr_limit": float(data["dsr_limit"]), "requirements": reqs,
+		"fixed_months": fixed_months if floating else 0, "float_rate": float_rate if floating else 0.0,
+		"payment_after": payment_after}
 
 
 ## Mengajukan pinjaman. Jika semua syarat terpenuhi, uang langsung cair ke kas; cicilan
@@ -246,9 +287,13 @@ func take(product_id: String, amount: int, tenor: int, collateral: Dictionary = 
 	if not q["ok"]:
 		return {"ok": false}
 	loan_seq += 1
+	var fixed_months := int(q["fixed_months"])
 	var loan := {"id": loan_seq, "product": product_id, "principal": amount, "balance": float(amount),
 		"rate": q["rate"], "months_total": tenor, "months_left": tenor, "start_month": gs.month,
-		"arrears": 0, "missed": 0, "interest_paid": 0.0, "collateral": collateral}
+		"arrears": 0, "missed": 0, "interest_paid": 0.0, "collateral": collateral,
+		# Cicilan ke-1 jatuh bulan depan, jadi bunga mengambang mulai cicilan ke-(fixed_months + 1).
+		"fixed_until": gs.month + fixed_months + 1 if fixed_months > 0 else -1,
+		"float_spread": float(prod["float_spread"]) + float(grade()["rate"]) if fixed_months > 0 else 0.0}
 	loans.append(loan)
 	gs.cash += amount
 	gs.stats["loans_taken"] += 1
@@ -266,11 +311,15 @@ func take(product_id: String, amount: int, tenor: int, collateral: Dictionary = 
 func pay_installments() -> Dictionary:
 	var cfg: Dictionary = data["credit"]
 	var report := {"loan_paid": 0, "loan_missed": [], "loan_closed": [], "loan_defaults": [],
-		"credit_before": credit_score}
+		"loan_rate_changes": [], "credit_before": credit_score}
 	var any_paid := false
 	var any_missed := false
 	for loan: Dictionary in loans.duplicate():
 		var name: String = product(loan["product"])["short"]
+		var old_rate: float = loan["rate"]
+		if update_rate(loan):
+			report["loan_rate_changes"].append({"name": name, "from": old_rate, "to": loan["rate"],
+				"payment": installment(loan)})
 		if int(loan["arrears"]) > 0 and _collect(int(loan["arrears"])):
 			report["loan_paid"] += int(loan["arrears"])
 			loan["arrears"] = 0
@@ -312,6 +361,17 @@ func pay_installments() -> Dictionary:
 	return report
 
 
+## KPR setelah masa bunga tetap: bunga = suku bunga BI sekarang + float_spread. true jika berubah.
+func update_rate(loan: Dictionary) -> bool:
+	if int(loan["fixed_until"]) < 0 or gs.month < int(loan["fixed_until"]):
+		return false
+	var new_rate := snappedf(maxf(0.0, gs.market.policy_rate + float(loan["float_spread"])), 0.0001)
+	if is_equal_approx(new_rate, float(loan["rate"])):
+		return false
+	loan["rate"] = new_rate
+	return true
+
+
 ## Rincian pelunasan dipercepat: sisa pokok + tunggakan + penalti.
 func payoff_quote(loan: Dictionary) -> Dictionary:
 	var balance := ceili(loan["balance"])
@@ -320,13 +380,14 @@ func payoff_quote(loan: Dictionary) -> Dictionary:
 		"total": balance + int(loan["arrears"]) + penalty}
 
 
-## Melunasi pinjaman sekaligus dari kas. false jika kas tidak cukup.
-func pay_off(id: int) -> bool:
+## Melunasi pinjaman sekaligus dari kas. false jika kas tidak cukup, kecuali `force` (properti
+## yang terjual: hasil penjualan langsung dipakai melunasi KPR, kekurangannya membuat kas minus).
+func pay_off(id: int, force: bool = false) -> bool:
 	var loan := find(id)
 	if loan.is_empty():
 		return false
 	var q := payoff_quote(loan)
-	if gs.cash < int(q["total"]):
+	if gs.cash < int(q["total"]) and not force:
 		return false
 	gs.cash -= int(q["total"])
 	gs.stats["debt_fees"] += int(q["penalty"])
@@ -361,6 +422,8 @@ func _seize(collateral: Dictionary) -> Dictionary:
 	match collateral.get("type", ""):
 		"vehicle":
 			return gs.vehicles.seize(collateral["id"])
+		"property":
+			return gs.properties.seize(int(collateral["id"]))
 	return {"name": "", "value": 0}
 
 

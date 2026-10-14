@@ -2,7 +2,7 @@
 
 Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang **dibutuhkan**, dan **di file mana** aset itu dipakai. Diperbarui setiap kali sebuah langkah membutuhkan aset baru.
 
-- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5c langkah 2: popup Kendaraan memakai ikon kerja sampingan sementara)
+- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5c langkah 3: popup Properti memakai ikon rumah navigasi sementara)
 - **Rencana pembuatan:** pengembang membuat aset setelah **v2 selesai**. Sampai saat itu game memakai aset sementara (🔁), dan daftar di bawah terus diperbarui setiap langkah.
 - **Tanda:** ✅ sudah ada · ⬜ dibutuhkan · 🔁 sementara memakai aset lain (game tetap jalan)
 - Tabel aset yang sudah ada dibuat otomatis dengan memindai `scenes/`, `scripts/`, `theme/`, dan `data/`.
@@ -15,7 +15,7 @@ Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang
 | **v1.5-0** Giliran bulanan yang hidup | Tidak ada; memakai ulang lencana & ikon (confetti digambar lewat kode) | ✅ |
 | **v1.5a** Realisme ekonomi | Tidak ada; memakai ulang `shield.svg`, `wallet.svg`, `trend_line.svg`, `warning_small.svg` | ✅ |
 | **v1.5b** Pekerjaan & karier | 13 ikon (3 latar pendidikan, 6 bidang kerja, 1 navigasi Karier, 3 program kuliah) + 2 opsional | ⬜ 🔁 |
-| **v1.5c** Utang, properti, hunian | 2 ikon dipakai sekarang (lencana popup Pinjaman & Kendaraan); ilustrasi hunian & kendaraan, ikon properti menyusul | ⬜ 🔁 |
+| **v1.5c** Utang, properti, hunian | 3 ikon dipakai sekarang (lencana popup Pinjaman, Kendaraan, Properti); ilustrasi hunian & kendaraan menyusul | ⬜ 🔁 |
 | **v1.5d** Tokoh & konten | Potret tokoh berulang, lencana pencapaian, kosmetik | ⬜ (rencana) |
 | **v2** | Ikon instrumen lanjut, ilustrasi bab kehidupan | ⬜ (rencana) |
 | **M7** Rilis Play Store | Ikon aplikasi adaptif, grafis & screenshot Play Store | ⬜ (rencana) |
@@ -62,12 +62,13 @@ Game sudah jalan memakai aset sementara (🔁). Begitu file baru ditaruh di path
 
 ## v1.5c: Utang, Properti, dan Hunian yang Tumbuh ⬜
 
-**Sudah dipakai (langkah 1-2), sementara memakai aset lain:**
+**Sudah dipakai (langkah 1-3), sementara memakai aset lain:**
 
 | File | Isi | Dipakai di | Sementara | Cara memasang |
 |:--|:--|:--|:--|:--|
 | `assets/icons/loan.svg` | Lencana popup Pinjaman (dokumen + koin) | `scenes/ui/loan_popup.tscn` (popup ajukan pinjaman & rincian pinjaman, dari kartu Utang & Kredit di Beranda) | 🔁 `wallet.svg` | Ganti path `wallet.svg` di `scenes/ui/loan_popup.tscn` (atau minta saya) |
 | `assets/icons/vehicle.svg` | Lencana popup Kendaraan (motor/mobil + kunci) | `scenes/ui/vehicle_popup.tscn` (popup beli kendaraan & rincian/jual, dari kartu Kendaraan di Beranda) | 🔁 `activities/side_job.svg` | Ganti path `activities/side_job.svg` di `scenes/ui/vehicle_popup.tscn` (atau minta saya) |
+| `assets/icons/property.svg` | Lencana popup Properti (rumah + kunci/papan "dijual") | `scenes/ui/property_popup.tscn` (daftar properti, beli tunai/KPR, rincian/jual, dari kartu Properti di Beranda) | 🔁 `nav_home.svg` | Ganti path `nav_home.svg` di `scenes/ui/property_popup.tscn` (atau minta saya) |
 
 **Rencana (langkah berikutnya):**
 
@@ -75,7 +76,7 @@ Game sudah jalan memakai aset sementara (🔁). Begitu file baru ditaruh di path
 |:--|:--|:--|
 | `assets/illustrations/home/family.svg`, `kos.svg`, `kontrakan.svg`, `rumah.svg`, `apartemen.svg` | Ilustrasi tempat tinggal (berubah sesuai kepemilikan) | Kartu hunian baru di Beranda (`scenes/screens/home_screen.tscn`) |
 | `assets/illustrations/vehicle/walk.svg`, `motor.svg`, `car.svg` | Ilustrasi kendaraan | Kartu hunian/kendaraan di Beranda |
-| `assets/icons/property.svg`, `credit_score.svg` | Ikon properti & skor kredit | Ringkasan neraca di tab Portofolio, kartu Utang & Kredit (langkah 3-4) |
+| `assets/icons/credit_score.svg` | Ikon skor kredit | Kartu Utang & Kredit, ringkasan neraca di tab Portofolio (langkah 4) |
 
 ## v1.5d: Tokoh, Riset, Kontrak, Konten ⬜ (rencana)
 
@@ -149,7 +150,7 @@ Game sudah jalan memakai aset sementara (🔁). Begitu file baru ditaruh di path
 | File | Dipakai di |
 |:--|:--|
 | `assets/icons/nav_activity.svg` | `scenes/main.tscn` |
-| `assets/icons/nav_home.svg` | `scenes/main.tscn`<br>`scripts/ui/screens/profile_screen.gd` |
+| `assets/icons/nav_home.svg` | `scenes/main.tscn`<br>`scenes/ui/property_popup.tscn`<br>`scripts/ui/screens/profile_screen.gd` |
 | `assets/icons/nav_market.svg` | `scenes/main.tscn` |
 | `assets/icons/nav_portfolio.svg` | `scenes/main.tscn` |
 | `assets/icons/nav_profile.svg` | `scenes/main.tscn` |

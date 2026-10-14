@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5c langkah 2 kendaraan selesai)
+- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5c langkah 3 properti & KPR selesai)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -16,7 +16,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v1.5-0** | Giliran Bulanan yang Hidup | 🔄 5/5 langkah; tinggal playtest |
 | **v1.5a** | Realisme ekonomi | ✅ 5/5 langkah |
 | **v1.5b** | Pekerjaan & karier (melamar kerja, keahlian, jenjang) | ✅ 5/5 langkah |
-| **v1.5c** | Utang, properti, hunian yang tumbuh | 🔄 2/5 langkah |
+| **v1.5c** | Utang, properti, hunian yang tumbuh | 🔄 3/5 langkah |
 | **v1.5d** | Tokoh, riset, kontrak, konten | ⬜ |
 | **v2a-v2d** | Instrumen lanjut, hidup penuh, dana investor, mini-game | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
@@ -288,7 +288,7 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.3 (ditulis 14 Oktober 202
 |:--|:--|:--|
 | 1 | Utang & skor kredit: KTA, cicilan anuitas, tunggakan & denda, macet, pelunasan dipercepat, kartu Beranda, popup pinjaman | ✅ |
 | 2 | Kendaraan: aset menyusut + biaya rutin, kredit motor/mobil + DP, impian motor/mobil terhubung | ✅ |
-| 3 | Properti & KPR: beli/sewakan/jual, BPHTB & PBB, KPR tetap → mengambang, kontrakan, DP rumah | ⬜ |
+| 3 | Properti & KPR: beli/sewakan/jual, BPHTB & PBB, KPR tetap → mengambang, kontrakan, DP rumah | ✅ |
 | 4 | Tampilan & cerita: ilustrasi hunian & kendaraan, neraca di Portofolio, event utang & properti | ⬜ |
 | 5 | Penyeimbangan dengan simulator (pemain berutang & pembeli rumah) | ⬜ |
 
@@ -319,6 +319,19 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.3 (ditulis 14 Oktober 202
 - ✅ Save lama: impian motor/mobil yang sudah terwujud menjadi kendaraan
 - ✅ Simulator: tipe pemain **pengendara**; S1 bebas finansial tahun 20,1 (hemat tanpa kendaraan 12,6); golden runner identik untuk permainan tanpa kendaraan; 81 uji kendaraan + 285 uji lama lulus
 - 🔁 Lencana popup Kendaraan memakai ikon kerja sampingan (lihat `docs/KEBUTUHAN_ASET.md`)
+
+**Langkah 3: Properti & KPR** ✅
+- ✅ `data/properties.json` + modul `GameState.properties` (`scripts/game/properties.gd`): Rumah Subsidi, Apartemen Studio, Rumah Tipe 45, Rumah Besar, Tanah Kavling; harga = inflasi x indeks properti yang bergerak pelan per jenis (RNG sendiri)
+- ✅ **Beli tunai atau KPR**; BPHTB 5% + notaris 1% dibayar tunai; **KPR** bunga tetap 3 tahun (±5%) lalu **mengambang** mengikuti suku bunga BI (±11,25%), cicilan dihitung ulang & tercatat di laporan; **KPR Subsidi FLPP** bunga tetap 5%, DP mulai 1%, gaji maks Rp8 jt, rumah pertama
+- ✅ **Dihuni** (menggantikan sewa tempat tinggal, kebahagiaan +1 sampai +4), **disewakan** (sewa bersih setelah PPh final 10%, mencari penyewa 1-2 bulan, kontrak 12 bulan), atau **kosong**; rumah subsidi wajib dihuni
+- ✅ **Jual**: PPh final 2,5% + agen 2,5%, laku 1-3 bulan dengan harga saat itu, KPR dilunasi dari hasil penjualan; bisa dibatalkan
+- ✅ PBB & perawatan bulanan; KPR macet 3 bulan → **dilelang** 70% harga (sisa dikembalikan, kembali menyewa)
+- ✅ Kekayaan bersih memuat properti; **sewa bersih = pendapatan pasif** untuk kebebasan finansial; biaya properti & cicilan masuk pengeluaran rutin
+- ✅ Hunian sewa baru **Kontrakan**; impian **DP Rumah** kini mengembalikan dananya ke kas saat terkumpul (untuk uang muka)
+- ✅ Kartu **Properti** di Beranda, popup **Properti** (daftar, beli dengan perkiraan cicilan setelah masa tetap, rincian/pemakaian/jual), baris sewa & biaya properti di Rencana Gaji, Beranda, laporan; 6 istilah glosarium; analisis akhir
+- ✅ Simulator: tipe **pembeli_rumah** & **pembeli_rumah_kota**; S1 yang membeli Rumah Tipe 45 bebas finansial tahun 23,3 (tanpa rumah 12,6); golden runner identik untuk permainan tanpa properti; 77 uji properti + 366 uji lama lulus
+- ✅ Perapian: baris Premi asuransi di Beranda tidak lagi menampilkan "+Rp0" merah saat belum berasuransi
+- 🔁 Lencana popup Properti memakai ikon rumah navigasi (lihat `docs/KEBUTUHAN_ASET.md`)
 
 **Kriteria selesai**
 - ⬜ Utang bisa diambil, dibayar, dilunasi; skor kredit berubah

@@ -1,7 +1,7 @@
 extends ScrollContainer
 ## Tab Beranda (tema "Senja Cuan"): ringkasan karier, kondisi karakter, impian, target,
-## perlindungan, kendaraan, utang & kredit, arus kas bulanan (sesuai rencana gaji), dan pilihan
-## biaya hidup.
+## perlindungan, kendaraan, properti, utang & kredit, arus kas bulanan (sesuai rencana gaji), dan
+## pilihan biaya hidup.
 
 signal plan_requested
 signal dream_requested(dream_id: String)
@@ -15,6 +15,9 @@ signal loan_detail_requested(loan_id: int)
 ## Kartu Kendaraan (v1.5c langkah 2): beli kendaraan / buka rincian kendaraan yang dimiliki.
 signal vehicle_buy_requested(vehicle_id: String)
 signal vehicle_detail_requested(vehicle_id: String)
+## Kartu Properti (v1.5c langkah 3): daftar properti untuk dibeli / rincian properti yang dimiliki.
+signal property_market_requested
+signal property_detail_requested(uid: int)
 
 var _food_buttons: Dictionary = {}     # option_id -> Button
 var _housing_buttons: Dictionary = {}
@@ -25,6 +28,7 @@ var _insurance_box: VBoxContainer      # isi kartu Perlindungan (asuransi)
 var _career_box: VBoxContainer         # isi kartu Karier (v1.5b langkah 4)
 var _debt_box: VBoxContainer           # isi kartu Utang & Kredit (v1.5c)
 var _vehicle_box: VBoxContainer        # isi kartu Kendaraan (v1.5c langkah 2)
+var _property_box: VBoxContainer       # isi kartu Properti (v1.5c langkah 3)
 var _workload_label: Label             # catatan beban kerja di kartu Kondisi
 
 
@@ -52,11 +56,15 @@ func _refresh() -> void:
 	var salary_tax := 0 if unemployed else GameState.income_tax(GameState.career.salary)
 	var preview := GameState.budget.preview_for(GameState.budget.plan, income)
 	var surplus: int = preview["surplus"]
+	_plan_values["rent"].text = Fmt.signed_rupiah(preview["rent"])
+	_plan_values["rent"].get_parent().visible = preview["rent"] > 0
+	_plan_values["property"].text = Fmt.signed_rupiah(-preview["property"])
+	_plan_values["property"].get_parent().visible = preview["property"] > 0
 	_plan_values["vehicle"].text = Fmt.signed_rupiah(-preview["vehicle"])
 	_plan_values["vehicle"].get_parent().visible = preview["vehicle"] > 0
 	_plan_values["debt"].text = Fmt.signed_rupiah(-preview["debt"])
 	_plan_values["debt"].get_parent().visible = preview["debt"] > 0
-	_plan_values["insurance"].text = Fmt.signed_rupiah(-preview["insurance"])
+	_plan_values["insurance"].text = Fmt.signed_rupiah(-preview["insurance"]) if preview["insurance"] > 0 else Fmt.rupiah(0)
 	_plan_values["tuition"].text = Fmt.signed_rupiah(-preview["tuition"])
 	_plan_values["tuition"].get_parent().visible = GameState.education.is_studying()
 	_plan_values["lifestyle"].text = Fmt.signed_rupiah(-preview["lifestyle"])
@@ -93,14 +101,18 @@ func _refresh() -> void:
 	_refresh_targets()
 	_refresh_insurance()
 	_refresh_vehicles()
+	_refresh_properties()
 	_refresh_debt()
 
 	for id: String in _food_buttons:
 		_food_buttons[id].set_pressed_no_signal(id == GameState.food_id)
+	var own_home := not GameState.properties.home().is_empty()
 	for id: String in _housing_buttons:
-		_housing_buttons[id].set_pressed_no_signal(id == GameState.housing_id)
+		_housing_buttons[id].set_pressed_no_signal(id == GameState.housing_id and not own_home)
 	%FoodDesc.text = _effect_text(GameState.food_option())
 	%HousingDesc.text = _effect_text(GameState.housing_option())
+	if own_home:
+		%HousingDesc.text += "\n" + tr("HOME_OWN_HINT")
 
 
 ## Baris rencana gaji (gaya hidup, dana darurat, investasi otomatis) disisipkan sebelum
@@ -108,7 +120,8 @@ func _refresh() -> void:
 func _build_plan_rows() -> void:
 	var card: VBoxContainer = %SurplusBox.get_parent()
 	var index := %SurplusBox.get_index()
-	for item: Array in [["vehicle", "PLAN_VEHICLE", Palette.LOSS], ["debt", "PLAN_DEBT", Palette.LOSS],
+	for item: Array in [["rent", "PLAN_RENT", Palette.GAIN], ["vehicle", "PLAN_VEHICLE", Palette.LOSS],
+			["property", "PLAN_PROPERTY", Palette.LOSS], ["debt", "PLAN_DEBT", Palette.LOSS],
 			["insurance", "PLAN_INSURANCE", Palette.LOSS],
 			["tuition", "PLAN_TUITION", Palette.LOSS],
 			["lifestyle", "PLAN_LIFESTYLE", Palette.LOSS], ["emergency", "PLAN_EMERGENCY", Palette.TEAL],
@@ -144,13 +157,14 @@ func _build_plan_rows() -> void:
 	card.add_child(button)
 
 
-## Kartu Impian, Target Bulan Ini, Perlindungan, Kendaraan, dan Utang & Kredit disisipkan tepat
-## setelah kartu Kondisi.
+## Kartu Impian, Target Bulan Ini, Perlindungan, Kendaraan, Properti, dan Utang & Kredit disisipkan
+## tepat setelah kartu Kondisi.
 func _build_goal_cards() -> void:
 	var page: VBoxContainer = $VBox
 	var index := page.get_node("WellbeingCard").get_index() + 1
 	for item: Array in [["DREAMS_TITLE", "_dreams_box"], ["TARGETS_TITLE", "_targets_box"],
-			["INS_TITLE", "_insurance_box"], ["VEHICLE_TITLE", "_vehicle_box"], ["DEBT_TITLE", "_debt_box"]]:
+			["INS_TITLE", "_insurance_box"], ["VEHICLE_TITLE", "_vehicle_box"], ["PROPERTY_TITLE", "_property_box"],
+			["DEBT_TITLE", "_debt_box"]]:
 		var title := Label.new()
 		title.text = tr(item[0])
 		title.theme_type_variation = &"SubSectionLabel"
@@ -345,6 +359,53 @@ func _vehicle_row(entry: Dictionary) -> Button:
 	box.add_child(top)
 	var sub := tr("VEHICLE_ROW_SUB") % [Fmt.rupiah_short(vehicles.cost_of(entry["id"])), int(def["happiness"])]
 	var loan := vehicles.loan_of(entry)
+	if not loan.is_empty():
+		sub += " · " + tr("VEHICLE_ROW_LOAN") % Fmt.rupiah_short(GameState.debt.installment(loan))
+	box.add_child(_wrap_label(sub, &"AssetSubLabel"))
+	button.add_child(box)
+	UiText.fit_to_content(button, box, 20.0)
+	return button
+
+
+## Kartu Properti: properti yang dimiliki (ketuk untuk rincian, pemakaian, & jual) dan tombol beli.
+func _refresh_properties() -> void:
+	_clear(_property_box)
+	var properties := GameState.properties
+	if properties.owned.is_empty():
+		_property_box.add_child(_wrap_label(tr("PROPERTY_EMPTY"), &"SmallMutedLabel"))
+	for entry: Dictionary in properties.owned:
+		_property_box.add_child(_property_row(entry))
+	var button := UiText.chunky_button(tr("PROPERTY_BUY_BUTTON"), &"NeutralButton", &"NeutralButtonLabel", 68.0)
+	button.pressed.connect(property_market_requested.emit)
+	_property_box.add_child(button)
+
+
+## Satu properti: nama & nilai pasar, status pemakaian, dan cicilan KPR jika ada.
+func _property_row(entry: Dictionary) -> Button:
+	var properties := GameState.properties
+	var button := Button.new()
+	button.theme_type_variation = &"AssetRowButton"
+	button.custom_minimum_size = Vector2(0, 88)
+	button.pressed.connect(property_detail_requested.emit.bind(int(entry["uid"])))
+	var box := VBoxContainer.new()
+	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	box.offset_left = 16
+	box.offset_right = -16
+	box.offset_top = 10
+	box.offset_bottom = -10
+	box.add_theme_constant_override("separation", 4)
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var top := HBoxContainer.new()
+	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var name_label := _wrap_label(tr(properties.def(entry["id"])["name"]), &"AssetNameLabel")
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top.add_child(name_label)
+	var value := _wrap_label(Fmt.rupiah_short(properties.value(entry)), &"AssetValueLabel")
+	value.autowrap_mode = TextServer.AUTOWRAP_OFF
+	top.add_child(value)
+	box.add_child(top)
+	var sub := UiText.property_status(entry)
+	var loan := properties.loan_of(entry)
 	if not loan.is_empty():
 		sub += " · " + tr("VEHICLE_ROW_LOAN") % Fmt.rupiah_short(GameState.debt.installment(loan))
 	box.add_child(_wrap_label(sub, &"AssetSubLabel"))

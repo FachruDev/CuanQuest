@@ -31,12 +31,13 @@ data/
   events/<kategori>.json      49 event hidup per kategori (finance, work, education, health, social,
                               market, scam): syarat, pilihan, efek. Cara menambah: docs/PANDUAN_EVENT.md
   insurance.json              Produk asuransi: premi, tanggungan, masa tunggu
-  loans.json                  Pinjaman (v1.5c): KTA, kredit motor/mobil, bunga, tenor, denda, skor kredit
+  loans.json                  Pinjaman (v1.5c): KTA, kredit motor/mobil, KPR & KPR subsidi, denda, skor kredit
   vehicles.json               Kendaraan (v1.5c): harga, penyusutan, biaya rutin, kebahagiaan, produk kredit
+  properties.json             Properti (v1.5c): harga, sewa, kenaikan harga, biaya beli/jual/rutin, KPR
   jobs.json                   Pekerjaan (bidang, jenjang, syarat, gaji, beban kerja) & aturan lowongan
   education.json              Program kuliah (syarat, lama, biaya, hasil) & beban kuliah
   quiz.json                   39 soal kuis (4 topik)
-  glossary.json               56 istilah glosarium
+  glossary.json               62 istilah glosarium
   legal.json                  Kebijakan privasi & syarat penggunaan (tampil di game)
   activities.json             6 aktivitas bulanan & aturan energi
   risk_profile.json           Kuesioner & 3 profil risiko
@@ -59,6 +60,7 @@ scripts/
     budget.gd                 Rencana gaji, autodebet, dana darurat
     debt.gd                   Utang & kredit: pinjaman, cicilan anuitas, tunggakan, macet, skor kredit
     vehicles.gd               Kendaraan: nilai menyusut, biaya rutin, beli tunai/kredit, jual, ditarik
+    properties.gd             Properti: harga, beli tunai/KPR, dihuni/disewakan, jual, dilelang
     insurance.gd, dreams.gd, targets.gd, activities.gd, progress.gd
     life_events.gd            Event Director: jadwal event, antrean, keputusan, efek tertunda
   core/                       Logika murni tanpa UI (mudah dites)
@@ -184,7 +186,7 @@ scenes/
 - [ ] **v1.5c "Utang, Properti, Hunian"**:
   - [x] (1) Utang & skor kredit (KTA, cicilan, tunggakan, macet, pelunasan)
   - [x] (2) Kendaraan (aset menyusut, kredit motor/mobil)
-  - [ ] (3) Properti & KPR
+  - [x] (3) Properti & KPR
   - [ ] (4) Tampilan & cerita (ilustrasi hunian & kendaraan, event)
   - [ ] (5) Penyeimbangan
 - [ ] **v1.5d, v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
@@ -261,6 +263,32 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Laporan & UI:** bagian Ekonomi di laporan bulanan (inflasi, daya beli kas + tabungan + pos impian yang tergerus), kartu Daya Beli di Profil, chip inflasi di Pasar.
 - **Simulasi 40 permainan x 10 tahun** (pilihan acak): indeks harga median 1,43; kekayaan nominal median Rp775 jt, kekayaan riil Rp536 jt (tanpa inflasi Rp587 jt); gaji akhir median Rp20,1 jt nominal. Semua permainan bertahan, jadi game masih tergolong mudah. Penyeimbangan dijadwalkan di langkah 5 setelah pajak & asuransi.
 - **Save lama:** slot tanpa data inflasi tetap bisa dimuat; indeks harga dianggap mulai dari 1,0 saat dimuat.
+
+## Properti & KPR (v1.5c langkah 3)
+
+- **Data:** `data/properties.json`: 5 jenis (Rumah Subsidi Rp180 jt, Apartemen Studio Rp450 jt, Rumah Tipe 45 Rp900 jt, Rumah Besar Rp2,5 M, Tanah Kavling Rp300 jt) dengan `rent_yield`, `growth` (kenaikan riil per tahun), `volatility`, `maintenance`, `happiness`, `livable`/`rentable`, dan `loans` (KPR yang boleh dipakai); aturan umum: BPHTB 5% + notaris 1% saat beli, PPh final 2,5% + agen 2,5% saat jual (laku 1-3 bulan), PBB 0,2%/tahun, PPh final sewa 10%, mencari penyewa 1-2 bulan, kontrak 12 bulan (70% diperpanjang). Di `loans.json`: **KPR** (pegawai ≥12 bulan, DP min 10%, 5-20 tahun, bunga tetap BI - 0,75% selama 36 bulan lalu mengambang BI + 5,5%) dan **KPR Subsidi FLPP** (bunga tetap 5%, DP mulai 1%, gaji maksimal Rp8 jt, rumah pertama, khusus Rumah Subsidi yang wajib dihuni). Hunian sewa baru **Kontrakan** (Rp2,2 jt, kebahagiaan +1) di `economy.json`.
+- **Modul** `GameState.properties` (`scripts/game/properties.gd`, kelas `Properties`). State: `owned` (`[{uid, id, since, paid, use, lease_left, vacant_left, selling_left, loan_id}]`, `use` = live/rent/empty), `index` (indeks harga riil per jenis), `uid_seq`, dan `rng` sendiri. RNG terpisah membuat permainan tanpa properti tetap identik (golden runner).
+- **Harga** = harga awal x indeks harga (inflasi) x indeks properti; indeks bergerak tiap bulan secara acak di sekitar `growth`. Analogi web: harga dihitung saat dibaca (computed), hanya indeksnya yang disimpan.
+- **Bulanan** (`properties.month_step()`, dipanggil paling awal di `_start_month()`): indeks bergerak, PBB & perawatan dipotong, penyewa membayar sewa (dipotong PPh), kontrak berakhir/penyewa baru, dan properti yang dijual laku (`_complete_sale()`: hasil bersih masuk kas, KPR dilunasi dengan `debt.pay_off(id, true)`). Laporan: `rent_income`, `rent_tax`, `property_cost`, `property_sold`, `property_notes`.
+- **Membeli:** `properties.buy_quote(id, method, dp_ratio, tenor)` (method `cash` / `kpr` / `kpr_subsidi`) dan `properties.buy(..., use)`. Biaya beli selalu tunai; dana impian **DP Rumah** dipakai lebih dulu (impiannya ditutup tanpa hadiah). Impian DP Rumah kini `keep_funds`: saat terkumpul, dananya **kembali ke kas** untuk uang muka (tidak hangus).
+- **Dihuni / disewakan:** `properties.set_use(uid, use)`. Menghuni rumah sendiri = `GameState.housing_option()` mengembalikan pilihan "Rumah sendiri" tanpa sewa (`properties.home_option()`); memilih tempat sewa di Beranda (`set_housing()`) membuat rumahnya kosong (`move_out()`).
+- **KPR mengambang:** `Debt.take()` menyimpan `fixed_until` & `float_spread`; tiap bulan `debt.update_rate()` mengganti bunga setelah masa tetap menjadi suku bunga BI + spread, lalu cicilan dihitung ulang dari sisa pokok. Laporan mencatat perubahan bunga (`loan_rate_changes`). `Debt.quote()` memberi perkiraan cicilan setelah masa tetap (`payment_after`) dan total bunga (`schedule_total()` dengan pergantian bunga).
+- **Kekayaan & kebebasan finansial:** kekayaan bersih menambah nilai properti; pendapatan pasif = 4% investasi + sewa bersih (`properties.rent_income()`); pengeluaran rutin, sisa modal, dan Rencana Gaji (`property` & `rent`) menghitung biaya properti dan sewa. Kebebasan finansial kini cukup `passive_income() > 0` (bisa dari sewa saja).
+- **Macet:** KPR menunggak 3 bulan → `properties.seize()`: dilelang 70% harga pasar, sisa hasil lelang dikembalikan; jika rumah itu dihuni, pemain kembali menyewa.
+- **UI:** kartu **Properti** di Beranda, popup **Properti** (`scenes/ui/property_popup.tscn`: `open_market()` daftar, `open_buy()` biaya & hasil, rencana pemakaian, Tunai/KPR/KPR Subsidi, DP, tenor (bawaan: terpendek yang lolos rasio cicilan), cicilan setelah masa tetap, syarat; `open_detail()` nilai, pemakaian, KPR, jual/batal jual), pilihan **Kontrakan** & keterangan rumah sendiri di Tempat Tinggal, baris sewa & biaya properti di Rencana Gaji, Beranda, dan laporan, 6 istilah glosarium, analisis akhir tentang sewa, rumah sendiri, dan lelang.
+- **Save lama:** tanpa kunci properti → tanpa properti, indeks 1,0, RNG dari seed permainan.
+- **Simulator:** tipe pemain **pembeli_rumah** (rumah subsidi jika memenuhi syarat, selain itu Rumah Tipe 45) dan **pembeli_rumah_kota** (langsung Rumah Tipe 45 dengan KPR DP 20%):
+
+| Tipe pemain (Normal, 40 permainan x 30 tahun) | Bebas finansial | Kekayaan riil tahun 30 | Rumah |
+|:--|:--|:--|:--|
+| S1 hemat (menyewa kos) | 100%, median tahun 12,6 | Rp8,16 M | - |
+| S1 pembeli rumah (rumah subsidi, KPR FLPP 5% tetap) | 98%, tahun 12,4 | Rp7,79 M | dibeli median tahun 1,5; 5% dilelang |
+| S1 pembeli rumah kota (Rumah Tipe 45, KPR DP 20%) | 98%, tahun 23,3 | Rp6,57 M | dibeli median tahun 10,5; bunga KPR Rp1,52 M; 10% dilelang |
+| SMA hemat | 98%, tahun 18,4 | Rp3,06 M | - |
+| SMA pembeli rumah (rumah subsidi) | 98%, tahun 15,5 | Rp3,77 M | dibeli median tahun 1,2 |
+| SMA pembeli rumah kota | 90%, tahun 20,4 | Rp2,98 M | hanya 18% mampu membeli (median tahun 16) |
+
+  Rumah subsidi dengan KPR FLPP sangat menguntungkan bagi gaji kecil (seperti di dunia nyata); KPR rumah kota menunda kebebasan finansial lebih dari 10 tahun dan 10% pembelinya mengalami lelang (penyeimbangan di langkah 5).
 
 ## Kendaraan (v1.5c langkah 2)
 

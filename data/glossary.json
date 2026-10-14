@@ -3,8 +3,10 @@
 	"terms": [
 		{ "term": "Anuitas", "definition": "Cara menghitung cicilan yang dipakai bank: jumlah cicilan sama tiap bulan, tetapi di awal sebagian besar untuk membayar bunga dan di akhir sebagian besar untuk pokok." },
 		{ "term": "Bear market", "definition": "Periode ketika harga pasar cenderung turun dalam waktu cukup lama, biasanya disertai pesimisme investor." },
+		{ "term": "BPHTB", "definition": "Bea Perolehan Hak atas Tanah dan Bangunan: pajak sekitar 5% yang dibayar pembeli saat membeli properti, di luar harga rumah." },
 		{ "term": "Bull market", "definition": "Periode ketika harga pasar cenderung naik dalam waktu cukup lama, biasanya disertai optimisme investor." },
 		{ "term": "Bunga majemuk", "definition": "Bunga yang dihitung dari modal ditambah bunga yang sudah terkumpul. Semakin lama, efeknya semakin besar seperti bola salju." },
+		{ "term": "Bunga mengambang", "definition": "Floating rate: bunga pinjaman yang ikut naik-turun mengikuti suku bunga acuan. KPR biasanya berbunga tetap beberapa tahun pertama, lalu mengambang." },
 		{ "term": "Capital gain", "definition": "Keuntungan dari selisih harga jual yang lebih tinggi daripada harga beli." },
 		{ "term": "Cicilan", "definition": "Pembayaran utang rutin tiap bulan, berisi bagian pokok dan bagian bunga." },
 		{ "term": "Dana darurat", "definition": "Uang cadangan untuk kejadian tak terduga (sakit, PHK, kerusakan). Umumnya 3-6 kali pengeluaran bulanan, disimpan di tempat yang mudah dicairkan." },
@@ -16,6 +18,7 @@
 		{ "term": "DP", "definition": "Down payment atau uang muka: bagian harga yang dibayar tunai di awal saat membeli dengan kredit. DP lebih besar membuat cicilan dan total bunga lebih kecil." },
 		{ "term": "DSR", "definition": "Debt Service Ratio: total cicilan dibagi penghasilan bulanan. Bank biasanya menolak jika lebih dari 30-40%, karena sisa gaji tidak cukup untuk hidup." },
 		{ "term": "Fee transaksi", "definition": "Biaya yang dibayar setiap kali membeli atau menjual aset. Sering bertransaksi membuat biaya menumpuk." },
+		{ "term": "FLPP", "definition": "Fasilitas Likuiditas Pembiayaan Perumahan: program KPR subsidi pemerintah dengan bunga tetap rendah dan uang muka kecil, untuk rumah pertama masyarakat berpenghasilan rendah." },
 		{ "term": "FOMO", "definition": "Fear Of Missing Out: takut ketinggalan sehingga ikut membeli tanpa analisis, sering kali di harga puncak." },
 		{ "term": "Imbal hasil", "definition": "Keuntungan (atau kerugian) dari investasi, biasanya dinyatakan dalam persen per tahun." },
 		{ "term": "Inflasi", "definition": "Kenaikan harga barang dan jasa secara umum. Inflasi membuat daya beli uang turun dari waktu ke waktu." },
@@ -24,6 +27,7 @@
 		{ "term": "Kekayaan bersih", "definition": "Net worth: total nilai semua aset dikurangi total utang." },
 		{ "term": "Klaim", "definition": "Permintaan pembayaran kepada perusahaan asuransi saat terjadi risiko yang ditanggung, misalnya biaya rawat inap." },
 		{ "term": "Kolektibilitas", "definition": "Status kelancaran pembayaran utang menurut OJK: Kol 1 Lancar, Kol 2 Dalam Perhatian Khusus, Kol 3 Kurang Lancar, Kol 4 Diragukan, Kol 5 Macet. Catatan buruk menyulitkan pengajuan pinjaman berikutnya." },
+		{ "term": "KPR", "definition": "Kredit Pemilikan Rumah: pinjaman bank untuk membeli rumah atau apartemen dengan tenor panjang (5-20 tahun). Rumahnya menjadi jaminan." },
 		{ "term": "Kripto", "definition": "Aset digital berbasis teknologi blockchain. Harganya sangat volatil karena digerakkan permintaan dan sentimen." },
 		{ "term": "KTA", "definition": "Kredit Tanpa Agunan: pinjaman tunai dari bank tanpa jaminan. Prosesnya mudah, tetapi bunganya jauh lebih tinggi daripada KPR atau kredit kendaraan." },
 		{ "term": "Leasing", "definition": "Perusahaan pembiayaan yang memberi kredit kendaraan. Kendaraan menjadi jaminan (fidusia) dan bisa ditarik jika cicilan macet." },
@@ -33,6 +37,7 @@
 		{ "term": "NAB", "definition": "Nilai Aktiva Bersih: harga per unit reksa dana, dihitung dari nilai seluruh aset di dalamnya." },
 		{ "term": "OJK", "definition": "Otoritas Jasa Keuangan: lembaga yang mengatur dan mengawasi industri jasa keuangan di Indonesia." },
 		{ "term": "Pajak final", "definition": "Pajak yang langsung dipotong dari nilai transaksi atau bunga, misalnya 0,1% saat menjual saham dan 20% dari bunga deposito. Kamu tidak perlu menghitungnya lagi di akhir tahun." },
+		{ "term": "PBB", "definition": "Pajak Bumi dan Bangunan: pajak tahunan yang dibayar pemilik properti, besarnya sebagian kecil dari nilai properti." },
 		{ "term": "Pelunasan dipercepat", "definition": "Melunasi sisa utang sebelum tenornya selesai. Menghemat sisa bunga, tetapi bank biasanya mengenakan penalti beberapa persen dari sisa pokok." },
 		{ "term": "Polis", "definition": "Perjanjian asuransi antara kamu dan perusahaan asuransi: apa yang ditanggung, berapa preminya, dan kapan berlaku." },
 		{ "term": "Portofolio", "definition": "Kumpulan semua aset investasi yang kamu miliki." },
@@ -56,6 +61,7 @@
 		{ "term": "Tunggakan", "definition": "Cicilan yang sudah lewat jatuh tempo tetapi belum dibayar. Biasanya dikenai denda dan menurunkan skor kredit." },
 		{ "term": "Uang pertanggungan", "definition": "Jumlah uang yang dibayar perusahaan asuransi saat risiko yang ditanggung terjadi, misalnya penyakit kritis." },
 		{ "term": "Unit link", "definition": "Produk yang menggabungkan asuransi dan investasi. Biayanya sering tinggi; banyak perencana keuangan menyarankan memisahkan asuransi jiwa berjangka dan investasi." },
-		{ "term": "Volatilitas", "definition": "Ukuran seberapa besar dan sering harga naik-turun. Volatilitas tinggi berarti risiko tinggi." }
+		{ "term": "Volatilitas", "definition": "Ukuran seberapa besar dan sering harga naik-turun. Volatilitas tinggi berarti risiko tinggi." },
+		{ "term": "Yield sewa", "definition": "Sewa setahun dibagi harga properti. Yield 5% berarti properti Rp1 miliar menghasilkan sewa kotor sekitar Rp50 juta per tahun, sebelum pajak dan biaya." }
 	]
 }

@@ -51,7 +51,7 @@ static func insights(state: Node) -> Array[String]:
 	if int(s.get("graduations", 0)) > 0:
 		out.append(_t("INSIGHT_EDUCATION") % [int(s["graduations"]), Fmt.rupiah(s["tuition"])])
 
-	# Utang & kendaraan (v1.5c)
+	# Utang, kendaraan & properti (v1.5c)
 	if int(s.get("loan_defaults", 0)) > 0:
 		out.append(_t("INSIGHT_LOAN_DEFAULT") % int(s["loan_defaults"]))
 	elif int(s.get("missed_payments", 0)) > 0:
@@ -60,6 +60,12 @@ static func insights(state: Node) -> Array[String]:
 		out.append(_t("INSIGHT_VEHICLE_SEIZED") % int(s["vehicles_seized"]))
 	elif int(s.get("vehicle_costs", 0)) >= 20_000_000:
 		out.append(_t("INSIGHT_VEHICLE_COST") % Fmt.rupiah(s["vehicle_costs"]))
+	if int(s.get("properties_seized", 0)) > 0:
+		out.append(_t("INSIGHT_PROPERTY_SEIZED") % int(s["properties_seized"]))
+	if int(s.get("rent_income", 0)) >= 10_000_000:
+		out.append(_t("INSIGHT_RENT") % Fmt.rupiah(s["rent_income"]))
+	if not state.properties.home().is_empty():
+		out.append(_t("INSIGHT_OWN_HOME") % _t(state.properties.def(state.properties.home()["id"])["name"]))
 	if float(s.get("debt_interest", 0.0)) >= 1_000_000:
 		out.append(_t("INSIGHT_DEBT_INTEREST") % [Fmt.rupiah(s["debt_interest"]), Fmt.rupiah(s["borrowed_total"])])
 

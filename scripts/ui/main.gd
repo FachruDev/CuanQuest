@@ -94,6 +94,14 @@ func _ready() -> void:
 		_enqueue_plan_review())
 	%VehiclePopup.vehicle_sold.connect(func(vehicle_name: String, net: int) -> void:
 		_show_toast(tr("TOAST_VEHICLE_SOLD") % [tr(vehicle_name), Fmt.rupiah(net)]))
+	%HomeScreen.property_market_requested.connect(func() -> void: _enqueue(%PropertyPopup.open_market))
+	%HomeScreen.property_detail_requested.connect(func(uid: int) -> void:
+		_enqueue(%PropertyPopup.open_detail.bind(uid)))
+	%PropertyPopup.property_bought.connect(func(property_name: String) -> void:
+		_show_toast(tr("TOAST_PROPERTY_BOUGHT") % tr(property_name))
+		_enqueue_plan_review())
+	%PropertyPopup.property_listed.connect(func(property_name: String) -> void:
+		_show_toast(tr("TOAST_PROPERTY_LISTED") % tr(property_name)))
 	%MarketScreen.trade_requested.connect(func(asset_id: String, is_buy: bool, amount: int) -> void:
 		_enqueue(%TradeConfirmPopup.open.bind(asset_id, is_buy, amount)))
 	%TradeConfirmPopup.trade_done.connect(%MarketScreen.show_trade_result)
@@ -109,8 +117,10 @@ func _ready() -> void:
 			tr("GOAL_FINISH_NOW"), GameState.finish_game.bind("win", goal)))))
 	GameState.dream_achieved.connect(func(dream: Dictionary) -> void:
 		var def: Dictionary = dream["def"]
-		_enqueue(_celebrating(%InfoPopup.open.bind(tr("DREAM_ACHIEVED_TITLE"),
-			tr("DREAM_ACHIEVED_BODY") % [tr(def["name"]), int(def["happiness"]), int(def["xp"])]))))
+		var body := tr("DREAM_ACHIEVED_BODY") % [tr(def["name"]), int(def["happiness"]), int(def["xp"])]
+		if def.get("keep_funds", false):  # DP Rumah: dananya masuk kas untuk membeli properti
+			body += "\n\n" + tr("DREAM_ACHIEVED_FUNDS") % Fmt.rupiah(dream["cost"])
+		_enqueue(_celebrating(%InfoPopup.open.bind(tr("DREAM_ACHIEVED_TITLE"), body))))
 	GameState.dream_overdue.connect(func(dream: Dictionary) -> void:
 		_enqueue(%DreamPopup.open_overdue.bind(dream)))
 	GameState.target_completed.connect(func(target: Dictionary) -> void:
@@ -133,7 +143,7 @@ func _ready() -> void:
 		_enqueue(%QuizPopup.open.bind(question)))
 	for popup: ModalPopup in [%SummaryPopup, %InfoPopup, %EventPopup, %QuizPopup, %GlossaryPopup, %TextPopup,
 			%PlanPopup, %DreamPickerPopup, %DreamPopup, %TradeConfirmPopup, %InsurancePopup, %OrderPopup, %OfferPopup,
-			%LoanPopup, %VehiclePopup]:
+			%LoanPopup, %VehiclePopup, %PropertyPopup]:
 		popup.closed.connect(_show_next_popup)
 
 	_build_toast()

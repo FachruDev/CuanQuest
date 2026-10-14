@@ -941,3 +941,79 @@ REPORT_LOAN_SEIZED,%s macet: %s ditarik dan dilelang %s untuk menutup utang %s.,
 DREAM_VEHICLE_HINT,"Ingin memakainya sekarang? Beli kredit lewat kartu Kendaraan di Beranda: dana yang terkumpul menjadi uang muka, tapi kamu membayar bunga dan impian ini ditutup tanpa hadiah.","Want it now? Buy on credit from the Vehicles card on Home: the saved fund becomes the down payment, but you pay interest and this dream closes without a reward."
 INSIGHT_VEHICLE_SEIZED,Kendaraanmu ditarik %d kali karena kredit macet. Pastikan cicilan kendaraan tetap terjangkau walau penghasilan turun.,Your vehicle was repossessed %d times after loan defaults. Keep vehicle installments affordable even if your income drops.
 INSIGHT_VEHICLE_COST,"Kendaraan menghabiskan biaya rutin %s selama permainan, belum termasuk nilainya yang terus turun. Kendaraan memudahkan hidup, tapi bukan investasi.","Vehicles cost %s in running costs over the game, not counting their falling value. Vehicles make life easier, but they aren't investments."
+HOUSING_KONTRAKAN,Kontrakan,Rented House
+HOUSING_OWN,Rumah sendiri (%s),Own home (%s)
+HOME_OWN_HINT,Tanpa sewa; PBB & perawatan ada di kartu Properti. Pilih tempat sewa di atas jika ingin pindah (rumahmu menjadi kosong).,No rent; property tax & upkeep are in the Property card. Pick a rental above to move out (your home becomes empty).
+PLAN_RENT,Sewa properti (bersih),Property rent (net)
+PLAN_RENT_NOTE,"Dari properti yang sedang disewakan, setelah PPh final 10%. Masuk ke kas tiap bulan.","From rented-out properties, after the 10% final tax. Added to cash every month."
+PLAN_PROPERTY,Biaya properti,Property costs
+PLAN_PROPERTY_NOTE,PBB & perawatan semua properti. Rincian di kartu Properti di Beranda.,Property tax & upkeep for all properties. Details in the Property card on Home.
+PROPERTY_TITLE,Properti,Property
+PROPERTY_EMPTY,"Belum punya properti. Rumah bisa dihuni (tanpa sewa) atau disewakan (pendapatan pasif), tapi butuh DP, biaya beli, dan perawatan.","No property yet. A home can be lived in (no rent) or rented out (passive income), but it needs a down payment, purchase costs, and upkeep."
+PROPERTY_BUY_BUTTON,Lihat properti dijual,Browse properties
+PROPERTY_MARKET_TITLE,Properti Dijual,Properties for Sale
+PROPERTY_MARKET_PILL,Harga ikut inflasi & pasar properti,Prices follow inflation & the property market
+PROPERTY_MARKET_BODY,"Pilih properti untuk melihat biaya, perkiraan sewa, dan pilihan KPR.","Pick a property to see its costs, expected rent, and mortgage options."
+PROPERTY_ROW_YIELD,Sewa ±%s/thn,Rent ±%s/yr
+PROPERTY_ROW_NO_RENT,Tanpa sewa,No rent
+PROPERTY_ROW_GROWTH,harga naik ±%s/thn di atas inflasi,price grows ±%s/yr above inflation
+PROPERTY_MARKET_NOTE,"Sewa = perkiraan sewa kotor per tahun dari harga. Kenaikan harga hanya perkiraan rata-rata: bisa lebih tinggi, bisa juga turun.","Rent = expected gross yearly rent as a share of the price. Price growth is only an average: it can be higher, or it can fall."
+PROPERTY_PRICE_PILL,Harga %s,Price %s
+PROPERTY_BACK,Kembali ke daftar,Back to list
+PROPERTY_COSTS,Biaya & hasil,Costs & returns
+PROPERTY_BUY_COSTS,"BPHTB & notaris (%d%%, tunai)","Transfer tax & notary (%d%%, cash)"
+PROPERTY_RUNNING,PBB & perawatan,Property tax & upkeep
+PROPERTY_RENT_NET,Sewa bersih jika disewakan,Net rent if rented out
+PROPERTY_HAPPINESS,Kebahagiaan jika dihuni,Happiness if lived in
+PROPERTY_COSTS_NOTE,"Biaya beli dibayar tunai di muka, tidak bisa dimasukkan ke KPR. Sewa sudah dipotong PPh final 10%; mencari penyewa butuh 1-2 bulan.",Purchase costs are paid in cash upfront and can't go into the mortgage. Rent is after the 10% final tax; finding a tenant takes 1-2 months.
+PROPERTY_USE,Rencana pemakaian,Planned use
+PROPERTY_USE_LIVE,Dihuni,Live in
+PROPERTY_USE_RENT,Disewakan,Rent out
+PROPERTY_USE_EMPTY,Kosong,Empty
+PROPERTY_USE_NOTE,Dihuni = tanpa sewa tempat tinggal. Disewakan = pendapatan pasif. Mengganti pemakaian mengakhiri kontrak penyewa.,Live in = no rent to pay. Rent out = passive income. Changing the use ends the tenant's lease.
+PROPERTY_TENOR_YEARS,%d thn,%d yr
+PROPERTY_KPR_DETAILS,Rincian KPR,Mortgage details
+PROPERTY_ROW_PRINCIPAL,Pokok KPR,Mortgage principal
+PROPERTY_ROW_RATE,Bunga per tahun,Interest per year
+PROPERTY_ROW_PAYMENT,Cicilan per bulan,Monthly installment
+PROPERTY_ROW_PAYMENT_AFTER,Cicilan setelah masa tetap,Installment after fixed period
+PROPERTY_ROW_INTEREST,Total bunga (perkiraan),Total interest (estimate)
+PROPERTY_ROW_DSR,Rasio cicilan (DSR),Debt service ratio (DSR)
+PROPERTY_RATE_FIXED_YEARS,%s (tetap %d tahun),%s (fixed %d years)
+PROPERTY_PAYMENT_AFTER_VALUE,±%s (bunga ±%s),±%s (rate ±%s)
+PROPERTY_FLOAT_NOTE,"Setelah masa bunga tetap, bunga KPR mengambang mengikuti suku bunga BI. Angka di atas adalah perkiraan jika suku bunga tidak berubah; saat BI menaikkan suku bunga, cicilanmu ikut naik.","After the fixed period, the mortgage rate floats with the BI rate. The numbers above assume rates stay the same; when BI raises rates, your installment goes up."
+PROPERTY_DREAM_FUND,Dana impian DP Rumah yang terkumpul (%s) dipakai lebih dulu; impiannya ditutup tanpa hadiah karena belum terkumpul penuh.,The House Down Payment dream fund you saved (%s) is used first; the dream closes without a reward since it isn't complete.
+PROPERTY_TIP,"Tip: cicilan rumah sebaiknya di bawah 30% gaji. DP lebih besar = cicilan & bunga lebih kecil. Menyewa tidak selalu buang uang: hitung juga DP, biaya beli, perawatan, dan bunga.","Tip: keep your mortgage payment under 30% of your salary. A bigger down payment means smaller installments and less interest. Renting isn't always wasted money: count the down payment, purchase costs, upkeep, and interest too."
+PROPERTY_BUY_KPR,Ambil KPR · bayar %s,Take mortgage · pay %s
+PROPERTY_ROW_GAIN,Naik/turun sejak dibeli,Change since purchase
+PROPERTY_RATE_FIXED_UNTIL,%s (tetap sampai %s),%s (fixed until %s)
+PROPERTY_RATE_FLOATING,%s (mengambang),%s (floating)
+PROPERTY_SELL,Jual,Sell
+PROPERTY_ROW_SELL_PRICE,Perkiraan harga jual,Expected sale price
+PROPERTY_ROW_SELL_TAX,PPh final (%s),Final tax (%s)
+PROPERTY_ROW_SELL_FEE,Komisi agen (%s),Agent fee (%s)
+PROPERTY_SELL_NOTE,"Butuh %d-%d bulan sampai laku, dengan harga pasar saat itu. KPR dilunasi dari hasil penjualan.","Takes %d-%d months to sell, at the market price at that time. The mortgage is paid off from the proceeds."
+PROPERTY_SELLING,Sedang dijual: laku ±%d bulan lagi.,Listed for sale: sells in about %d months.
+PROPERTY_CANCEL_SALE,Batalkan penjualan,Cancel the sale
+PROPERTY_LIST_BUTTON,Pasang iklan jual,List for sale
+PROPERTY_STATUS_LIVE,Dihuni sendiri (tanpa sewa),Lived in (no rent)
+PROPERTY_STATUS_VACANT,Mencari penyewa (±%d bulan lagi),Finding a tenant (±%d more months)
+PROPERTY_STATUS_RENTED,"Disewakan %s/bln bersih, kontrak %d bulan lagi","Rented %s/mo net, %d months left on lease"
+PROPERTY_STATUS_EMPTY,Kosong,Empty
+PROPERTY_STATUS_SELLING,"dijual, laku ±%d bulan lagi","for sale, sells in ±%d months"
+LOAN_REQ_ALLOWED,Produk ini bisa dipakai untuk properti ini,This product can be used for this property
+LOAN_REQ_MAX_SALARY,Gaji bruto maksimal %s (sekarang %s),Gross salary at most %s (now %s)
+LOAN_REQ_FIRST_HOME,Rumah pertama (belum punya properti lain),First home (no other property)
+TOAST_PROPERTY_BOUGHT,%s sudah jadi milikmu!,The %s is yours!
+TOAST_PROPERTY_LISTED,%s dipasang untuk dijual.,%s is listed for sale.
+REPORT_RENT,Sewa properti (bersih),Property rent (net)
+REPORT_PROPERTY,PBB & perawatan properti,Property tax & upkeep
+REPORT_TENANT_FOUND,%s mendapat penyewa baru.,%s found a new tenant.
+REPORT_TENANT_LEFT,Penyewa %s tidak memperpanjang; mencari penyewa baru.,The %s tenant didn't renew; looking for a new tenant.
+REPORT_PROPERTY_SOLD,%s laku terjual. Diterima bersih %s (selisih harga %s).,%s sold. Net received %s (price change %s).
+REPORT_MOVED_OUT,Rumah yang kamu huni terjual: kamu kembali tinggal di tempat sewa pilihanmu di Beranda.,The home you lived in was sold: you're back in the rental chosen on Home.
+REPORT_LOAN_RATE,Bunga %s berubah %s → %s (mengambang mengikuti suku bunga BI). Cicilan bulan ini %s.,%s rate changed %s → %s (floating with the BI rate). This month's installment: %s.
+DREAM_ACHIEVED_FUNDS,Dana %s sudah masuk ke kas. Pakai sebagai uang muka di kartu Properti di Beranda.,The %s fund is now in your cash. Use it as a down payment from the Property card on Home.
+INSIGHT_PROPERTY_SEIZED,Propertimu dilelang %d kali karena KPR macet. Pilih cicilan yang tetap aman walau bunga mengambang naik atau penghasilan turun.,Your property was auctioned %d times after mortgage defaults. Choose installments that stay safe even if floating rates rise or income drops.
+INSIGHT_RENT,"Properti sewaanmu menghasilkan sewa bersih %s. Properti bisa menjadi sumber pendapatan pasif, asal biaya dan masa kosongnya diperhitungkan.","Your rental properties earned %s in net rent. Property can be passive income, as long as you account for costs and vacancies."
+INSIGHT_OWN_HOME,"Kamu menutup permainan di rumah sendiri (%s). Tanpa sewa bulanan, pengeluaran rutinmu jauh lebih ringan di masa tua.","You finished the game in your own home (%s). Without monthly rent, your regular spending is much lighter in old age."

@@ -127,6 +127,7 @@
 	"housing": [
 		{ "id": "family", "name_key": "HOUSING_FAMILY", "cost": 500000, "health": 0, "happiness": -2 },
 		{ "id": "kos", "name_key": "HOUSING_KOS", "cost": 1300000, "health": 0, "happiness": 0 },
+		{ "id": "kontrakan", "name_key": "HOUSING_KONTRAKAN", "cost": 2200000, "health": 0, "happiness": 1 },
 		{ "id": "apartment", "name_key": "HOUSING_APARTMENT", "cost": 3500000, "health": 1, "happiness": 3 }
 	]
 }

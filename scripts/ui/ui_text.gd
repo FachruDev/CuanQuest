@@ -288,9 +288,35 @@ static func loan_requirement_text(req: Dictionary) -> String:
 			return _t("LOAN_REQ_DSR") % roundi(float(req["need"]) * 100.0)
 		"not_owned":
 			return _t("VEHICLE_REQ_NOT_OWNED")
+		"loan_allowed":
+			return _t("LOAN_REQ_ALLOWED")
+		"max_salary":
+			return _t("LOAN_REQ_MAX_SALARY") % [Fmt.rupiah(req["need"]), Fmt.rupiah(req["have"])]
+		"first_home":
+			return _t("LOAN_REQ_FIRST_HOME")
 		"cash":
 			return _t("VEHICLE_REQ_CASH") % [Fmt.rupiah(req["need"]), Fmt.rupiah(req["have"])]
 	return ""
+
+
+## Status pemakaian properti (v1.5c): dihuni, disewakan (sewa & sisa kontrak), mencari penyewa,
+## kosong, ditambah status dijual.
+static func property_status(entry: Dictionary) -> String:
+	var text := ""
+	match entry["use"]:
+		"live":
+			text = _t("PROPERTY_STATUS_LIVE")
+		"rent":
+			if int(entry["vacant_left"]) > 0:
+				text = _t("PROPERTY_STATUS_VACANT") % int(entry["vacant_left"])
+			else:
+				text = _t("PROPERTY_STATUS_RENTED") % [Fmt.rupiah_short(GameState.properties.rent_net(entry["id"])),
+					int(entry["lease_left"])]
+		_:
+			text = _t("PROPERTY_STATUS_EMPTY")
+	if int(entry["selling_left"]) > 0:
+		text += " · " + _t("PROPERTY_STATUS_SELLING") % int(entry["selling_left"])
+	return text
 
 
 ## "Jangka pendek" / "Jangka menengah" / "Jangka panjang"

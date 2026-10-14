@@ -21,6 +21,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/offer_popup.tscn" id="36_offer"]
 [ext_resource type="PackedScene" path="res://scenes/ui/loan_popup.tscn" id="37_loan"]
 [ext_resource type="PackedScene" path="res://scenes/ui/vehicle_popup.tscn" id="38_vehicle"]
+[ext_resource type="PackedScene" path="res://scenes/ui/property_popup.tscn" id="39_property"]
 [ext_resource type="Theme" path="res://theme/senja_theme.tres" id="13_theme"]
 [ext_resource type="Script" path="res://scripts/ui/chunky_button.gd" id="14_chunky"]
 [ext_resource type="Script" path="res://scripts/ui/avatar_view.gd" id="15_avatar"]
@@ -616,5 +617,9 @@ unique_name_in_owner = true
 layout_mode = 1
 
 [node name="VehiclePopup" parent="." instance=ExtResource("38_vehicle")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="PropertyPopup" parent="." instance=ExtResource("39_property")]
 unique_name_in_owner = true
 layout_mode = 1

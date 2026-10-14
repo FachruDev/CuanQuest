@@ -5,7 +5,8 @@ extends Node
 ##
 ## Jalankan (data asli aman karena --save-root):
 ##   Godot --headless --path . res://tools/balance/balance_sim.tscn -- --save-root=user://_sim/
-##       [--games=40] [--years=30] [--persona=all|hemat|penabung|boros|spekulan|acak|pelajar|pengutang|pengendara]
+##       [--games=40] [--years=30] [--persona=all|hemat|penabung|boros|spekulan|acak|pelajar|pengutang|pengendara|
+##       pembeli_rumah|pembeli_rumah_kota]
 ##       [--difficulty=normal]
 ##       [--background=s1|d3|sma]
 ## Folder tools/ tidak ikut ke APK (exclude_filter di export_presets.cfg).
@@ -32,6 +33,13 @@ const PERSONAS := {
 	"pengendara": {"desc": "Hemat + motor & mobil kredit", "food": "standard", "housing": "kos", "lifestyle": 0.05,
 		"emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic", "vehicle": "vehicle_allrisk"},
 		"choice": "prudent", "quiz": true, "lump_invest": true, "activities": true, "vehicles": true},
+	"pembeli_rumah": {"desc": "Hemat + KPR rumah untuk dihuni", "food": "standard", "housing": "kos", "lifestyle": 0.05,
+		"emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"}, "choice": "prudent",
+		"quiz": true, "lump_invest": true, "activities": true,
+		"homes": [["subsidi", "kpr_subsidi", 0.05], ["house45", "kpr", 0.2]]},
+	"pembeli_rumah_kota": {"desc": "Hemat + KPR Rumah Tipe 45 untuk dihuni", "food": "standard", "housing": "kos",
+		"lifestyle": 0.05, "emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"}, "choice": "prudent",
+		"quiz": true, "lump_invest": true, "activities": true, "homes": [["house45", "kpr", 0.2]]},
 }
 const CHECKPOINTS := [5, 10, 20, 30]
 
@@ -87,6 +95,7 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 	var millionaire_month := -1
 	var start_salary := 0  # gaji pekerjaan pertama (v1.5b: mulai tanpa kerja)
 	var first_job_month := -1
+	var home_month := -1
 	for m in years * 12:
 		if GameState.is_over:
 			break
@@ -100,6 +109,8 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 		if start_salary == 0 and GameState.career.is_employed():
 			start_salary = roundi(GameState.career.salary / GameState.price_level())
 			first_job_month = GameState.month
+		if home_month < 0 and not GameState.properties.owned.is_empty():
+			home_month = GameState.month
 		if freedom_month < 0 and GameState.is_financially_free():
 			freedom_month = GameState.month
 		if millionaire_month < 0 and GameState.net_worth() >= float(GameState.economy["end"]["win_net_worth"]):
@@ -113,7 +124,8 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 	return {"snapshots": snapshots, "over": GameState.is_over,
 		"reason": GameState.end_result.get("reason", "") if GameState.is_over else "",
 		"lost_month": GameState.month if GameState.is_over else -1,
-		"freedom_month": freedom_month, "millionaire_month": millionaire_month, "first_job_month": first_job_month}
+		"freedom_month": freedom_month, "millionaire_month": millionaire_month, "first_job_month": first_job_month,
+		"home_month": home_month}
 
 
 func _snapshot(start_salary: int) -> Dictionary:
@@ -154,6 +166,11 @@ func _snapshot(start_salary: int) -> Dictionary:
 		"vehicle_costs": float(GameState.stats["vehicle_costs"]),
 		"vehicles_seized": int(GameState.stats["vehicles_seized"]),
 		"vehicles_bought": int(GameState.stats["vehicles_bought"]),
+		"own_home": not GameState.properties.home().is_empty(),
+		"properties_bought": int(GameState.stats["properties_bought"]),
+		"properties_seized": int(GameState.stats["properties_seized"]),
+		"property_value": GameState.properties.total_value(),
+		"property_costs": float(GameState.stats["property_costs"]),
 	}
 
 
@@ -245,6 +262,46 @@ func _vehicle_actions(expenses: float) -> void:
 	vehicles.buy("car", "credit", 0.3, 48)
 
 
+## Tipe pemain pembeli rumah: pilihan pertama di `homes` yang syaratnya terpenuhi ([properti, KPR, DP]),
+## saat kas + investasi cukup untuk DP + biaya beli + 3 bulan biaya hidup. Tenor terpendek yang
+## cicilannya lolos batas rasio cicilan. Rumahnya langsung dihuni.
+func _home_actions(homes: Array, expenses: float) -> void:
+	var properties := GameState.properties
+	if not properties.owned.is_empty():
+		return
+	for option: Array in homes:
+		var tenor := _passing_tenor(option[0], option[1], option[2])
+		if tenor < 0:
+			continue
+		var q := properties.buy_quote(option[0], option[1], option[2], tenor)
+		var upfront := float(q["upfront"])
+		if GameState.portfolio.liquid_assets() + GameState.portfolio.investments_value() < upfront + expenses * 3:
+			continue
+		_raise_cash(upfront + expenses)
+		if properties.buy(option[0], option[1], option[2], tenor, "live")["ok"]:
+			return
+
+
+## Tenor terpendek yang semua syaratnya (selain kas) terpenuhi; -1 jika tidak ada.
+func _passing_tenor(id: String, method: String, dp: float) -> int:
+	for tenor: int in GameState.debt.tenor_options(GameState.debt.product(method)):
+		var reqs: Array = GameState.properties.buy_quote(id, method, dp, tenor)["requirements"]
+		if reqs.all(func(r: Dictionary) -> bool: return r["met"] or r["type"] == "cash"):
+			return tenor
+	return -1
+
+
+## Jual investasi secukupnya agar kas mencapai `target`.
+func _raise_cash(target: float) -> void:
+	for asset_id: String in GameState.portfolio.holdings.keys():
+		var short := target - GameState.cash
+		if short <= 0.0:
+			return
+		if GameState.portfolio.is_locked(asset_id):
+			continue
+		GameState.portfolio.sell(asset_id, mini(ceili(short * 1.01), ceili(GameState.portfolio.holding_value(asset_id))))
+
+
 ## Ambil tawaran bergaji tertinggi (jika lebih baik dari pekerjaan sekarang).
 func _take_offer() -> void:
 	if GameState.career.job_offers.is_empty():
@@ -268,6 +325,8 @@ func _monthly_actions(p: Dictionary) -> void:
 		_borrow_actions(expenses)
 	if p.get("vehicles", false):
 		_vehicle_actions(expenses)
+	if p.has("homes"):
+		_home_actions(p["homes"], expenses)
 	if p.get("courses", false) and GameState.career.skill < 80.0 and GameState.cash > expenses * 2:
 		GameState.activities.perform("course")
 	if p["quiz"]:
@@ -433,6 +492,16 @@ func _print_summary(persona: String, results: Array[Dictionary], years: int) -> 
 	print("  tahun %d: promosi median %d | pernah PHK %d%% | jenjang tertinggi median %d | kinerja median %d" % [
 		last, int(_median(finals, "promotions")), roundi(100.0 * laid_off / finals.size()),
 		int(_median(finals, "top_level")), int(_median(careers, "performance")) if not careers.is_empty() else -1])
+	var buyers := finals.filter(func(f: Dictionary) -> bool: return f["properties_bought"] > 0)
+	if not buyers.is_empty():
+		var homes: Array = results.map(func(r: Dictionary) -> float: return float(r["home_month"])).filter(
+			func(m: float) -> bool: return m >= 0.0)
+		homes.sort()
+		print("  tahun %d: rumah sendiri %d%% | beli rumah median tahun %s | nilai properti median %s | PBB & perawatan total %s | pernah dilelang %d%%" % [
+			last, roundi(100.0 * finals.filter(func(f: Dictionary) -> bool: return f["own_home"]).size() / finals.size()),
+			Fmt.number(_pct(homes, 0.5) / 12.0, 1), Fmt.rupiah_short(_median(buyers, "property_value")),
+			Fmt.rupiah_short(_median(buyers, "property_costs")),
+			roundi(100.0 * buyers.filter(func(f: Dictionary) -> bool: return f["properties_seized"] > 0).size() / buyers.size())])
 	var owners := finals.filter(func(f: Dictionary) -> bool: return f["vehicles_bought"] > 0)
 	if not owners.is_empty():
 		var seized := owners.filter(func(f: Dictionary) -> bool: return f["vehicles_seized"] > 0).size()

@@ -197,7 +197,10 @@ func check() -> void:
 		var cost := cost_of(def)
 		if entry["saved"] + 0.5 < float(cost):
 			continue
-		gs.cash += roundi(entry["saved"] - float(cost))
+		if def.get("keep_funds", false):  # DP Rumah: dananya kembali ke kas untuk membeli properti
+			gs.cash += roundi(entry["saved"])
+		else:
+			gs.cash += roundi(entry["saved"] - float(cost))
 		entry["saved"] = float(cost)
 		if def.has("vehicle"):
 			gs.vehicles.add_owned(def["vehicle"], gs.month, cost)
