@@ -5,7 +5,8 @@ extends Node
 ##
 ## Jalankan (data asli aman karena --save-root):
 ##   Godot --headless --path . res://tools/balance/balance_sim.tscn -- --save-root=user://_sim/
-##       [--games=40] [--years=30] [--persona=all|hemat|penabung|boros|spekulan|acak] [--difficulty=normal]
+##       [--games=40] [--years=30] [--persona=all|hemat|penabung|boros|spekulan|acak|pelajar|pengutang]
+##       [--difficulty=normal]
 ##       [--background=s1|d3|sma]
 ## Folder tools/ tidak ikut ke APK (exclude_filter di export_presets.cfg).
 
@@ -26,6 +27,8 @@ const PERSONAS := {
 	"pelajar": {"desc": "Hemat + kuliah & kursus", "food": "standard", "housing": "kos", "lifestyle": 0.05,
 		"emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"}, "choice": "prudent",
 		"quiz": true, "lump_invest": true, "activities": true, "study": true, "courses": true},
+	"pengutang": {"desc": "Gaya hidup mewah + KTA saat kas menipis", "food": "luxury", "housing": "kos", "lifestyle": 0.2,
+		"emergency": 0.0, "invest": 0.0, "insurance": {}, "choice": "lavish", "quiz": false, "borrow": true},
 }
 const CHECKPOINTS := [5, 10, 20, 30]
 
@@ -137,6 +140,11 @@ func _snapshot(start_salary: int) -> Dictionary:
 		"education": GameState.education.level,
 		"graduations": int(GameState.stats["graduations"]),
 		"tuition": float(GameState.stats["tuition"]),
+		"loans_taken": int(GameState.stats["loans_taken"]),
+		"missed_payments": int(GameState.stats["missed_payments"]),
+		"loan_defaults": int(GameState.stats["loan_defaults"]),
+		"debt_interest": float(GameState.stats["debt_interest"]),
+		"credit_score": GameState.debt.credit_score,
 	}
 
 
@@ -189,6 +197,19 @@ func _study_actions(expenses: float) -> void:
 		GameState.education.enroll(options[0]["def"]["id"])
 
 
+## Tipe pemain pengutang: saat kas di bawah sebulan biaya hidup, ambil KTA terbesar yang disetujui
+## (tenor terpanjang agar cicilannya lolos batas rasio cicilan).
+func _borrow_actions(expenses: float) -> void:
+	if GameState.cash >= expenses or GameState.debt.active_count("kta") > 0:
+		return
+	var prod := GameState.debt.product("kta")
+	var tenor: int = GameState.debt.tenor_options(prod).back()
+	var amounts := GameState.debt.amount_options(prod)
+	for i in range(amounts.size() - 1, -1, -1):
+		if GameState.debt.take("kta", amounts[i], tenor)["ok"]:
+			return
+
+
 ## Ambil tawaran bergaji tertinggi (jika lebih baik dari pekerjaan sekarang).
 func _take_offer() -> void:
 	if GameState.career.job_offers.is_empty():
@@ -208,6 +229,8 @@ func _monthly_actions(p: Dictionary) -> void:
 	var expenses := float(GameState.monthly_expenses())
 	if p.get("study", false):
 		_study_actions(expenses)
+	if p.get("borrow", false):
+		_borrow_actions(expenses)
 	if p.get("courses", false) and GameState.career.skill < 80.0 and GameState.cash > expenses * 2:
 		GameState.activities.perform("course")
 	if p["quiz"]:
@@ -373,6 +396,13 @@ func _print_summary(persona: String, results: Array[Dictionary], years: int) -> 
 	print("  tahun %d: promosi median %d | pernah PHK %d%% | jenjang tertinggi median %d | kinerja median %d" % [
 		last, int(_median(finals, "promotions")), roundi(100.0 * laid_off / finals.size()),
 		int(_median(finals, "top_level")), int(_median(careers, "performance")) if not careers.is_empty() else -1])
+	var borrowers := finals.filter(func(f: Dictionary) -> bool: return f["loans_taken"] > 0)
+	if not borrowers.is_empty():
+		var defaulted := borrowers.filter(func(f: Dictionary) -> bool: return f["loan_defaults"] > 0).size()
+		print("  tahun %d: pernah berutang %d%% | pinjaman median %d | menunggak median %d kali | pernah macet %d%% | bunga utang median %s | skor kredit median %d" % [
+			last, roundi(100.0 * borrowers.size() / finals.size()), int(_median(borrowers, "loans_taken")),
+			int(_median(borrowers, "missed_payments")), roundi(100.0 * defaulted / borrowers.size()),
+			Fmt.rupiah_short(_median(borrowers, "debt_interest")), int(_median(borrowers, "credit_score"))])
 
 
 ## "median Rp... (p10 ... p90 ...)"

@@ -77,6 +77,7 @@ Semua file dimuat oleh `EventManager.load_defs()` (`scripts/core/event_manager.g
 | `delayed` `{months, chance, effects, text, fail_text}` | LifeEvents | Efek tertunda beberapa bulan |
 | `chain` `{event, months: [min, max]}` | LifeEvents | Jadwalkan event lanjutan (`chain_only`) |
 | `sell_all` | Portfolio | Jual semua investasi karena panik |
+| `credit_score` | Debt | Skor kredit naik/turun (0-100), mis. `-10` saat telat bayar tagihan (v1.5c) |
 
 **Menambah efek baru:** tentukan modul pemiliknya, tambahkan penanganannya di `apply_effects()` modul itu, lalu catat di tabel ini. Contoh: efek baru untuk asuransi ditulis di `scripts/game/insurance.gd`.
 

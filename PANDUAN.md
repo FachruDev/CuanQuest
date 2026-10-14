@@ -31,10 +31,11 @@ data/
   events/<kategori>.json      49 event hidup per kategori (finance, work, education, health, social,
                               market, scam): syarat, pilihan, efek. Cara menambah: docs/PANDUAN_EVENT.md
   insurance.json              Produk asuransi: premi, tanggungan, masa tunggu
+  loans.json                  Pinjaman (v1.5c): produk, bunga, plafon, tenor, denda, skor kredit
   jobs.json                   Pekerjaan (bidang, jenjang, syarat, gaji, beban kerja) & aturan lowongan
   education.json              Program kuliah (syarat, lama, biaya, hasil) & beban kuliah
   quiz.json                   39 soal kuis (4 topik)
-  glossary.json               31 istilah glosarium
+  glossary.json               53 istilah glosarium
   legal.json                  Kebijakan privasi & syarat penggunaan (tampil di game)
   activities.json             6 aktivitas bulanan & aturan energi
   risk_profile.json           Kuesioner & 3 profil risiko
@@ -55,6 +56,7 @@ scripts/
     education.gd              Tingkat pendidikan, kuliah, beasiswa, sertifikasi
     portfolio.gd              Kepemilikan aset, beli/jual, stop loss/take profit, bunga, profil risiko
     budget.gd                 Rencana gaji, autodebet, dana darurat
+    debt.gd                   Utang & kredit: pinjaman, cicilan anuitas, tunggakan, macet, skor kredit
     insurance.gd, dreams.gd, targets.gd, activities.gd, progress.gd
     life_events.gd            Event Director: jadwal event, antrean, keputusan, efek tertunda
   core/                       Logika murni tanpa UI (mudah dites)
@@ -177,7 +179,13 @@ scenes/
   - [x] (3) Pendidikan & keahlian
   - [x] (4) Tampilan & cerita
   - [x] (5) Penyeimbangan
-- [ ] **v1.5c/d, v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
+- [ ] **v1.5c "Utang, Properti, Hunian"**:
+  - [x] (1) Utang & skor kredit (KTA, cicilan, tunggakan, macet, pelunasan)
+  - [ ] (2) Kendaraan (aset menyusut, kredit motor/mobil)
+  - [ ] (3) Properti & KPR
+  - [ ] (4) Tampilan & cerita (ilustrasi hunian & kendaraan, event)
+  - [ ] (5) Penyeimbangan
+- [ ] **v1.5d, v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
 Rangkuman semua checklist MVP (v1, v1.5, v2, M7) ada di [docs/CHECKLIST_MVP.md](docs/CHECKLIST_MVP.md).
 - [ ] **M7: Export rilis & Play Store** (setelah v2 selesai; tanpa monetisasi)
@@ -251,6 +259,24 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Laporan & UI:** bagian Ekonomi di laporan bulanan (inflasi, daya beli kas + tabungan + pos impian yang tergerus), kartu Daya Beli di Profil, chip inflasi di Pasar.
 - **Simulasi 40 permainan x 10 tahun** (pilihan acak): indeks harga median 1,43; kekayaan nominal median Rp775 jt, kekayaan riil Rp536 jt (tanpa inflasi Rp587 jt); gaji akhir median Rp20,1 jt nominal. Semua permainan bertahan, jadi game masih tergolong mudah. Penyeimbangan dijadwalkan di langkah 5 setelah pajak & asuransi.
 - **Save lama:** slot tanpa data inflasi tetap bisa dimuat; indeks harga dianggap mulai dari 1,0 saat dimuat.
+
+## Utang & Skor Kredit (v1.5c langkah 1)
+
+- **Data:** `data/loans.json`: batas rasio cicilan (`dsr_limit` 35%), denda tunggakan (`late_fee` 5%), batas macet (`default_after` 3 bulan), aturan skor kredit (`credit`), dan produk pinjaman (`products`; langkah 1 baru **KTA**). Kredit kendaraan & KPR akan ditambah sebagai produk baru di file yang sama.
+- **Modul** `GameState.debt` (`scripts/game/debt.gd`, kelas `Debt`). State: `loans` (pinjaman aktif), `credit_score` (0-100, mulai 60), `loan_seq`. Analogi web: seperti modul tagihan langganan: tagihan ditarik otomatis tiap bulan, yang gagal menumpuk menjadi tunggakan.
+- **Bunga & cicilan:** bunga per tahun = suku bunga BI saat cair + `rate_spread` produk + penyesuaian tingkat skor (`credit.grades`). Cicilan anuitas dihitung ulang tiap bulan dari sisa pokok (`Debt.payment_for()`), sehingga nanti KPR berbunga mengambang cukup mengubah `rate`. `Debt.schedule_total()` memakai hitungan yang sama untuk menampilkan total bunga sebelum mengajukan.
+- **Pengajuan:** `debt.quote(product, amount, tenor)` = satu sumber angka untuk popup dan `debt.take()` (seperti endpoint "hitung total checkout"). Syarat (`debt.requirements()`): pekerjaan & lama di perusahaan, skor ≥ 40, tidak menunggak, belum punya produk yang sama, plafon 5x gaji, rasio cicilan ≤ 35% gaji bruto. Disetujui = uang langsung cair; cicilan pertama awal bulan depan.
+- **Alur bulanan:** `debt.pay_installments()` dipanggil di `_start_month()` setelah gaji & biaya hidup, **sebelum** premi, uang kuliah, dan rencana gaji. Tiap pinjaman: tunggakan dulu, lalu cicilan bulan ini (kas, lalu tabungan dana darurat lewat `budget.draw_emergency()`). Gagal bayar → tunggakan + denda 5%, skor -8. Tiga bulan berturut-turut → **macet**: KTA ditagih sekaligus (`debt._default()`), kas boleh minus sehingga aset dijual paksa dan aturan bangkrut yang lama berlaku.
+- **Skor kredit:** +1 per bulan saat semua cicilan lancar, -8 per cicilan menunggak, -25 saat macet, +2 saat pelunasan dipercepat; tanpa tunggakan dan di bawah 60 pulih +1 per bulan. Efek event baru `credit_score`. Status pinjaman memakai kolektibilitas OJK (`Debt.collectibility()`: Kol 1-5).
+- **Kekayaan & kebebasan finansial:** `net_worth()` dikurangi `debt.outstanding()` (sisa pokok + tunggakan). `monthly_spending()`, `runway_months()`, dan `budget.preview_for()` (baris `debt`) ikut menghitung cicilan. Syarat unlock dana darurat memakai aset likuid dikurangi utang, jadi dana darurat hasil pinjaman tidak dihitung.
+- **UI:** kartu **Utang & Kredit** di Beranda (skor, daftar pinjaman, tombol Ajukan pinjaman), popup **Pinjaman** (`scenes/ui/loan_popup.tscn`: `open_apply()` jumlah/tenor/rincian/syarat, `open_detail()` rincian + pelunasan dipercepat), baris Cicilan utang di Rencana Gaji & Beranda, bagian UTANG di laporan bulanan, 9 istilah glosarium baru, dan analisis akhir tentang utang.
+- **Save:** kunci baru `loans`, `credit_score`, `loan_seq` memakai nilai bawaan saat tidak ada, jadi save v1.5b tetap bisa dimuat (`SAVE_VERSION` tetap 3).
+- **Simulator:** tipe pemain **pengutang** (gaya hidup mewah + KTA terbesar setiap kas menipis). Hasil 40 permainan x 30 tahun (Normal):
+  - Tipe pemain lama (tanpa pinjaman) menghasilkan angka yang sama persis dengan v1.5b.
+  - S1: pengutang bangkrut 3/40 (gaya hidup mewah tanpa KTA 1/40); 80% pernah meminjam, 9% di antaranya macet, bunga utang median Rp9,1 jt; kekayaan riil tahun ke-5 Rp81,9 jt (tanpa KTA Rp84,8 jt).
+  - SMA: pengutang bangkrut 20/40 (tanpa KTA 22/40); 88% pernah meminjam, 49% di antaranya macet, bunga utang median Rp13,1 jt; kekayaan riil tahun ke-5 -Rp9,6 jt (tanpa KTA Rp2,1 jt).
+  - Kesimpulan: KTA hanya menunda masalah gaya hidup yang melebihi gaji (menambah bunga, dan bagi gaji kecil sering berakhir macet), bukan menyelamatkannya. Penyeimbangan utang dilakukan di langkah 5.
+- **Perbaikan:** baris Premi asuransi dan Uang kuliah di popup Rencana Gaji sebelumnya tertimpa teks "0% · Rp0" (bug sejak v1.5a langkah 3); kini menampilkan nominalnya.
 
 ## Pekerjaan & Lowongan (v1.5b langkah 1)
 

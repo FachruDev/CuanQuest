@@ -3,7 +3,7 @@ extends Node
 ## State global permainan (Autoload bernama "GameState"; tipe skripnya GameStore).
 ##
 ## Analogi web: ini root "store" (Redux/Pinia). Logika tiap domain ada di modul terpisah di
-## scripts/game/ (seperti slice/store per fitur): career, education, insurance, portfolio,
+## scripts/game/ (seperti slice/store per fitur): career, education, insurance, debt, portfolio,
 ## budget, dreams, targets, events, activities, progress. File ini hanya memegang data bersama
 ## (profil, bulan, kas, kondisi, statistik, pasar, RNG), mengatur alur tiap bulan, menjalankan
 ## efek event, menyimpan/memuat, dan memeriksa akhir permainan.
@@ -82,6 +82,7 @@ var progress := Progress.new(self)
 var career := Career.new(self)
 var education := Education.new(self)
 var insurance := Insurance.new(self)
+var debt := Debt.new(self)
 var events := LifeEvents.new(self)
 var portfolio := Portfolio.new(self)
 var budget := Budget.new(self)
@@ -90,7 +91,7 @@ var targets := Targets.new(self)
 var activities := Activities.new(self)
 ## Urutan dipakai untuk reset, simpan/muat, dan efek event. Karier sebelum rencana gaji
 ## (rencana awal memakai gaji); pendidikan sebelum aktivitas (energi memakai beban kuliah).
-var modules: Array[GameModule] = [progress, career, education, insurance, events, portfolio,
+var modules: Array[GameModule] = [progress, career, education, insurance, debt, events, portfolio,
 	budget, dreams, targets, activities]
 
 var fast_forwarding := false
@@ -248,8 +249,8 @@ func advance_month() -> void:
 
 
 ## Awal bulan: hasil lamaran diumumkan, gaji masuk (kecuali menganggur/cuti), biaya hidup
-## terpotong, kesehatan & kebahagiaan berubah, premi & uang kuliah dibayar, rencana gaji
-## dijalankan, target & lowongan baru muncul. Januari: penyesuaian inflasi + kenaikan prestasi.
+## terpotong, kesehatan & kebahagiaan berubah, cicilan utang lalu premi & uang kuliah dibayar,
+## rencana gaji dijalankan, target & lowongan baru muncul. Januari: penyesuaian inflasi + kenaikan prestasi.
 func _start_month() -> Dictionary:
 	var food := food_option()
 	var housing := housing_option()
@@ -277,6 +278,7 @@ func _start_month() -> Dictionary:
 	health = clampi(health + int(food["health"]) + int(housing["health"]) + _drift("health", health, working), 0, 100)
 	happiness = clampi(happiness + int(food["happiness"]) + int(housing["happiness"])
 		+ _drift("happiness", happiness, working), 0, 100)
+	var debt_report := debt.pay_installments()  # kewajiban utang sebelum premi, kuliah, dan rencana gaji
 	var premiums := insurance.pay_premiums()
 	var study_report := education.study_month()
 	activities.energy_capacity = activities.energy_max()  # setelah kuliah bulan ini diketahui (beban energi)
@@ -302,7 +304,7 @@ func _start_month() -> Dictionary:
 		"salary_raise": salary_raise,
 		"performance": roundi(career.performance) if working and career.is_career() else -1,
 		"performance_delta": roundi(career.performance) - roundi(performance_before),
-	}.merged(merit).merged(premiums).merged(study_report).merged(budget_report)
+	}.merged(merit).merged(debt_report).merged(premiums).merged(study_report).merged(budget_report)
 
 
 ## Perubahan kesehatan & kebahagiaan per bulan dari pekerjaan: beban kerja jabatan (jobs.json
@@ -414,10 +416,11 @@ func option_cost(option: Dictionary) -> int:
 	return nominal(option["cost"] * difficulty["expense_mult"])
 
 
-## Kas + tabungan dana darurat cukup untuk berapa bulan biaya hidup, premi, dan uang kuliah
-## (ditampilkan di Beranda saat menganggur).
+## Kas + tabungan dana darurat cukup untuk berapa bulan biaya hidup, cicilan, premi, dan uang
+## kuliah (ditampilkan di Beranda saat menganggur).
 func runway_months() -> int:
-	var monthly := maxi(monthly_expenses() + insurance.premiums_total() + education.tuition_fee(), 1)
+	var monthly := maxi(monthly_expenses() + debt.installments_total() + insurance.premiums_total()
+		+ education.tuition_fee(), 1)
 	return floori((maxf(cash, 0.0) + budget.emergency_balance()) / monthly)
 
 
@@ -464,8 +467,9 @@ func round_thousand(value: float) -> int:
 	return maxi(0, floori(value / 1000.0) * 1000)
 
 
+## Kekayaan bersih = semua aset dikurangi utang (sisa pokok + tunggakan).
 func net_worth() -> float:
-	return cash + portfolio.investments_value() + dreams.funds()
+	return cash + portfolio.investments_value() + dreams.funds() - debt.outstanding()
 
 
 # --- Data global pemain: tutorial, petunjuk, cerita ----------------------------------
@@ -588,6 +592,8 @@ func _new_stats() -> Dictionary:
 		"activity_totals": {}, "activity_last": {}, "months_unemployed": 0, "applications": 0, "jobs_taken": 0,
 		"promotions": 0, "layoffs": 0, "resigns": 0, "severance": 0, "top_level": 0,
 		"tuition": 0, "enrollments": 0, "graduations": 0, "dropouts": 0, "scholarships": 0,
+		"loans_taken": 0, "borrowed_total": 0, "debt_interest": 0.0, "debt_fees": 0, "missed_payments": 0,
+		"loan_defaults": 0, "loans_paid_off": 0,
 		"best_trade": {}, "worst_trade": {}, "best_event": {}, "worst_event": {},
 	}
 
@@ -651,10 +657,10 @@ func passive_income() -> float:
 
 
 ## Pengeluaran rutin sebulan yang harus ditutup pendapatan pasif agar bebas finansial:
-## biaya hidup + premi asuransi + belanja gaya hidup sesuai rencana gaji. Gaya hidup ikut naik
-## bersama gaji, jadi "lifestyle creep" ikut menjauhkan kebebasan finansial (v1.5b langkah 5).
+## biaya hidup + cicilan utang + premi asuransi + belanja gaya hidup sesuai rencana gaji. Gaya
+## hidup ikut naik bersama gaji, jadi "lifestyle creep" ikut menjauhkan kebebasan finansial.
 func monthly_spending() -> int:
-	return monthly_expenses() + insurance.premiums_total() + budget.lifestyle_spending()
+	return monthly_expenses() + debt.installments_total() + insurance.premiums_total() + budget.lifestyle_spending()
 
 
 func is_financially_free() -> bool:
@@ -721,7 +727,7 @@ func _merge_reports(reports: Array[Dictionary]) -> Dictionary:
 		return merged
 	for key: String in ["salary", "food_cost", "housing_cost", "invest_change", "interest",
 			"health_delta", "happiness_delta", "lifestyle_cost", "emergency_saved",
-			"income_tax", "trade_fee", "trade_tax", "interest_tax", "insurance_premium"]:
+			"income_tax", "trade_fee", "trade_tax", "interest_tax", "insurance_premium", "loan_paid"]:
 		var total := 0.0
 		for r: Dictionary in reports:
 			total += float(r.get(key, 0))
@@ -735,6 +741,12 @@ func _merge_reports(reports: Array[Dictionary]) -> Dictionary:
 		delayed.append_array(r.get("delayed", []))
 		forced.append_array(r.get("forced_sales", []))
 		executed_orders.append_array(r.get("orders", []))
+	for key: String in ["loan_missed", "loan_closed", "loan_defaults"]:
+		var items: Array = []
+		for r: Dictionary in reports:
+			items.append_array(r.get(key, []))
+		merged[key] = items
+	merged["credit_before"] = reports[0].get("credit_before", debt.credit_score)
 	merged["news"] = news.slice(-5)  # cukup 5 berita terakhir agar laporan tidak terlalu panjang
 	merged["delayed"] = delayed
 	merged["forced_sales"] = forced

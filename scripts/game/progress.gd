@@ -66,7 +66,8 @@ func requirement_status(req: Dictionary) -> Dictionary:
 			current = 1.0 if gs.tutorial_done else 0.0
 			target = 1.0
 		"emergency_fund":
-			current = gs.portfolio.liquid_assets()
+			# Dana darurat dari pinjaman bukan dana darurat: dikurangi sisa utang (v1.5c).
+			current = maxf(0.0, gs.portfolio.liquid_assets() - gs.debt.outstanding())
 			target = gs.monthly_expenses() * float(req["months"])
 		"net_worth":
 			current = gs.net_worth()

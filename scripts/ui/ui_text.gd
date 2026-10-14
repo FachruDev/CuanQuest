@@ -239,6 +239,23 @@ static func target_status(target: Dictionary) -> Dictionary:
 	return {"text": _t("TARGET_OPEN"), "color": Palette.MUTED}
 
 
+## Warna skor kredit (v1.5c): hijau = baik, redup = cukup, merah = bank menolak.
+static func credit_color(score: int) -> Color:
+	if score >= 60:
+		return Palette.GAIN
+	if score >= int(GameState.debt.data["credit"]["min_score"]):
+		return Palette.MUTED
+	return Palette.LOSS
+
+
+## "Sisa Rp28,4 jt · 30 bulan lagi" atau "Menunggak 2 bulan (Kol 2) · tunggakan Rp2,3 jt".
+static func loan_status(loan: Dictionary) -> String:
+	var missed := int(loan["missed"])
+	if missed > 0:
+		return _t("DEBT_STATUS_LATE") % [missed, Debt.collectibility(missed), Fmt.rupiah_short(loan["arrears"])]
+	return _t("DEBT_STATUS_OK") % [Fmt.rupiah_short(loan["balance"]), int(loan["months_left"])]
+
+
 ## "Jangka pendek" / "Jangka menengah" / "Jangka panjang"
 static func horizon_text(horizon: String) -> String:
 	return _t("DREAM_HORIZON_" + horizon.to_upper())

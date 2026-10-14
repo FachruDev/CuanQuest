@@ -51,6 +51,14 @@ static func insights(state: Node) -> Array[String]:
 	if int(s.get("graduations", 0)) > 0:
 		out.append(_t("INSIGHT_EDUCATION") % [int(s["graduations"]), Fmt.rupiah(s["tuition"])])
 
+	# Utang (v1.5c)
+	if int(s.get("loan_defaults", 0)) > 0:
+		out.append(_t("INSIGHT_LOAN_DEFAULT") % int(s["loan_defaults"]))
+	elif int(s.get("missed_payments", 0)) > 0:
+		out.append(_t("INSIGHT_LOAN_LATE") % [int(s["missed_payments"]), Fmt.rupiah(s["debt_fees"])])
+	if float(s.get("debt_interest", 0.0)) >= 1_000_000:
+		out.append(_t("INSIGHT_DEBT_INTEREST") % [Fmt.rupiah(s["debt_interest"]), Fmt.rupiah(s["borrowed_total"])])
+
 	if state.is_financially_free():
 		out.append(_t("INSIGHT_GOOD_FREEDOM"))
 	if s["total_interest"] > 1_000_000:

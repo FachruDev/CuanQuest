@@ -814,3 +814,74 @@ INSIGHT_UNEMPLOYED,"Kamu menganggur total %d bulan. Tanpa gaji, dana daruratlah 
 INSIGHT_CAREER_GROWTH,Kamu dipromosikan %d kali sampai jenjang %d. Keahlian dan kinerja yang terus diasah adalah investasi dengan imbal hasil terbesar.,"You were promoted %d times, up to level %d. Sharpening your skills and performance is the investment with the biggest return."
 INSIGHT_CAREER_STUCK,"Selama %d tahun kariermu tidak naik jenjang. Kursus, sertifikasi, atau kuliah bisa membuka jalan ke jabatan yang lebih tinggi.","Your career stayed at the same level for %d years. Courses, certifications, or a degree can open the way to higher positions."
 INSIGHT_EDUCATION,Kamu lulus kuliah %d kali dengan total uang kuliah %s. Pendidikan membuka jabatan yang sebelumnya tertutup.,"You graduated %d times, paying %s in tuition. Education opens positions that were closed before."
+PLAN_DEBT,Cicilan utang,Loan installments
+PLAN_DEBT_NOTE,Ditarik otomatis sebelum pos lain. Rincian di kartu Utang & Kredit di Beranda.,Charged automatically before everything else. Details in the Debt & Credit card on Home.
+DEBT_TITLE,Utang & Kredit,Debt & Credit
+DEBT_EMPTY,"Belum ada utang. Pinjaman bisa membantu membeli kebutuhan besar, tapi bunganya adalah biaya yang harus kamu bayar.","No debt yet. Loans can help with big purchases, but the interest is a cost you have to pay."
+DEBT_APPLY,Ajukan pinjaman,Apply for a loan
+DEBT_PER_MONTH,%s/bln,%s/mo
+DEBT_STATUS_OK,Sisa %s · %d bulan lagi,%s left · %d months to go
+DEBT_STATUS_LATE,Menunggak %d bulan (Kol %d) · tunggakan %s,%d months overdue (Col %d) · arrears %s
+CREDIT_SCORE,Skor kredit,Credit score
+CREDIT_SCORE_VALUE,%d · %s,%d · %s
+CREDIT_SCORE_PILL,Skor kredit %d · %s,Credit score %d · %s
+CREDIT_EXCELLENT,Sangat baik,Excellent
+CREDIT_GOOD,Baik,Good
+CREDIT_FAIR,Cukup,Fair
+CREDIT_POOR,Buruk,Poor
+LOAN_AMOUNT,Jumlah pinjaman,Loan amount
+LOAN_LIMIT_NOTE,Plafon maksimal %dx gaji bruto: %s.,Maximum limit %dx gross salary: %s.
+LOAN_TENOR,Tenor,Term
+LOAN_MONTHS,%d bulan,%d months
+LOAN_DETAILS,Rincian,Details
+LOAN_ROW_RATE,Bunga per tahun,Interest per year
+LOAN_ROW_PAYMENT,Cicilan per bulan,Monthly installment
+LOAN_ROW_INTEREST,Total bunga,Total interest
+LOAN_ROW_TOTAL,Total yang dibayar,Total repaid
+LOAN_ROW_DSR,Rasio cicilan (DSR),Debt service ratio (DSR)
+LOAN_RATE_VALUE,%s (tetap),%s (fixed)
+LOAN_RATE_NOTE,"Bunga = suku bunga BI %s + %s untuk produk ini, disesuaikan skor kredit. Dikunci saat pinjaman cair.","Rate = BI rate %s + %s for this product, adjusted by credit score. Locked in when the loan is disbursed."
+LOAN_DSR_VALUE,%d%% gaji (batas %d%%),%d%% of salary (limit %d%%)
+LOAN_DSR_NONE,Belum ada gaji,No salary yet
+LOAN_REQUIREMENTS,Syarat,Requirements
+LOAN_REQ_CAREER,Pegawai (bukan kerja lepas) minimal %d bulan di perusahaan (sekarang %d bulan),Employee (not freelance) for at least %d months at the company (now %d months)
+LOAN_REQ_JOB,Bekerja minimal %d bulan (sekarang %d bulan),Working for at least %d months (now %d months)
+LOAN_REQ_SCORE,Skor kredit minimal %d (sekarang %d),Credit score at least %d (now %d)
+LOAN_REQ_ARREARS,Tidak sedang menunggak cicilan,No overdue installments
+LOAN_REQ_ACTIVE,Belum punya pinjaman jenis ini yang aktif,No active loan of this type
+LOAN_REQ_LIMIT,Jumlah tidak melebihi plafon %s,Amount within the %s limit
+LOAN_REQ_DSR,Total cicilan maksimal %d%% gaji bruto,Total installments at most %d%% of gross salary
+LOAN_TIP,"Tip: pinjam hanya untuk kebutuhan yang jelas dan cicilannya terjangkau. Jika bank menolak, jangan beralih ke pinjol ilegal: bunganya mencekik dan penagihannya meneror.","Tip: borrow only for a clear need with an affordable installment. If the bank says no, don't turn to illegal online lenders: their interest is crushing and their collectors harass you."
+LOAN_APPLY,Ajukan & cairkan %s,Apply & receive %s
+LOAN_APPLY_BLOCKED,Syarat belum terpenuhi,Requirements not met
+LOAN_KOL,Kol %d · %s,Col %d · %s
+KOL_1,Lancar,Current
+KOL_2,Dalam Perhatian Khusus,Special Mention
+KOL_3,Kurang Lancar,Substandard
+KOL_4,Diragukan,Doubtful
+KOL_5,Macet,Loss
+LOAN_DETAIL_BODY,"Cair pada %s. Cicilan ditarik otomatis tiap awal bulan dari kas, lalu tabungan dana darurat.","Disbursed in %s. Installments are charged automatically at the start of each month from cash, then emergency savings."
+LOAN_ROW_PRINCIPAL,Pokok awal,Original principal
+LOAN_ROW_BALANCE,Sisa pokok,Remaining principal
+LOAN_ROW_MONTHS_LEFT,Sisa tenor,Remaining term
+LOAN_MONTHS_OF,%d dari %d bulan,%d of %d months
+LOAN_ROW_INTEREST_PAID,Bunga sudah dibayar,Interest paid so far
+LOAN_ROW_ARREARS,Tunggakan + denda,Arrears + late fees
+LOAN_ARREARS_NOTE,Tunggakan kena denda %d%% per bulan. Menunggak %d bulan berturut-turut: seluruh sisa utang ditagih sekaligus.,Arrears incur a %d%% late fee per month. %d months overdue in a row: the whole remaining debt is called in at once.
+LOAN_PAYOFF,Pelunasan dipercepat,Early payoff
+LOAN_ROW_PENALTY,Penalti (%d%% sisa pokok),Penalty (%d%% of principal)
+LOAN_ROW_PAYOFF_TOTAL,Total pelunasan,Payoff total
+LOAN_PAYOFF_SAVES,Melunasi sekarang menghemat sisa bunga sekitar %s (setelah penalti).,Paying off now saves about %s in remaining interest (after the penalty).
+LOAN_PAYOFF_NO_SAVING,"Sisa bunganya tinggal sedikit, lebih kecil dari penalti. Melunasi sekarang tidak menghemat biaya.","Little interest is left, less than the penalty. Paying off now doesn't save money."
+LOAN_PAYOFF_NO_CASH,Kas belum cukup (kas sekarang %s). Jual sebagian investasi di tab Pasar jika ingin melunasi.,Not enough cash (current cash %s). Sell some investments in the Market tab if you want to pay it off.
+LOAN_PAYOFF_BUTTON,Lunasi sekarang (%s),Pay off now (%s)
+TOAST_LOAN,%s cair: %s masuk ke kas.,%s disbursed: %s added to cash.
+TOAST_LOAN_PAID,%s lunas! Skor kreditmu naik.,%s paid off! Your credit score went up.
+REPORT_LOAN_PAID,Cicilan utang,Loan installments
+REPORT_DEBT,UTANG,DEBT
+REPORT_LOAN_MISSED,Cicilan %s menunggak %d/%d bulan. Tunggakan + denda: %s.,%s installment overdue %d/%d months. Arrears + fees: %s.
+REPORT_LOAN_DEFAULT,%s macet: bank menagih seluruh sisa utang %s sekaligus.,%s defaulted: the bank called in the whole remaining %s at once.
+REPORT_LOAN_CLOSED,%s lunas!,%s paid off!
+INSIGHT_LOAN_DEFAULT,"Pinjamanmu macet %d kali dan seluruh sisanya ditagih sekaligus. Ambil cicilan yang tetap terjangkau saat penghasilan turun, dan siapkan dana darurat.","Your loans defaulted %d times and the rest was called in at once. Keep installments affordable even if income drops, and keep an emergency fund."
+INSIGHT_LOAN_LATE,Kamu menunggak cicilan %d kali dan membayar denda %s. Tunggakan menurunkan skor kredit sehingga pinjaman berikutnya lebih mahal.,"You missed installments %d times and paid %s in late fees. Missed payments lower your credit score, making future loans more expensive."
+INSIGHT_DEBT_INTEREST,Kamu membayar bunga utang %s untuk total pinjaman %s. Bunga adalah harga dari memakai uang orang lain: pastikan yang dibeli sepadan.,You paid %s in loan interest on %s of total borrowing. Interest is the price of using other people's money: make sure the purchase is worth it.

@@ -2,7 +2,7 @@
 
 Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang **dibutuhkan**, dan **di file mana** aset itu dipakai. Diperbarui setiap kali sebuah langkah membutuhkan aset baru.
 
-- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5b langkah 4: ikon bidang juga tampil di Beranda; ikon sementara kini berbeda per bidang)
+- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5c langkah 1: popup Pinjaman memakai ikon dompet sementara)
 - **Rencana pembuatan:** pengembang membuat aset setelah **v2 selesai**. Sampai saat itu game memakai aset sementara (🔁), dan daftar di bawah terus diperbarui setiap langkah.
 - **Tanda:** ✅ sudah ada · ⬜ dibutuhkan · 🔁 sementara memakai aset lain (game tetap jalan)
 - Tabel aset yang sudah ada dibuat otomatis dengan memindai `scenes/`, `scripts/`, `theme/`, dan `data/`.
@@ -15,7 +15,7 @@ Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang
 | **v1.5-0** Giliran bulanan yang hidup | Tidak ada; memakai ulang lencana & ikon (confetti digambar lewat kode) | ✅ |
 | **v1.5a** Realisme ekonomi | Tidak ada; memakai ulang `shield.svg`, `wallet.svg`, `trend_line.svg`, `warning_small.svg` | ✅ |
 | **v1.5b** Pekerjaan & karier | 13 ikon (3 latar pendidikan, 6 bidang kerja, 1 navigasi Karier, 3 program kuliah) + 2 opsional | ⬜ 🔁 |
-| **v1.5c** Utang, properti, hunian | Ilustrasi hunian & kendaraan di Beranda, ikon utang/properti | ⬜ (rencana) |
+| **v1.5c** Utang, properti, hunian | 1 ikon dipakai sekarang (lencana popup Pinjaman); ilustrasi hunian & kendaraan, ikon properti menyusul | ⬜ 🔁 |
 | **v1.5d** Tokoh & konten | Potret tokoh berulang, lencana pencapaian, kosmetik | ⬜ (rencana) |
 | **v2** | Ikon instrumen lanjut, ilustrasi bab kehidupan | ⬜ (rencana) |
 | **M7** Rilis Play Store | Ikon aplikasi adaptif, grafis & screenshot Play Store | ⬜ (rencana) |
@@ -60,13 +60,21 @@ Game sudah jalan memakai aset sementara (🔁). Begitu file baru ditaruh di path
 
 ---
 
-## v1.5c: Utang, Properti, dan Hunian yang Tumbuh ⬜ (rencana)
+## v1.5c: Utang, Properti, dan Hunian yang Tumbuh ⬜
+
+**Sudah dipakai (langkah 1), sementara memakai aset lain:**
+
+| File | Isi | Dipakai di | Sementara | Cara memasang |
+|:--|:--|:--|:--|:--|
+| `assets/icons/loan.svg` | Lencana popup Pinjaman (dokumen + koin) | `scenes/ui/loan_popup.tscn` (popup ajukan pinjaman & rincian pinjaman, dari kartu Utang & Kredit di Beranda) | 🔁 `wallet.svg` | Ganti path `wallet.svg` di `scenes/ui/loan_popup.tscn` (atau minta saya) |
+
+**Rencana (langkah berikutnya):**
 
 | File | Isi | Akan dipakai di |
 |:--|:--|:--|
 | `assets/illustrations/home/family.svg`, `kos.svg`, `kontrakan.svg`, `rumah.svg`, `apartemen.svg` | Ilustrasi tempat tinggal (berubah sesuai kepemilikan) | Kartu hunian baru di Beranda (`scenes/screens/home_screen.tscn`) |
 | `assets/illustrations/vehicle/walk.svg`, `motor.svg`, `car.svg` | Ilustrasi kendaraan | Kartu hunian/kendaraan di Beranda |
-| `assets/icons/loan.svg`, `property.svg`, `credit_score.svg` | Ikon utang, properti, skor kredit | Tab Portofolio & popup pinjaman (rencana) |
+| `assets/icons/property.svg`, `credit_score.svg` | Ikon properti & skor kredit | Ringkasan neraca di tab Portofolio, kartu Utang & Kredit (langkah 3-4) |
 
 ## v1.5d: Tokoh, Riset, Kontrak, Konten ⬜ (rencana)
 
@@ -196,7 +204,7 @@ Game sudah jalan memakai aset sementara (🔁). Begitu file baru ditaruh di path
 | `assets/icons/trend_down.svg` | `scripts/ui/end_screen.gd`<br>`scripts/ui/title_screen.gd` |
 | `assets/icons/trend_line.svg` | `scenes/main.tscn`<br>`scenes/ui/order_popup.tscn` |
 | `assets/icons/trend_up.svg` | `scenes/title.tscn`<br>`scripts/ui/end_screen.gd` |
-| `assets/icons/wallet.svg` | `scenes/main.tscn`<br>`scenes/ui/plan_popup.tscn`<br>`scenes/ui/trade_confirm_popup.tscn`<br>`scripts/ui/ui_text.gd` |
+| `assets/icons/wallet.svg` | `scenes/main.tscn`<br>`scenes/ui/loan_popup.tscn`<br>`scenes/ui/plan_popup.tscn`<br>`scenes/ui/trade_confirm_popup.tscn`<br>`scripts/ui/ui_text.gd` |
 | `assets/icons/warning.svg` | `scenes/title.tscn` |
 | `assets/icons/warning_small.svg` | `scenes/screens/market_screen.tscn`<br>`scenes/screens/portfolio_screen.tscn`<br>`scripts/ui/trade_confirm_popup.gd` |
 | `assets/icons/welcome.svg` | `scenes/title.tscn` |

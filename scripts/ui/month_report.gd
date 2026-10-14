@@ -31,10 +31,13 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 			Fmt.percent(r["merit_raise"]), Palette.GAIN)
 
 	_add_career(box, r)
+	_add_debt(box, r)
 
 	_add_header(box, "REPORT_EXPENSES")
 	_add_row(box, "REPORT_FOOD", Fmt.signed_rupiah(-r["food_cost"]), Palette.LOSS)
 	_add_row(box, "REPORT_HOUSING", Fmt.signed_rupiah(-r["housing_cost"]), Palette.LOSS)
+	if int(r.get("loan_paid", 0)) > 0:
+		_add_row(box, "REPORT_LOAN_PAID", Fmt.signed_rupiah(-r["loan_paid"]), Palette.LOSS)
 	if int(r.get("insurance_premium", 0)) > 0:
 		_add_row(box, "REPORT_INSURANCE", Fmt.signed_rupiah(-r["insurance_premium"]), Palette.LOSS)
 	if r.has("study_fee"):
@@ -118,6 +121,26 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 			TranslationServer.translate(sale["asset_key"]), Fmt.rupiah(sale["proceeds"])], Palette.LOSS)
 	for warning: String in r.get("warnings", []):
 		_add_text(box, warning, Palette.LOSS)
+
+
+## Utang (v1.5c): cicilan menunggak, pinjaman lunas atau macet, dan perubahan skor kredit.
+static func _add_debt(box: VBoxContainer, r: Dictionary) -> void:
+	var missed: Array = r.get("loan_missed", [])
+	var closed: Array = r.get("loan_closed", [])
+	var defaults: Array = r.get("loan_defaults", [])
+	var score_change := int(r.get("credit_score", 0)) - int(r.get("credit_before", r.get("credit_score", 0)))
+	if missed.is_empty() and closed.is_empty() and defaults.is_empty() and score_change == 0:
+		return
+	_add_header(box, "REPORT_DEBT")
+	for item: Dictionary in missed:
+		_add_text(box, TranslationServer.translate("REPORT_LOAN_MISSED") % [item["name"], int(item["months"]),
+			int(item["limit"]), Fmt.rupiah(item["arrears"])], Palette.LOSS)
+	for item: Dictionary in defaults:
+		_add_text(box, TranslationServer.translate("REPORT_LOAN_DEFAULT") % [item["name"], Fmt.rupiah(item["amount"])], Palette.LOSS)
+	for loan_name: String in closed:
+		_add_text(box, TranslationServer.translate("REPORT_LOAN_CLOSED") % loan_name, Palette.GAIN)
+	if score_change != 0:
+		_add_row(box, "CREDIT_SCORE", "%d (%+d)" % [int(r["credit_score"]), score_change], signed_color(score_change))
 
 
 ## Karier (v1.5b): kinerja bulan ini, penilaian tahunan tanpa kenaikan, kelulusan / cuti kuliah,

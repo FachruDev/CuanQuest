@@ -1,6 +1,6 @@
 extends ScrollContainer
-## Tab Beranda (tema "Senja Cuan"): ringkasan karier, kondisi karakter, arus kas bulanan
-## (sesuai rencana gaji), dan pilihan biaya hidup.
+## Tab Beranda (tema "Senja Cuan"): ringkasan karier, kondisi karakter, impian, target,
+## perlindungan, utang & kredit, arus kas bulanan (sesuai rencana gaji), dan pilihan biaya hidup.
 
 signal plan_requested
 signal dream_requested(dream_id: String)
@@ -8,6 +8,9 @@ signal add_dream_requested
 signal insurance_requested
 ## Tombol di kartu Karier: buka tab Karier (lowongan / pekerjaan).
 signal career_requested
+## Kartu Utang & Kredit (v1.5c): ajukan pinjaman baru / buka rincian pinjaman.
+signal loan_requested(product_id: String)
+signal loan_detail_requested(loan_id: int)
 
 var _food_buttons: Dictionary = {}     # option_id -> Button
 var _housing_buttons: Dictionary = {}
@@ -16,6 +19,7 @@ var _dreams_box: VBoxContainer         # isi kartu Impian (dibangun ulang saat d
 var _targets_box: VBoxContainer        # isi kartu Target Bulan Ini
 var _insurance_box: VBoxContainer      # isi kartu Perlindungan (asuransi)
 var _career_box: VBoxContainer         # isi kartu Karier (v1.5b langkah 4)
+var _debt_box: VBoxContainer           # isi kartu Utang & Kredit (v1.5c)
 var _workload_label: Label             # catatan beban kerja di kartu Kondisi
 
 
@@ -43,6 +47,8 @@ func _refresh() -> void:
 	var salary_tax := 0 if unemployed else GameState.income_tax(GameState.career.salary)
 	var preview := GameState.budget.preview_for(GameState.budget.plan, income)
 	var surplus: int = preview["surplus"]
+	_plan_values["debt"].text = Fmt.signed_rupiah(-preview["debt"])
+	_plan_values["debt"].get_parent().visible = preview["debt"] > 0
 	_plan_values["insurance"].text = Fmt.signed_rupiah(-preview["insurance"])
 	_plan_values["tuition"].text = Fmt.signed_rupiah(-preview["tuition"])
 	_plan_values["tuition"].get_parent().visible = GameState.education.is_studying()
@@ -79,6 +85,7 @@ func _refresh() -> void:
 	_refresh_dreams()
 	_refresh_targets()
 	_refresh_insurance()
+	_refresh_debt()
 
 	for id: String in _food_buttons:
 		_food_buttons[id].set_pressed_no_signal(id == GameState.food_id)
@@ -93,7 +100,8 @@ func _refresh() -> void:
 func _build_plan_rows() -> void:
 	var card: VBoxContainer = %SurplusBox.get_parent()
 	var index := %SurplusBox.get_index()
-	for item: Array in [["insurance", "PLAN_INSURANCE", Palette.LOSS], ["tuition", "PLAN_TUITION", Palette.LOSS],
+	for item: Array in [["debt", "PLAN_DEBT", Palette.LOSS], ["insurance", "PLAN_INSURANCE", Palette.LOSS],
+			["tuition", "PLAN_TUITION", Palette.LOSS],
 			["lifestyle", "PLAN_LIFESTYLE", Palette.LOSS], ["emergency", "PLAN_EMERGENCY", Palette.TEAL],
 			["dreams", "PLAN_DREAMS", Palette.TEAL], ["invest", "PLAN_INVEST", Palette.TEAL]]:
 		var row := HBoxContainer.new()
@@ -127,12 +135,13 @@ func _build_plan_rows() -> void:
 	card.add_child(button)
 
 
-## Kartu "Impian" dan "Target Bulan Ini" disisipkan tepat setelah kartu Kondisi.
+## Kartu Impian, Target Bulan Ini, Perlindungan, dan Utang & Kredit disisipkan tepat setelah
+## kartu Kondisi.
 func _build_goal_cards() -> void:
 	var page: VBoxContainer = $VBox
 	var index := page.get_node("WellbeingCard").get_index() + 1
 	for item: Array in [["DREAMS_TITLE", "_dreams_box"], ["TARGETS_TITLE", "_targets_box"],
-			["INS_TITLE", "_insurance_box"]]:
+			["INS_TITLE", "_insurance_box"], ["DEBT_TITLE", "_debt_box"]]:
 		var title := Label.new()
 		title.text = tr(item[0])
 		title.theme_type_variation = &"SubSectionLabel"
@@ -280,6 +289,71 @@ func _refresh_insurance() -> void:
 	var button := UiText.chunky_button(tr("HOME_INS_BUTTON"), &"NeutralButton", &"NeutralButtonLabel", 68.0)
 	button.pressed.connect(insurance_requested.emit)
 	_insurance_box.add_child(button)
+
+
+## Kartu Utang & Kredit: skor kredit, pinjaman aktif (ketuk untuk rincian & pelunasan), tombol
+## Ajukan pinjaman.
+func _refresh_debt() -> void:
+	_clear(_debt_box)
+	var debt := GameState.debt
+	var row := HBoxContainer.new()
+	var name_label := _wrap_label(tr("CREDIT_SCORE"), &"RowLabel")
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(name_label)
+	var value := _wrap_label(tr("CREDIT_SCORE_VALUE") % [debt.credit_score, tr(debt.grade()["key"])], &"RowValueLabel")
+	value.autowrap_mode = TextServer.AUTOWRAP_OFF
+	value.add_theme_color_override("font_color", UiText.credit_color(debt.credit_score))
+	row.add_child(value)
+	_debt_box.add_child(row)
+	if debt.loans.is_empty():
+		_debt_box.add_child(_wrap_label(tr("DEBT_EMPTY"), &"SmallMutedLabel"))
+	for loan: Dictionary in debt.loans:
+		_debt_box.add_child(_loan_row(loan))
+	var button := UiText.chunky_button(tr("DEBT_APPLY"), &"NeutralButton", &"NeutralButtonLabel", 68.0)
+	button.pressed.connect(loan_requested.emit.bind("kta"))
+	_debt_box.add_child(button)
+
+
+## Satu pinjaman: nama & cicilan, bar porsi pokok yang sudah lunas, sisa utang atau tunggakan.
+func _loan_row(loan: Dictionary) -> Button:
+	var debt := GameState.debt
+	var button := Button.new()
+	button.theme_type_variation = &"AssetRowButton"
+	button.custom_minimum_size = Vector2(0, 104)
+	button.pressed.connect(loan_detail_requested.emit.bind(int(loan["id"])))
+	var box := VBoxContainer.new()
+	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	box.offset_left = 16
+	box.offset_right = -16
+	box.offset_top = 10
+	box.offset_bottom = -10
+	box.add_theme_constant_override("separation", 4)
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var top := HBoxContainer.new()
+	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var name_label := _wrap_label(tr(debt.product(loan["product"])["name"]), &"AssetNameLabel")
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top.add_child(name_label)
+	var payment := _wrap_label(tr("DEBT_PER_MONTH") % Fmt.rupiah(debt.installment(loan)), &"AssetValueLabel")
+	payment.autowrap_mode = TextServer.AUTOWRAP_OFF
+	top.add_child(payment)
+	box.add_child(top)
+	var bar := ProgressBar.new()
+	bar.theme_type_variation = &"XpBar"
+	bar.custom_minimum_size = Vector2(0, 14)
+	bar.show_percentage = false
+	bar.max_value = 1.0
+	bar.step = 0.001
+	bar.value = 1.0 - float(loan["balance"]) / maxf(1.0, float(loan["principal"]))
+	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(bar)
+	var sub := _wrap_label(UiText.loan_status(loan), &"AssetSubLabel")
+	if int(loan["missed"]) > 0:
+		sub.add_theme_color_override("font_color", Palette.LOSS)
+	box.add_child(sub)
+	button.add_child(box)
+	UiText.fit_to_content(button, box, 20.0)
+	return button
 
 
 func _refresh_dreams() -> void:

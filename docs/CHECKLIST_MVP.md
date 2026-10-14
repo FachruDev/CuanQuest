@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 14 Oktober 2026 (perapian kode + v1.5b langkah 5 selesai: v1.5b lengkap)
+- **Terakhir diperbarui:** 14 Oktober 2026 (rancangan v1.5c + langkah 1 utang & skor kredit selesai)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -16,7 +16,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v1.5-0** | Giliran Bulanan yang Hidup | 🔄 5/5 langkah; tinggal playtest |
 | **v1.5a** | Realisme ekonomi | ✅ 5/5 langkah |
 | **v1.5b** | Pekerjaan & karier (melamar kerja, keahlian, jenjang) | ✅ 5/5 langkah |
-| **v1.5c** | Utang, properti, hunian yang tumbuh | ⬜ |
+| **v1.5c** | Utang, properti, hunian yang tumbuh | 🔄 1/5 langkah |
 | **v1.5d** | Tokoh, riset, kontrak, konten | ⬜ |
 | **v2a-v2d** | Instrumen lanjut, hidup penuh, dana investor, mini-game | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
@@ -196,7 +196,7 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 - ✅ Event sakit/kecelakaan berbeda hasilnya bagi yang berasuransi
 - ✅ Stop loss & take profit tereksekusi tepat dan tercatat di riwayat
 
-## v1.5b: Pekerjaan & Karier 🔄 (usulan pengembang, disetujui 14 Oktober 2026)
+## v1.5b: Pekerjaan & Karier ✅ (usulan pengembang, disetujui 14 Oktober 2026)
 
 Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.2 (semua keputusan 5.2.10 disetujui). Kebutuhan aset: `docs/KEBUTUHAN_ASET.md`.
 
@@ -270,8 +270,6 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.2 (semua keputusan 5.2.10
 - ✅ Simulator mencetak bulan kerja pertama dan gaji riil absolut
 - ✅ Target: S1 bekerja di bulan 1 (p90 bulan 1); SMA yang kuliah menyusul gaji S1 hemat sebelum tahun ke-10 (Rp17,9 jt vs Rp14,3 jt); menganggur lebih dari 1-2 bulan berbahaya bagi SMA (modal ±1 bulan biaya hidup); karier baik x4-5 gaji riil dalam 30 tahun (target x3 dilonggarkan, lihat dokumen MVP); investasi rutin 2,3x menabung saja; tingkat kesulitan terasa (tahun 10,6 / 12,6 / 15,5)
 
-**Langkah berikutnya**
-- ⬜ v1.5c: utang, properti, hunian yang tumbuh (pengeluaran besar yang membuat kebebasan finansial lebih menantang bagi pemain bergaji tinggi; ukur ulang dengan simulator)
 
 **Kriteria selesai**
 - ✅ Pemain mulai tanpa pekerjaan dan harus melamar
@@ -280,11 +278,35 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.2 (semua keputusan 5.2.10
 - ✅ Promosi, kenaikan gaji berbasis prestasi, PHK, dan pindah kerja berjalan
 - ✅ Pekerjaan & karier baru bisa ditambah lewat file data saja
 
-## v1.5c: Utang, Properti, dan Hunian yang Tumbuh ⬜
+## v1.5c: Utang, Properti, dan Hunian yang Tumbuh 🔄
 
-- ⬜ Utang: pinjaman pribadi, kredit kendaraan, KPR, skor kredit, gagal bayar, pinjol ilegal (event)
-- ⬜ Properti: rumah, apartemen, tanah; tunai atau KPR; dihuni, disewakan, dijual
-- ⬜ Ilustrasi hunian & kendaraan di Beranda berubah sesuai kepemilikan (aset dari pengembang)
+Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.3 (ditulis 14 Oktober 2026; keputusan 5.3.9 masih bisa diubah sebelum langkahnya dikerjakan). Kebutuhan aset: `docs/KEBUTUHAN_ASET.md`.
+
+### Langkah pengerjaan
+
+| Langkah | Isi | Status |
+|:--|:--|:--|
+| 1 | Utang & skor kredit: KTA, cicilan anuitas, tunggakan & denda, macet, pelunasan dipercepat, kartu Beranda, popup pinjaman | ✅ |
+| 2 | Kendaraan: aset menyusut + biaya rutin, kredit motor/mobil + DP, impian motor/mobil terhubung | ⬜ |
+| 3 | Properti & KPR: beli/sewakan/jual, BPHTB & PBB, KPR tetap → mengambang, kontrakan, DP rumah | ⬜ |
+| 4 | Tampilan & cerita: ilustrasi hunian & kendaraan, neraca di Portofolio, event utang & properti | ⬜ |
+| 5 | Penyeimbangan dengan simulator (pemain berutang & pembeli rumah) | ⬜ |
+
+### Rincian fitur
+
+**Langkah 1: Utang & skor kredit** ✅
+- ✅ `data/loans.json` + modul `GameState.debt` (`scripts/game/debt.gd`)
+- ✅ **Pinjaman Tunai (KTA):** Rp5 jt sampai 5x gaji bruto, tenor 12/24/36 bulan, bunga = suku bunga BI + 12% (±17,75%) dikunci saat cair; syarat pegawai ≥6 bulan di perusahaan, skor ≥40, tidak menunggak, rasio cicilan ≤35% gaji. Syarat tampil ✓/✗, uang langsung cair
+- ✅ **Cicilan anuitas** otomatis tiap awal bulan setelah gaji & biaya hidup (kas, lalu tabungan dana darurat); tampil di Rencana Gaji, Beranda, dan laporan
+- ✅ **Menunggak:** tunggakan + denda 5%/bulan, skor -8; **3 bulan berturut-turut = macet**: seluruh sisa ditagih sekaligus (kas bisa minus → jual paksa → bangkrut)
+- ✅ **Pelunasan dipercepat** dengan penalti 3% + perkiraan bunga yang dihemat
+- ✅ **Skor kredit 0-100** (mulai 60): Sangat baik ≥80 (bunga -1%), Baik ≥60, Cukup ≥40 (bunga +2%), Buruk (ditolak); status pinjaman Kol 1-5 (OJK)
+- ✅ Kekayaan bersih dikurangi utang; pengeluaran rutin untuk kebebasan finansial & sisa modal menghitung cicilan; dana darurat hasil pinjaman tidak membuka tahap instrumen
+- ✅ Kartu **Utang & Kredit** di Beranda, popup **Pinjaman** (ajukan & rincian/pelunasan), bagian UTANG di laporan, 9 istilah glosarium, analisis akhir tentang utang
+- ✅ Save v1.5b tetap bisa dimuat (tanpa reset)
+- ✅ Simulator: tipe pemain **pengutang**; golden runner membuktikan permainan tanpa pinjaman tidak berubah; 84 uji utang + 201 uji lama lulus
+- ✅ Perbaikan bug: baris Premi asuransi & Uang kuliah di popup Rencana Gaji tertimpa "0% · Rp0"
+- 🔁 Lencana popup Pinjaman memakai ikon dompet (lihat `docs/KEBUTUHAN_ASET.md`)
 
 **Kriteria selesai**
 - ⬜ Utang bisa diambil, dibayar, dilunasi; skor kredit berubah
