@@ -1,0 +1,28 @@
+{
+	"_comment": [
+		"Pendidikan (v1.5b langkah 3). Kuliah dibayar & berjalan tiap awal bulan, mulai bulan setelah mendaftar. Biaya = harga AWAL permainan per bulan (ikut inflasi & pengali biaya tingkat kesulitan).",
+		"months: lama kuliah menurut pendidikan pemain saat mendaftar (id dari jobs.json education_levels); program hanya muncul jika pendidikan pemain ada di sini, mis. S1 = 48 bulan dari SMA atau 24 bulan alih jenjang dari D3.",
+		"Lulus: pendidikan menjadi `result` dan keahlian bertambah `skill` (dikali kurva keahlian jobs.json skill_curve).",
+		"load: beban kuliah per bulan (energi & kebahagiaan). Uang tidak cukup (kas + tabungan dana darurat) = cuti kuliah bulan itu, tanpa biaya & tanpa kemajuan.",
+		"sponsor: syarat event beasiswa kantor (lama bekerja di perusahaan & kinerja minimal). Beasiswa kantor menanggung penuh selama masih bekerja di perusahaan itu."
+	],
+	"programs": [
+		{
+			"id": "d3", "name": "Kuliah D3", "result": "D3", "cost": 1000000, "skill": 10,
+			"months": { "SMA": 36 },
+			"desc": "Program diploma yang praktis dan cepat siap kerja. Membuka lowongan bersyarat D3."
+		},
+		{
+			"id": "s1", "name": "Kuliah S1", "result": "S1", "cost": 1500000, "skill": 10,
+			"months": { "SMA": 48, "D3": 24 },
+			"desc": "Program sarjana: 48 bulan dari SMA, atau 24 bulan alih jenjang dari D3. Membuka lowongan bersyarat S1."
+		},
+		{
+			"id": "s2", "name": "Kuliah S2", "result": "S2", "cost": 3000000, "skill": 10,
+			"months": { "S1": 24 },
+			"desc": "Program magister. Dibutuhkan jabatan puncak tertentu, misalnya Kepala Divisi di bank."
+		}
+	],
+	"load": { "energy": 1, "happiness": -1 },
+	"sponsor": { "min_months": 24, "performance": 75 }
+}

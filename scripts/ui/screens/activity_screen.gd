@@ -1,11 +1,15 @@
 extends ScrollContainer
-## Tab Karier (dulu Aktivitas, tema "Senja Cuan"): pekerjaan & lowongan (v1.5b), aktivitas
-## bulanan (energi), level & XP, kuis (jatah mingguan, tanpa iklan), dan progres unlock instrumen.
+## Tab Karier (dulu Aktivitas, tema "Senja Cuan"): pekerjaan & lowongan (v1.5b), pendidikan &
+## keahlian, aktivitas bulanan (energi), level & XP, kuis (jatah mingguan, tanpa iklan), dan
+## progres unlock instrumen.
 
 ## Main yang menampilkan popup kuis (lewat antrean popup), screen ini hanya meminta.
 signal quiz_requested(question: Dictionary)
 ## Tombol "Berhenti kerja" ditekan; main menampilkan konfirmasi.
 signal resign_requested
+## Tombol "Daftar" program kuliah / "Berhenti kuliah" ditekan; main menampilkan konfirmasi.
+signal enroll_requested(program_id: String)
+signal quit_study_requested
 
 const TOPICS := ["basics", "risk", "scam", "instruments"]
 const BOLT_ICON := preload("res://assets/icons/bolt.svg")
@@ -24,9 +28,12 @@ const TRACK_TILES := {
 	"retail": &"IconTileCoral", "admin": &"IconTileBlue", "finance": &"IconTileMint",
 	"tech": &"IconTilePurple", "creative": &"IconTileGold", "gig": &"IconTileCoral",
 }
+## Ikon program kuliah (assets/icons/education/<d3|s1|s2>.svg, cadangan: ikon kursus).
+const EDUCATION_ICON := "res://assets/icons/education/%s.svg"
 
 var _job_box: VBoxContainer    # isi kartu Pekerjaan (dibangun ulang saat data berubah)
 var _board_box: VBoxContainer  # daftar lowongan bulan ini
+var _education_box: VBoxContainer  # isi kartu Pendidikan & Keahlian
 
 ## activity_id -> { button, faded: Array[Control], cost: Label, used: Label, reason: Label }
 var _activity_rows: Dictionary = {}
@@ -46,6 +53,7 @@ func _refresh() -> void:
 		return
 	_refresh_job()
 	_refresh_board()
+	_refresh_education()
 	_refresh_energy()
 	_refresh_activities()
 
@@ -146,8 +154,8 @@ func _on_start_quiz() -> void:
 
 # --- Pekerjaan & lowongan (v1.5b) --------------------------------------------
 
-## Judul + kartu Pekerjaan di paling atas, judul + daftar Lowongan setelah kartu energi,
-## lalu judul untuk daftar aktivitas yang sudah ada.
+## Judul + kartu Pekerjaan di paling atas; judul + daftar Lowongan dan kartu Pendidikan &
+## Keahlian setelah kartu energi; lalu judul untuk daftar aktivitas yang sudah ada.
 func _build_career_sections() -> void:
 	var page: VBoxContainer = $VBox
 	var job_card := PanelContainer.new()
@@ -163,8 +171,14 @@ func _build_career_sections() -> void:
 
 	_board_box = VBoxContainer.new()
 	_board_box.add_theme_constant_override("separation", 12)
+	var education_card := PanelContainer.new()
+	education_card.theme_type_variation = &"HomeCard"
+	_education_box = VBoxContainer.new()
+	_education_box.add_theme_constant_override("separation", 10)
+	education_card.add_child(_education_box)
 	var index := %FeedbackBox.get_index() + 1
-	for node: Control in [_section_title(tr("CAREER_BOARD_TITLE")), _board_box, _section_title(tr("ACT_LIST_TITLE"))]:
+	for node: Control in [_section_title(tr("CAREER_BOARD_TITLE")), _board_box,
+			_section_title(tr("EDU_TITLE")), education_card, _section_title(tr("ACT_LIST_TITLE"))]:
 		page.add_child(node)
 		page.move_child(node, index)
 		index += 1
@@ -216,17 +230,6 @@ func _refresh_job() -> void:
 			sent.append(tr("CAREER_SENT_ITEM") % [tr(GameState.job_def(application["job_id"])["title"]),
 				roundi(float(application["chance"]) * 100)])
 		_job_box.add_child(_wrap(tr("CAREER_SENT") % ", ".join(sent), &"InfoLabel"))
-
-	var chips := HFlowContainer.new()
-	chips.add_theme_constant_override("h_separation", 6)
-	chips.add_theme_constant_override("v_separation", 6)
-	chips.add_child(_text_chip(tr("CAREER_EDUCATION") % GameState.education_name(GameState.education), &"SmallChipGold"))
-	chips.add_child(_text_chip(tr("CAREER_SKILL") % floori(GameState.skill), &"SmallChipGold"))
-	for track: Dictionary in GameState.job_data["tracks"]:
-		var months := int(GameState.experience.get(track["id"], 0))
-		if months > 0:
-			chips.add_child(_text_chip(tr("CAREER_EXPERIENCE") % [tr(track["name"]), months], &"SmallChipNeutral"))
-	_job_box.add_child(chips)
 
 
 ## Kinerja sekarang (angka, predikat, bar) dan penyusun targetnya + aturan kenaikan prestasi.
@@ -336,16 +339,20 @@ func _refresh_board() -> void:
 
 
 func _job_head(def: Dictionary, sub: String, value: String) -> HBoxContainer:
+	var icon := TRACK_ICON % def["track"]
+	return _head(icon if ResourceLoader.exists(icon) else TRACK_ICON_FALLBACK,
+		TRACK_TILES.get(def["track"], &"IconTileGold"), tr(def["title"]), sub, value)
+
+
+## Baris kepala kartu: ikon | judul & keterangan | nilai di kanan.
+func _head(icon: String, tile: StringName, title: String, sub: String, value: String) -> HBoxContainer:
 	var head := HBoxContainer.new()
 	head.add_theme_constant_override("separation", 12)
-	var icon := TRACK_ICON % def["track"]
-	head.add_child(UiText.icon_tile(icon if ResourceLoader.exists(icon) else TRACK_ICON_FALLBACK,
-		TRACK_TILES.get(def["track"], &"IconTileGold")))
+	head.add_child(UiText.icon_tile(icon, tile))
 	var texts := VBoxContainer.new()
 	texts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	texts.add_theme_constant_override("separation", 0)
-	var title := _wrap(tr(def["title"]), &"AssetNameLabel")
-	texts.add_child(title)
+	texts.add_child(_wrap(title, &"AssetNameLabel"))
 	texts.add_child(_wrap(sub, &"SmallMutedLabel"))
 	head.add_child(texts)
 	var value_label := _label(value, &"AssetValueLabel")
@@ -382,6 +389,99 @@ func _on_apply(index: int) -> void:
 		%ActivityFeedback.text = tr(result["error"])
 		%FeedbackBox.theme_type_variation = &"FeedbackBad"
 		%ActivityFeedback.add_theme_color_override("font_color", Palette.LOSS)
+
+
+# --- Pendidikan & keahlian (v1.5b langkah 3) ----------------------------------
+
+## Bekal pemain (pendidikan, keahlian, pengalaman), lalu kuliah yang sedang berjalan atau
+## daftar program kuliah yang bisa diambil.
+func _refresh_education() -> void:
+	_clear(_education_box)
+	var chips := HFlowContainer.new()
+	chips.add_theme_constant_override("h_separation", 6)
+	chips.add_theme_constant_override("v_separation", 6)
+	chips.add_child(_text_chip(tr("CAREER_EDUCATION") % GameState.education_name(GameState.education), &"SmallChipGold"))
+	chips.add_child(_text_chip(tr("CAREER_SKILL") % floori(GameState.skill), &"SmallChipGold"))
+	for track: Dictionary in GameState.job_data["tracks"]:
+		var months := int(GameState.experience.get(track["id"], 0))
+		if months > 0:
+			chips.add_child(_text_chip(tr("CAREER_EXPERIENCE") % [tr(track["name"]), months], &"SmallChipNeutral"))
+	_education_box.add_child(chips)
+	var factor := pow(maxf(1.0 - GameState.skill / 100.0, 0.0), float(GameState.job_data.get("skill_curve", 1.0)))
+	_education_box.add_child(_wrap(tr("EDU_SKILL_NOTE") % roundi(factor * 100.0), &"SmallMutedLabel"))
+
+	if GameState.is_studying():
+		_add_study()
+		return
+	var options := GameState.available_programs()
+	if options.is_empty():
+		_education_box.add_child(_wrap(tr("EDU_TOP") % GameState.education_name(GameState.education), &"InfoLabel"))
+	for option: Dictionary in options:
+		_add_program(option)
+
+
+## Kuliah yang sedang berjalan: kemajuan, uang kuliah, beasiswa, beban, tombol berhenti.
+func _add_study() -> void:
+	var study := GameState.study
+	var def := GameState.program_def(study["id"])
+	var total := int(study["months_total"])
+	var done := total - int(study["months_left"])
+	var sub := tr("EDU_GRADUATES") % Fmt.game_date(GameState.graduation_month())
+	sub = (tr("EDU_PROGRESS") % [done, total] if GameState.month >= int(study["since"]) else tr("EDU_STARTS_NEXT")) + " · " + sub
+	var fee := GameState.tuition_fee()
+	_education_box.add_child(_head(_program_icon(def), &"IconTileBlue", tr(def["name"]), sub,
+		tr("CAREER_PER_MONTH") % Fmt.rupiah(fee) if fee > 0 else tr("EDU_FREE")))
+	var bar := ProgressBar.new()
+	bar.theme_type_variation = &"XpBar"
+	bar.custom_minimum_size = Vector2(0, 14)
+	bar.show_percentage = false
+	bar.max_value = total
+	bar.value = done
+	_education_box.add_child(bar)
+	var notes: Array[String] = []
+	if GameState.study_sponsored():
+		notes.append(tr("EDU_SPONSORED") % study["sponsor"])
+	elif float(study["scholarship"]) > 0.0:
+		notes.append(tr("EDU_SCHOLARSHIP") % roundi(float(study["scholarship"]) * 100.0))
+	var load: Dictionary = GameState.education_data["load"]
+	notes.append(tr("EDU_LOAD") % [int(load["energy"]), -int(load["happiness"])])
+	_education_box.add_child(_wrap("\n".join(notes), &"SmallMutedLabel"))
+	var quit := UiText.chunky_button(tr("EDU_QUIT"), &"NeutralButton", &"NeutralButtonLabel", 56.0, 20)
+	quit.custom_minimum_size.x = 240
+	quit.size_flags_horizontal = Control.SIZE_SHRINK_END
+	quit.disabled = GameState.has_pending_event() or GameState.is_over
+	quit.pressed.connect(func() -> void: quit_study_requested.emit())
+	_education_box.add_child(quit)
+
+
+## Satu program kuliah yang bisa diambil: lama, biaya, hasil, tombol Daftar.
+func _add_program(option: Dictionary) -> void:
+	var def: Dictionary = option["def"]
+	var fee := int(option["fee"])
+	var months := int(option["months"])
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 6)
+	box.add_child(_head(_program_icon(def), &"IconTileBlue", tr(def["name"]),
+		tr("EDU_PROGRAM_SUB") % [months, def["result"]], tr("CAREER_PER_MONTH") % Fmt.rupiah(fee)))
+	box.add_child(_wrap(tr(def["desc"]), &"SmallMutedLabel"))
+	var load: Dictionary = GameState.education_data["load"]
+	box.add_child(_wrap(tr("EDU_PROGRAM_INFO") % [Fmt.rupiah(fee * months), int(def["skill"]),
+		int(load["energy"]), -int(load["happiness"])], &"SmallMutedLabel"))
+	var reason := GameState.enroll_block_reason(def["id"])
+	var button := UiText.chunky_button(tr("EDU_ENROLL") if reason == "" else tr(reason + "_SHORT"),
+		&"PrimaryButton" if reason == "" else &"NeutralButton",
+		&"PrimaryButtonLabel" if reason == "" else &"NeutralButtonLabel", 60.0, 20)
+	button.custom_minimum_size.x = 200
+	button.size_flags_horizontal = Control.SIZE_SHRINK_END
+	button.disabled = reason != ""
+	button.pressed.connect(func() -> void: enroll_requested.emit(def["id"]))
+	box.add_child(button)
+	_education_box.add_child(box)
+
+
+func _program_icon(def: Dictionary) -> String:
+	var icon := EDUCATION_ICON % def["id"]
+	return icon if ResourceLoader.exists(icon) else ACTIVITY_ICON % "course"
 
 
 func _text_chip(text: String, variation: StringName) -> PanelContainer:
@@ -475,6 +575,8 @@ func _refresh_activities() -> void:
 		row["used"].text = tr("ACT_ITEM_USED") % [used, int(def.get("max_per_month", 1))]
 		var reason := GameState.activity_block_reason(def)
 		row["reason"].text = tr(reason) if reason != "" else ""
+		if reason == "ERR_ACTIVITY_COOLDOWN":
+			row["reason"].text = tr(reason) % GameState.activity_cooldown_left(def)
 		row["reason"].visible = reason != ""
 		row["button"].disabled = reason != ""
 		for node: Control in row["faded"]:

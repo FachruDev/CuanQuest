@@ -21,6 +21,8 @@ signal dream_achieved(dream: Dictionary)
 signal job_offers_received(offers: Array)
 ## Karier berubah lewat event (v1.5b langkah 2): kind "promoted" / "laid_off"; `title` = jabatan (key teks).
 signal career_changed(kind: String, title: String)
+## Lulus kuliah (v1.5b langkah 3): nama program (key teks), pendidikan baru, tambahan keahlian.
+signal graduated(program: String, result: String, skill_gain: int)
 ## Tenggat impian terlewat; pemain memilih memperpanjang atau melepas.
 signal dream_overdue(dream: Dictionary)
 ## Target bulanan selesai di tengah bulan (untuk notifikasi singkat).
@@ -43,6 +45,7 @@ const ACTIVITIES_PATH := "res://data/activities.json"
 const DREAMS_PATH := "res://data/dreams.json"
 const INSURANCE_PATH := "res://data/insurance.json"
 const JOBS_PATH := "res://data/jobs.json"
+const EDUCATION_PATH := "res://data/education.json"
 const RISK_PROFILE_PATH := "res://data/risk_profile.json"
 const MAX_TRANSACTIONS := 200
 
@@ -76,6 +79,10 @@ var job_board: Array[Dictionary] = []    # lowongan bulan ini: [{job_id, company
 var applications: Array[Dictionary] = [] # lamaran bulan ini (hasilnya awal bulan depan)
 var job_offers: Array[Dictionary] = []   # lamaran yang diterima, menunggu keputusan pemain
 var job_data: Dictionary = {}            # isi data/jobs.json
+## Kuliah yang sedang diambil (v1.5b langkah 3), {} jika tidak kuliah:
+## {"id", "months_left", "months_total", "since", "scholarship", "sponsor", "paid_month"}.
+var study: Dictionary = {}
+var education_data: Dictionary = {}      # isi data/education.json
 var food_id: String = ""
 var housing_id: String = ""
 var holdings: Dictionary = {}      # asset_id -> { "units": float, "cost": float, "locked_until": int }
@@ -136,7 +143,7 @@ var policies: Dictionary = {}
 ## Stop loss & take profit (v1.5a langkah 4): asset_id -> {"stop_loss": harga, "take_profit": harga}
 ## (0 = tidak dipakai). Dicek setiap hari saat pasar bergerak; lihat _execute_orders().
 var orders: Dictionary = {}
-var _dream_signals: Array[Callable] = []     # impian terwujud/terlewat, dikirim setelah laporan
+var _report_signals: Array[Callable] = []    # impian & kelulusan, dikirim setelah laporan
 var _fast_forwarding := false
 ## Naik setiap game baru / dimuat (tidak disimpan). SaveManager memakainya untuk tahu apakah
 ## slot di database masih "permainan yang sama" sehingga cukup ditulis bagian barunya saja.
@@ -160,6 +167,7 @@ func _ready() -> void:
 	dream_defs = DataLoader.load_json(DREAMS_PATH).get("dreams", [])
 	insurance_data = DataLoader.load_json(INSURANCE_PATH)
 	job_data = DataLoader.load_json(JOBS_PATH)
+	education_data = DataLoader.load_json(EDUCATION_PATH)
 
 
 ## `profile`: { "name", "avatar", "background", "difficulty" } (semua opsional).
@@ -189,6 +197,7 @@ func new_game(profile: Dictionary = {}, seed_value: int = -1) -> void:
 	applications.clear()
 	job_offers.clear()
 	performance = 0.0
+	study = {}
 	health = int(economy["start_health"])
 	happiness = int(economy["start_happiness"])
 	xp = 0
@@ -205,7 +214,7 @@ func new_game(profile: Dictionary = {}, seed_value: int = -1) -> void:
 	chain_events.clear()
 	director = _new_director()
 	targets.clear()
-	_dream_signals.clear()
+	_report_signals.clear()
 	holdings.clear()
 	unlocked_stages.clear()
 	pending_event = {}
@@ -307,7 +316,7 @@ func advance_month() -> void:
 	changed.emit()
 	if not _fast_forwarding:
 		month_advanced.emit(last_report)
-	_flush_dream_signals()
+	_flush_report_signals()
 	# Tawaran pekerjaan berjenjang didahului event wawancara (lihat _career_events).
 	if not job_offers.is_empty() and _interview_offer_index() < 0 and not _fast_forwarding:
 		job_offers_received.emit(job_offers)
@@ -401,10 +410,6 @@ func _start_month() -> Dictionary:
 	var performance_before := performance
 	_work_month(working)
 
-	energy_capacity = energy_max()
-	energy = energy_capacity
-	activity_counts.clear()
-
 	var food_cost := option_cost(food)
 	var housing_cost := option_cost(housing)
 	var salary_tax := income_tax(paid)
@@ -419,6 +424,10 @@ func _start_month() -> Dictionary:
 	happiness = clampi(happiness + int(food["happiness"]) + int(housing["happiness"])
 		+ _drift("happiness", happiness, working), 0, 100)
 	var insurance := _pay_premiums()
+	var study_report := _study_month()
+	energy_capacity = energy_max()  # setelah kuliah bulan ini diketahui (beban energi)
+	energy = energy_capacity
+	activity_counts.clear()
 	# Rencana gaji baru berjalan setelah pemain menyimpannya pertama kali (lihat set_plan).
 	var budget := _apply_budget(month_income) if plan.get("confirmed", false) else {}
 	_check_dreams()
@@ -439,7 +448,7 @@ func _start_month() -> Dictionary:
 		"salary_raise": salary_raise,
 		"performance": roundi(performance) if working and is_career() else -1,
 		"performance_delta": roundi(performance) - roundi(performance_before),
-	}.merged(merit).merged(insurance).merged(budget)
+	}.merged(merit).merged(insurance).merged(study_report).merged(budget)
 
 
 # --- Pekerjaan & karier (v1.5b) ------------------------------------------------------
@@ -576,6 +585,7 @@ func accept_offer(index: int) -> void:
 	if not is_employed() and month_income == 0:
 		first_salary = int(offer["salary"])
 	job = {"id": offer["job_id"], "company": offer["company"], "since": month, "hired": month}
+	_check_sponsor()
 	salary = int(offer["salary"])
 	unpaid_months = 0
 	performance = float(job_data["performance"]["start"])
@@ -659,6 +669,7 @@ func _leave_job() -> void:
 	job = {}
 	salary = 0
 	unpaid_months = 0
+	_check_sponsor()
 
 
 ## Lowongan bulan ini: 1 kerja lepas, 1 yang paling tinggi jenjangnya di antara yang syaratnya
@@ -932,6 +943,12 @@ func _event_vars(def: Dictionary) -> Dictionary:
 			if not offer.is_empty():
 				return {"offer": offer, "job_id": offer["job_id"], "company": offer["company"],
 					"salary": offer["salary"], "raise": float(offer["salary"]) / maxf(salary, 1.0) - 1.0}
+		"company_sponsor":
+			var option := sponsor_program()
+			if not option.is_empty():
+				return {"company": job["company"], "program_id": option["def"]["id"]}
+		"course":
+			return {"cert": certification_name()}
 	return {}
 
 
@@ -945,6 +962,176 @@ func _event_still_valid(def: Dictionary) -> bool:
 		"layoff":
 			return is_career()
 	return events.requires_met(def, self)
+
+
+# --- Pendidikan: kuliah, beasiswa, sertifikasi (v1.5b langkah 3) --------------------------
+# Kuliah berjalan tiap awal bulan mulai bulan setelah mendaftar, sambil bekerja atau tidak.
+# Lulus = pendidikan naik + keahlian. Beasiswa kampus memotong uang kuliah; beasiswa kantor
+# menanggung penuh selama pemain masih bekerja di perusahaan pemberinya.
+
+func is_studying() -> bool:
+	return not study.is_empty()
+
+
+## Id pendidikan sekarang ("SMA", "D3", ...).
+func education_id() -> String:
+	return job_data["education_levels"][education]["id"]
+
+
+func program_def(id: String) -> Dictionary:
+	for def: Dictionary in education_data.get("programs", []):
+		if def["id"] == id:
+			return def
+	return {}
+
+
+## Program yang bisa diambil dengan pendidikan sekarang: [{def, months, fee}] (fee per bulan, harga hari ini).
+func available_programs() -> Array[Dictionary]:
+	var options: Array[Dictionary] = []
+	for def: Dictionary in education_data.get("programs", []):
+		var months: Dictionary = def["months"]
+		if months.has(education_id()):
+			options.append({"def": def, "months": int(months[education_id()]), "fee": _program_fee(def, 0.0)})
+	return options
+
+
+func program_option(id: String) -> Dictionary:
+	for option: Dictionary in available_programs():
+		if option["def"]["id"] == id:
+			return option
+	return {}
+
+
+func _program_fee(def: Dictionary, covered: float) -> int:
+	return nominal(float(def["cost"]) * float(difficulty["expense_mult"]) * (1.0 - covered))
+
+
+## Uang kuliah per bulan (harga hari ini) setelah beasiswa; 0 jika ditanggung kantor.
+func tuition_fee() -> int:
+	if not is_studying() or study_sponsored():
+		return 0
+	return _program_fee(program_def(study["id"]), float(study["scholarship"]))
+
+
+func study_sponsored() -> bool:
+	return is_studying() and study["sponsor"] != "" and is_employed() and job["company"] == study["sponsor"]
+
+
+## Bulan kelulusan jika tidak ada cuti kuliah.
+func graduation_month() -> int:
+	var next := maxi(int(study["since"]), month + 1)
+	return next + int(study["months_left"])
+
+
+## "" jika program bisa didaftar, atau key pesan alasannya.
+func enroll_block_reason(program_id: String) -> String:
+	if is_over or has_pending_event():
+		return "ERR_ACTIVITY_BUSY"
+	if is_studying():
+		return "ERR_STUDY_ACTIVE"
+	var option := program_option(program_id)
+	if option.is_empty():
+		return "ERR_STUDY_UNAVAILABLE"
+	if cash < int(option["fee"]):
+		return "ERR_NOT_ENOUGH_CASH"
+	return ""
+
+
+## Mendaftar kuliah; mulai berjalan (dan dibayar) awal bulan depan. -> {ok, error}
+func enroll(program_id: String) -> Dictionary:
+	var reason := enroll_block_reason(program_id)
+	if reason != "":
+		return {"ok": false, "error": reason}
+	_start_study(program_option(program_id), "")
+	changed.emit()
+	state_committed.emit()
+	return {"ok": true}
+
+
+func _start_study(option: Dictionary, sponsor: String) -> void:
+	study = {"id": option["def"]["id"], "months_left": option["months"], "months_total": option["months"],
+		"since": month + 1, "scholarship": 0.0, "sponsor": sponsor, "paid_month": -1}
+	stats["enrollments"] += 1
+
+
+## Berhenti kuliah: biaya yang sudah dibayar hangus, pendidikan tidak berubah.
+func quit_study() -> void:
+	if not is_studying() or is_over or has_pending_event():
+		return
+	study = {}
+	stats["dropouts"] += 1
+	changed.emit()
+	state_committed.emit()
+
+
+## Beasiswa kantor berakhir jika pemain tidak lagi bekerja di perusahaan pemberinya.
+func _check_sponsor() -> void:
+	if is_studying() and study["sponsor"] != "" and job.get("company", "") != study["sponsor"]:
+		study["sponsor"] = ""
+
+
+## Awal bulan: lulus jika semua bulan sudah dijalani; selain itu bayar uang kuliah (kas, lalu
+## tabungan dana darurat) dan jalani sebulan kuliah. Uang tidak cukup = cuti kuliah bulan ini.
+func _study_month() -> Dictionary:
+	if not is_studying() or month < int(study["since"]):
+		return {}
+	var def := program_def(study["id"])
+	if int(study["months_left"]) <= 0:
+		return _graduate()
+	var fee := tuition_fee()
+	_draw_savings(fee)
+	if cash < fee:
+		return {"study_paused": def["name"]}
+	cash -= fee
+	stats["tuition"] += fee
+	study["months_left"] = int(study["months_left"]) - 1
+	study["paid_month"] = month
+	happiness = clampi(happiness + int(education_data["load"]["happiness"]), 0, 100)
+	return {"study_fee": fee, "study_program": def["name"],
+		"study_done": int(study["months_total"]) - int(study["months_left"]), "study_total": study["months_total"]}
+
+
+func _graduate() -> Dictionary:
+	var def := program_def(study["id"])
+	var before := floori(skill)
+	education = maxi(education, education_index(def["result"]))
+	_gain_skill(float(def["skill"]))
+	study = {}
+	stats["graduations"] += 1
+	var gain := floori(skill) - before
+	_report_signals.append(func() -> void: graduated.emit(def["name"], def["result"], gain))
+	return {"graduated": def["name"], "graduated_education": def["result"], "graduated_skill": gain}
+
+
+## Program yang ditawarkan beasiswa kantor (event company_sponsor): program pertama yang tersedia,
+## jika pemain sudah cukup lama di perusahaan, kinerjanya baik, dan sedang tidak kuliah. {} jika tidak.
+func sponsor_program() -> Dictionary:
+	var cfg: Dictionary = education_data["sponsor"]
+	if not is_career() or is_studying() or months_at_company() < int(cfg["min_months"]) \
+			or performance < float(cfg["performance"]):
+		return {}
+	var options := available_programs()
+	return {} if options.is_empty() else options[0]
+
+
+## Nama sertifikasi di event "course": sesuai bidang pekerjaan sekarang, atau bidang dengan
+## pengalaman terbanyak, atau sertifikasi umum (key teks).
+func certification_name() -> String:
+	var track_id: String = current_job_def().get("track", "")
+	if track_id == "" or track_id == "gig":
+		var best := 0
+		for id: String in experience:
+			if id != "gig" and int(experience[id]) > best:
+				best = int(experience[id])
+				track_id = id
+	return track_def(track_id).get("certification", job_data["default_certification"])
+
+
+## Jika kas kurang dari `amount`, kekurangannya diambil dari tabungan dana darurat (autodebet).
+func _draw_savings(amount: int) -> void:
+	var savings := emergency_asset_id()
+	if cash < amount and units_of(savings) >= amount - cash:
+		sell(savings, ceili(amount - cash), "forced")
 
 
 # --- Asuransi (v1.5a langkah 3) ---------------------------------------------------
@@ -1054,9 +1241,7 @@ func _pay_premiums() -> Dictionary:
 			policies.erase(category)
 			continue
 		var amount := premium(product)
-		var savings := emergency_asset_id()
-		if cash < amount and units_of(savings) >= amount - cash:  # autodebet dari tabungan dana darurat
-			sell(savings, ceili(amount - cash), "forced")
+		_draw_savings(amount)
 		if cash < amount:
 			policies.erase(category)
 			lapsed.append(product["name"])
@@ -1461,6 +1646,16 @@ func _apply_effects(e: Dictionary) -> void:
 		_raise_offer(float(e["offer_raise"]))
 	if e.get("headhunter", false) and pending_vars.has("offer"):
 		job_offers.append(pending_vars["offer"].duplicate())
+	if e.has("scholarship") and is_studying():
+		study["scholarship"] = maxf(float(study["scholarship"]), float(e["scholarship"]))
+		stats["scholarships"] += 1
+	if e.get("sponsored_study", false) and not is_studying() and is_employed():
+		var option := program_option(pending_vars.get("program_id", ""))
+		if not option.is_empty():
+			_start_study(option, job["company"])
+	if e.has("study_delay") and is_studying():
+		study["months_left"] = int(study["months_left"]) + int(e["study_delay"])
+		study["months_total"] = int(study["months_total"]) + int(e["study_delay"])
 	if e.has("delayed"):
 		var d: Dictionary = e["delayed"].duplicate(true)
 		d["due"] = month + int(d["months"])
@@ -1880,7 +2075,7 @@ func to_dict() -> Dictionary:
 		"plan": plan, "plan_applied_month": plan_applied_month, "month_income": month_income,
 		"dreams": dreams, "dreams_asked": dreams_asked, "targets": targets, "policies": policies, "orders": orders,
 		"job": job, "performance": performance, "education": education, "skill": skill, "experience": experience,
-		"job_board": job_board, "applications": applications, "job_offers": job_offers,
+		"job_board": job_board, "applications": applications, "job_offers": job_offers, "study": study,
 		"turn_units": turn_units, "turn_fees": turn_fees, "turn_trades": turn_trades, "month_costs": month_costs,
 		"event_queue": event_queue, "chain_events": chain_events, "director": director,
 	}
@@ -1975,6 +2170,10 @@ func load_from_dict(d: Dictionary) -> bool:
 			"hired": int(d["job"].get("hired", d["job"]["since"]))}
 	performance = float(d.get("performance", job_data["performance"]["start"] if not job.is_empty() else 0.0))
 	education = int(d["education"])
+	study = d.get("study", {}).duplicate()
+	for key: String in ["months_left", "months_total", "since", "paid_month"]:
+		if study.has(key):
+			study[key] = int(study[key])
 	skill = float(d["skill"])
 	experience.clear()
 	for track: String in d["experience"]:
@@ -1997,7 +2196,7 @@ func load_from_dict(d: Dictionary) -> bool:
 	turn_fees = float(d.get("turn_fees", 0.0))
 	month_costs = _new_month_costs().merged(d.get("month_costs", {}), true)
 	turn_trades = int(d.get("turn_trades", 0))
-	_dream_signals.clear()
+	_report_signals.clear()
 	event_queue.assign(d.get("event_queue", []))
 	chain_events.clear()
 	for chained: Dictionary in d.get("chain_events", []):
@@ -2032,8 +2231,9 @@ func _new_stats() -> Dictionary:
 		"unaffordable_choices": 0, "luxury_months": 0, "cash_heavy_months": 0,
 		"panic_sell": false, "total_lifestyle": 0, "total_autodebet": 0, "dreams_achieved": 0,
 		"targets_done": 0, "insurance_premiums": 0, "insurance_claims": 0, "uninsured_medical": 0, "orders_executed": 0,
-		"activity_totals": {}, "months_unemployed": 0, "applications": 0, "jobs_taken": 0,
+		"activity_totals": {}, "activity_last": {}, "months_unemployed": 0, "applications": 0, "jobs_taken": 0,
 		"promotions": 0, "layoffs": 0, "resigns": 0, "severance": 0, "top_level": 0,
+		"tuition": 0, "enrollments": 0, "graduations": 0, "dropouts": 0, "scholarships": 0,
 		"best_trade": {}, "worst_trade": {}, "best_event": {}, "worst_event": {},
 	}
 
@@ -2163,6 +2363,8 @@ func energy_max() -> int:
 		value += 1
 	if health < int(activity_data.get("health_penalty_below", 30)):
 		value -= 1
+	if not study.is_empty() and int(study["paid_month"]) == month:  # kuliah bulan ini
+		value -= int(education_data["load"]["energy"])
 	return maxi(value, 1)
 
 
@@ -2180,9 +2382,19 @@ func activity_block_reason(def: Dictionary) -> String:
 		return "ERR_ACTIVITY_LIMIT"
 	if def.has("max_total") and activity_total(def["id"]) >= int(def["max_total"]):
 		return "ERR_ACTIVITY_MAXED"
+	if activity_cooldown_left(def) > 0:
+		return "ERR_ACTIVITY_COOLDOWN"
 	if activity_cost(def) > cash:
 		return "ERR_NOT_ENOUGH_CASH"
 	return ""
+
+
+## Sisa bulan sebelum aktivitas berjeda ("cooldown_months", mis. kursus) bisa diambil lagi.
+func activity_cooldown_left(def: Dictionary) -> int:
+	var last: Dictionary = stats["activity_last"]
+	if not def.has("cooldown_months") or not last.has(def["id"]):
+		return 0
+	return maxi(int(last[def["id"]]) + int(def["cooldown_months"]) - month, 0)
 
 
 ## Berapa kali aktivitas ini sudah dilakukan sepanjang permainan (untuk batas "max_total").
@@ -2203,6 +2415,7 @@ func do_activity(activity_id: String) -> Dictionary:
 	energy -= int(def["energy"])
 	activity_counts[activity_id] = activity_counts.get(activity_id, 0) + 1
 	stats["activity_totals"][activity_id] = activity_total(activity_id) + 1
+	stats["activity_last"][activity_id] = month
 	cash -= activity_cost(def)
 	_apply_effects(def["effects"])
 	stats["activities"] = stats.get("activities", 0) + 1
@@ -2341,7 +2554,7 @@ func set_plan(new_plan: Dictionary) -> Dictionary:
 		_snapshot_turn()  # autodebet pertama bukan transaksi manual
 	changed.emit()
 	state_committed.emit()
-	_flush_dream_signals()
+	_flush_report_signals()
 	return applied
 
 
@@ -2408,10 +2621,11 @@ func plan_preview(p: Dictionary, income: int) -> Dictionary:
 		dream_items.append({"id": entry["id"], "name": dream_def(entry["id"])["name"], "share": share, "amount": amount})
 		dreams_total += amount
 	var insurance := premiums_total()
-	return {"income": income, "basic": basic, "insurance": insurance, "lifestyle": lifestyle,
+	var tuition := tuition_fee()
+	return {"income": income, "basic": basic, "insurance": insurance, "tuition": tuition, "lifestyle": lifestyle,
 		"emergency": emergency, "emergency_room": room, "invest": invest, "invest_total": invest_total,
 		"dreams": dream_items, "dreams_total": dreams_total,
-		"surplus": income - basic - insurance - lifestyle - emergency - invest_total - dreams_total}
+		"surplus": income - basic - insurance - tuition - lifestyle - emergency - invest_total - dreams_total}
 
 
 ## Menjalankan rencana setelah gaji masuk: belanja gaya hidup, setor dana darurat, lalu
@@ -2550,7 +2764,7 @@ func deposit_dream(id: String, amount: int) -> bool:
 	_check_dreams()
 	changed.emit()
 	state_committed.emit()
-	_flush_dream_signals()
+	_flush_report_signals()
 	return true
 
 
@@ -2623,19 +2837,19 @@ func _check_dreams() -> void:
 		xp += int(def["xp"])
 		stats["dreams_achieved"] += 1
 		var view := dream_view(entry)
-		_dream_signals.append(func() -> void: dream_achieved.emit(view))
+		_report_signals.append(func() -> void: dream_achieved.emit(view))
 
 
 func _queue_overdue_dreams() -> void:
 	for entry: Dictionary in overdue_dreams():
 		var view := dream_view(entry)
-		_dream_signals.append(func() -> void: dream_overdue.emit(view))
+		_report_signals.append(func() -> void: dream_overdue.emit(view))
 
 
 ## Sinyal impian dikirim SETELAH laporan bulanan, agar urutan popup: laporan -> perayaan.
-func _flush_dream_signals() -> void:
-	var pending := _dream_signals.duplicate()
-	_dream_signals.clear()
+func _flush_report_signals() -> void:
+	var pending := _report_signals.duplicate()
+	_report_signals.clear()
 	for send: Callable in pending:
 		if _fast_forwarding:
 			_deferred.append(send)

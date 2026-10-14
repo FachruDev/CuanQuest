@@ -41,6 +41,8 @@ func _refresh() -> void:
 	var preview := GameState.plan_preview(GameState.plan, income)
 	var surplus: int = preview["surplus"]
 	_plan_values["insurance"].text = Fmt.signed_rupiah(-preview["insurance"])
+	_plan_values["tuition"].text = Fmt.signed_rupiah(-preview["tuition"])
+	_plan_values["tuition"].get_parent().visible = GameState.is_studying()
 	_plan_values["lifestyle"].text = Fmt.signed_rupiah(-preview["lifestyle"])
 	_plan_values["emergency"].text = Fmt.rupiah(preview["emergency"])
 	_plan_values["dreams"].text = Fmt.rupiah(preview["dreams_total"])
@@ -86,7 +88,7 @@ func _refresh() -> void:
 func _build_plan_rows() -> void:
 	var card: VBoxContainer = %SurplusBox.get_parent()
 	var index := %SurplusBox.get_index()
-	for item: Array in [["insurance", "PLAN_INSURANCE", Palette.LOSS],
+	for item: Array in [["insurance", "PLAN_INSURANCE", Palette.LOSS], ["tuition", "PLAN_TUITION", Palette.LOSS],
 			["lifestyle", "PLAN_LIFESTYLE", Palette.LOSS], ["emergency", "PLAN_EMERGENCY", Palette.TEAL],
 			["dreams", "PLAN_DREAMS", Palette.TEAL], ["invest", "PLAN_INVEST", Palette.TEAL]]:
 		var row := HBoxContainer.new()

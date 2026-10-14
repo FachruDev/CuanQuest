@@ -97,6 +97,10 @@ func requires_met(def: Dictionary, state: Node) -> bool:
 			return state.is_career() and state.unpaid_months == 0
 		"headhunter":  # pekerjaan berjenjang & ada incaran yang gajinya lebih tinggi
 			return state.is_career() and state.unpaid_months == 0 and not state.headhunter_target().is_empty()
+		"studying":  # sedang kuliah (sudah berjalan), v1.5b langkah 3
+			return state.is_studying() and state.month >= int(state.study["since"])
+		"sponsor_ready":  # syarat beasiswa kantor
+			return not state.sponsor_program().is_empty()
 		"unemployed":
 			return not state.is_employed()
 		"has_investments":

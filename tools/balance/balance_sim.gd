@@ -23,6 +23,9 @@ const PERSONAS := {
 		"emergency": 0.05, "invest": 0.0, "insurance": {}, "choice": "gambler", "quiz": true, "speculate": true},
 	"acak": {"desc": "Pilihan acak", "food": "", "housing": "", "lifestyle": 0.05, "emergency": 0.1,
 		"invest": 0.0, "insurance": {}, "choice": "random", "quiz": false, "random_trades": true},
+	"pelajar": {"desc": "Hemat + kuliah & kursus", "food": "standard", "housing": "kos", "lifestyle": 0.05,
+		"emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"}, "choice": "prudent",
+		"quiz": true, "lump_invest": true, "activities": true, "study": true, "courses": true},
 }
 const CHECKPOINTS := [5, 10, 20, 30]
 
@@ -128,6 +131,9 @@ func _snapshot(start_salary: int) -> Dictionary:
 		"top_level": int(GameState.stats["top_level"]),
 		"performance": roundi(GameState.performance) if GameState.is_career() else -1,
 		"level": int(GameState.current_job_def()["level"]) if GameState.is_career() else 0,
+		"education": GameState.education,
+		"graduations": int(GameState.stats["graduations"]),
+		"tuition": float(GameState.stats["tuition"]),
 	}
 
 
@@ -171,6 +177,15 @@ func _job_actions() -> void:
 		GameState.apply_job(option[1])
 
 
+## Tipe pemain yang kuliah: daftar program pertama yang tersedia jika kas cukup untuk 6 bulan kuliah.
+func _study_actions(expenses: float) -> void:
+	if GameState.is_studying():
+		return
+	var options := GameState.available_programs()
+	if not options.is_empty() and GameState.cash >= int(options[0]["fee"]) * 6 + expenses:
+		GameState.enroll(options[0]["def"]["id"])
+
+
 ## Ambil tawaran bergaji tertinggi (jika lebih baik dari pekerjaan sekarang).
 func _take_offer() -> void:
 	if GameState.job_offers.is_empty():
@@ -188,6 +203,10 @@ func _take_offer() -> void:
 func _monthly_actions(p: Dictionary) -> void:
 	_job_actions()
 	var expenses := float(GameState.monthly_expenses())
+	if p.get("study", false):
+		_study_actions(expenses)
+	if p.get("courses", false) and GameState.skill < 80.0 and GameState.cash > expenses * 2:
+		GameState.do_activity("course")
 	if p["quiz"]:
 		_simulate_quiz()
 	if p.get("activities", false):  # aktivitas gratis untuk menjaga kesehatan & kebahagiaan
@@ -287,7 +306,9 @@ func _choice_score(choice: Dictionary, scam: bool) -> float:
 	return money * 6.0 + float(effects.get("health", 0)) + float(effects.get("happiness", 0)) \
 		+ float(effects.get("salary_pct", 0.0)) * 100.0 - float(effects.get("unpaid_months", 0)) * 10.0 \
 		+ float(effects.get("performance", 0)) * 0.4 + float(effects.get("skill", 0)) * 2.0 \
-		+ float(effects.get("offer_raise", 0.0)) * 150.0 + float(effects.get("promote", 0)) * 40.0
+		+ float(effects.get("offer_raise", 0.0)) * 150.0 + float(effects.get("promote", 0)) * 40.0 \
+		+ float(effects.get("scholarship", 0.0)) * 30.0 + float(effects.get("sponsored_study", 0)) * 20.0 \
+		- float(effects.get("study_delay", 0)) * 3.0
 
 
 ## Efek rata-rata pilihan (outcomes ditimbang peluangnya); cash dalam Rupiah hari ini.
@@ -301,7 +322,8 @@ func _expected_effects(choice: Dictionary) -> Dictionary:
 		parts.append([1.0, choice.get("effects", {})])
 	for part: Array in parts:
 		var effects: Dictionary = part[1]
-		for key: String in ["health", "happiness", "salary_pct", "unpaid_months", "performance", "skill", "offer_raise", "promote"]:
+		for key: String in ["health", "happiness", "salary_pct", "unpaid_months", "performance", "skill", "offer_raise", "promote",
+				"scholarship", "sponsored_study", "study_delay"]:
 			result[key] = float(result.get(key, 0.0)) + part[0] * float(effects.get(key, 0))
 		result["cash"] = float(result.get("cash", 0.0)) + part[0] * GameState.nominal(effects.get("cash", 0))
 	return result
@@ -323,10 +345,11 @@ func _print_summary(persona: String, results: Array[Dictionary], years: int) -> 
 			continue
 		var snaps: Array = results.map(func(r: Dictionary) -> Dictionary: return r["snapshots"][year])
 		var employed := snaps.filter(func(s: Dictionary) -> bool: return s["employed"]).size()
-		print("  tahun %2d: kekayaan riil %s | nominal median %s | gaji riil x%s | sehat %s | bahagia %s | bekerja %d%% | keahlian %d | jenjang %d" % [
+		print("  tahun %2d: kekayaan riil %s | nominal median %s | gaji riil x%s | sehat %s | bahagia %s | bekerja %d%% | keahlian %d | jenjang %d | pendidikan %s" % [
 			year, _range(snaps, "real_worth", true), Fmt.rupiah_short(_median(snaps, "worth")),
 			Fmt.number(_median(snaps, "real_salary_growth"), 2), int(_median(snaps, "health")), int(_median(snaps, "happiness")),
-			roundi(100.0 * employed / snaps.size()), int(_median(snaps, "skill")), int(_median(snaps, "level"))])
+			roundi(100.0 * employed / snaps.size()), int(_median(snaps, "skill")), int(_median(snaps, "level")),
+			GameState.education_name(int(_median(snaps, "education")))])
 	var last: int = CHECKPOINTS.filter(func(y: int) -> bool: return y <= years).max()
 	var finals: Array = results.map(func(r: Dictionary) -> Dictionary: return r["snapshots"][last])
 	print("  tahun %d: gaji total %s | biaya hidup total %s (median, nominal)" % [last,
@@ -336,6 +359,8 @@ func _print_summary(persona: String, results: Array[Dictionary], years: int) -> 
 		Fmt.rupiah_short(_median(finals, "claims")), Fmt.rupiah_short(_median(finals, "uninsured"))])
 	var laid_off := finals.filter(func(f: Dictionary) -> bool: return f["layoffs"] > 0).size()
 	var careers := finals.filter(func(f: Dictionary) -> bool: return f["performance"] >= 0)
+	print("  tahun %d: lulus kuliah median %d | uang kuliah median %s" % [last, int(_median(finals, "graduations")),
+		Fmt.rupiah_short(_median(finals, "tuition"))])
 	print("  tahun %d: promosi median %d | pernah PHK %d%% | jenjang tertinggi median %d | kinerja median %d" % [
 		last, int(_median(finals, "promotions")), roundi(100.0 * laid_off / finals.size()),
 		int(_median(finals, "top_level")), int(_median(careers, "performance")) if not careers.is_empty() else -1])

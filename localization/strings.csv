@@ -728,3 +728,37 @@ REPORT_MERIT_RAISE,Kenaikan prestasi (kinerja %d),Merit raise (performance %d)
 REPORT_CAREER,KARIER,CAREER
 REPORT_PERFORMANCE_VALUE,%d · %s (%+d),%d · %s (%+d)
 REPORT_NO_MERIT,Penilaian tahunan: kinerja %d belum cukup untuk kenaikan prestasi tahun ini.,Yearly review: performance %d isn't enough for a merit raise this year.
+EVENT_CAT_EDUCATION,PENDIDIKAN,EDUCATION
+EDU_TITLE,Pendidikan & Keahlian,Education & Skills
+EDU_SKILL_NOTE,"Makin ahli, makin sulit naik: kursus, pelatihan, sertifikasi, dan kuliah kini menambah %d%% dari nilai dasarnya.","The more skilled you are, the slower you improve: courses, training, certifications, and degrees now add %d%% of their base value."
+EDU_TOP,"Pendidikanmu sudah %s, jenjang tertinggi di game ini. Terus tambah keahlian lewat kursus dan sertifikasi.","Your education is %s, the highest level in the game. Keep growing your skills through courses and certifications."
+EDU_PROGRESS,Bulan %d dari %d,Month %d of %d
+EDU_STARTS_NEXT,Mulai bulan depan,Starts next month
+EDU_GRADUATES,lulus %s,graduates %s
+EDU_FREE,Ditanggung,Covered
+EDU_SPONSORED,Uang kuliah ditanggung penuh oleh %s selama kamu bekerja di sana.,Tuition is fully covered by %s while you work there.
+EDU_SCHOLARSHIP,Beasiswa kampus menanggung %d%% uang kuliah.,A campus scholarship covers %d%% of tuition.
+EDU_LOAD,"Kuliah memakai %d energi dan kebahagiaan -%d tiap bulan. Uang kuliah diambil dari kas (atau tabungan dana darurat); jika tidak cukup, kuliah cuti sebulan.","Studying uses %d energy and -%d happiness each month. Tuition comes from cash (or your emergency savings); if it isn't enough, you take a month off."
+EDU_QUIT,Berhenti kuliah,Drop out
+EDU_PROGRAM_SUB,%d bulan · lulus menjadi %s,%d months · graduate as %s
+EDU_PROGRAM_INFO,Total ±%s (ikut inflasi) · keahlian +%d saat lulus · energi -%d & kebahagiaan -%d per bulan selama kuliah.,Total ±%s (follows inflation) · skill +%d at graduation · energy -%d & happiness -%d per month while studying.
+EDU_ENROLL,Daftar,Enroll
+EDU_ENROLL_BODY,"Lama kuliah %d bulan, uang kuliah %s per bulan (total ±%s, ikut naik bersama inflasi). Selama kuliah: energi -%d dan kebahagiaan -%d tiap bulan. Kuliah dimulai bulan depan dan bisa dihentikan kapan saja, tetapi biaya yang sudah dibayar hangus.","The program takes %d months at %s per month (total ±%s, rising with inflation). While studying: energy -%d and happiness -%d each month. It starts next month and you can drop out anytime, but tuition already paid is lost."
+EDU_ENROLL_CONFIRM,Daftar kuliah,Enroll
+TOAST_ENROLLED,Kamu terdaftar di %s. Kuliah dimulai bulan depan.,You enrolled in %s. Classes start next month.
+EDU_QUIT_TITLE,Berhenti Kuliah?,Drop Out?
+EDU_QUIT_BODY,Biaya yang sudah dibayar hangus dan pendidikanmu tidak berubah. Kamu bisa mendaftar lagi nanti dari awal.,Tuition already paid is lost and your education stays the same. You can enroll again later from the start.
+EDU_QUIT_CONFIRM,"Ya, berhenti kuliah","Yes, drop out"
+EDU_GRADUATED_TITLE,Selamat Lulus!,"Congratulations, Graduate!"
+EDU_GRADUATED_BODY,"Kamu lulus %s! Pendidikanmu kini %s, jadi lowongan bersyarat %s sudah terbuka. Keahlian +%d.","You finished %s! Your education is now %s, so openings requiring %s are open to you. Skill +%d."
+REPORT_TUITION,"Uang kuliah (%s, bulan %d/%d)","Tuition (%s, month %d/%d)"
+REPORT_GRADUATED,"Lulus %s! Pendidikan kini %s, keahlian +%d.","Graduated from %s! Education is now %s, skill +%d."
+REPORT_STUDY_PAUSED,%s cuti sebulan: uang kuliah tidak cukup.,%s paused for a month: not enough money for tuition.
+PLAN_TUITION,Uang kuliah,Tuition
+PLAN_TUITION_NOTE,"Diatur di kartu Pendidikan & Keahlian, tab Karier.","Managed in the Education & Skills card, Career tab."
+ERR_STUDY_ACTIVE,Kamu sedang kuliah.,You're already studying.
+ERR_STUDY_ACTIVE_SHORT,Sedang kuliah,Studying
+ERR_STUDY_UNAVAILABLE,Program ini tidak tersedia untuk pendidikanmu.,This program isn't available for your education level.
+ERR_STUDY_UNAVAILABLE_SHORT,Tidak tersedia,Unavailable
+ERR_NOT_ENOUGH_CASH_SHORT,Kas kurang,Not enough cash
+ERR_ACTIVITY_COOLDOWN,Kursus berikutnya bisa diambil %d bulan lagi.,Next course available in %d months.

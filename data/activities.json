@@ -2,7 +2,8 @@
 	"_comment": [
 		"Aktivitas bulanan (GDD 4.2). Energi diisi ulang setiap awal bulan dan tidak bisa ditabung.",
 		"Energi maksimal = base_energy, +1 jika kesehatan >= health_bonus_at, -1 jika kesehatan < health_penalty_below (minimal 1).",
-		"effects memakai format yang sama dengan event (cash, cash_salary, health, happiness, xp, salary_pct).",
+		"effects memakai format yang sama dengan event (cash, cash_salary, health, happiness, xp, salary_pct, skill).",
+		"cooldown_months (opsional, v1.5b langkah 3): jeda bulan sebelum aktivitas bisa diambil lagi, mis. satu kursus butuh waktu.",
 		"Teks ditampilkan lewat tr() sehingga bisa diterjemahkan nanti."
 	],
 	"base_energy": 3,
@@ -15,14 +16,14 @@
 			"effects": { "cash": 750000, "health": -2, "happiness": -1, "xp": 5 }
 		},
 		{
-			"id": "course", "name": "Kursus Online", "desc": "Tingkatkan keahlian kerja. Tambahannya makin kecil saat keahlianmu sudah tinggi.",
-			"energy": 2, "cost": 1000000, "max_per_month": 1,
+			"id": "course", "name": "Kursus Online", "desc": "Satu kursus kerja tiap 3 bulan untuk menambah keahlian. Tambahannya makin kecil saat keahlianmu sudah tinggi.",
+			"energy": 2, "cost": 1000000, "max_per_month": 1, "cooldown_months": 3,
 			"effects": { "skill": 3, "xp": 20 }
 		},
 		{
 			"id": "self_study", "name": "Belajar Investasi Mandiri", "desc": "Baca buku dan artikel. Menambah XP dan sedikit keahlian.",
 			"energy": 1, "cost": 0, "max_per_month": 1,
-			"effects": { "xp": 10, "skill": 1 }
+			"effects": { "xp": 10, "skill": 0.5 }
 		},
 		{
 			"id": "exercise", "name": "Olahraga", "desc": "Lari pagi atau senam. Menjaga kesehatan tetap prima.",

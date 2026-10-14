@@ -56,12 +56,14 @@
 		"premium": 0.2,
 		"min_gain": 0.1
 	},
+	"_certification_comment": "Nama sertifikasi di event \"course\" (v1.5b langkah 3): sesuai bidang pekerjaan pemain, atau default_certification.",
+	"default_certification": "Sertifikasi Kompetensi Kerja",
 	"tracks": [
-		{ "id": "retail", "name": "Ritel & Layanan", "companies": ["Toko Sinar Jaya", "Mart Sejahtera", "Swalayan Nusantara", "Kafe Kopi Kita"] },
-		{ "id": "admin", "name": "Administrasi & Operasional", "companies": ["PT Maju Bersama", "PT Logistik Andalan", "CV Karya Mandiri", "PT Sentosa Abadi"] },
-		{ "id": "finance", "name": "Keuangan & Perbankan", "companies": ["Bank Sentosa", "Bank Rakyat Makmur", "Koperasi Sejahtera", "PT Asuransi Aman"] },
-		{ "id": "tech", "name": "Teknologi", "companies": ["Startup Kilat", "PT Data Nusantara", "Studio Aplikasi Maju", "Agensi Digital Cerah"] },
-		{ "id": "creative", "name": "Kreatif & Pemasaran", "companies": ["Agensi Iklan Warna", "PT Media Ceria", "Brand Lokal Kece", "Studio Konten Senja"] },
+		{ "id": "retail", "name": "Ritel & Layanan", "certification": "Sertifikasi Manajemen Ritel", "companies": ["Toko Sinar Jaya", "Mart Sejahtera", "Swalayan Nusantara", "Kafe Kopi Kita"] },
+		{ "id": "admin", "name": "Administrasi & Operasional", "certification": "Sertifikasi Manajemen Proyek", "companies": ["PT Maju Bersama", "PT Logistik Andalan", "CV Karya Mandiri", "PT Sentosa Abadi"] },
+		{ "id": "finance", "name": "Keuangan & Perbankan", "certification": "Sertifikasi Perencana Keuangan", "companies": ["Bank Sentosa", "Bank Rakyat Makmur", "Koperasi Sejahtera", "PT Asuransi Aman"] },
+		{ "id": "tech", "name": "Teknologi", "certification": "Sertifikasi Cloud Developer", "companies": ["Startup Kilat", "PT Data Nusantara", "Studio Aplikasi Maju", "Agensi Digital Cerah"] },
+		{ "id": "creative", "name": "Kreatif & Pemasaran", "certification": "Sertifikasi Digital Marketing", "companies": ["Agensi Iklan Warna", "PT Media Ceria", "Brand Lokal Kece", "Studio Konten Senja"] },
 		{ "id": "gig", "name": "Kerja Lepas", "companies": ["Aplikasi Ojek Kilat", "Kurir Cepat", "Platform Freelance"] }
 	],
 	"jobs": [

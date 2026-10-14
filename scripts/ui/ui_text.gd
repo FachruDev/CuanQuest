@@ -25,9 +25,9 @@ static func money(text: String) -> String:
 	return result
 
 
-## Teks event: token uang {rp:N} + isian event karier (v1.5b langkah 2) dari
+## Teks event: token uang {rp:N} + isian event karier & pendidikan (v1.5b) dari
 ## GameState.pending_vars atau hasil resolve_event: {job}, {company}, {salary}, {months},
-## {severance}, {raise}.
+## {severance}, {raise}, {program}, {cert}.
 static func event_text(text: String, vars: Dictionary) -> String:
 	var result := money(text)
 	if vars.is_empty() or not result.contains("{"):
@@ -43,6 +43,10 @@ static func event_text(text: String, vars: Dictionary) -> String:
 		result = result.replace("{months}", str(int(vars["months"])))
 	if vars.has("raise"):
 		result = result.replace("{raise}", "%d%%" % roundi(float(vars["raise"]) * 100.0))
+	if vars.has("program_id"):
+		result = result.replace("{program}", _t(GameState.program_def(vars["program_id"]).get("name", "")))
+	if vars.has("cert"):
+		result = result.replace("{cert}", _t(vars["cert"]))
 	return result
 
 

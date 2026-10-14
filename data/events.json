@@ -1,13 +1,13 @@
 {
 	"_comment": [
-		"category: finance | work | health | social | market | scam",
+		"category: finance | work | education | health | social | market | scam",
 		"bad: true = event merugikan, bobotnya dikali bad_event_mult dari tingkat kesulitan",
-		"Syarat (opsional): min_month, max_times, cooldown (bulan, default 12), month_of_year (0=Jan), guaranteed (selalu muncul jika syarat terpenuhi), requires: employed | career (pekerjaan berjenjang, bukan kerja lepas) | headhunter (karier + ada incaran bergaji lebih tinggi) | unemployed | has_investments | low_happiness | has_vehicle",
+		"Syarat (opsional): min_month, max_times, cooldown (bulan, default 12), month_of_year (0=Jan), guaranteed (selalu muncul jika syarat terpenuhi), requires: employed | career (pekerjaan berjenjang, bukan kerja lepas) | headhunter (karier + ada incaran bergaji lebih tinggi) | studying (sedang kuliah) | sponsor_ready (syarat beasiswa kantor) | unemployed | has_investments | low_happiness | has_vehicle",
 		"context (opsional, Event Director v1.5): pengali bobot saat kondisi pemain aktif, mis. {\"cash_rich\": 3}. Kondisi: cash_rich | cash_poor | low_happiness | low_health | holds_risky | holds_crypto | unemployed (ambang di economy.json event_director)",
 		"chain_only: true = tidak pernah acak; hanya muncul lewat efek chain atau dijadwalkan sistem karier (interview, promotion, layoff)",
 		"choice: label, cost (dibayar di muka, pilihan nonaktif jika kas kurang), effects ATAU outcomes [{chance, effects, result}], result",
-		"effects: cash, cash_salary (kali gaji), health, happiness, xp, skill (keahlian), performance (kinerja), salary_pct, unpaid_months (cuti tanpa gaji), lose_job (berhenti tanpa pesangon), layoff (PHK + pesangon), promote (naik jabatan), offer_raise (naikkan tawaran yang diwawancarai), headhunter (tambah tawaran headhunter), sell_all, delayed {months, chance, effects, text, fail_text}, chain {event, months: [min, max]} (jadwalkan event lanjutan)",
-		"Isian teks event karier (dihitung saat event tampil): {job} jabatan, {company} perusahaan, {salary} gaji, {months} bulan, {severance} pesangon, {raise} persen kenaikan"
+		"effects: cash, cash_salary (kali gaji), health, happiness, xp, skill (keahlian), performance (kinerja), salary_pct, unpaid_months (cuti tanpa gaji), lose_job (berhenti tanpa pesangon), layoff (PHK + pesangon), promote (naik jabatan), offer_raise (naikkan tawaran yang diwawancarai), headhunter (tambah tawaran headhunter), scholarship (porsi uang kuliah yang ditanggung beasiswa), sponsored_study (mulai kuliah dengan beasiswa kantor), study_delay (kuliah mundur N bulan), sell_all, delayed {months, chance, effects, text, fail_text}, chain {event, months: [min, max]} (jadwalkan event lanjutan)",
+		"Isian teks event karier (dihitung saat event tampil): {job} jabatan, {company} perusahaan, {salary} gaji, {months} bulan, {severance} pesangon, {raise} persen kenaikan, {program} program kuliah, {cert} nama sertifikasi"
 	],
 	"events": [
 		{
@@ -156,11 +156,41 @@
 			]
 		},
 		{
-			"id": "course", "category": "work", "weight": 2, "min_month": 3, "max_times": 3, "cooldown": 12,
-			"title": "Kursus Sertifikasi", "text": "Ada kursus sertifikasi profesional yang bisa meningkatkan keahlianmu dan membuka lowongan yang lebih baik.",
+			"id": "course", "category": "education", "weight": 2, "min_month": 3, "max_times": 3, "cooldown": 12,
+			"title": "Sertifikasi Profesi", "text": "Ada program {cert} selama sebulan. Sertifikat ini diakui banyak perusahaan dan menambah keahlianmu.",
 			"choices": [
-				{ "label": "Ikut kursus", "cost": 2500000, "effects": { "skill": 8, "xp": 30, "happiness": -2 }, "result": "Lulus! Keahlianmu bertambah dan peluangmu di lowongan yang lebih tinggi ikut naik. Investasi terbaik adalah investasi pada diri sendiri." },
+				{ "label": "Ikut sertifikasi", "cost": 2500000, "effects": { "skill": 8, "performance": 3, "xp": 30, "happiness": -2 }, "result": "Lulus! Keahlianmu bertambah dan peluangmu di lowongan yang lebih tinggi ikut naik. Investasi terbaik adalah investasi pada diri sendiri." },
 				{ "label": "Lewati dulu", "effects": {}, "result": "Mungkin lain kali." }
+			]
+		},
+		{
+			"id": "scholarship", "category": "education", "weight": 2, "cooldown": 12, "max_times": 2, "requires": "studying",
+			"title": "Beasiswa Prestasi", "text": "Kampusmu membuka beasiswa prestasi yang menanggung 50% uang kuliah sampai lulus. Pendaftar harus menulis esai dan menyerahkan nilai terbaik.",
+			"choices": [
+				{ "label": "Daftar dan tulis esai sungguh-sungguh", "outcomes": [
+					{ "chance": 0.5, "effects": { "scholarship": 0.5, "happiness": 4, "xp": 20 }, "result": "Selamat, kamu lolos! Uang kuliahmu tinggal separuh sampai lulus." },
+					{ "chance": 0.5, "effects": { "happiness": -2, "xp": 10 }, "result": "Belum lolos kali ini. Pengalaman menulis esai tetap berguna untuk kesempatan berikutnya." }
+				] },
+				{ "label": "Lewati, sedang sibuk", "effects": {}, "result": "Kesempatan ini terlewat. Beasiswa biasanya dibuka lagi tahun ajaran berikutnya." }
+			]
+		},
+		{
+			"id": "company_sponsor", "category": "education", "weight": 1, "max_times": 1, "requires": "sponsor_ready",
+			"title": "Beasiswa dari Kantor", "text": "Karena kinerjamu bagus, {company} menawarkan beasiswa {program} penuh. Uang kuliah ditanggung kantor selama kamu masih bekerja di sana.",
+			"choices": [
+				{ "label": "Ambil beasiswanya", "effects": { "sponsored_study": true, "happiness": 3, "xp": 20 }, "result": "Kuliahmu dimulai bulan depan. Kuliah sambil bekerja memakai 1 energi dan sedikit kebahagiaan tiap bulan, dan beasiswanya berhenti jika kamu pindah kerja." },
+				{ "label": "Tolak, fokus bekerja dulu", "effects": {}, "result": "Tawaran seperti ini bisa datang lagi selama kinerjamu tetap baik." }
+			]
+		},
+		{
+			"id": "exam_week", "category": "education", "weight": 3, "cooldown": 6, "requires": "studying",
+			"title": "Minggu Ujian", "text": "Ujian akhir semester tinggal seminggu lagi, padahal pekerjaan dan urusan lain juga menumpuk.",
+			"choices": [
+				{ "label": "Belajar sungguh-sungguh", "effects": { "skill": 1, "xp": 15, "happiness": -2, "health": -1 }, "result": "Nilaimu bagus. Kerja kerasmu terbayar." },
+				{ "label": "Belajar seadanya", "outcomes": [
+					{ "chance": 0.75, "effects": {}, "result": "Lulus dengan nilai pas-pasan." },
+					{ "chance": 0.25, "effects": { "study_delay": 3, "happiness": -3 }, "result": "Ada mata kuliah yang harus diulang. Masa kuliahmu mundur 3 bulan dan biayanya bertambah." }
+				] }
 			]
 		},
 		{

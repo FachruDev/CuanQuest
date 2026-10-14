@@ -2,7 +2,7 @@
 
 Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang **dibutuhkan**, dan **di file mana** aset itu dipakai. Diperbarui setiap kali sebuah langkah membutuhkan aset baru.
 
-- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5b langkah 2: tidak ada aset baru)
+- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5b langkah 3: ikon program kuliah kini dipakai dengan aset sementara)
 - **Rencana pembuatan:** pengembang membuat aset setelah **v2 selesai**. Sampai saat itu game memakai aset sementara (🔁), dan daftar di bawah terus diperbarui setiap langkah.
 - **Tanda:** ✅ sudah ada · ⬜ dibutuhkan · 🔁 sementara memakai aset lain (game tetap jalan)
 - Tabel aset yang sudah ada dibuat otomatis dengan memindai `scenes/`, `scripts/`, `theme/`, dan `data/`.
@@ -14,7 +14,7 @@ Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang
 | **v1 + Redesain "Senja Cuan"** | 79 aset: font, ilustrasi, ikon (dibuat pengembang) | ✅ |
 | **v1.5-0** Giliran bulanan yang hidup | Tidak ada; memakai ulang lencana & ikon (confetti digambar lewat kode) | ✅ |
 | **v1.5a** Realisme ekonomi | Tidak ada; memakai ulang `shield.svg`, `wallet.svg`, `trend_line.svg`, `warning_small.svg` | ✅ |
-| **v1.5b** Pekerjaan & karier | 10 ikon (3 latar pendidikan, 6 bidang kerja, 1 navigasi Karier) + 4 ikon pendidikan (langkah 3) | ⬜ 🔁 |
+| **v1.5b** Pekerjaan & karier | 13 ikon (3 latar pendidikan, 6 bidang kerja, 1 navigasi Karier, 3 program kuliah) + 2 opsional | ⬜ 🔁 |
 | **v1.5c** Utang, properti, hunian | Ilustrasi hunian & kendaraan di Beranda, ikon utang/properti | ⬜ (rencana) |
 | **v1.5d** Tokoh & konten | Potret tokoh berulang, lencana pencapaian, kosmetik | ⬜ (rencana) |
 | **v2** | Ikon instrumen lanjut, ilustrasi bab kehidupan | ⬜ (rencana) |
@@ -53,13 +53,10 @@ Game sudah jalan memakai aset sementara (🔁). Begitu file baru ditaruh di path
 | `assets/icons/tracks/gig.svg` | Kerja Lepas (helm/motor) | `scripts/ui/screens/activity_screen.gd` | 🔁 `wallet.svg` | Otomatis |
 | `assets/icons/nav_career.svg` | Navigasi tab Karier (koper) | `scenes/main.tscn` (tombol navigasi ke-4) | 🔁 `nav_activity.svg` | Ganti path `nav_activity.svg` di `scenes/main.tscn` (atau minta saya) |
 | `assets/icons/badge_job.svg` (opsional) | Lencana popup Tawaran Kerja (koper + bintang) | `scenes/ui/offer_popup.tscn` | 🔁 `badge_star.svg` | Ganti path di `scenes/ui/offer_popup.tscn` |
-
-**Menyusul di langkah 3 (pendidikan & keahlian), rencana:**
-
-| File | Isi | Akan dipakai di |
-|:--|:--|:--|
-| `assets/icons/education/d3.svg`, `s1.svg`, `s2.svg` | Program kuliah D3 / S1 / S2 | Kartu Pendidikan di tab Karier (`scripts/ui/screens/activity_screen.gd`) |
-| `assets/icons/education/certificate.svg` | Sertifikasi | Event & kartu Keahlian |
+| `assets/icons/education/d3.svg` | Program Kuliah D3 (buku + papan nama) | `scripts/ui/screens/activity_screen.gd` (kartu Pendidikan & Keahlian, tab Karier) | 🔁 `activities/course.svg` | Otomatis (nama file = id program di `data/education.json`) |
+| `assets/icons/education/s1.svg` | Program Kuliah S1 (toga) | `scripts/ui/screens/activity_screen.gd` | 🔁 `activities/course.svg` | Otomatis |
+| `assets/icons/education/s2.svg` | Program Kuliah S2 (toga + bintang) | `scripts/ui/screens/activity_screen.gd` | 🔁 `activities/course.svg` | Otomatis |
+| `assets/icons/badge_graduation.svg` (opsional) | Lencana popup "Selamat Lulus!" (toga) | `scripts/ui/main.gd` (popup kelulusan memakai `InfoPopup`) | 🔁 `badge_star.svg` | Perlu sedikit kode (minta saya) |
 
 ---
 

@@ -68,6 +68,13 @@ func _ready() -> void:
 		_enqueue(%InfoPopup.open.bind(tr("RESIGN_TITLE"), tr("RESIGN_BODY"), tr("RESIGN_CONFIRM"), func() -> void:
 			GameState.resign()
 			_show_toast(tr("TOAST_RESIGNED")), tr("BTN_CANCEL"))))
+	%ActivityScreen.enroll_requested.connect(_confirm_enroll)
+	%ActivityScreen.quit_study_requested.connect(func() -> void:
+		_enqueue(%InfoPopup.open.bind(tr("EDU_QUIT_TITLE"), tr("EDU_QUIT_BODY"), tr("EDU_QUIT_CONFIRM"),
+			GameState.quit_study, tr("BTN_CANCEL"))))
+	GameState.graduated.connect(func(program: String, result: String, skill_gain: int) -> void:
+		_enqueue(_celebrating(%InfoPopup.open.bind(tr("EDU_GRADUATED_TITLE"),
+			tr("EDU_GRADUATED_BODY") % [tr(program), result, result, skill_gain]))))
 	%HomeScreen.insurance_requested.connect(func() -> void: _enqueue(%InsurancePopup.open))
 	%MarketScreen.trade_requested.connect(func(asset_id: String, is_buy: bool, amount: int) -> void:
 		_enqueue(%TradeConfirmPopup.open.bind(asset_id, is_buy, amount)))
@@ -215,6 +222,20 @@ func _show_toast(text: String) -> void:
 	_toast_tween.tween_interval(2.2)
 	_toast_tween.tween_property(_toast, "modulate:a", 0.0, 0.4)
 	_toast_tween.tween_callback(_toast.hide)
+
+
+## Konfirmasi daftar kuliah: lama, biaya per bulan & total, beban energi & kebahagiaan.
+func _confirm_enroll(program_id: String) -> void:
+	var option := GameState.program_option(program_id)
+	if option.is_empty():
+		return
+	var load: Dictionary = GameState.education_data["load"]
+	var fee := int(option["fee"])
+	var body := tr("EDU_ENROLL_BODY") % [int(option["months"]), Fmt.rupiah(fee),
+		Fmt.rupiah(fee * int(option["months"])), int(load["energy"]), -int(load["happiness"])]
+	_enqueue(%InfoPopup.open.bind(tr(option["def"]["name"]), body, tr("EDU_ENROLL_CONFIRM"), func() -> void:
+		if GameState.enroll(program_id)["ok"]:
+			_show_toast(tr("TOAST_ENROLLED") % tr(option["def"]["name"])), tr("BTN_CANCEL")))
 
 
 ## Rencana gaji perlu dicek (belum pernah disimpan atau gaji berubah). Diperiksa lagi saat

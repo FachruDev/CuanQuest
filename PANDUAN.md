@@ -31,6 +31,7 @@ data/
   events.json                 42 event hidup: syarat muncul, pilihan, efek, klaim asuransi
   insurance.json              Produk asuransi: premi, tanggungan, masa tunggu
   jobs.json                   Pekerjaan (bidang, jenjang, syarat, gaji, beban kerja) & aturan lowongan
+  education.json              Program kuliah (syarat, lama, biaya, hasil) & beban kuliah
   quiz.json                   39 soal kuis (4 topik)
   glossary.json               31 istilah glosarium
   legal.json                  Kebijakan privasi & syarat penggunaan (tampil di game)
@@ -133,7 +134,7 @@ scenes/
 - [ ] **v1.5b "Pekerjaan & Karier"**:
   - [x] (1) Fondasi: latar SMA/D3/S1 tanpa kerja, lowongan & melamar, tab Karier
   - [x] (2) Karier: kinerja, promosi, kenaikan prestasi, PHK, event kerja
-  - [ ] (3) Pendidikan & keahlian
+  - [x] (3) Pendidikan & keahlian
   - [ ] (4) Tampilan & cerita
   - [ ] (5) Penyeimbangan
 - [ ] **v1.5c/d, v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
@@ -220,6 +221,17 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **UI:** tab Aktivitas berganti nama menjadi Karier (`activity_screen.gd`: `_refresh_job`, `_refresh_board`), popup `OfferPopup`, bagian LAMARAN KERJA di laporan, chip jabatan & pendidikan di Profil.
 - **Menambah pekerjaan:** cukup tambah entri di `jobs.json` (id unik, `track`, `level`, `title`, `education`, `salary`, `workload`; opsional `skill`, `volatility`). Bidang baru butuh entri di `tracks` dan ikon `assets/icons/tracks/<id>.svg` (opsional).
 - **Save:** `SAVE_VERSION` 3; save v1.5a ditolak dengan pesan `SAVE_OUTDATED`.
+
+## Pendidikan & Keahlian (v1.5b langkah 3)
+
+- **Data:** `data/education.json` berisi program kuliah (`months` per pendidikan asal, `cost` per bulan, `result`, `skill`), beban kuliah (`load`), dan syarat beasiswa kantor (`sponsor`). Nama sertifikasi per bidang ada di `jobs.json` (`tracks[].certification`, `default_certification`). Aktivitas boleh punya `cooldown_months` (Kursus Online: sekali tiap 3 bulan).
+- **State** di `GameState`: `study` (`{}` atau `{id, months_left, months_total, since, scholarship, sponsor, paid_month}`). Analogi web: seperti langganan berbayar per bulan yang punya tanggal mulai, sisa periode, dan diskon.
+- **Alur bulanan:** `_study_month()` dipanggil di `_start_month()` setelah premi asuransi: lulus jika `months_left` habis (`_graduate()`), selain itu bayar `tuition_fee()` (kas, lalu tabungan dana darurat lewat `_draw_savings()`), kurangi `months_left`, dan catat `paid_month` (dipakai `energy_max()` untuk beban energi). Uang tidak cukup = cuti sebulan.
+- **Fungsi utama:** `available_programs()`, `program_option()`, `enroll_block_reason()`, `enroll()`, `quit_study()`, `tuition_fee()`, `graduation_month()`, `sponsor_program()`, `certification_name()`. Beasiswa kantor berakhir saat pindah atau keluar kerja (`_check_sponsor()`).
+- **Event:** kategori `education`; syarat `requires: studying | sponsor_ready`; efek `scholarship`, `sponsored_study`, `study_delay`; isian teks `{program}` dan `{cert}`.
+- **Signal:** `graduated(program, result, skill_gain)` dikirim setelah laporan bulanan (antrean `_report_signals`, dulu `_dream_signals`) -> popup "Selamat Lulus!" dengan confetti.
+- **UI:** kartu Pendidikan & Keahlian di tab Karier (`_refresh_education()`, `_add_study()`, `_add_program()`), konfirmasi daftar/berhenti kuliah di `main.gd` (`_confirm_enroll()`), baris Uang kuliah di Rencana Gaji, Beranda, dan laporan.
+- **Simulator:** `--persona=pelajar` (hemat + kuliah + kursus) untuk membandingkan kuliah vs tidak.
 
 ## Karier: Kinerja, Promosi, PHK (v1.5b langkah 2)
 

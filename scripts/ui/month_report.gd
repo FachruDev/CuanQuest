@@ -37,6 +37,9 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 	_add_row(box, "REPORT_HOUSING", Fmt.signed_rupiah(-r["housing_cost"]), Palette.LOSS)
 	if int(r.get("insurance_premium", 0)) > 0:
 		_add_row(box, "REPORT_INSURANCE", Fmt.signed_rupiah(-r["insurance_premium"]), Palette.LOSS)
+	if r.has("study_fee"):
+		_add_row_text(box, TranslationServer.translate("REPORT_TUITION") % [TranslationServer.translate(r["study_program"]),
+			int(r["study_done"]), int(r["study_total"])], Fmt.signed_rupiah(-r["study_fee"]), Palette.LOSS)
 	for policy_name: String in r.get("insurance_lapsed", []):
 		_add_text(box, TranslationServer.translate("REPORT_INSURANCE_LAPSED") % TranslationServer.translate(policy_name), Palette.LOSS)
 	if int(r.get("lifestyle_cost", 0)) > 0:
@@ -117,15 +120,21 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 		_add_text(box, warning, Palette.LOSS)
 
 
-## Karier (v1.5b): kinerja bulan ini, penilaian tahunan tanpa kenaikan, dan hasil lamaran
-## kerja bulan lalu (diterima -> tawaran menunggu keputusan; ditolak).
+## Karier (v1.5b): kinerja bulan ini, penilaian tahunan tanpa kenaikan, kelulusan / cuti kuliah,
+## dan hasil lamaran kerja bulan lalu (diterima -> tawaran menunggu keputusan; ditolak).
 static func _add_career(box: VBoxContainer, r: Dictionary) -> void:
 	var performance := int(r.get("performance", -1))
 	var accepted: Array = r.get("applications_accepted", [])
 	var rejected: Array = r.get("applications_rejected", [])
-	if performance < 0 and accepted.is_empty() and rejected.is_empty():
+	if performance < 0 and accepted.is_empty() and rejected.is_empty() \
+			and not r.has("graduated") and not r.has("study_paused"):
 		return
 	_add_header(box, "REPORT_CAREER")
+	if r.has("graduated"):
+		_add_text(box, TranslationServer.translate("REPORT_GRADUATED") % [TranslationServer.translate(r["graduated"]),
+			r["graduated_education"], int(r["graduated_skill"])], Palette.GAIN)
+	if r.has("study_paused"):
+		_add_text(box, TranslationServer.translate("REPORT_STUDY_PAUSED") % TranslationServer.translate(r["study_paused"]), Palette.LOSS)
 	if performance >= 0:
 		var delta := int(r.get("performance_delta", 0))
 		_add_row(box, "STAT_PERFORMANCE", TranslationServer.translate("REPORT_PERFORMANCE_VALUE") % [performance,

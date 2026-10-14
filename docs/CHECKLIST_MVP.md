@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5b langkah 2 selesai)
+- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5b langkah 3 selesai)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -15,7 +15,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **Prototipe waktu A/B/C** | Uji sistem waktu berjalan (tidak dipakai, diarsipkan) | ✅ |
 | **v1.5-0** | Giliran Bulanan yang Hidup | 🔄 5/5 langkah; tinggal playtest |
 | **v1.5a** | Realisme ekonomi | ✅ 5/5 langkah |
-| **v1.5b** | Pekerjaan & karier (melamar kerja, keahlian, jenjang) | 🔄 2/5 langkah |
+| **v1.5b** | Pekerjaan & karier (melamar kerja, keahlian, jenjang) | 🔄 3/5 langkah |
 | **v1.5c** | Utang, properti, hunian yang tumbuh | ⬜ |
 | **v1.5d** | Tokoh, riset, kontrak, konten | ⬜ |
 | **v2a-v2d** | Instrumen lanjut, hidup penuh, dana investor, mini-game | ⬜ |
@@ -206,7 +206,7 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.2 (semua keputusan 5.2.10
 |:--|:--|:--|
 | 1 | Fondasi pekerjaan: jobs.json, latar SMA/D3/S1 tanpa kerja (Rp5 jt), lowongan & melamar, tab Karier awal | ✅ |
 | 2 | Karier: kinerja, beban kerja, kenaikan prestasi, promosi, berhenti, PHK + pesangon, event kerja | ✅ |
-| 3 | Pendidikan & keahlian: kuliah D3/S1/S2, kursus, sertifikasi, beasiswa | ⬜ |
+| 3 | Pendidikan & keahlian: kuliah D3/S1/S2, kursus, sertifikasi, beasiswa | ✅ |
 | 4 | Tampilan & cerita: wizard Game Baru, Beranda, Profil, petunjuk | ⬜ |
 | 5 | Penyeimbangan dengan simulator | ⬜ |
 
@@ -237,15 +237,25 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.2 (semua keputusan 5.2.10
 - ✅ **Kurva keahlian** (hasil simulator): tambahan keahlian x (1 - keahlian/100)², agar jenjang tinggi butuh usaha bertahun-tahun
 - ✅ Simulator mencetak jenjang, promosi, PHK, kinerja, dan gaji total; 92 uji otomatis lulus
 
+**Langkah 3: Pendidikan & keahlian** ✅
+- ✅ `data/education.json`: Kuliah D3 (dari SMA, 36 bulan, Rp1 jt/bulan), S1 (48 bulan dari SMA atau 24 bulan alih jenjang dari D3, Rp1,5 jt), S2 (dari S1, 24 bulan, Rp3 jt); biaya ikut inflasi
+- ✅ Kuliah sambil bekerja atau tidak: mulai bulan setelah mendaftar, energi -1 & kebahagiaan -1 per bulan; uang kuliah dari kas lalu tabungan dana darurat, jika tidak cukup kuliah cuti sebulan; berhenti kapan saja (biaya hangus)
+- ✅ Lulus: pendidikan naik, keahlian +10 (dikali kurva keahlian), popup perayaan + baris di laporan (bagian KARIER)
+- ✅ Kartu **Pendidikan & Keahlian** di tab Karier: pendidikan, keahlian, pengalaman, penjelasan kurva keahlian, daftar program (Daftar + konfirmasi) atau kuliah berjalan (kemajuan, tanggal lulus, beasiswa, Berhenti kuliah)
+- ✅ Uang kuliah tampil di Rencana Gaji, Beranda, dan laporan bulanan
+- ✅ Event pendidikan (kategori baru PENDIDIKAN, 49 event): **Beasiswa Prestasi** (50% uang kuliah), **Beasiswa dari Kantor** (ditanggung penuh selama bekerja di perusahaan itu; syarat 24 bulan & kinerja ≥75, sekali seumur permainan), **Minggu Ujian** (belajar seadanya bisa mundur 3 bulan); event kursus menjadi **Sertifikasi Profesi** sesuai bidang kerja (+8 keahlian, +3 kinerja)
+- ✅ Kursus Online sekali tiap 3 bulan (`cooldown_months`), Belajar Mandiri +0,5 keahlian (hasil simulator)
+- ✅ Simulator: tipe pemain baru **pelajar** (hemat + kuliah + kursus), cetak pendidikan, kelulusan, dan uang kuliah; 60 uji otomatis pendidikan + 94 uji karier lulus
+- 🔁 Ikon program kuliah memakai ikon kursus (lihat `docs/KEBUTUHAN_ASET.md`)
+
 **Langkah berikutnya**
-- ⬜ Pendidikan lewat kuliah D3/S1/S2 dengan biaya & waktu, sertifikasi, beasiswa (langkah 3)
 - ⬜ Kartu "Kamu belum bekerja" di Beranda, wizard & petunjuk pekerjaan, ikon bidang (langkah 4)
-- ⬜ Penyeimbangan akhir dengan simulator, termasuk tipe pemain yang rajin kursus (langkah 5)
+- ⬜ Penyeimbangan akhir dengan simulator (langkah 5), termasuk: gaji riil karier baik sekitar x3 dalam 30 tahun, dan tipe pemain acak berlatar SMA yang sering kalah karena kebahagiaan habis (tinggal bersama keluarga -3/bulan, sudah terjadi sejak langkah 1)
 
 **Kriteria selesai**
 - ✅ Pemain mulai tanpa pekerjaan dan harus melamar
 - ✅ Minimal 15 pekerjaan dan 5 jenjang karier dengan syarat jelas
-- ⬜ Keahlian & pendidikan bisa ditingkatkan dan membuka pekerjaan lebih baik (pendidikan: langkah 3)
+- ✅ Keahlian & pendidikan bisa ditingkatkan dan membuka pekerjaan lebih baik
 - ✅ Promosi, kenaikan gaji berbasis prestasi, PHK, dan pindah kerja berjalan
 - ✅ Pekerjaan & karier baru bisa ditambah lewat file data saja
 
