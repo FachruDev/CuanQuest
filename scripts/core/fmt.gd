@@ -32,6 +32,19 @@ static func _short(n: int) -> String:
 	return number(n / 1e6) + " jt"
 
 
+## Gaya teks cerita: Rp3,1 juta / Rp800 ribu / Rp2 miliar (maks. 2 desimal, nol di belakang dibuang).
+static func rupiah_words(value: float) -> String:
+	var n := absi(roundi(value))
+	var minus := "-" if roundi(value) < 0 else ""
+	for unit: Array in [[1_000_000_000, " miliar"], [1_000_000, " juta"], [1_000, " ribu"]]:
+		if n >= unit[0]:
+			var text := number(n / float(unit[0]), 2)
+			if text.contains(","):
+				text = text.rstrip("0").rstrip(",")
+			return minus + "Rp" + text + unit[1]
+	return rupiah(value)
+
+
 ## Selalu dengan tanda: +Rp1.000 / -Rp1.000
 static func signed_rupiah(value: float) -> String:
 	return ("+" if roundi(value) >= 0 else "") + rupiah(value)

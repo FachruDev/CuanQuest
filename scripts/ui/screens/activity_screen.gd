@@ -190,7 +190,7 @@ func _build_activities() -> void:
 func _refresh_activities() -> void:
 	for def: Dictionary in GameState.activity_defs():
 		var row: Dictionary = _activity_rows[def["id"]]
-		var cost := int(def.get("cost", 0))
+		var cost := GameState.activity_cost(def)
 		row["cost"].text = Fmt.rupiah(cost) if cost > 0 else tr("ACT_FREE")
 		var used: int = GameState.activity_counts.get(def["id"], 0)
 		row["used"].text = tr("ACT_ITEM_USED") % [used, int(def.get("max_per_month", 1))]

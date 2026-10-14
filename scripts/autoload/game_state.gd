@@ -209,8 +209,11 @@ func advance_month() -> void:
 	var net_worth_before := net_worth()
 	var invest_before := investments_value()
 	var start_prices := _current_prices()
+	var level_before := price_level()
+	var idle_money := maxf(cash, 0.0) + units_of(emergency_asset_id()) + dream_funds()
 	var interest := _pay_interest() + _pay_dream_interest()
 	var news := market.step(month + 1)
+	var month_inflation := price_level() / level_before - 1.0
 	var invest_change := investments_value() - invest_before
 	var daily_worth := _daily_worth_series(net_worth_before)
 	var trade := _turn_trade_result(start_prices)
@@ -246,6 +249,9 @@ func advance_month() -> void:
 		"turn_trades": trade["trades"],
 		"turn_fees": trade["fees"],
 		"dreams_progress": _dreams_progress(),
+		"inflation_month": month_inflation,
+		"inflation_year": market.inflation,
+		"erosion": idle_money * month_inflation,
 	})
 	_queue_overdue_dreams()
 	_snapshot_turn()
@@ -326,6 +332,7 @@ func _start_month() -> Dictionary:
 	var housing := housing_option()
 	var health_before := health
 	var happiness_before := happiness
+	var salary_raise := _index_salary() if month > 0 and month % 12 == 0 else 0.0
 
 	var paid := salary
 	var volatility := float(background["income_volatility"])
@@ -361,12 +368,64 @@ func _start_month() -> Dictionary:
 		"housing_cost": housing_cost,
 		"health_delta": health - health_before,
 		"happiness_delta": happiness - happiness_before,
+		"salary_raise": salary_raise,
 	}.merged(budget)
 
 
-## Biaya sebuah pilihan makan/tempat tinggal setelah dikali pengali tingkat kesulitan.
+## Penyesuaian gaji tahunan (setiap Januari) sebesar inflasi 12 bulan terakhir, agar gaji
+## tidak tergerus inflasi. Kenaikan "nyata" tetap datang dari event (naik gaji, promosi).
+## Mengembalikan persentase kenaikannya (0.035 = 3,5%).
+func _index_salary() -> float:
+	var raise := snappedf(market.realized_inflation(12), 0.001)
+	if raise <= 0.0:
+		return 0.0
+	var old_salary := salary
+	salary = roundi(salary * (1.0 + raise) / 1000.0) * 1000
+	if int(plan.get("salary_seen", -1)) == old_salary:
+		plan["salary_seen"] = salary  # penyesuaian rutin: rencana dalam persen, tidak perlu ditinjau
+	return raise
+
+
+## Biaya sebuah pilihan makan/tempat tinggal: harga hari ini x pengali tingkat kesulitan.
 func option_cost(option: Dictionary) -> int:
-	return roundi(option["cost"] * difficulty["expense_mult"] / 1000.0) * 1000
+	return nominal(option["cost"] * difficulty["expense_mult"])
+
+
+# --- Inflasi & daya beli (v1.5a langkah 1) -----------------------------------------
+# Semua harga di file data (makanan, sewa, biaya event & aktivitas, impian, hadiah kuis)
+# adalah harga AWAL permainan. nominal() mengubahnya ke harga hari ini.
+
+## Indeks harga: 1.0 = harga di awal permainan, 1.25 = harga-harga sudah naik 25%.
+func price_level() -> float:
+	return market.price_level if market != null else 1.0
+
+
+## Harga awal permainan -> harga hari ini, dibulatkan ke `step` Rupiah.
+func nominal(amount: float, step: int = 1000) -> int:
+	return roundi(amount * price_level() / step) * step
+
+
+## Nilai `amount` Rupiah hari ini dalam harga awal permainan (nilai riil).
+func real_value(amount: float) -> float:
+	return amount / price_level()
+
+
+func choice_cost(choice: Dictionary) -> int:
+	return nominal(choice.get("cost", 0))
+
+
+func activity_cost(def: Dictionary) -> int:
+	return nominal(def.get("cost", 0))
+
+
+func dream_cost(def: Dictionary) -> int:
+	return nominal(def["cost"], 10_000)
+
+
+## Bunga tabungan per tahun setelah pajak, untuk dibandingkan dengan inflasi.
+func savings_rate() -> float:
+	var asset := market.get_asset(emergency_asset_id())
+	return market.rate_for(asset) * (1.0 - asset.interest_tax)
 
 
 # --- Level & unlock -----------------------------------------------------------
@@ -556,7 +615,7 @@ func _next_queued_event() -> void:
 ## Pilihan dengan biaya di muka hanya bisa dipilih jika kas cukup.
 ## Pilihan gratis selalu bisa dipilih, termasuk saat kas minus, agar game tidak macet.
 func can_choose(choice: Dictionary) -> bool:
-	var cost := int(choice.get("cost", 0))
+	var cost := choice_cost(choice)
 	return cost == 0 or cost <= cash
 
 
@@ -569,7 +628,7 @@ func resolve_event(choice_index: int) -> Dictionary:
 	for c: Dictionary in event["choices"]:
 		if not can_choose(c):
 			had_unaffordable = true
-	cash -= int(choice.get("cost", 0))
+	cash -= choice_cost(choice)
 	var outcome := choice
 	if choice.has("outcomes"):
 		outcome = _pick_outcome(choice["outcomes"])
@@ -598,7 +657,7 @@ func _pick_outcome(outcomes: Array) -> Dictionary:
 
 
 func _apply_effects(e: Dictionary) -> void:
-	cash += int(e.get("cash", 0)) + roundi(salary * float(e.get("cash_salary", 0.0)))
+	cash += nominal(e.get("cash", 0)) + roundi(salary * float(e.get("cash_salary", 0.0)))
 	health = clampi(health + int(e.get("health", 0)), 0, 100)
 	happiness = clampi(happiness + int(e.get("happiness", 0)), 0, 100)
 	xp += int(e.get("xp", 0))
@@ -676,7 +735,7 @@ func _needed_quiz_topics() -> Array:
 func answer_quiz(question: Dictionary, option_index: int) -> Dictionary:
 	var cfg: Dictionary = economy["quiz"]
 	var is_correct := quiz.answer(question, option_index)
-	var reward := int(cfg["reward_correct"]) if is_correct else 0
+	var reward := nominal(cfg["reward_correct"]) if is_correct else 0
 	var gained := int(cfg["xp_correct"]) if is_correct else int(cfg["xp_wrong"])
 	cash += reward
 	xp += gained
@@ -1151,7 +1210,7 @@ func activity_block_reason(def: Dictionary) -> String:
 		return "ERR_NO_ENERGY"
 	if activity_counts.get(def["id"], 0) >= int(def.get("max_per_month", 1)):
 		return "ERR_ACTIVITY_LIMIT"
-	if int(def.get("cost", 0)) > cash:
+	if activity_cost(def) > cash:
 		return "ERR_NOT_ENOUGH_CASH"
 	return ""
 
@@ -1168,7 +1227,7 @@ func do_activity(activity_id: String) -> Dictionary:
 	var before := _snapshot()
 	energy -= int(def["energy"])
 	activity_counts[activity_id] = activity_counts.get(activity_id, 0) + 1
-	cash -= int(def.get("cost", 0))
+	cash -= activity_cost(def)
 	_apply_effects(def["effects"])
 	stats["activities"] = stats.get("activities", 0) + 1
 	_progress_target("activity", 1.0, activity_id)
@@ -1237,6 +1296,16 @@ func _merge_reports(reports: Array[Dictionary]) -> Dictionary:
 	merged["from_month"] = reports[0]["from_month"]
 	merged["net_worth_before"] = reports[0]["net_worth_before"]
 	merged["unemployed"] = merged["salary"] == 0
+	var inflation_total := 1.0
+	var erosion := 0.0
+	var salary_raise := 0.0
+	for r: Dictionary in reports:
+		inflation_total *= 1.0 + float(r.get("inflation_month", 0.0))
+		erosion += float(r.get("erosion", 0.0))
+		salary_raise = maxf(salary_raise, float(r.get("salary_raise", 0.0)))
+	merged["inflation_month"] = inflation_total - 1.0
+	merged["erosion"] = erosion
+	merged["salary_raise"] = salary_raise
 	merged["months"] = reports.size()
 	var daily: Array = reports[0].get("daily_worth", []).duplicate()
 	for r: Dictionary in reports.slice(1):
@@ -1352,7 +1421,7 @@ func plan_preview(p: Dictionary, income: int) -> Dictionary:
 		var share := float(p.get("dreams", {}).get(entry["id"], 0.0))
 		if share <= 0.0:
 			continue
-		var needed := ceili(maxf(0.0, dream_def(entry["id"])["cost"] - entry["saved"]) / 1000.0) * 1000
+		var needed := ceili(maxf(0.0, dream_cost(dream_def(entry["id"])) - entry["saved"]) / 1000.0) * 1000
 		var amount := mini(_round_thousand(income * share), needed)  # jangan menabung melebihi biayanya
 		dream_items.append({"id": entry["id"], "name": dream_def(entry["id"])["name"], "share": share, "amount": amount})
 		dreams_total += amount
@@ -1450,7 +1519,7 @@ func available_dreams() -> Array:
 
 ## Setoran per bulan yang dibutuhkan agar impian tercapai tepat waktu.
 func dream_needed_monthly(entry: Dictionary) -> int:
-	var left := maxf(0.0, dream_def(entry["id"])["cost"] - entry["saved"])
+	var left := maxf(0.0, dream_cost(dream_def(entry["id"])) - entry["saved"])
 	var months_left := maxi(1, int(entry["deadline"]) - month)
 	return ceili(left / months_left / 1000.0) * 1000
 
@@ -1490,7 +1559,7 @@ func deposit_dream(id: String, amount: int) -> bool:
 	var entry := _find_dream(id)
 	if entry.is_empty() or entry["status"] != "active" or amount <= 0 or amount > cash:
 		return false
-	var left := ceili(maxf(0.0, dream_def(id)["cost"] - entry["saved"]))
+	var left := ceili(maxf(0.0, dream_cost(dream_def(id)) - entry["saved"]))
 	amount = mini(amount, left)
 	cash -= amount
 	entry["saved"] += amount
@@ -1539,7 +1608,8 @@ func overdue_dreams() -> Array[Dictionary]:
 ## Data impian siap tampil: entri + definisi + persentase terkumpul.
 func dream_view(entry: Dictionary) -> Dictionary:
 	var def := dream_def(entry["id"])
-	return entry.merged({"def": def, "ratio": clampf(entry["saved"] / float(def["cost"]), 0.0, 1.0)})
+	var cost := dream_cost(def)
+	return entry.merged({"def": def, "cost": cost, "ratio": clampf(entry["saved"] / float(cost), 0.0, 1.0)})
 
 
 ## Entri impian AKTIF dengan id tersebut ({} jika tidak ada / sudah terwujud / dilepas).
@@ -1558,10 +1628,11 @@ func _find_dream(id: String) -> Dictionary:
 func _check_dreams() -> void:
 	for entry: Dictionary in active_dreams():
 		var def := dream_def(entry["id"])
-		if entry["saved"] + 0.5 < float(def["cost"]):
+		var cost := dream_cost(def)
+		if entry["saved"] + 0.5 < float(cost):
 			continue
-		cash += roundi(entry["saved"] - float(def["cost"]))
-		entry["saved"] = float(def["cost"])
+		cash += roundi(entry["saved"] - float(cost))
+		entry["saved"] = float(cost)
 		entry["status"] = "achieved"
 		entry["achieved_month"] = month
 		plan["dreams"].erase(entry["id"])
@@ -1620,7 +1691,7 @@ func _new_targets() -> Array[Dictionary]:
 	var cfg := targets_config()
 	var cap := int(cfg["stat_cap"])
 	var bonus := int(cfg["stat_bonus"])
-	var pool: Array[Dictionary] = [{"type": "invest", "goal": float(cfg["invest_amount"]), "param": ""}]
+	var pool: Array[Dictionary] = [{"type": "invest", "goal": float(nominal(cfg["invest_amount"], 50_000)), "param": ""}]
 	var activities := activity_defs().filter(func(def: Dictionary) -> bool:
 		return int(def["energy"]) <= energy_capacity)
 	if not activities.is_empty():
@@ -1636,7 +1707,7 @@ func _new_targets() -> Array[Dictionary]:
 	if quiz.free_left() > 0:
 		pool.append({"type": "quiz", "goal": 1.0, "param": ""})
 	if not active_dreams().is_empty():
-		pool.append({"type": "dream_deposit", "goal": float(cfg["dream_deposit"]), "param": ""})
+		pool.append({"type": "dream_deposit", "goal": float(nominal(cfg["dream_deposit"], 50_000)), "param": ""})
 	var picked: Array[Dictionary] = []
 	for i in mini(int(cfg["per_month"]), pool.size()):
 		var target: Dictionary = pool.pop_at(rng.randi() % pool.size())

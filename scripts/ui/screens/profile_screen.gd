@@ -1,6 +1,6 @@
 extends ScrollContainer
 ## Tab Profil (GDD 5.12, tema "Senja Cuan"): kartu pemain, profil risiko, target kemenangan,
-## statistik, riwayat permainan, simpan/muat, pengaturan, menu (glosarium, tutorial, legal, reset).
+## daya beli (inflasi), statistik, riwayat permainan, simpan/muat, pengaturan, menu.
 
 signal glossary_requested
 signal text_requested(title: String, body: String)
@@ -49,6 +49,8 @@ func _refresh() -> void:
 	%FreedomBar.value = clampf(GameState.passive_income(), 0, expenses)
 	%FreedomValue.text = tr("GOAL_FREEDOM_VALUE") % [Fmt.rupiah(GameState.passive_income()), Fmt.rupiah(expenses)]
 
+	_refresh_power()
+
 	var s := GameState.stats
 	var best: Dictionary = s["best_trade"]
 	_clear(%StatsGrid)
@@ -61,6 +63,22 @@ func _refresh() -> void:
 
 	for slot: String in _slot_labels:
 		_slot_labels[slot].text = SaveManager.slot_summary(slot)
+
+
+# --- Daya beli (v1.5a langkah 1) ------------------------------------------------
+
+## Inflasi, suku bunga, bunga tabungan bersih, kenaikan harga sejak awal, dan kekayaan riil.
+func _refresh_power() -> void:
+	var market := GameState.market
+	var savings := GameState.savings_rate()
+	_clear(%PowerGrid)
+	%PowerGrid.add_child(_stat_tile("POWER_INFLATION", Fmt.percent_plain(market.inflation)))
+	%PowerGrid.add_child(_stat_tile("POWER_RATE", Fmt.percent_plain(market.policy_rate)))
+	%PowerGrid.add_child(_stat_tile("POWER_SAVINGS", Fmt.percent_plain(savings)))
+	%PowerGrid.add_child(_stat_tile("POWER_PRICES", Fmt.percent(GameState.price_level() - 1.0)))
+	%PowerReal.text = tr("POWER_REAL_WORTH") % [Fmt.rupiah(GameState.real_value(GameState.net_worth())),
+		Fmt.rupiah(GameState.net_worth())]
+	%PowerHint.text = tr("POWER_HINT_LOSING" if savings < market.inflation else "POWER_HINT_OK")
 
 
 # --- Profil risiko (bisa diubah kapan saja, GDD 5.8) ---------------------------

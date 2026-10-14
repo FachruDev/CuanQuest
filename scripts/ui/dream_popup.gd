@@ -25,7 +25,7 @@ func open_overdue(view: Dictionary) -> void:
 	%Title.text = tr("DREAM_OVERDUE_TITLE")
 	%SubtitleHolder.show()
 	%Subtitle.text = tr(def["name"])
-	%Body.text = tr("DREAM_OVERDUE_BODY") % [tr(def["name"]), Fmt.rupiah(view["saved"]), Fmt.rupiah(def["cost"])]
+	%Body.text = tr("DREAM_OVERDUE_BODY") % [tr(def["name"]), Fmt.rupiah(view["saved"]), Fmt.rupiah(view["cost"])]
 	_clear(%Rows)
 	%Rows.add_child(_progress_bar(view["ratio"]))
 	_clear(%Buttons)
@@ -56,11 +56,11 @@ func _fill_detail() -> void:
 	%Title.text = tr(def["name"])
 	%SubtitleHolder.show()
 	%Subtitle.text = UiText.horizon_text(def["horizon"])
-	%Body.text = tr(def["desc"])
+	%Body.text = UiText.money(tr(def["desc"]))
 
 	_clear(%Rows)
 	%Rows.add_child(_progress_bar(view["ratio"]))
-	%Rows.add_child(_label(tr("DREAM_PROGRESS") % [Fmt.rupiah(view["saved"]), Fmt.rupiah(def["cost"])], &"RowValueLabel"))
+	%Rows.add_child(_label(tr("DREAM_PROGRESS") % [Fmt.rupiah(view["saved"]), Fmt.rupiah(view["cost"])], &"RowValueLabel"))
 	var months_left := int(entry["deadline"]) - GameState.month
 	%Rows.add_child(_label(tr("DREAM_DEADLINE") % [Fmt.game_date(entry["deadline"]), months_left], &"InfoLabel"))
 	%Rows.add_child(_label(tr("DREAM_NEEDED") % Fmt.rupiah(GameState.dream_needed_monthly(entry)), &"InfoLabel"))

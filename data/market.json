@@ -3,6 +3,23 @@
 	"min_policy_rate": 0.03,
 	"max_policy_rate": 0.10,
 	"news_chance": 0.5,
+	"macro": {
+		"_comment": [
+			"Inflasi & suku bunga acuan (v1.5a langkah 1). Inflasi tahunan bergerak pelan di sekitar inflation_mean (AR(1) bulanan: persistence & noise); indeks harga naik inflasi/12 tiap bulan.",
+			"Bank sentral rapat tiap bulan. Target suku bunga = neutral_real_rate + inflasi + rate_reaction x (inflasi - inflation_mean). Jika selisih dengan suku bunga sekarang >= rate_band, peluang rate_meeting_chance untuk naik/turun rate_step; diumumkan lewat berita rate_up/rate_down pada tanggal meeting_days."
+		],
+		"inflation_mean": 0.035,
+		"inflation_persistence": 0.96,
+		"inflation_noise": 0.0018,
+		"inflation_min": 0.0,
+		"inflation_max": 0.12,
+		"neutral_real_rate": 0.0225,
+		"rate_reaction": 0.5,
+		"rate_step": 0.0025,
+		"rate_band": 0.004,
+		"rate_meeting_chance": 0.4,
+		"meeting_days": [15, 22]
+	},
 	"news_log_size": 30,
 	"factors": {
 		"stock": { "drift_scale": 1.0 },

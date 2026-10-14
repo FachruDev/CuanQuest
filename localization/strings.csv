@@ -544,3 +544,21 @@ REPORT_TRADE_GOOD,"Transaksimu bulan ini lebih untung daripada menahan. Ingat, h
 REPORT_TRADE_BAD,Menahan saja akan lebih untung %s. Fee dan keputusan terburu-buru sering menggerus hasil.,Simply holding would have earned %s more. Fees and rushed decisions often eat into returns.
 REPORT_DREAM_SAVED,Pos impian %s,Dream fund %s
 SUMMARY_DREAM_CHIP,%s %d%%,%s %d%%
+NEWS_BI_RATE_UP,Bank Indonesia menaikkan suku bunga acuan menjadi %s untuk meredam inflasi.,Bank Indonesia raises the policy rate to %s to curb inflation.
+NEWS_BI_RATE_DOWN,Bank Indonesia menurunkan suku bunga acuan menjadi %s karena inflasi mereda.,Bank Indonesia cuts the policy rate to %s as inflation eases.
+NEWS_FUEL_UP,Harga BBM naik. Harga barang lain diperkirakan ikut naik.,Fuel prices rise. Other prices are expected to follow.
+NEWS_FOOD_CHEAP,Panen raya membuat harga pangan turun. Inflasi mereda.,A bumper harvest lowers food prices. Inflation eases.
+MARKET_MOOD_INFLATION,Inflasi %s/thn,Inflation %s/yr
+REPORT_SALARY_RAISE,Penyesuaian gaji (inflasi),Salary adjustment (inflation)
+REPORT_ECONOMY,EKONOMI,ECONOMY
+REPORT_INFLATION,Inflasi,Inflation
+REPORT_INFLATION_VALUE,%s bulan ini (%s/thn),%s this month (%s/yr)
+REPORT_EROSION,Daya beli kas & tabungan tergerus,Purchasing power lost on cash & savings
+PROFILE_POWER_TITLE,Daya Beli,Purchasing Power
+POWER_INFLATION,Inflasi setahun,Annual inflation
+POWER_RATE,Suku bunga acuan BI,BI policy rate
+POWER_SAVINGS,Bunga tabungan bersih,Net savings interest
+POWER_PRICES,Harga naik sejak awal,Prices since the start
+POWER_REAL_WORTH,Kekayaan riil (harga awal permainan): %s. Nominalnya %s.,Real net worth (starting prices): %s. Nominal value %s.
+POWER_HINT_LOSING,"Bunga tabungan di bawah inflasi: uang yang hanya disimpan di tabungan pelan-pelan kehilangan daya beli. Deposito, reksa dana, dan saham bisa membantu mengejar inflasi.","Savings interest is below inflation: money that only sits in savings slowly loses purchasing power. Deposits, mutual funds, and stocks can help keep up."
+POWER_HINT_OK,"Bunga tabungan sedang di atas inflasi, tapi kondisi ini bisa berubah kapan saja.","Savings interest is above inflation right now, but that can change anytime."

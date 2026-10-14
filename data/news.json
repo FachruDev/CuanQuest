@@ -1,5 +1,5 @@
 {
-	"_comment": "target: random_stock | random_crypto | asset:ID | factor:stock | factor:crypto | rate. shock = [min, max] perubahan harga sekali.",
+	"_comment": "target: random_stock | random_crypto | asset:ID | factor:stock | factor:crypto | inflation | rate. shock = [min, max] perubahan harga sekali. inflation_delta mengubah inflasi tahunan. scheduled = tidak muncul acak (keputusan suku bunga diumumkan oleh Market._step_macro).",
 	"news": [
 		{ "id": "earnings_up", "text_key": "NEWS_EARNINGS_UP", "target": "random_stock", "shock": [0.05, 0.14], "weight": 3 },
 		{ "id": "earnings_down", "text_key": "NEWS_EARNINGS_DOWN", "target": "random_stock", "shock": [-0.12, -0.04], "weight": 3 },
@@ -14,8 +14,10 @@
 		{ "id": "crypto_hype", "text_key": "NEWS_CRYPTO_HYPE", "target": "factor:crypto", "shock": [0.10, 0.30], "weight": 2 },
 		{ "id": "crypto_regulation", "text_key": "NEWS_CRYPTO_REGULATION", "target": "factor:crypto", "shock": [-0.20, -0.08], "weight": 1 },
 		{ "id": "crypto_hack", "text_key": "NEWS_CRYPTO_HACK", "target": "random_crypto", "shock": [-0.35, -0.15], "weight": 1 },
-		{ "id": "rate_up", "text_key": "NEWS_RATE_UP", "target": "rate", "rate_delta": 0.0025, "shock": [-0.04, -0.01], "weight": 1 },
-		{ "id": "rate_down", "text_key": "NEWS_RATE_DOWN", "target": "rate", "rate_delta": -0.0025, "shock": [0.01, 0.04], "weight": 1 },
+		{ "id": "rate_up", "text_key": "NEWS_BI_RATE_UP", "target": "rate", "scheduled": true, "shock": [-0.03, -0.01], "weight": 0 },
+		{ "id": "rate_down", "text_key": "NEWS_BI_RATE_DOWN", "target": "rate", "scheduled": true, "shock": [0.01, 0.03], "weight": 0 },
+		{ "id": "fuel_up", "text_key": "NEWS_FUEL_UP", "target": "inflation", "inflation_delta": 0.008, "shock": [-0.03, -0.01], "weight": 1 },
+		{ "id": "food_cheap", "text_key": "NEWS_FOOD_CHEAP", "target": "inflation", "inflation_delta": -0.005, "shock": [0.0, 0.02], "weight": 1 },
 		{ "id": "quiet", "text_key": "NEWS_QUIET", "target": "none", "shock": [0, 0], "weight": 2 }
 	]
 }

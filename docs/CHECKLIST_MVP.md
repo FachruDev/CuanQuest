@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5-0 langkah 5 selesai; semua langkah v1.5-0 selesai, tinggal playtest)
+- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5a langkah 1 selesai)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -14,7 +14,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **UI "Senja Cuan"** | Redesain seluruh tampilan | ✅ |
 | **Prototipe waktu A/B/C** | Uji sistem waktu berjalan (tidak dipakai, diarsipkan) | ✅ |
 | **v1.5-0** | Giliran Bulanan yang Hidup | 🔄 5/5 langkah; tinggal playtest |
-| **v1.5a** | Realisme ekonomi | ⬜ |
+| **v1.5a** | Realisme ekonomi | 🔄 1/5 langkah |
 | **v1.5b** | Utang, properti, hunian yang tumbuh | ⬜ |
 | **v1.5c** | Karier, tokoh, konten | ⬜ |
 | **v2a-v2d** | Instrumen lanjut, hidup penuh, dana investor, mini-game | ⬜ |
@@ -124,18 +124,50 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 
 ---
 
-## v1.5a: Realisme Ekonomi ⬜
+## v1.5a: Realisme Ekonomi 🔄
 
-- ⬜ Inflasi bertahap (makan, sewa, properti, biaya impian) + indikator daya beli
-- ⬜ Pajak penghasilan dan pajak keuntungan investasi
-- ⬜ Fee dan spread di layar konfirmasi
-- ⬜ Suku bunga lewat event makro
-- ⬜ Asuransi kesehatan, jiwa, kendaraan (premi masuk rencana gaji)
-- ⬜ Stop loss & take profit (dicek harian)
-- ⬜ Peringatan konsentrasi & indikator risiko di layar konfirmasi
+### Langkah pengerjaan
+
+| Langkah | Isi | Status |
+|:--|:--|:--|
+| 1 | Inflasi, suku bunga BI & daya beli | ✅ |
+| 2 | Pajak + layar konfirmasi transaksi (fee, pajak, konsentrasi, indikator risiko) | ⬜ |
+| 3 | Asuransi kesehatan, jiwa, kendaraan + klaim di event | ⬜ |
+| 4 | Stop loss & take profit (dicek harian) | ⬜ |
+| 5 | Penyeimbangan ekonomi (simulasi + playtest) | ⬜ |
+
+### Rincian fitur
+
+**Langkah 1: Inflasi, suku bunga BI & daya beli** ✅
+- ✅ Inflasi tahunan bergerak pelan di sekitar 3,5% (kisaran ±2-5%); berita BBM naik / panen raya ikut menggesernya
+- ✅ Indeks harga: biaya makan & sewa, biaya event & aktivitas, harga impian, hadiah kuis, dan nominal target ikut naik
+- ✅ Teks event & impian memakai token `{rp:...}` sehingga angka di cerita sama dengan biaya sebenarnya
+- ✅ Gaji disesuaikan setiap Januari sebesar inflasi setahun (tanpa popup tinjau rencana)
+- ✅ Bank Indonesia menaikkan/menurunkan suku bunga mengikuti inflasi (±2 kali per tahun) dan diumumkan lewat berita; bunga tabungan, deposito, dan imbal hasil RD pasar uang ikut berubah; saham tergoncang saat pengumuman
+- ✅ Laporan bulanan: bagian Ekonomi (inflasi bulan ini & setahun, daya beli kas & tabungan yang tergerus) dan penyesuaian gaji
+- ✅ Profil: kartu Daya Beli (inflasi, BI Rate, bunga tabungan bersih, kenaikan harga sejak awal, kekayaan riil)
+- ✅ Pasar: chip inflasi di samping suku bunga acuan
+- ✅ Simulasi 40 x 10 tahun: indeks harga median 1,43; kekayaan riil median Rp536 jt (tanpa inflasi Rp587 jt)
+- ℹ️ Target menang "Miliarder" tetap Rp1 miliar nominal; target "Bebas finansial" otomatis ikut inflasi karena memakai biaya hidup
+
+**Langkah 2: Pajak & layar konfirmasi** ⬜
+- ⬜ Pajak penghasilan dipotong dari gaji (aturan Indonesia yang disederhanakan)
+- ⬜ Pajak investasi: final saat jual saham & kripto, pajak bunga deposito (sudah ada)
+- ⬜ Layar konfirmasi beli/jual: fee, pajak, total, peringatan konsentrasi, indikator risiko sesuai profil risiko
+- ⬜ Laporan bulanan menampilkan pajak dan fee
+
+**Langkah 3: Asuransi** ⬜
+- ⬜ Asuransi kesehatan, jiwa, kendaraan; premi masuk rencana gaji
+- ⬜ Klaim otomatis saat event sakit / kecelakaan / kendaraan rusak
+
+**Langkah 4: Stop loss & take profit** ⬜
+- ⬜ Pesanan otomatis per aset, dicek setiap hari di simulasi harian, tercatat di riwayat transaksi
+
+**Langkah 5: Penyeimbangan** ⬜
+- ⬜ Simulasi ulang setelah pajak & asuransi; atur event positif, kenaikan gaji, dan biaya agar game tidak terlalu mudah
 
 **Kriteria selesai**
-- ⬜ Uang yang hanya disimpan di tabungan terasa tergerus dari waktu ke waktu
+- ✅ Uang yang hanya disimpan di tabungan terasa tergerus dari waktu ke waktu
 - ⬜ Laporan bulanan menampilkan pajak dan fee dengan jelas
 - ⬜ Event sakit/kecelakaan berbeda hasilnya bagi yang berasuransi
 - ⬜ Stop loss & take profit tereksekusi tepat dan tercatat di riwayat

@@ -20,6 +20,7 @@ var buy_fee: float
 var sell_fee: float
 var risk: int             # 1 (sangat rendah) .. 5 (sangat tinggi)
 var stage: int            # tahap unlock (lihat data/unlocks.json)
+var rate_linked: bool     # imbal hasil mengikuti suku bunga acuan (drift = suku bunga + rate_spread)
 
 # Khusus tabungan & deposito
 var rate_spread: float    # bunga = suku bunga acuan + spread
@@ -46,6 +47,7 @@ static func from_def(def: Dictionary) -> MarketAsset:
 	a.sell_fee = def.get("sell_fee", 0.0)
 	a.risk = int(def.get("risk", 1))
 	a.stage = int(def.get("stage", 1))
+	a.rate_linked = def.get("rate_linked", false)
 	a.rate_spread = def.get("rate_spread", 0.0)
 	a.interest_tax = def.get("interest_tax", 0.0)
 	a.lock_months = int(def.get("lock_months", 0))
@@ -72,9 +74,9 @@ func days_per_month() -> int:
 ## factor_z      : angka acak bersama per hari untuk semua aset satu faktor (sumber korelasi)
 ## regime_drift  : tambahan drift tahunan dari siklus pasar (bull +, bear -)
 ## vol_mult      : pengali volatilitas dari siklus pasar
-## shock         : guncangan sekali dari berita (0.1 = +10%), terjadi pada `shock_day` (1-30)
+## day_shocks    : guncangan sekali dari berita per tanggal, {tanggal 1-30: 0.1 (= +10%)}
 func step_month(rng: RandomNumberGenerator, factor_z: Array[float], regime_drift: float,
-		vol_mult: float, shock: float, shock_day: int) -> void:
+		vol_mult: float, day_shocks: Dictionary = {}) -> void:
 	var steps := days_per_month()
 	if is_interest():
 		for i in steps:
@@ -84,12 +86,15 @@ func step_month(rng: RandomNumberGenerator, factor_z: Array[float], regime_drift
 	var dt := 1.0 / (12.0 * steps)
 	var sigma := volatility * vol_mult
 	var mu := (drift + beta * regime_drift - 0.5 * sigma * sigma) * dt
-	var shock_step := floori((shock_day - 1) * steps / float(DAYS_IN_MONTH)) if shock != 0.0 else -1
+	var step_shocks := {}  # langkah ke-i -> pengali harga (dua berita bisa jatuh di langkah yang sama)
+	for day: int in day_shocks:
+		var i := floori((day - 1) * steps / float(DAYS_IN_MONTH))
+		step_shocks[i] = step_shocks.get(i, 1.0) * (1.0 + float(day_shocks[day]))
 	for i in steps:
 		var z := rho * factor_z[i] + sqrt(1.0 - rho * rho) * rng.randfn(0.0, 1.0)
 		price = maxf(price * exp(mu + sigma * sqrt(dt) * z), 1.0)
-		if i == shock_step:
-			price = maxf(price * (1.0 + shock), 1.0)
+		if step_shocks.has(i):
+			price = maxf(price * step_shocks[i], 1.0)
 		history.append(price)
 	_close_month()
 

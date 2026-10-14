@@ -122,7 +122,13 @@ scenes/
   - [x] (3) Impian + target bulanan + perayaan
   - [x] (4) Event Director + kuis 6/minggu tanpa iklan
   - [x] (5) SQLite (semua langkah selesai; tinggal playtest)
-- [ ] **v1.5a/b/c, v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
+- [ ] **v1.5a "Realisme Ekonomi"**:
+  - [x] (1) Inflasi, suku bunga BI & daya beli
+  - [ ] (2) Pajak + layar konfirmasi transaksi
+  - [ ] (3) Asuransi
+  - [ ] (4) Stop loss & take profit
+  - [ ] (5) Penyeimbangan ekonomi
+- [ ] **v1.5b/c, v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
 Rangkuman semua checklist MVP (v1, v1.5, v2, M7) ada di [docs/CHECKLIST_MVP.md](docs/CHECKLIST_MVP.md).
 - [ ] **M7: Export rilis & Play Store** (setelah v2 selesai; tanpa monetisasi)
@@ -184,6 +190,18 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Hasil simulasi** (20 permainan x 10 tahun, pilihan acak): sebaran 15/41/30/13%, rata-rata 1,42 event/bulan (sebelumnya 0,61). Karena event positif seperti kenaikan gaji ikut lebih sering, median gaji akhir naik dari Rp9,4 jt ke Rp13,4 jt dan median kekayaan dari Rp402 jt ke Rp558 jt. Perlu ditinjau saat penyeimbangan (inflasi v1.5a akan menekannya).
 - **Kuis:** 6 soal per minggu nyata, tanpa iklan. Setiap soal yang dibuka memakai jatah; soal yang sudah muncul minggu ini tidak diulang di minggu yang sama (`QuizManager.shown_this_week`).
 - **Iklan dilepas dari UI:** tombol "Tonton iklan" dihapus. `AdService` masih terdaftar sebagai autoload tetapi tidak dipanggil (disimpan untuk v3). Kebijakan privasi kini menyatakan game tanpa iklan.
+
+## Inflasi, Suku Bunga & Daya Beli (v1.5a langkah 1)
+
+- **Model** (`data/market.json` bagian `macro`, dijalankan `Market._step_macro()` tiap bulan): inflasi tahunan bergerak pelan di sekitar 3,5% (rumus AR(1): bulan ini = rata-rata + 0,96 x selisih bulan lalu + acak kecil). Indeks harga `price_level` naik inflasi/12 tiap bulan; riwayatnya di `price_levels` (satu angka per bulan).
+- **Bank Indonesia:** target suku bunga = 2,25% + inflasi + 0,5 x (inflasi - 3,5%). Setiap bulan, jika selisih dengan suku bunga sekarang >= 0,4%, ada peluang 40% BI bergerak 0,25% dan mengumumkannya lewat berita (`NEWS_BI_RATE_UP/DOWN`, angka suku bunga baru ada di `value` berita). Hasil simulasi: ±2 kali per tahun, kisaran 3,5-8,5%.
+- **Dampak suku bunga:** bunga tabungan & deposito (`rate_for`), imbal hasil RD pasar uang (`rate_linked` di `assets.json`), dan guncangan saham pada tanggal pengumuman. Berita bisa punya beberapa guncangan di tanggal berbeda dalam sebulan (`MarketAsset.step_month(..., day_shocks)`).
+- **Harga hari ini:** semua harga di file data adalah harga AWAL permainan. `GameState.nominal(harga)` mengalikannya dengan indeks harga. Dipakai oleh `option_cost` (makan & sewa), `choice_cost` (event), `activity_cost`, `dream_cost`, hadiah kuis, dan nominal target bulanan.
+- **Token di teks:** angka uang di `events.json` & `dreams.json` ditulis `{rp:3000000}`. `UiText.money(teks)` menggantinya dengan nominal hari ini (`Fmt.rupiah_words`: "Rp3,1 juta"). Analogi web: seperti placeholder i18n `{{amount}}` yang diisi saat render. **Teks event baru yang menyebut uang wajib memakai token ini.**
+- **Gaji:** setiap Januari gaji naik sebesar inflasi 12 bulan terakhir (`_index_salary`). Rencana gaji dalam persen, jadi tidak perlu popup tinjau ulang.
+- **Laporan & UI:** bagian Ekonomi di laporan bulanan (inflasi, daya beli kas + tabungan + pos impian yang tergerus), kartu Daya Beli di Profil, chip inflasi di Pasar.
+- **Simulasi 40 permainan x 10 tahun** (pilihan acak): indeks harga median 1,43; kekayaan nominal median Rp775 jt, kekayaan riil Rp536 jt (tanpa inflasi Rp587 jt); gaji akhir median Rp20,1 jt nominal. Semua permainan bertahan, jadi game masih tergolong mudah. Penyeimbangan dijadwalkan di langkah 5 setelah pajak & asuransi.
+- **Save lama:** slot tanpa data inflasi tetap bisa dimuat; indeks harga dianggap mulai dari 1,0 saat dimuat.
 
 ## Penyimpanan SQLite (v1.5-0 langkah 5)
 

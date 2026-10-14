@@ -9,6 +9,21 @@ const CLASS_TILES := {
 }
 const CLASS_ICON := "res://assets/icons/classes/%s.svg"
 
+static var _money_token: RegEx
+
+
+## Teks dari file data boleh berisi token {rp:3000000} (harga AWAL permainan). Token diganti
+## nominal hari ini mengikuti inflasi, mis. "Rp3,1 juta", agar cerita sama dengan biaya sebenarnya.
+static func money(text: String) -> String:
+	if not text.contains("{rp:"):
+		return text
+	if _money_token == null:
+		_money_token = RegEx.create_from_string("\\{rp:(-?\\d+)\\}")
+	var result := text
+	for found in _money_token.search_all(text):
+		result = result.replace(found.get_string(), Fmt.rupiah_words(GameState.nominal(found.get_string(1).to_int())))
+	return result
+
 
 ## {"cash": -1500000, "health": 5} -> "Kas -Rp1.500.000 | Kesehatan +5"
 static func changes_text(changes: Dictionary) -> String:

@@ -173,7 +173,7 @@ func _dream_row(view: Dictionary) -> Button:
 	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(bar)
 	var months_left := int(view["deadline"]) - GameState.month
-	var sub := tr("DREAM_PROGRESS") % [Fmt.rupiah_short(view["saved"]), Fmt.rupiah_short(def["cost"])]
+	var sub := tr("DREAM_PROGRESS") % [Fmt.rupiah_short(view["saved"]), Fmt.rupiah_short(view["cost"])]
 	if months_left >= 0:
 		sub += " · " + tr("DREAM_DEADLINE") % [Fmt.game_date(view["deadline"]), months_left]
 	else:

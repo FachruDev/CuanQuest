@@ -47,9 +47,9 @@ func _build_list() -> void:
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		button.custom_minimum_size = Vector2(0, 92)
-		button.text = "%s\n%s" % [tr(def["name"]), tr("PICKER_ITEM") % [Fmt.rupiah(def["cost"]),
+		button.text = "%s\n%s" % [tr(def["name"]), tr("PICKER_ITEM") % [Fmt.rupiah(GameState.dream_cost(def)),
 			UiText.horizon_text(def["horizon"]), int(def["months"])]]
-		button.tooltip_text = tr(def["desc"])
+		button.tooltip_text = UiText.money(tr(def["desc"]))
 		button.toggled.connect(_refresh.unbind(1))
 		%Rows.add_child(button)
 		_buttons[def["id"]] = button

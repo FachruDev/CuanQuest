@@ -134,7 +134,7 @@ func _refresh_list() -> void:
 	_refresh_news(market)
 
 
-## Chip kondisi pasar: tren saham, tren kripto, suku bunga acuan.
+## Chip kondisi pasar: tren saham, tren kripto, suku bunga acuan, inflasi.
 func _refresh_mood(market: Market) -> void:
 	for child in %MoodRow.get_children():
 		%MoodRow.remove_child(child)
@@ -144,6 +144,7 @@ func _refresh_mood(market: Market) -> void:
 		var text := tr("MARKET_MOOD_" + kind.to_upper()) % tr("REGIME_" + regime.to_upper())
 		%MoodRow.add_child(_make_chip(text, REGIME_CHIPS.get(regime, &"MoodNeutral")))
 	%MoodRow.add_child(_make_chip(tr("MARKET_MOOD_RATE") % Fmt.percent_plain(market.policy_rate), &"MoodGold"))
+	%MoodRow.add_child(_make_chip(tr("MARKET_MOOD_INFLATION") % Fmt.percent_plain(market.inflation), &"MoodNeutral"))
 
 
 func _refresh_news(market: Market) -> void:

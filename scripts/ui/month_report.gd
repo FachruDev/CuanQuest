@@ -20,6 +20,8 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 		_add_row(box, "REPORT_SALARY_UNEMPLOYED", Fmt.rupiah(0), Palette.LOSS)
 	else:
 		_add_row(box, "REPORT_SALARY", Fmt.signed_rupiah(r["salary"]), Palette.GAIN)
+	if float(r.get("salary_raise", 0.0)) > 0.0:
+		_add_row(box, "REPORT_SALARY_RAISE", Fmt.percent(r["salary_raise"]), Palette.GAIN)
 
 	_add_header(box, "REPORT_EXPENSES")
 	_add_row(box, "REPORT_FOOD", Fmt.signed_rupiah(-r["food_cost"]), Palette.LOSS)
@@ -48,11 +50,18 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 		_add_row(box, "REPORT_INTEREST", Fmt.signed_rupiah(r["interest"]), Palette.GAIN)
 	_add_row(box, "REPORT_INVEST_CHANGE", Fmt.signed_rupiah(r["invest_change"]), signed_color(r["invest_change"]))
 
+	if r.has("inflation_month"):
+		_add_header(box, "REPORT_ECONOMY")
+		_add_row(box, "REPORT_INFLATION", TranslationServer.translate("REPORT_INFLATION_VALUE") % [
+			Fmt.percent(r["inflation_month"]), Fmt.percent_plain(r["inflation_year"])], Palette.MUTED)
+		if float(r.get("erosion", 0.0)) >= 1000.0:
+			_add_row(box, "REPORT_EROSION", Fmt.signed_rupiah(-r["erosion"]), Palette.LOSS)
+
 	var delayed: Array = r.get("delayed", [])
 	if not delayed.is_empty():
 		_add_header(box, "REPORT_EVENTS")
 		for text: String in delayed:
-			_add_bullet(box, "- " + TranslationServer.translate(text))
+			_add_bullet(box, "- " + UiText.money(TranslationServer.translate(text)))
 
 	var news: Array = r.get("news", [])
 	if not news.is_empty():
@@ -107,6 +116,8 @@ static func news_text(item: Dictionary) -> String:
 	var text := TranslationServer.translate(item["key"])
 	if item["asset_key"] != "":
 		text = text % TranslationServer.translate(item["asset_key"])
+	elif item.has("value"):  # mis. suku bunga acuan yang baru
+		text = text % Fmt.percent_plain(item["value"])
 	return text
 
 

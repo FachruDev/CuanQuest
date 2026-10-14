@@ -161,6 +161,35 @@ theme_type_variation = &"SmallMutedLabel"
 text = "GOAL_HINT"
 autowrap_mode = 3
 
+[node name="GapPower" type="Control" parent="VBox"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="PowerTitle" type="Label" parent="VBox"]
+layout_mode = 2
+theme_type_variation = &"SubSectionLabel"
+text = "PROFILE_POWER_TITLE"
+
+[node name="PowerGrid" type="GridContainer" parent="VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 2
+
+[node name="PowerReal" type="Label" parent="VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"StatNameLabel"
+autowrap_mode = 3
+
+[node name="PowerHint" type="Label" parent="VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"SmallMutedLabel"
+autowrap_mode = 3
+
 [node name="Gap3" type="Control" parent="VBox"]
 custom_minimum_size = Vector2(0, 4)
 layout_mode = 2

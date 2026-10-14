@@ -17,6 +17,6 @@
 		{ "id": "house_dp", "name": "DP Rumah", "desc": "Uang muka rumah pertama, agar cicilan KPR nanti lebih ringan.", "cost": 150000000, "months": 72, "horizon": "long", "min_age": 21, "happiness": 12, "xp": 60 },
 		{ "id": "masters", "name": "Kuliah S2", "desc": "Biaya kuliah magister untuk membuka jenjang karier berikutnya.", "cost": 200000000, "months": 96, "horizon": "long", "min_age": 21, "happiness": 8, "xp": 80 },
 		{ "id": "car", "name": "Mobil Keluarga", "desc": "Mobil yang nyaman untuk keluarga, dibeli tunai.", "cost": 250000000, "months": 96, "horizon": "long", "min_age": 21, "happiness": 10, "xp": 60 },
-		{ "id": "early_retire", "name": "Pensiun Dini", "desc": "Dana Rp2 miliar agar bisa berhenti bekerja lebih awal dan hidup dari hasil investasi.", "cost": 2000000000, "months": 240, "horizon": "long", "min_age": 0, "happiness": 20, "xp": 150 }
+		{ "id": "early_retire", "name": "Pensiun Dini", "desc": "Dana {rp:2000000000} agar bisa berhenti bekerja lebih awal dan hidup dari hasil investasi.", "cost": 2000000000, "months": 240, "horizon": "long", "min_age": 0, "happiness": 20, "xp": 150 }
 	]
 }
