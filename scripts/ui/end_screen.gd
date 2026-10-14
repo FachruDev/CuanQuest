@@ -33,6 +33,9 @@ func _ready() -> void:
 	%Avatar.display_name = GameState.player_name
 	%NameLabel.text = GameState.player_name
 	var months := int(r["month"])
+	var job_title := tr(GameState.current_job_def()["title"]) if GameState.is_employed() else tr("CAREER_UNEMPLOYED")
+	%InfoChips.add_child(_chip(job_title, &"MoodGold"))
+	%InfoChips.add_child(_chip(GameState.education_name(GameState.education), &"MoodNeutral"))
 	%InfoChips.add_child(_chip(tr("END_AGE") % int(r["age"]), &"MoodNeutral"))
 	%InfoChips.add_child(_chip(tr("END_PLAYED") % [floori(months / 12.0), months % 12], &"MoodNeutral"))
 	%ScoreLabel.text = tr("END_SCORE") % int(r["score"])
@@ -48,6 +51,9 @@ func _ready() -> void:
 	_add_stat("END_STAT_EVENTS", str(int(s["events"])))
 	_add_stat("END_STAT_QUIZ", str(GameState.quiz.correct_ids.size()))
 	_add_stat("END_STAT_LEVEL", str(GameState.level()))
+	_add_stat("END_STAT_PROMOTIONS", str(int(s["promotions"])))
+	_add_stat("END_STAT_UNEMPLOYED", str(int(s["months_unemployed"])))
+	_add_career_log()
 
 	%LifeChart.set_data(GameState.net_worth_history)
 
@@ -62,6 +68,23 @@ func _ready() -> void:
 	Sfx.play("fail" if r["type"] == "lose" else "success")
 	if r["type"] == "lose":
 		Sfx.vibrate(300)
+
+
+## Judul + kartu "Perjalanan Karier" sebelum bagian Keputusan Penting.
+func _add_career_log() -> void:
+	var content: VBoxContainer = %StatsGrid.get_parent()
+	var index := content.get_node("HighlightTitle").get_index()
+	var title := _label(tr("PROFILE_CAREER_TITLE"), &"SubSectionLabel")
+	var card := PanelContainer.new()
+	card.theme_type_variation = &"HomeCard"
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 6)
+	card.add_child(box)
+	UiText.fill_career_log(box, 12)
+	content.add_child(title)
+	content.move_child(title, index)
+	content.add_child(card)
+	content.move_child(card, index + 1)
 
 
 func _add_stat(key: String, value: String) -> void:

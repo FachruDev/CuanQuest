@@ -8,6 +8,18 @@ const CLASS_TILES := {
 	"stock": &"IconTileCoral", "crypto": &"IconTilePurple",
 }
 const CLASS_ICON := "res://assets/icons/classes/%s.svg"
+## Ikon bidang pekerjaan: assets/icons/tracks/<bidang>.svg. Sebelum aset itu dibuat, tiap bidang
+## memakai ikon lain yang berbeda agar tetap mudah dibedakan (lihat docs/KEBUTUHAN_ASET.md).
+const TRACK_ICON := "res://assets/icons/tracks/%s.svg"
+const TRACK_ICON_FALLBACKS := {
+	"retail": "res://assets/icons/wallet.svg", "admin": "res://assets/icons/folder.svg",
+	"finance": "res://assets/icons/classes/deposit.svg", "tech": "res://assets/icons/search.svg",
+	"creative": "res://assets/icons/lightbulb.svg", "gig": "res://assets/icons/activities/side_job.svg",
+}
+const TRACK_TILES := {
+	"retail": &"IconTileCoral", "admin": &"IconTileBlue", "finance": &"IconTileGold",
+	"tech": &"IconTilePurple", "creative": &"IconTileMint", "gig": &"IconTileCoral",
+}
 
 static var _money_token: RegEx
 
@@ -48,6 +60,64 @@ static func event_text(text: String, vars: Dictionary) -> String:
 	if vars.has("cert"):
 		result = result.replace("{cert}", _t(vars["cert"]))
 	return result
+
+
+static func track_icon(track: String) -> String:
+	var icon := TRACK_ICON % track
+	return icon if ResourceLoader.exists(icon) else TRACK_ICON_FALLBACKS.get(track, "res://assets/icons/wallet.svg")
+
+
+static func track_tile(track: String) -> StringName:
+	return TRACK_TILES.get(track, &"IconTileGold")
+
+
+## Satu baris perjalanan karier: "Mar Tahun 1 · Mulai bekerja sebagai Kasir di Toko Sinar Jaya".
+static func career_log_text(entry: Dictionary) -> String:
+	var title := _t(GameState.job_def(entry.get("job_id", "")).get("title", ""))
+	var company: String = entry.get("company", "")
+	var program := _t(GameState.program_def(entry.get("program", "")).get("name", ""))
+	var text := ""
+	match entry["kind"]:
+		"hired":
+			text = _t("CAREER_LOG_HIRED") % [title, company]
+		"promoted":
+			text = _t("CAREER_LOG_PROMOTED") % title
+		"laid_off":
+			text = _t("CAREER_LOG_LAID_OFF") % [title, company]
+		"resigned":
+			text = _t("CAREER_LOG_RESIGNED") % [title, company]
+		"graduated":
+			text = _t("CAREER_LOG_GRADUATED") % program
+		"dropped_out":
+			text = _t("CAREER_LOG_DROPPED") % program
+	return "%s · %s" % [Fmt.game_date(int(entry["month"])), text]
+
+
+## Mengisi `box` dengan baris perjalanan karier, terbaru di atas (maks. `limit`).
+static func fill_career_log(box: VBoxContainer, limit: int) -> void:
+	for child in box.get_children():
+		box.remove_child(child)
+		child.queue_free()
+	var entries := GameState.career_log.duplicate()
+	entries.reverse()
+	if entries.is_empty():
+		box.add_child(_log_label(_t("CAREER_LOG_EMPTY"), &"SmallMutedLabel"))
+	for entry: Dictionary in entries.slice(0, limit):
+		var label := _log_label(career_log_text(entry), &"RowLabel")
+		if entry["kind"] in ["laid_off", "dropped_out"]:
+			label.add_theme_color_override("font_color", Palette.LOSS)
+		elif entry["kind"] in ["promoted", "graduated"]:
+			label.add_theme_color_override("font_color", Palette.GAIN)
+		box.add_child(label)
+
+
+static func _log_label(text: String, variation: StringName) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.theme_type_variation = variation
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.custom_minimum_size.x = 1
+	return label
 
 
 ## {"cash": -1500000, "health": 5} -> "Kas -Rp1.500.000 | Kesehatan +5"

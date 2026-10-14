@@ -135,7 +135,7 @@ scenes/
   - [x] (1) Fondasi: latar SMA/D3/S1 tanpa kerja, lowongan & melamar, tab Karier
   - [x] (2) Karier: kinerja, promosi, kenaikan prestasi, PHK, event kerja
   - [x] (3) Pendidikan & keahlian
-  - [ ] (4) Tampilan & cerita
+  - [x] (4) Tampilan & cerita
   - [ ] (5) Penyeimbangan
 - [ ] **v1.5c/d, v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
@@ -221,6 +221,15 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **UI:** tab Aktivitas berganti nama menjadi Karier (`activity_screen.gd`: `_refresh_job`, `_refresh_board`), popup `OfferPopup`, bagian LAMARAN KERJA di laporan, chip jabatan & pendidikan di Profil.
 - **Menambah pekerjaan:** cukup tambah entri di `jobs.json` (id unik, `track`, `level`, `title`, `education`, `salary`, `workload`; opsional `skill`, `volatility`). Bidang baru butuh entri di `tracks` dan ikon `assets/icons/tracks/<id>.svg` (opsional).
 - **Save:** `SAVE_VERSION` 3; save v1.5a ditolak dengan pesan `SAVE_OUTDATED`.
+
+## Tampilan & Cerita Karier (v1.5b langkah 4)
+
+- **Perjalanan karier:** `GameState.career_log` (`{month, kind, job_id, company, program}`, maks. 60) diisi `_log_career()` saat diterima kerja, promosi, PHK, berhenti, lulus, dan berhenti kuliah. Ditampilkan lewat `UiText.fill_career_log()` di Profil dan layar akhir.
+- **Cerita sekali per permainan:** `GameState.story_seen` + `mark_story(key)` (berbeda dari `hints_seen` yang berlaku untuk semua permainan). Cerita "Hari Pertama" (`STORY_START_<SMA|D3|S1>`) dimunculkan `main.gd` saat bulan 0 dan belum bekerja.
+- **Beranda:** kartu Karier (`_refresh_career()`), `GameState.runway_months()` untuk sisa modal, dan catatan beban kerja (`_refresh_workload()`). Signal `career_requested` -> `main._show_screen(3)`.
+- **Ikon bidang:** `UiText.track_icon()` / `track_tile()` dipakai tab Karier dan Beranda. Begitu `assets/icons/tracks/<bidang>.svg` ada, ikon itu otomatis menggantikan ikon sementara.
+- **Analisis akhir:** aturan karier di `EndAnalysis.insights()` (PHK, menganggur, promosi, karier mandek, kuliah).
+- **Teks:** perubahan teks lama memakai skrip yang mengganti baris CSV di tempat (kunci sama), bukan menambah baris baru.
 
 ## Pendidikan & Keahlian (v1.5b langkah 3)
 

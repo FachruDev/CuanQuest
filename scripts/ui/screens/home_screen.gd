@@ -1,11 +1,13 @@
 extends ScrollContainer
-## Tab Beranda (tema "Senja Cuan"): kondisi karakter, arus kas bulanan (sesuai rencana gaji),
-## dan pilihan biaya hidup.
+## Tab Beranda (tema "Senja Cuan"): ringkasan karier, kondisi karakter, arus kas bulanan
+## (sesuai rencana gaji), dan pilihan biaya hidup.
 
 signal plan_requested
 signal dream_requested(dream_id: String)
 signal add_dream_requested
 signal insurance_requested
+## Tombol di kartu Karier: buka tab Karier (lowongan / pekerjaan).
+signal career_requested
 
 var _food_buttons: Dictionary = {}     # option_id -> Button
 var _housing_buttons: Dictionary = {}
@@ -13,6 +15,8 @@ var _plan_values: Dictionary = {}      # "lifestyle" | "emergency" | "dreams" | 
 var _dreams_box: VBoxContainer         # isi kartu Impian (dibangun ulang saat data berubah)
 var _targets_box: VBoxContainer        # isi kartu Target Bulan Ini
 var _insurance_box: VBoxContainer      # isi kartu Perlindungan (asuransi)
+var _career_box: VBoxContainer         # isi kartu Karier (v1.5b langkah 4)
+var _workload_label: Label             # catatan beban kerja di kartu Kondisi
 
 
 func _ready() -> void:
@@ -20,10 +24,9 @@ func _ready() -> void:
 	_housing_buttons = _build_options(%HousingOptions, GameState.economy["housing"], GameState.set_housing)
 	_build_plan_rows()
 	_build_goal_cards()
-	var drift: Dictionary = GameState.economy.get("monthly_drift", {})
-	if not drift.is_empty():  # rutinitas kerja (v1.5a langkah 5): jelaskan kenapa kondisi turun pelan
-		$VBox/WellbeingCard/VBox.add_child(_wrap_label(tr("HOME_DRIFT_NOTE") % [
-			absi(int(drift.get("health", 0))), absi(int(drift.get("happiness", 0)))], &"SmallMutedLabel"))
+	_build_career_card()
+	_workload_label = _wrap_label("", &"SmallMutedLabel")  # kenapa kondisi berubah tiap bulan
+	$VBox/WellbeingCard/VBox.add_child(_workload_label)
 	GameState.changed.connect(_refresh)
 	_refresh()
 
@@ -71,6 +74,8 @@ func _refresh() -> void:
 	%SurplusValue.add_theme_color_override("font_color", Palette.GAIN if surplus >= 0 else Palette.LOSS)
 	%SurplusBox.theme_type_variation = &"SurplusPositive" if surplus >= 0 else &"SurplusNegative"
 
+	_refresh_career()
+	_refresh_workload()
 	_refresh_dreams()
 	_refresh_targets()
 	_refresh_insurance()
@@ -142,6 +147,107 @@ func _build_goal_cards() -> void:
 		page.move_child(card, index + 1)
 		index += 2
 		set(item[1], box)
+
+
+## Judul + kartu Karier di paling atas Beranda.
+func _build_career_card() -> void:
+	var page: VBoxContainer = $VBox
+	var title := Label.new()
+	title.text = tr("HOME_CAREER_TITLE")
+	title.theme_type_variation = &"SubSectionLabel"
+	var card := PanelContainer.new()
+	card.theme_type_variation = &"HomeCard"
+	_career_box = VBoxContainer.new()
+	_career_box.add_theme_constant_override("separation", 8)
+	card.add_child(_career_box)
+	page.add_child(title)
+	page.move_child(title, 0)
+	page.add_child(card)
+	page.move_child(card, 1)
+
+
+## Menganggur: peringatan, sisa modal dalam bulan, lamaran terkirim, tombol Lihat Lowongan.
+## Bekerja: jabatan, kinerja & promosi berikutnya. Keduanya menampilkan kuliah yang berjalan.
+func _refresh_career() -> void:
+	_clear(_career_box)
+	if not GameState.is_employed():
+		var title := _wrap_label(tr("HOME_JOBLESS_TITLE"), &"AssetNameLabel")
+		title.add_theme_color_override("font_color", Palette.LOSS)
+		_career_box.add_child(title)
+		var runway := GameState.runway_months()
+		var runway_label := _wrap_label(tr("HOME_RUNWAY") % runway if runway > 0 else tr("HOME_RUNWAY_LOW"), &"RowLabel")
+		if runway < 2:
+			runway_label.add_theme_color_override("font_color", Palette.LOSS)
+		_career_box.add_child(runway_label)
+		var hint := tr("HOME_JOBLESS_HINT")
+		if not GameState.applications.is_empty():
+			hint = tr("HOME_APPLIED") % GameState.applications.size()
+		_career_box.add_child(_wrap_label(hint, &"SmallMutedLabel"))
+	else:
+		var def := GameState.current_job_def()
+		var head := HBoxContainer.new()
+		head.add_theme_constant_override("separation", 12)
+		head.add_child(UiText.icon_tile(UiText.track_icon(def["track"]), UiText.track_tile(def["track"])))
+		var texts := VBoxContainer.new()
+		texts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		texts.add_theme_constant_override("separation", 0)
+		texts.add_child(_wrap_label(tr(def["title"]), &"AssetNameLabel"))
+		var sub: String = GameState.job["company"]
+		if GameState.is_career():
+			sub = tr("CAREER_LEVEL") % int(def["level"]) + " · " + sub
+		texts.add_child(_wrap_label(sub, &"SmallMutedLabel"))
+		head.add_child(texts)
+		_career_box.add_child(head)
+		if GameState.unpaid_months > 0:
+			var leave := _wrap_label(tr("HOME_UNPAID") % GameState.unpaid_months, &"RowLabel")
+			leave.add_theme_color_override("font_color", Palette.LOSS)
+			_career_box.add_child(leave)
+		if GameState.is_career():
+			_career_box.add_child(_wrap_label(_promotion_summary(), &"RowLabel"))
+	if GameState.is_studying():
+		var study := GameState.study
+		var program := tr(GameState.program_def(study["id"])["name"])
+		var total := int(study["months_total"])
+		var text := tr("HOME_STUDY_STARTS") % program if GameState.month < int(study["since"]) \
+			else tr("HOME_STUDYING") % [program, total - int(study["months_left"]), total]
+		_career_box.add_child(_wrap_label(text, &"SmallMutedLabel"))
+	var employed := GameState.is_employed()
+	var button := UiText.chunky_button(tr("HOME_OPEN_CAREER") if employed else tr("HOME_SEE_OPENINGS"),
+		&"NeutralButton" if employed else &"PrimaryButton",
+		&"NeutralButtonLabel" if employed else &"PrimaryButtonLabel", 68.0)
+	button.pressed.connect(career_requested.emit)
+	_career_box.add_child(button)
+
+
+## "Kinerja 72 · Baik · Promosi berikutnya: Developer (2 syarat lagi)".
+func _promotion_summary() -> String:
+	var text := tr("CAREER_PERFORMANCE") % [roundi(GameState.performance), tr(GameState.performance_label())]
+	var next := GameState.next_job_def()
+	if next.is_empty():
+		return text
+	var missing := GameState.promotion_requirements().filter(func(r: Dictionary) -> bool: return not r["met"]).size()
+	if missing == 0:
+		return text + " · " + tr("HOME_PROMOTION_READY") % tr(next["title"])
+	return text + " · " + tr("HOME_NEXT_PROMOTION") % [tr(next["title"]), missing]
+
+
+## Penyebab perubahan kesehatan & kebahagiaan tiap bulan: beban kerja, stres mencari kerja,
+## cuti, dan beban kuliah.
+func _refresh_workload() -> void:
+	var text := ""
+	if not GameState.is_employed():
+		var unemployed: Dictionary = GameState.economy["monthly_drift"].get("unemployed", {})
+		text = tr("HOME_JOBLESS_NOTE") % int(unemployed.get("happiness", 0))
+	elif GameState.unpaid_months > 0:
+		text = tr("HOME_LEAVE_NOTE")
+	else:
+		var def := GameState.current_job_def()
+		var workload: Dictionary = def.get("workload", {})
+		text = tr("HOME_WORKLOAD_NOTE") % [tr(def["title"]), int(workload.get("health", 0)), int(workload.get("happiness", 0))]
+	if GameState.is_studying():
+		var load: Dictionary = GameState.education_data["load"]
+		text += " " + tr("HOME_STUDY_NOTE") % [int(load["energy"]), -int(load["happiness"])]
+	_workload_label.text = text
 
 
 ## Kartu Perlindungan: status asuransi per kategori + tombol "Atur asuransi".

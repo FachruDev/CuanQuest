@@ -39,6 +39,18 @@ static func insights(state: Node) -> Array[String]:
 	elif float(s.get("uninsured_medical", 0)) >= 5_000_000:
 		out.append(_t("INSIGHT_UNINSURED") % Fmt.rupiah(s["uninsured_medical"]))
 
+	# Karier & pendidikan (v1.5b)
+	if int(s.get("layoffs", 0)) > 0:
+		out.append(_t("INSIGHT_LAYOFF") % [int(s["layoffs"]), Fmt.rupiah(s["severance"])])
+	if int(s.get("months_unemployed", 0)) >= 6:
+		out.append(_t("INSIGHT_UNEMPLOYED") % int(s["months_unemployed"]))
+	if int(s.get("promotions", 0)) >= 2:
+		out.append(_t("INSIGHT_CAREER_GROWTH") % [int(s["promotions"]), int(s["top_level"])])
+	elif months >= 60 and int(s.get("top_level", 0)) <= 1:
+		out.append(_t("INSIGHT_CAREER_STUCK") % floori(months / 12.0))
+	if int(s.get("graduations", 0)) > 0:
+		out.append(_t("INSIGHT_EDUCATION") % [int(s["graduations"]), Fmt.rupiah(s["tuition"])])
+
 	if state.is_financially_free():
 		out.append(_t("INSIGHT_GOOD_FREEDOM"))
 	if s["total_interest"] > 1_000_000:

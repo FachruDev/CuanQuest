@@ -48,6 +48,7 @@ const JOBS_PATH := "res://data/jobs.json"
 const EDUCATION_PATH := "res://data/education.json"
 const RISK_PROFILE_PATH := "res://data/risk_profile.json"
 const MAX_TRANSACTIONS := 200
+const MAX_CAREER_LOG := 60
 
 var economy: Dictionary = {}       # isi data/economy.json
 var stage_defs: Array = []         # isi data/unlocks.json
@@ -83,6 +84,10 @@ var job_data: Dictionary = {}            # isi data/jobs.json
 ## {"id", "months_left", "months_total", "since", "scholarship", "sponsor", "paid_month"}.
 var study: Dictionary = {}
 var education_data: Dictionary = {}      # isi data/education.json
+## Perjalanan karier (v1.5b langkah 4), terlama di depan: [{month, kind, job_id?, company?, program?}].
+## kind: hired | promoted | laid_off | resigned | graduated | dropped_out.
+var career_log: Array[Dictionary] = []
+var story_seen: Array[String] = []        # cerita/petunjuk per permainan yang sudah tampil
 var food_id: String = ""
 var housing_id: String = ""
 var holdings: Dictionary = {}      # asset_id -> { "units": float, "cost": float, "locked_until": int }
@@ -198,6 +203,8 @@ func new_game(profile: Dictionary = {}, seed_value: int = -1) -> void:
 	job_offers.clear()
 	performance = 0.0
 	study = {}
+	career_log.clear()
+	story_seen.clear()
 	health = int(economy["start_health"])
 	happiness = int(economy["start_happiness"])
 	xp = 0
@@ -585,6 +592,7 @@ func accept_offer(index: int) -> void:
 	if not is_employed() and month_income == 0:
 		first_salary = int(offer["salary"])
 	job = {"id": offer["job_id"], "company": offer["company"], "since": month, "hired": month}
+	_log_career("hired")
 	_check_sponsor()
 	salary = int(offer["salary"])
 	unpaid_months = 0
@@ -831,6 +839,7 @@ func resign() -> void:
 	if not is_employed() or is_over or has_pending_event():
 		return
 	stats["resigns"] += 1
+	_log_career("resigned")
 	_leave_job()
 	changed.emit()
 	state_committed.emit()
@@ -845,6 +854,7 @@ func _promote() -> void:
 	job["since"] = month
 	stats["promotions"] += 1
 	stats["top_level"] = maxi(int(stats["top_level"]), int(next["level"]))
+	_log_career("promoted")
 
 
 func _lay_off() -> void:
@@ -852,6 +862,7 @@ func _lay_off() -> void:
 	cash += severance
 	stats["layoffs"] += 1
 	stats["severance"] += severance
+	_log_career("laid_off")
 	_leave_job()
 
 
@@ -1058,10 +1069,36 @@ func _start_study(option: Dictionary, sponsor: String) -> void:
 func quit_study() -> void:
 	if not is_studying() or is_over or has_pending_event():
 		return
+	_log_career("dropped_out", {"program": study["id"]})
 	study = {}
 	stats["dropouts"] += 1
 	changed.emit()
 	state_committed.emit()
+
+
+## Catat peristiwa karier untuk Profil & layar akhir. Pekerjaan sekarang ikut dicatat.
+func _log_career(kind: String, extra: Dictionary = {}) -> void:
+	var entry := {"month": month, "kind": kind}
+	if is_employed():
+		entry.merge({"job_id": job["id"], "company": job["company"]})
+	career_log.append(entry.merged(extra, true))
+	if career_log.size() > MAX_CAREER_LOG:
+		career_log.pop_front()
+
+
+## Kas + tabungan dana darurat cukup untuk berapa bulan biaya hidup, premi, dan uang kuliah
+## (ditampilkan di Beranda saat menganggur).
+func runway_months() -> int:
+	var monthly := maxi(monthly_expenses() + premiums_total() + tuition_fee(), 1)
+	return floori((maxf(cash, 0.0) + emergency_balance()) / monthly)
+
+
+## Cerita/petunjuk sekali per permainan (mis. cerita hari pertama). true jika baru pertama kali.
+func mark_story(key: String) -> bool:
+	if key in story_seen:
+		return false
+	story_seen.append(key)
+	return true
 
 
 ## Beasiswa kantor berakhir jika pemain tidak lagi bekerja di perusahaan pemberinya.
@@ -1096,6 +1133,7 @@ func _graduate() -> Dictionary:
 	var before := floori(skill)
 	education = maxi(education, education_index(def["result"]))
 	_gain_skill(float(def["skill"]))
+	_log_career("graduated", {"program": def["id"]})
 	study = {}
 	stats["graduations"] += 1
 	var gain := floori(skill) - before
@@ -2076,6 +2114,7 @@ func to_dict() -> Dictionary:
 		"dreams": dreams, "dreams_asked": dreams_asked, "targets": targets, "policies": policies, "orders": orders,
 		"job": job, "performance": performance, "education": education, "skill": skill, "experience": experience,
 		"job_board": job_board, "applications": applications, "job_offers": job_offers, "study": study,
+		"career_log": career_log, "story_seen": story_seen,
 		"turn_units": turn_units, "turn_fees": turn_fees, "turn_trades": turn_trades, "month_costs": month_costs,
 		"event_queue": event_queue, "chain_events": chain_events, "director": director,
 	}
@@ -2171,6 +2210,12 @@ func load_from_dict(d: Dictionary) -> bool:
 	performance = float(d.get("performance", job_data["performance"]["start"] if not job.is_empty() else 0.0))
 	education = int(d["education"])
 	study = d.get("study", {}).duplicate()
+	career_log.clear()
+	for entry: Dictionary in d.get("career_log", []):
+		var copy := entry.duplicate()
+		copy["month"] = int(copy["month"])
+		career_log.append(copy)
+	story_seen.assign(d.get("story_seen", ["start"]))  # save lama: cerita hari pertama sudah lewat
 	for key: String in ["months_left", "months_total", "since", "paid_month"]:
 		if study.has(key):
 			study[key] = int(study[key])

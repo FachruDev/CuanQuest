@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5b langkah 3 selesai)
+- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5b langkah 4 selesai)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -15,7 +15,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **Prototipe waktu A/B/C** | Uji sistem waktu berjalan (tidak dipakai, diarsipkan) | ✅ |
 | **v1.5-0** | Giliran Bulanan yang Hidup | 🔄 5/5 langkah; tinggal playtest |
 | **v1.5a** | Realisme ekonomi | ✅ 5/5 langkah |
-| **v1.5b** | Pekerjaan & karier (melamar kerja, keahlian, jenjang) | 🔄 3/5 langkah |
+| **v1.5b** | Pekerjaan & karier (melamar kerja, keahlian, jenjang) | 🔄 4/5 langkah |
 | **v1.5c** | Utang, properti, hunian yang tumbuh | ⬜ |
 | **v1.5d** | Tokoh, riset, kontrak, konten | ⬜ |
 | **v2a-v2d** | Instrumen lanjut, hidup penuh, dana investor, mini-game | ⬜ |
@@ -207,7 +207,7 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.2 (semua keputusan 5.2.10
 | 1 | Fondasi pekerjaan: jobs.json, latar SMA/D3/S1 tanpa kerja (Rp5 jt), lowongan & melamar, tab Karier awal | ✅ |
 | 2 | Karier: kinerja, beban kerja, kenaikan prestasi, promosi, berhenti, PHK + pesangon, event kerja | ✅ |
 | 3 | Pendidikan & keahlian: kuliah D3/S1/S2, kursus, sertifikasi, beasiswa | ✅ |
-| 4 | Tampilan & cerita: wizard Game Baru, Beranda, Profil, petunjuk | ⬜ |
+| 4 | Tampilan & cerita: wizard Game Baru, Beranda, Profil, petunjuk | ✅ |
 | 5 | Penyeimbangan dengan simulator | ⬜ |
 
 ### Rincian fitur
@@ -248,8 +248,17 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.2 (semua keputusan 5.2.10
 - ✅ Simulator: tipe pemain baru **pelajar** (hemat + kuliah + kursus), cetak pendidikan, kelulusan, dan uang kuliah; 60 uji otomatis pendidikan + 94 uji karier lulus
 - 🔁 Ikon program kuliah memakai ikon kursus (lihat `docs/KEBUTUHAN_ASET.md`)
 
+**Langkah 4: Tampilan & cerita** ✅
+- ✅ **Cerita "Hari Pertama"** saat permainan baru, berbeda untuk SMA/D3/S1 (modal, tempat tinggal, prospek kerja) + tombol Lihat Lowongan
+- ✅ **Kartu Karier di Beranda** (paling atas): saat menganggur peringatan merah, sisa modal (kas + dana darurat) dalam bulan biaya hidup, lamaran terkirim, tombol Lihat Lowongan; saat bekerja jabatan, jenjang, kinerja, dan sisa syarat promosi; kuliah yang berjalan
+- ✅ Catatan di kartu Kondisi kini menjelaskan beban kerja jabatan, stres mencari kerja, cuti, dan beban kuliah (sebelumnya catatan "rutinitas kerja" lama menampilkan 0)
+- ✅ **Perjalanan Karier** (diterima kerja, promosi, PHK, berhenti, lulus/berhenti kuliah) di Profil dan layar akhir; statistik Promosi & Bulan menganggur
+- ✅ Layar akhir: chip jabatan & pendidikan, analisis karier (PHK, menganggur, promosi, karier mandek, kuliah)
+- ✅ Tutorial & petunjuk diperbarui: mulai tanpa kerja, tab Karier, 6 kuis per minggu; petunjuk tab Karier baru; deskripsi tingkat kesulitan menyebut modal awal
+- ✅ Ikon bidang sementara kini berbeda per bidang (dompet, map, brankas, kaca pembesar, lampu, tas kerja) sampai aset bidang dibuat
+- ✅ 43 uji otomatis baru (cerita, perjalanan karier, sisa modal, analisis akhir) + uji karier & pendidikan tetap lulus
+
 **Langkah berikutnya**
-- ⬜ Kartu "Kamu belum bekerja" di Beranda, wizard & petunjuk pekerjaan, ikon bidang (langkah 4)
 - ⬜ Penyeimbangan akhir dengan simulator (langkah 5), termasuk: gaji riil karier baik sekitar x3 dalam 30 tahun, dan tipe pemain acak berlatar SMA yang sering kalah karena kebahagiaan habis (tinggal bersama keluarga -3/bulan, sudah terjadi sejak langkah 1)
 
 **Kriteria selesai**

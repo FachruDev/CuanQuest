@@ -75,6 +75,7 @@ func _ready() -> void:
 	GameState.graduated.connect(func(program: String, result: String, skill_gain: int) -> void:
 		_enqueue(_celebrating(%InfoPopup.open.bind(tr("EDU_GRADUATED_TITLE"),
 			tr("EDU_GRADUATED_BODY") % [tr(program), result, result, skill_gain]))))
+	%HomeScreen.career_requested.connect(_show_screen.bind(3))
 	%HomeScreen.insurance_requested.connect(func() -> void: _enqueue(%InsurancePopup.open))
 	%MarketScreen.trade_requested.connect(func(asset_id: String, is_buy: bool, amount: int) -> void:
 		_enqueue(%TradeConfirmPopup.open.bind(asset_id, is_buy, amount)))
@@ -121,6 +122,11 @@ func _ready() -> void:
 	_last_level = GameState.level()
 	_show_screen(0)
 	_refresh_top_bar()
+	# Cerita hari pertama (v1.5b langkah 4): belum bekerja, modal kecil, ajak ke Lowongan.
+	if GameState.month == 0 and not GameState.is_employed() and GameState.mark_story("start"):
+		var story := tr("STORY_START_" + str(GameState.background["id"]).to_upper()) \
+			% Fmt.rupiah_words(GameState.nominal(GameState.difficulty["start_cash"]))
+		_enqueue(%InfoPopup.open.bind(tr("STORY_START_TITLE"), story, tr("HOME_SEE_OPENINGS"), _show_screen.bind(3)))
 	# Event yang belum diputuskan saat game disimpan muncul lagi setelah dimuat.
 	if GameState.has_pending_event():
 		_enqueue(%EventPopup.open.bind(GameState.pending_event))

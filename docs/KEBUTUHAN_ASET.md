@@ -2,7 +2,7 @@
 
 Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang **dibutuhkan**, dan **di file mana** aset itu dipakai. Diperbarui setiap kali sebuah langkah membutuhkan aset baru.
 
-- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5b langkah 3: ikon program kuliah kini dipakai dengan aset sementara)
+- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5b langkah 4: ikon bidang juga tampil di Beranda; ikon sementara kini berbeda per bidang)
 - **Rencana pembuatan:** pengembang membuat aset setelah **v2 selesai**. Sampai saat itu game memakai aset sementara (🔁), dan daftar di bawah terus diperbarui setiap langkah.
 - **Tanda:** ✅ sudah ada · ⬜ dibutuhkan · 🔁 sementara memakai aset lain (game tetap jalan)
 - Tabel aset yang sudah ada dibuat otomatis dengan memindai `scenes/`, `scripts/`, `theme/`, dan `data/`.
@@ -45,12 +45,12 @@ Game sudah jalan memakai aset sementara (🔁). Begitu file baru ditaruh di path
 | `assets/icons/background_sma.svg` | Latar SMA/SMK (buku/tas sekolah) | `scripts/ui/new_game_screen.gd` (kartu latar di wizard Game Baru) | 🔁 `background_student.svg` | Ubah `"icon"` latar `sma` di `data/economy.json` menjadi `"sma"` |
 | `assets/icons/background_d3.svg` | Latar D3 (laptop/alat praktik) | `scripts/ui/new_game_screen.gd` | 🔁 `background_freelancer.svg` | Ubah `"icon"` latar `d3` menjadi `"d3"` |
 | `assets/icons/background_s1.svg` | Latar S1 (toga wisuda) | `scripts/ui/new_game_screen.gd` | 🔁 `background_employee.svg` | Ubah `"icon"` latar `s1` menjadi `"s1"` |
-| `assets/icons/tracks/retail.svg` | Bidang Ritel & Layanan (keranjang/kasir) | `scripts/ui/screens/activity_screen.gd` (tab Karier: kartu Pekerjaan & Lowongan) | 🔁 `wallet.svg` | Otomatis |
-| `assets/icons/tracks/admin.svg` | Bidang Administrasi (map/dokumen) | `scripts/ui/screens/activity_screen.gd` | 🔁 `wallet.svg` | Otomatis |
-| `assets/icons/tracks/finance.svg` | Bidang Keuangan & Perbankan (gedung bank) | `scripts/ui/screens/activity_screen.gd` | 🔁 `wallet.svg` | Otomatis |
-| `assets/icons/tracks/tech.svg` | Bidang Teknologi (kode `</>`) | `scripts/ui/screens/activity_screen.gd` | 🔁 `wallet.svg` | Otomatis |
-| `assets/icons/tracks/creative.svg` | Bidang Kreatif & Pemasaran (kuas/megafon) | `scripts/ui/screens/activity_screen.gd` | 🔁 `wallet.svg` | Otomatis |
-| `assets/icons/tracks/gig.svg` | Kerja Lepas (helm/motor) | `scripts/ui/screens/activity_screen.gd` | 🔁 `wallet.svg` | Otomatis |
+| `assets/icons/tracks/retail.svg` | Bidang Ritel & Layanan (keranjang/kasir) | `scripts/ui/ui_text.gd` (`track_icon`): tab Karier & kartu Karier di Beranda | 🔁 `wallet.svg` | Otomatis |
+| `assets/icons/tracks/admin.svg` | Bidang Administrasi (map/dokumen) | `scripts/ui/ui_text.gd` | 🔁 `folder.svg` | Otomatis |
+| `assets/icons/tracks/finance.svg` | Bidang Keuangan & Perbankan (gedung bank) | `scripts/ui/ui_text.gd` | 🔁 `classes/deposit.svg` | Otomatis |
+| `assets/icons/tracks/tech.svg` | Bidang Teknologi (kode `</>`) | `scripts/ui/ui_text.gd` | 🔁 `search.svg` | Otomatis |
+| `assets/icons/tracks/creative.svg` | Bidang Kreatif & Pemasaran (kuas/megafon) | `scripts/ui/ui_text.gd` | 🔁 `lightbulb.svg` | Otomatis |
+| `assets/icons/tracks/gig.svg` | Kerja Lepas (helm/motor) | `scripts/ui/ui_text.gd` | 🔁 `activities/side_job.svg` | Otomatis |
 | `assets/icons/nav_career.svg` | Navigasi tab Karier (koper) | `scenes/main.tscn` (tombol navigasi ke-4) | 🔁 `nav_activity.svg` | Ganti path `nav_activity.svg` di `scenes/main.tscn` (atau minta saya) |
 | `assets/icons/badge_job.svg` (opsional) | Lencana popup Tawaran Kerja (koper + bintang) | `scenes/ui/offer_popup.tscn` | 🔁 `badge_star.svg` | Ganti path di `scenes/ui/offer_popup.tscn` |
 | `assets/icons/education/d3.svg` | Program Kuliah D3 (buku + papan nama) | `scripts/ui/screens/activity_screen.gd` (kartu Pendidikan & Keahlian, tab Karier) | 🔁 `activities/course.svg` | Otomatis (nama file = id program di `data/education.json`) |
@@ -119,7 +119,7 @@ Game sudah jalan memakai aset sementara (🔁). Begitu file baru ditaruh di path
 | File | Dipakai di |
 |:--|:--|
 | `assets/icons/classes/crypto.svg` | `scripts/ui/ui_text.gd (dinamis: %s.svg)` |
-| `assets/icons/classes/deposit.svg` | `scripts/ui/ui_text.gd (dinamis: %s.svg)` |
+| `assets/icons/classes/deposit.svg` | `scripts/ui/ui_text.gd`<br>`scripts/ui/ui_text.gd (dinamis: %s.svg)` |
 | `assets/icons/classes/mutual_fund.svg` | `scripts/ui/ui_text.gd (dinamis: %s.svg)` |
 | `assets/icons/classes/savings.svg` | `scripts/ui/ui_text.gd (dinamis: %s.svg)` |
 | `assets/icons/classes/stock.svg` | `scripts/ui/ui_text.gd (dinamis: %s.svg)` |
@@ -133,7 +133,7 @@ Game sudah jalan memakai aset sementara (🔁). Begitu file baru ditaruh di path
 | `assets/icons/activities/hangout.svg` | `scripts/ui/screens/activity_screen.gd (dinamis: %s.svg)` |
 | `assets/icons/activities/rest.svg` | `scripts/ui/screens/activity_screen.gd (dinamis: %s.svg)` |
 | `assets/icons/activities/self_study.svg` | `scripts/ui/screens/activity_screen.gd (dinamis: %s.svg)` |
-| `assets/icons/activities/side_job.svg` | `scripts/ui/screens/activity_screen.gd (dinamis: %s.svg)` |
+| `assets/icons/activities/side_job.svg` | `scripts/ui/screens/activity_screen.gd (dinamis: %s.svg)`<br>`scripts/ui/ui_text.gd` |
 
 #### Ikon navigasi bawah (5)
 
@@ -175,10 +175,10 @@ Game sudah jalan memakai aset sementara (🔁). Begitu file baru ditaruh di path
 | `assets/icons/chevron_left.svg` | `scenes/new_game.tscn`<br>`scenes/screens/market_screen.tscn` |
 | `assets/icons/chevron_right.svg` | `scenes/ui/save_slot_button.tscn`<br>`scripts/ui/screens/profile_screen.gd` |
 | `assets/icons/close.svg` | `scenes/title.tscn`<br>`scenes/ui/glossary_popup.tscn` |
-| `assets/icons/folder.svg` | `scenes/title.tscn` |
+| `assets/icons/folder.svg` | `scenes/title.tscn`<br>`scripts/ui/ui_text.gd` |
 | `assets/icons/heart.svg` | `scenes/screens/home_screen.tscn` |
 | `assets/icons/info.svg` | `scenes/new_game.tscn`<br>`scenes/title.tscn` |
-| `assets/icons/lightbulb.svg` | `scenes/tutorial.tscn`<br>`scripts/ui/end_screen.gd`<br>`scripts/ui/screens/profile_screen.gd` |
+| `assets/icons/lightbulb.svg` | `scenes/tutorial.tscn`<br>`scripts/ui/end_screen.gd`<br>`scripts/ui/screens/profile_screen.gd`<br>`scripts/ui/ui_text.gd` |
 | `assets/icons/lock.svg` | `scripts/ui/title_screen.gd` |
 | `assets/icons/news.svg` | `scenes/screens/market_screen.tscn`<br>`scripts/ui/screens/profile_screen.gd` |
 | `assets/icons/play_badge.svg` | `scenes/end_screen.tscn`<br>`scenes/title.tscn`<br>`scripts/ui/new_game_screen.gd`<br>`scripts/ui/tutorial_screen.gd` |
@@ -187,7 +187,7 @@ Game sudah jalan memakai aset sementara (🔁). Begitu file baru ditaruh di path
 | `assets/icons/radio_off.svg` | `scripts/ui/new_game_screen.gd` |
 | `assets/icons/radio_on.svg` | `scripts/ui/new_game_screen.gd` |
 | `assets/icons/save.svg` | `scenes/title.tscn` |
-| `assets/icons/search.svg` | `scenes/ui/glossary_popup.tscn` |
+| `assets/icons/search.svg` | `scenes/ui/glossary_popup.tscn`<br>`scripts/ui/ui_text.gd` |
 | `assets/icons/shield.svg` | `scenes/ui/insurance_popup.tscn`<br>`scenes/ui/text_popup.tscn`<br>`scripts/ui/screens/profile_screen.gd` |
 | `assets/icons/skip.svg` | `scenes/tutorial.tscn` |
 | `assets/icons/smile.svg` | `scenes/screens/home_screen.tscn` |
@@ -196,7 +196,7 @@ Game sudah jalan memakai aset sementara (🔁). Begitu file baru ditaruh di path
 | `assets/icons/trend_down.svg` | `scripts/ui/end_screen.gd`<br>`scripts/ui/title_screen.gd` |
 | `assets/icons/trend_line.svg` | `scenes/main.tscn`<br>`scenes/ui/order_popup.tscn` |
 | `assets/icons/trend_up.svg` | `scenes/title.tscn`<br>`scripts/ui/end_screen.gd` |
-| `assets/icons/wallet.svg` | `scenes/main.tscn`<br>`scenes/ui/plan_popup.tscn`<br>`scenes/ui/trade_confirm_popup.tscn`<br>`scripts/ui/screens/activity_screen.gd` |
+| `assets/icons/wallet.svg` | `scenes/main.tscn`<br>`scenes/ui/plan_popup.tscn`<br>`scenes/ui/trade_confirm_popup.tscn`<br>`scripts/ui/ui_text.gd` |
 | `assets/icons/warning.svg` | `scenes/title.tscn` |
 | `assets/icons/warning_small.svg` | `scenes/screens/market_screen.tscn`<br>`scenes/screens/portfolio_screen.tscn`<br>`scripts/ui/trade_confirm_popup.gd` |
 | `assets/icons/welcome.svg` | `scenes/title.tscn` |

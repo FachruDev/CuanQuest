@@ -21,13 +21,6 @@ const ACTIVITY_TILES := {
 	"exercise": &"IconTileCoral", "hangout": &"IconTilePurple", "rest": &"IconTileBlue",
 }
 const DIMMED := Color(1, 1, 1, 0.5)
-## Ikon & warna kotak per bidang pekerjaan (assets/icons/tracks/<bidang>.svg, cadangan: dompet).
-const TRACK_ICON := "res://assets/icons/tracks/%s.svg"
-const TRACK_ICON_FALLBACK := "res://assets/icons/wallet.svg"
-const TRACK_TILES := {
-	"retail": &"IconTileCoral", "admin": &"IconTileBlue", "finance": &"IconTileMint",
-	"tech": &"IconTilePurple", "creative": &"IconTileGold", "gig": &"IconTileCoral",
-}
 ## Ikon program kuliah (assets/icons/education/<d3|s1|s2>.svg, cadangan: ikon kursus).
 const EDUCATION_ICON := "res://assets/icons/education/%s.svg"
 
@@ -339,9 +332,7 @@ func _refresh_board() -> void:
 
 
 func _job_head(def: Dictionary, sub: String, value: String) -> HBoxContainer:
-	var icon := TRACK_ICON % def["track"]
-	return _head(icon if ResourceLoader.exists(icon) else TRACK_ICON_FALLBACK,
-		TRACK_TILES.get(def["track"], &"IconTileGold"), tr(def["title"]), sub, value)
+	return _head(UiText.track_icon(def["track"]), UiText.track_tile(def["track"]), tr(def["title"]), sub, value)
 
 
 ## Baris kepala kartu: ikon | judul & keterangan | nilai di kanan.

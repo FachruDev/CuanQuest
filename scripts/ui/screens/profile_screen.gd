@@ -1,6 +1,6 @@
 extends ScrollContainer
 ## Tab Profil (GDD 5.12, tema "Senja Cuan"): kartu pemain, profil risiko, target kemenangan,
-## daya beli (inflasi), statistik, riwayat permainan, simpan/muat, pengaturan, menu.
+## daya beli (inflasi), statistik, perjalanan karier, riwayat permainan, simpan/muat, pengaturan, menu.
 
 signal glossary_requested
 signal text_requested(title: String, body: String)
@@ -14,6 +14,7 @@ const HISTORY_COLORS := {"win": Palette.GAIN, "lose": Palette.LOSS}
 var _slot_labels: Dictionary = {}  # slot -> Label
 var _confirm_reset := false
 var _reset_label: Label
+var _career_log_box: VBoxContainer  # perjalanan karier (v1.5b langkah 4)
 
 
 func _ready() -> void:
@@ -21,6 +22,7 @@ func _ready() -> void:
 	_setup_risk_profile()
 	_build_slots()
 	_build_history()
+	_build_career_log()
 	_build_menu()
 	GameState.changed.connect(_refresh)
 	visibility_changed.connect(_refresh)
@@ -63,6 +65,9 @@ func _refresh() -> void:
 	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_COSTS", Fmt.rupiah(float(s["total_taxes"]) + float(s["total_fees"]))))
 	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_BEST",
 		("%s %s" % [tr(best["asset_key"]), Fmt.signed_rupiah(best["value"])]) if not best.is_empty() else "-"))
+	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_PROMOTIONS", str(int(s["promotions"]))))
+	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_UNEMPLOYED", str(int(s["months_unemployed"]))))
+	UiText.fill_career_log(_career_log_box, 8)
 
 	for slot: String in _slot_labels:
 		_slot_labels[slot].text = SaveManager.slot_summary(slot)
@@ -327,6 +332,22 @@ func _segment(text: String, group: ButtonGroup, pressed: bool) -> Button:
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.button_pressed = pressed
 	return button
+
+
+## Judul + kartu "Perjalanan Karier" tepat setelah statistik.
+func _build_career_log() -> void:
+	var page: VBoxContainer = $VBox
+	var index := %StatsGrid.get_index() + 1
+	var title := _label(tr("PROFILE_CAREER_TITLE"), &"SubSectionLabel")
+	var card := PanelContainer.new()
+	card.theme_type_variation = &"HomeCard"
+	_career_log_box = VBoxContainer.new()
+	_career_log_box.add_theme_constant_override("separation", 6)
+	card.add_child(_career_log_box)
+	page.add_child(title)
+	page.move_child(title, index)
+	page.add_child(card)
+	page.move_child(card, index + 1)
 
 
 func _stat_tile(key: String, value: String) -> PanelContainer:

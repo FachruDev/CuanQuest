@@ -263,11 +263,11 @@ BG_EMPLOYEE_DESC,Usia 23. Gaji tetap setiap bulan dan stabil.,Age 23. Steady mon
 BG_FREELANCER,Pekerja Lepas,Freelancer
 BG_FREELANCER_DESC,"Usia 25. Rata-rata penghasilan lebih tinggi, tapi naik-turun hingga 35% tiap bulan.","Age 25. Higher average income, but it swings up to 35% each month."
 DIFF_EASY,Santai,Relaxed
-DIFF_EASY_DESC,"Gaji +15%, biaya hidup -10%, kejadian buruk lebih jarang.","Salary +15%, living costs -10%, fewer bad events."
+DIFF_EASY_DESC,"Modal awal Rp7,5 jt, gaji +15%, biaya hidup -10%, kejadian buruk lebih jarang.","Start with Rp7.5M, salary +15%, living costs -10%, fewer bad events."
 DIFF_NORMAL,Normal,Normal
-DIFF_NORMAL_DESC,Kondisi standar seperti yang dirancang.,"Standard, as designed."
+DIFF_NORMAL_DESC,Modal awal Rp5 jt. Kondisi standar seperti yang dirancang.,Start with Rp5M. Standard conditions as designed.
 DIFF_HARD,Sulit,Hard
-DIFF_HARD_DESC,"Gaji -10%, biaya hidup +10%, kejadian buruk lebih sering.","Salary -10%, living costs +10%, more bad events."
+DIFF_HARD_DESC,"Modal awal Rp3 jt, gaji -10%, biaya hidup +10%, kejadian buruk lebih sering.","Start with Rp3M, salary -10%, living costs +10%, more bad events."
 TUT_NEXT,Lanjut,Next
 TUT_FINISH,Mulai!,Start!
 TUT_SKIP,Lewati,Skip
@@ -286,9 +286,9 @@ Semua uang di game ini VIRTUAL. Ini simulasi untuk edukasi, bukan saran keuangan
 
 All money here is VIRTUAL. This is an educational simulation, not financial advice."
 TUT_2_TITLE,Satu giliran = satu bulan,One turn = one month
-TUT_2_BODY,"Setiap awal bulan gaji masuk dan biaya hidup terpotong otomatis. Kadang muncul kejadian yang harus kamu putuskan.
+TUT_2_BODY,"Kamu mulai tanpa pekerjaan, hanya dengan modal kecil. Lamar lowongan di tab Karier; hasilnya keluar awal bulan berikutnya. Setelah bekerja, gaji masuk dan biaya hidup terpotong otomatis setiap awal bulan.
 
-Setelah selesai mengatur keuangan, tekan ""Lanjut ke Bulan Berikutnya"". Pasar bergerak dan laporan bulananmu muncul.","At the start of each month your salary arrives and living costs are deducted. Sometimes an event needs your decision.
+Setelah selesai mengatur keuangan, tekan ""Lanjut ke Bulan Berikutnya"". Pasar bergerak dan laporan bulananmu muncul.","You start without a job and only a little savings. Apply for openings in the Career tab; results arrive early next month. Once you're working, your salary arrives and living costs are deducted at the start of each month.
 
 When you're done, tap ""Next Month"". The market moves and your monthly report appears."
 TUT_3_TITLE,Beranda: jaga hidupmu,Home: take care of yourself
@@ -304,9 +304,9 @@ Ingat: semakin tinggi potensi untung, semakin tinggi risikonya.","At first only 
 
 Remember: higher potential return means higher risk."
 TUT_5_TITLE,Belajar sambil bermain,Learn as you play
-TUT_5_BODY,"Di tab Aktivitas ada 3 kuis gratis setiap minggu. Jawaban benar memberi hadiah dan XP, dan sebagian kuis menjadi syarat membuka instrumen baru.
+TUT_5_BODY,"Di tab Karier ada 6 kuis gratis setiap minggu. Jawaban benar memberi hadiah dan XP, dan sebagian kuis menjadi syarat membuka instrumen baru.
 
-Bingung dengan suatu istilah? Tekan tombol ""?"" di kanan atas untuk membuka glosarium.","The Activity tab has 3 free quizzes every week. Correct answers give rewards and XP, and some quizzes unlock new instruments.
+Bingung dengan suatu istilah? Tekan tombol ""?"" di kanan atas untuk membuka glosarium.","The Career tab has 6 free quizzes every week. Correct answers give rewards and XP, and some quizzes unlock new instruments.
 
 Confused by a term? Tap ""?"" at the top right to open the glossary."
 REQ_TUTORIAL,Selesaikan tutorial,Complete the tutorial
@@ -322,11 +322,15 @@ PROFILE_TO_TITLE,Kembali ke Menu Utama,Back to Main Menu
 HINT_TITLE,Petunjuk,Tip
 HINT_MARKET,"Ini daftar instrumen investasi. Ketuk salah satu untuk melihat detail, grafik, dan tombol beli/jual.
 
-Instrumen yang redup masih terkunci; lihat syaratnya di halaman detail atau di tab Aktivitas.","This is the list of instruments. Tap one to see details, a chart, and buy/sell.
+Instrumen yang redup masih terkunci; lihat syaratnya di halaman detail atau di tab Karier.","This is the list of instruments. Tap one to see details, a chart, and buy/sell.
 
-Dimmed instruments are locked; see their requirements in the detail page or the Activity tab."
+Dimmed instruments are locked; see their requirements in the detail page or the Career tab."
 HINT_PORTFOLIO,"Di sini kamu bisa memantau kekayaan bersih dari waktu ke waktu, semua kepemilikan beserta untung/ruginya, dan laporan bulan terakhir.","Track your net worth over time, all holdings with profit/loss, and the latest monthly report."
-HINT_ACTIVITY,Jawab kuis untuk mendapat hadiah dan XP. Level dan kuis tertentu dibutuhkan untuk membuka instrumen baru.,Answer quizzes for rewards and XP. Levels and some quizzes are required to unlock new instruments.
+HINT_ACTIVITY,"Ini pusat kariermu: pekerjaan & kinerja, lowongan bulan ini, pendidikan & keahlian, lalu aktivitas, kuis, dan syarat membuka instrumen.
+
+Melamar kerja, kuliah, dan sebagian aktivitas memakai energi yang terisi ulang setiap bulan. Gulir ke bawah untuk melihat semuanya.","This is your career hub: job & performance, this month's openings, education & skills, then activities, quizzes, and instrument unlock requirements.
+
+Applying for jobs, studying, and some activities use energy, which refills every month. Scroll down to see everything."
 HINT_PROFILE,"Simpan cadangan game di slot manual, buka glosarium, atau ulangi tutorial dari sini.","Save backups in manual slots, open the glossary, or replay the tutorial here."
 WARN_BANKRUPT,"PERINGATAN: kas minus %d/%d bulan berturut-turut. Jika mencapai batas, kamu bangkrut!",WARNING: negative cash for %d/%d months in a row. Reach the limit and you go bankrupt!
 WARN_HEALTH,PERINGATAN: kesehatan 0 selama %d/%d bulan. Segera perbaiki pola makan & istirahat!,WARNING: health at 0 for %d/%d months. Improve food & rest now!
@@ -650,7 +654,6 @@ REPORT_ORDER_DETAIL,"Terpicu tanggal %d di %s, untung/rugi %s. Harga akhir bulan
 TX_STOP_LOSS,Stop loss,Stop loss
 TX_TAKE_PROFIT,Take profit,Take profit
 ERR_ACTIVITY_MAXED,Manfaat kursus sudah maksimal,Course benefits maxed out
-HOME_DRIFT_NOTE,"Rutinitas kerja mengurangi kesehatan %d dan kebahagiaan %d tiap bulan. Jaga lewat makanan, gaya hidup, dan aktivitas.","Work routine lowers health by %d and happiness by %d each month. Keep them up with food, lifestyle, and activities."
 BG_SMA,Lulusan SMA/SMK,High School Graduate
 BG_SMA_DESC,"Usia 18, masih menumpang keluarga. Pilihan kerja awal terbatas, tapi waktumu paling panjang untuk kuliah sambil bekerja.","Age 18, living with family. Few starting jobs, but the most time to study while working."
 BG_D3,Lulusan D3,Diploma Graduate
@@ -762,3 +765,52 @@ ERR_STUDY_UNAVAILABLE,Program ini tidak tersedia untuk pendidikanmu.,This progra
 ERR_STUDY_UNAVAILABLE_SHORT,Tidak tersedia,Unavailable
 ERR_NOT_ENOUGH_CASH_SHORT,Kas kurang,Not enough cash
 ERR_ACTIVITY_COOLDOWN,Kursus berikutnya bisa diambil %d bulan lagi.,Next course available in %d months.
+HOME_CAREER_TITLE,Karier,Career
+HOME_JOBLESS_TITLE,Kamu belum bekerja,You're not working yet
+HOME_RUNWAY,Kas & dana daruratmu cukup untuk sekitar %d bulan biaya hidup.,Your cash & emergency fund cover about %d months of living costs.
+HOME_RUNWAY_LOW,Kas & dana daruratmu tidak cukup untuk sebulan biaya hidup lagi!,Your cash & emergency fund won't cover another month of living costs!
+HOME_JOBLESS_HINT,"Lamar lowongan di tab Karier. Sambil menunggu, Kerja Sampingan bisa menambah uang.","Apply for openings in the Career tab. Meanwhile, Side Jobs can bring in some money."
+HOME_APPLIED,"%d lamaran terkirim, hasilnya keluar awal bulan depan.",%d applications sent; results arrive early next month.
+HOME_SEE_OPENINGS,Lihat Lowongan,See Openings
+HOME_OPEN_CAREER,Buka Karier,Open Career
+HOME_PROMOTION_READY,siap dipromosikan menjadi %s,ready for promotion to %s
+HOME_NEXT_PROMOTION,%s: %d syarat lagi,%s: %d requirements left
+HOME_STUDYING,%s: bulan %d dari %d,%s: month %d of %d
+HOME_STUDY_STARTS,%s dimulai bulan depan,%s starts next month
+HOME_WORKLOAD_NOTE,"Beban kerja %s: kesehatan %+d dan kebahagiaan %+d tiap bulan. Jaga lewat makanan, gaya hidup, dan aktivitas.","Workload as %s: health %+d and happiness %+d each month. Keep them up with food, lifestyle, and activities."
+HOME_JOBLESS_NOTE,Mencari kerja itu melelahkan: kebahagiaan %+d tiap bulan sampai kamu bekerja.,Job hunting is draining: happiness %+d each month until you find work.
+HOME_LEAVE_NOTE,"Sedang cuti tanpa gaji, jadi tidak ada beban kerja bulan ini.","You're on unpaid leave, so there's no workload this month."
+HOME_STUDY_NOTE,Kuliah: energi -%d dan kebahagiaan -%d tiap bulan.,Studying: energy -%d and happiness -%d each month.
+STORY_START_TITLE,Hari Pertama,Day One
+STORY_START_SMA,"Ijazah SMA/SMK sudah di tangan! Kamu masih tinggal bersama keluarga dan punya tabungan %s, tapi mulai bulan ini makan dan kebutuhanmu ditanggung sendiri.
+
+Lowongan untuk lulusan SMA memang terbatas. Mulailah dari pekerjaan yang ada, lalu kuliah sambil bekerja untuk membuka jalan yang lebih luas.","Your high school diploma is in hand! You still live with family and have %s in savings, but from this month you pay for your own food and needs.
+
+Jobs for high school graduates are limited. Start with what's available, then study while working to open more doors."
+STORY_START_D3,"Kamu baru diwisuda dari D3. Dengan tabungan %s dan masih menumpang keluarga, saatnya mencari pekerjaan pertama.
+
+Ijazah D3 membuka lowongan seperti teller bank dan junior developer. Lamar beberapa sekaligus agar peluangmu lebih besar.","You just graduated with a diploma. With %s in savings and still living with family, it's time to find your first job.
+
+A diploma opens jobs like bank teller and junior developer. Apply to several at once to improve your chances."
+STORY_START_S1,"Toga sudah dilepas, gelar sarjana sudah di tangan. Kamu pindah ke kos dengan tabungan %s, sementara biaya kos dan makan datang setiap bulan.
+
+Pilihan kerjamu paling luas, tapi modal akan cepat menipis. Segera lamar pekerjaan di tab Karier.","Cap and gown are off, your bachelor's degree is in hand. You moved into a rented room with %s in savings, while rent and food come due every month.
+
+You have the widest job choices, but your savings will run low fast. Apply for jobs in the Career tab right away."
+PROFILE_STAT_PROMOTIONS,Promosi,Promotions
+PROFILE_STAT_UNEMPLOYED,Bulan menganggur,Months unemployed
+PROFILE_CAREER_TITLE,Perjalanan Karier,Career Journey
+CAREER_LOG_EMPTY,Belum ada catatan. Perjalanan kariermu dimulai saat kamu diterima kerja.,Nothing yet. Your career journey starts when you get hired.
+CAREER_LOG_HIRED,Mulai bekerja sebagai %s di %s,Started as %s at %s
+CAREER_LOG_PROMOTED,Dipromosikan menjadi %s,Promoted to %s
+CAREER_LOG_LAID_OFF,Terkena PHK sebagai %s di %s,Laid off as %s at %s
+CAREER_LOG_RESIGNED,Berhenti sebagai %s di %s,Resigned as %s at %s
+CAREER_LOG_GRADUATED,Lulus %s,Graduated from %s
+CAREER_LOG_DROPPED,Berhenti %s,Dropped out of %s
+END_STAT_PROMOTIONS,Promosi,Promotions
+END_STAT_UNEMPLOYED,Bulan menganggur,Months unemployed
+INSIGHT_LAYOFF,Kamu terkena PHK %d kali dan menerima pesangon %s. Di saat seperti itulah dana darurat dan keahlian yang dicari pasar sama-sama menyelamatkan.,You were laid off %d times and received %s in severance. That's when an emergency fund and in-demand skills save you.
+INSIGHT_UNEMPLOYED,"Kamu menganggur total %d bulan. Tanpa gaji, dana daruratlah yang menjaga hidup tetap berjalan.","You were unemployed for %d months in total. Without a salary, your emergency fund keeps life going."
+INSIGHT_CAREER_GROWTH,Kamu dipromosikan %d kali sampai jenjang %d. Keahlian dan kinerja yang terus diasah adalah investasi dengan imbal hasil terbesar.,"You were promoted %d times, up to level %d. Sharpening your skills and performance is the investment with the biggest return."
+INSIGHT_CAREER_STUCK,"Selama %d tahun kariermu tidak naik jenjang. Kursus, sertifikasi, atau kuliah bisa membuka jalan ke jabatan yang lebih tinggi.","Your career stayed at the same level for %d years. Courses, certifications, or a degree can open the way to higher positions."
+INSIGHT_EDUCATION,Kamu lulus kuliah %d kali dengan total uang kuliah %s. Pendidikan membuka jabatan yang sebelumnya tertutup.,"You graduated %d times, paying %s in tuition. Education opens positions that were closed before."
