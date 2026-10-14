@@ -256,6 +256,43 @@ static func loan_status(loan: Dictionary) -> String:
 	return _t("DEBT_STATUS_OK") % [Fmt.rupiah_short(loan["balance"]), int(loan["months_left"])]
 
 
+## Daftar syarat pinjaman / pembelian kendaraan (Debt.requirements, Vehicles.buy_quote) sebagai
+## baris ✓/✗ berwarna.
+static func fill_loan_requirements(box: VBoxContainer, reqs: Array) -> void:
+	for child in box.get_children():
+		box.remove_child(child)
+		child.queue_free()
+	for req: Dictionary in reqs:
+		var label := Label.new()
+		label.text = "%s  %s" % [_t("REQ_DONE") if req["met"] else _t("REQ_TODO"), loan_requirement_text(req)]
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.custom_minimum_size.x = 1
+		label.theme_type_variation = &"ReqLabel"
+		label.add_theme_color_override("font_color", Palette.GAIN if req["met"] else Palette.LOSS)
+		box.add_child(label)
+
+
+static func loan_requirement_text(req: Dictionary) -> String:
+	match req["type"]:
+		"job":
+			return _t("LOAN_REQ_CAREER" if req["career"] else "LOAN_REQ_JOB") % [int(req["need"]), int(req["have"])]
+		"score":
+			return _t("LOAN_REQ_SCORE") % [int(req["need"]), int(req["have"])]
+		"arrears":
+			return _t("LOAN_REQ_ARREARS")
+		"active":
+			return _t("LOAN_REQ_ACTIVE")
+		"limit":
+			return _t("LOAN_REQ_LIMIT") % Fmt.rupiah(req["need"])
+		"dsr":
+			return _t("LOAN_REQ_DSR") % roundi(float(req["need"]) * 100.0)
+		"not_owned":
+			return _t("VEHICLE_REQ_NOT_OWNED")
+		"cash":
+			return _t("VEHICLE_REQ_CASH") % [Fmt.rupiah(req["need"]), Fmt.rupiah(req["have"])]
+	return ""
+
+
 ## "Jangka pendek" / "Jangka menengah" / "Jangka panjang"
 static func horizon_text(horizon: String) -> String:
 	return _t("DREAM_HORIZON_" + horizon.to_upper())

@@ -125,5 +125,5 @@ func requires_met(def: Dictionary, state: Node) -> bool:
 		"low_happiness":
 			return state.happiness < 40
 		"has_vehicle":
-			return state.dreams.vehicle() != ""
+			return state.vehicles.has_any()
 	return true

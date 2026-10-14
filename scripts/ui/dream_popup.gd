@@ -65,6 +65,8 @@ func _fill_detail() -> void:
 	%Rows.add_child(_label(tr("DREAM_DEADLINE") % [Fmt.game_date(entry["deadline"]), months_left], &"InfoLabel"))
 	%Rows.add_child(_label(tr("DREAM_NEEDED") % Fmt.rupiah(GameState.dreams.needed_monthly(entry)), &"InfoLabel"))
 	%Rows.add_child(_label(tr("DREAM_HINT_" + str(def["horizon"]).to_upper()), &"SmallMutedLabel"))
+	if def.has("vehicle"):
+		%Rows.add_child(_label(tr("DREAM_VEHICLE_HINT"), &"SmallMutedLabel"))
 
 	%Rows.add_child(_label(tr("DREAM_DEPOSIT"), &"ReportHeaderLabel"))
 	var deposit_row := HBoxContainer.new()

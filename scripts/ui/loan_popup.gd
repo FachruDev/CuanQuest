@@ -160,30 +160,9 @@ func _refresh_apply() -> void:
 		tr("LOAN_DSR_VALUE") % [roundi(dsr * 100.0), roundi(float(q["dsr_limit"]) * 100.0)]
 	_values["dsr"].add_theme_color_override("font_color",
 		Palette.GAIN if dsr >= 0.0 and dsr <= float(q["dsr_limit"]) + 0.0001 else Palette.LOSS)
-	_clear(_reqs_box)
-	for req: Dictionary in q["requirements"]:
-		var line := _label("%s  %s" % [tr("REQ_DONE") if req["met"] else tr("REQ_TODO"), _requirement_text(req)], &"ReqLabel")
-		line.add_theme_color_override("font_color", Palette.GAIN if req["met"] else Palette.LOSS)
-		_reqs_box.add_child(line)
+	UiText.fill_loan_requirements(_reqs_box, q["requirements"])
 	_action.get_node("Content").text = tr("LOAN_APPLY") % Fmt.rupiah(q["amount"]) if q["ok"] else tr("LOAN_APPLY_BLOCKED")
 	_set_enabled(_action, q["ok"])
-
-
-func _requirement_text(req: Dictionary) -> String:
-	match req["type"]:
-		"job":
-			return tr("LOAN_REQ_CAREER" if req["career"] else "LOAN_REQ_JOB") % [int(req["need"]), int(req["have"])]
-		"score":
-			return tr("LOAN_REQ_SCORE") % [int(req["need"]), int(req["have"])]
-		"arrears":
-			return tr("LOAN_REQ_ARREARS")
-		"active":
-			return tr("LOAN_REQ_ACTIVE")
-		"limit":
-			return tr("LOAN_REQ_LIMIT") % Fmt.rupiah(req["need"])
-		"dsr":
-			return tr("LOAN_REQ_DSR") % roundi(float(req["need"]) * 100.0)
-	return ""
 
 
 func _on_step(direction: int) -> void:

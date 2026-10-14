@@ -60,7 +60,7 @@ Semua file dimuat oleh `EventManager.load_defs()` (`scripts/core/event_manager.g
 | `chain_only` | - | Tidak pernah acak: hanya lewat efek `chain` atau dijadwalkan sistem (wawancara, promosi, PHK) |
 | `critical` | - | Penyakit kritis: asuransi jiwa membayar uang pertanggungan |
 
-**Pilihan (`choices`):** `label`, `result`, lalu salah satu dari `effects` atau `outcomes` (`[{chance, effects, result}]`, peluangnya dijumlah 1). Opsional: `cost` (dibayar di muka; pilihan nonaktif jika kas kurang), `cost_vehicle` (persen harga kendaraan), `claim` (`medical` / `vehicle`, biaya ditanggung asuransi aktif).
+**Pilihan (`choices`):** `label`, `result`, lalu salah satu dari `effects` atau `outcomes` (`[{chance, effects, result}]`, peluangnya dijumlah 1). Opsional: `cost` (dibayar di muka; pilihan nonaktif jika kas kurang), `cost_vehicle` (persen nilai pasar kendaraan utama, mis. biaya perbaikan), `claim` (`medical` / `vehicle`, biaya ditanggung asuransi aktif).
 
 ## Efek (`effects`) dan modul yang menjalankannya
 
@@ -94,7 +94,7 @@ Didefinisikan di `EventManager.requires_met()`. Event yang sudah masuk antrean b
 | `studying` | Sedang kuliah (sudah dimulai) |
 | `sponsor_ready` | Syarat beasiswa kantor terpenuhi |
 | `has_investments` | Punya investasi |
-| `has_vehicle` | Punya motor/mobil dari impian |
+| `has_vehicle` | Punya motor/mobil (modul Vehicles) |
 | `low_happiness` | Kebahagiaan di bawah 40 |
 
 **Menambah syarat baru:** tambah satu cabang di `match` dalam `EventManager.requires_met()`.

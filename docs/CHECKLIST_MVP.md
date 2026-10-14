@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 14 Oktober 2026 (rancangan v1.5c + langkah 1 utang & skor kredit selesai)
+- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5c langkah 2 kendaraan selesai)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -16,7 +16,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v1.5-0** | Giliran Bulanan yang Hidup | 🔄 5/5 langkah; tinggal playtest |
 | **v1.5a** | Realisme ekonomi | ✅ 5/5 langkah |
 | **v1.5b** | Pekerjaan & karier (melamar kerja, keahlian, jenjang) | ✅ 5/5 langkah |
-| **v1.5c** | Utang, properti, hunian yang tumbuh | 🔄 1/5 langkah |
+| **v1.5c** | Utang, properti, hunian yang tumbuh | 🔄 2/5 langkah |
 | **v1.5d** | Tokoh, riset, kontrak, konten | ⬜ |
 | **v2a-v2d** | Instrumen lanjut, hidup penuh, dana investor, mini-game | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
@@ -287,7 +287,7 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.3 (ditulis 14 Oktober 202
 | Langkah | Isi | Status |
 |:--|:--|:--|
 | 1 | Utang & skor kredit: KTA, cicilan anuitas, tunggakan & denda, macet, pelunasan dipercepat, kartu Beranda, popup pinjaman | ✅ |
-| 2 | Kendaraan: aset menyusut + biaya rutin, kredit motor/mobil + DP, impian motor/mobil terhubung | ⬜ |
+| 2 | Kendaraan: aset menyusut + biaya rutin, kredit motor/mobil + DP, impian motor/mobil terhubung | ✅ |
 | 3 | Properti & KPR: beli/sewakan/jual, BPHTB & PBB, KPR tetap → mengambang, kontrakan, DP rumah | ⬜ |
 | 4 | Tampilan & cerita: ilustrasi hunian & kendaraan, neraca di Portofolio, event utang & properti | ⬜ |
 | 5 | Penyeimbangan dengan simulator (pemain berutang & pembeli rumah) | ⬜ |
@@ -307,6 +307,18 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.3 (ditulis 14 Oktober 202
 - ✅ Simulator: tipe pemain **pengutang**; golden runner membuktikan permainan tanpa pinjaman tidak berubah; 84 uji utang + 201 uji lama lulus
 - ✅ Perbaikan bug: baris Premi asuransi & Uang kuliah di popup Rencana Gaji tertimpa "0% · Rp0"
 - 🔁 Lencana popup Pinjaman memakai ikon dompet (lihat `docs/KEBUTUHAN_ASET.md`)
+
+**Langkah 2: Kendaraan** ✅
+- ✅ `data/vehicles.json` + modul `GameState.vehicles` (`scripts/game/vehicles.gd`): motor Rp28 jt & mobil Rp250 jt sebagai **aset yang nilainya menyusut** (12%/10% per tahun, minimal 15%), biaya rutin Rp400 rb/Rp2 jt per bulan (bensin, servis, pajak), kebahagiaan +1/+2 per bulan
+- ✅ **Beli tunai** (dana impian dipakai dulu, impian terwujud dengan perayaan) atau **kredit**: Kredit Motor (leasing, BI + 18%, DP min 20%, kerja ≥3 bulan termasuk kerja lepas) & Kredit Mobil (bank, BI + 3,5%, DP min 25%, pegawai ≥12 bulan); impian ditutup tanpa hadiah dan dananya menjadi DP
+- ✅ Impian Motor Baru / Mobil Keluarga yang terwujud otomatis menjadi kendaraan; impian kendaraan tidak bisa dipilih jika kendaraannya sudah dimiliki
+- ✅ **Jual ke dealer** (90% nilai pasar, kredit dilunasi dulu); **kredit macet 3 bulan → kendaraan ditarik & dilelang** (70% nilai pasar, sisa hasil lelang dikembalikan)
+- ✅ Kekayaan bersih memuat nilai kendaraan; biaya rutin masuk pengeluaran rutin (kebebasan finansial), sisa modal, Rencana Gaji, Beranda, dan laporan (+ penyusutan bulanan)
+- ✅ Asuransi kendaraan: premi & biaya perbaikan dari nilai pasar kendaraan; event kecelakaan lebih jarang & lebih murah (klaim ±57% premi, sebelumnya 6,5x)
+- ✅ Kartu **Kendaraan** di Beranda, popup **Kendaraan** (beli tunai/kredit dengan DP & tenor, rincian & jual), petunjuk kredit di detail impian, 3 istilah glosarium, analisis akhir tentang kendaraan
+- ✅ Save lama: impian motor/mobil yang sudah terwujud menjadi kendaraan
+- ✅ Simulator: tipe pemain **pengendara**; S1 bebas finansial tahun 20,1 (hemat tanpa kendaraan 12,6); golden runner identik untuk permainan tanpa kendaraan; 81 uji kendaraan + 285 uji lama lulus
+- 🔁 Lencana popup Kendaraan memakai ikon kerja sampingan (lihat `docs/KEBUTUHAN_ASET.md`)
 
 **Kriteria selesai**
 - ⬜ Utang bisa diambil, dibayar, dilunasi; skor kredit berubah

@@ -614,7 +614,7 @@ INS_NAME_VEHICLE,Kendaraan,Vehicle
 INS_NONE,Tanpa asuransi,No insurance
 INS_NONE_DESC,Semua biaya ditanggung sendiri dari kas dan dana darurat.,You pay every cost yourself from cash and your emergency fund.
 INS_PER_MONTH,%s / bulan,%s / month
-INS_NEED_VEHICLE,Belum punya kendaraan. Asuransi kendaraan tersedia setelah impian motor atau mobil terwujud.,No vehicle yet. Vehicle insurance becomes available once your motorbike or car dream comes true.
+INS_NEED_VEHICLE,Belum punya kendaraan. Asuransi kendaraan tersedia setelah kamu memiliki motor atau mobil (kartu Kendaraan di Beranda).,No vehicle yet. Vehicle insurance becomes available once you own a motorbike or car (Vehicles card on Home).
 INS_STATUS_ACTIVE,Polis aktif: %s.,Active policy: %s.
 INS_STATUS_WAITING,Masa tunggu: %s mulai melindungi %s.,Waiting period: %s starts covering you in %s.
 INS_SAVE,Simpan perlindungan,Save protection
@@ -885,3 +885,59 @@ REPORT_LOAN_CLOSED,%s lunas!,%s paid off!
 INSIGHT_LOAN_DEFAULT,"Pinjamanmu macet %d kali dan seluruh sisanya ditagih sekaligus. Ambil cicilan yang tetap terjangkau saat penghasilan turun, dan siapkan dana darurat.","Your loans defaulted %d times and the rest was called in at once. Keep installments affordable even if income drops, and keep an emergency fund."
 INSIGHT_LOAN_LATE,Kamu menunggak cicilan %d kali dan membayar denda %s. Tunggakan menurunkan skor kredit sehingga pinjaman berikutnya lebih mahal.,"You missed installments %d times and paid %s in late fees. Missed payments lower your credit score, making future loans more expensive."
 INSIGHT_DEBT_INTEREST,Kamu membayar bunga utang %s untuk total pinjaman %s. Bunga adalah harga dari memakai uang orang lain: pastikan yang dibeli sepadan.,You paid %s in loan interest on %s of total borrowing. Interest is the price of using other people's money: make sure the purchase is worth it.
+PLAN_VEHICLE,Biaya kendaraan,Vehicle costs
+PLAN_VEHICLE_NOTE,"Bensin, servis, dan pajak. Rincian di kartu Kendaraan di Beranda.","Fuel, servicing, and tax. Details in the Vehicles card on Home."
+VEHICLE_TITLE,Kendaraan,Vehicles
+VEHICLE_EMPTY,"Belum punya kendaraan. Kendaraan membuat hidup lebih nyaman, tapi nilainya terus turun dan ada biaya bensin, servis, dan pajak tiap bulan.","No vehicle yet. A vehicle makes life more comfortable, but its value keeps falling and fuel, servicing, and tax cost money every month."
+VEHICLE_BUY_BUTTON,Beli %s · %s,Buy %s · %s
+VEHICLE_ROW_SUB,Biaya %s/bln · kebahagiaan %+d/bln,Costs %s/mo · happiness %+d/mo
+VEHICLE_ROW_LOAN,cicilan %s/bln,installment %s/mo
+VEHICLE_BUY_TITLE,Beli %s,Buy %s
+VEHICLE_PRICE,Harga baru %s,New price %s
+VEHICLE_OWNERSHIP,Biaya kepemilikan,Cost of ownership
+VEHICLE_RUNNING_COST,Biaya rutin,Running costs
+VEHICLE_PER_MONTH,%s/bln,%s/mo
+VEHICLE_DEPRECIATION,Nilai turun,Value drops
+VEHICLE_PER_YEAR,%d%% per tahun,%d%% per year
+VEHICLE_HAPPINESS,Kebahagiaan per bulan,Happiness per month
+VEHICLE_INSURANCE,Asuransi all risk (opsional),All-risk insurance (optional)
+VEHICLE_OWNERSHIP_NOTE,"Biaya rutin = bensin, servis, dan pajak tahunan. Kendaraan adalah aset yang nilainya terus turun, bukan investasi.","Running costs = fuel, servicing, and annual tax. A vehicle is an asset that keeps losing value, not an investment."
+VEHICLE_DREAM_FUND,Dana impian %s yang terkumpul (%s) dipakai lebih dulu.,The %s dream fund you saved (%s) is used first.
+VEHICLE_PAYMENT,Cara bayar,Payment
+VEHICLE_METHOD_CASH,Tunai,Cash
+VEHICLE_METHOD_CREDIT,Kredit,Credit
+VEHICLE_DP,Uang muka (DP),Down payment
+VEHICLE_DP_VALUE,%d%% · %s,%d%% · %s
+VEHICLE_TENOR_SHORT,%d bln,%d mo
+VEHICLE_CREDIT_DETAILS,Rincian kredit,Credit details
+VEHICLE_ROW_PRINCIPAL,Pokok kredit,Loan principal
+VEHICLE_ROW_RATE,Bunga per tahun,Interest per year
+VEHICLE_ROW_PAYMENT,Cicilan per bulan,Monthly installment
+VEHICLE_ROW_INTEREST,Total bunga,Total interest
+VEHICLE_ROW_TOTAL,Total harga,Total price
+VEHICLE_ROW_DSR,Rasio cicilan (DSR),Debt service ratio (DSR)
+VEHICLE_TOTAL_VALUE,%s (+%s),%s (+%s)
+VEHICLE_TIP,"Tip: membeli tunai lewat Impian bebas bunga dan dirayakan. Kredit membuatmu memakai kendaraan sekarang, tapi harganya jadi lebih mahal dan impiannya ditutup tanpa hadiah.","Tip: buying in cash through a Dream costs no interest and gets celebrated. Credit lets you use the vehicle now, but it ends up costing more and the dream closes without a reward."
+VEHICLE_BUY_CASH,Beli tunai (%s),Buy in cash (%s)
+VEHICLE_BUY_CREDIT,Ambil kredit · DP %s,Take credit · down payment %s
+VEHICLE_REQ_NOT_OWNED,Belum punya kendaraan jenis ini,You don't own this type of vehicle yet
+VEHICLE_REQ_CASH,Kas + dana impian cukup untuk %s (sekarang %s),Cash + dream fund covers %s (now %s)
+VEHICLE_VALUE_PILL,Nilai sekarang %s,Worth %s now
+VEHICLE_DETAIL_BODY,Dibeli %s seharga %s.,Bought in %s for %s.
+VEHICLE_ROW_VALUE,Nilai pasar,Market value
+VEHICLE_ROW_DROP,Turun sejak dibeli,Change since purchase
+VEHICLE_DROP_NOTE,"Nilainya turun sekitar %d%% per tahun, walau harga kendaraan baru ikut naik karena inflasi.","Its value drops about %d%% per year, even though new vehicle prices rise with inflation."
+VEHICLE_SELL,Jual ke dealer,Sell to a dealer
+VEHICLE_ROW_SELL_PRICE,Harga jual (%d%% nilai pasar),Sale price (%d%% of market value)
+VEHICLE_ROW_PAYOFF,Pelunasan kredit,Loan payoff
+VEHICLE_ROW_NET,Diterima bersih,Net received
+VEHICLE_SELL_NO_CASH,Hasil penjualan tidak cukup melunasi kredit dan kas juga kurang (kas sekarang %s).,The sale doesn't cover the loan payoff and cash is short too (current cash %s).
+VEHICLE_SELL_BUTTON,Jual (%s),Sell (%s)
+TOAST_VEHICLE_BOUGHT,%s sudah jadi milikmu!,The %s is yours!
+TOAST_VEHICLE_SOLD,%s terjual: %s masuk ke kas.,%s sold: %s added to cash.
+REPORT_VEHICLE,Biaya kendaraan,Vehicle costs
+REPORT_VEHICLE_DEPRECIATION,Nilai kendaraanmu turun %s bulan ini (penyusutan).,Your vehicles lost %s in value this month (depreciation).
+REPORT_LOAN_SEIZED,%s macet: %s ditarik dan dilelang %s untuk menutup utang %s.,%s defaulted: the %s was repossessed and auctioned for %s to cover %s of debt.
+DREAM_VEHICLE_HINT,"Ingin memakainya sekarang? Beli kredit lewat kartu Kendaraan di Beranda: dana yang terkumpul menjadi uang muka, tapi kamu membayar bunga dan impian ini ditutup tanpa hadiah.","Want it now? Buy on credit from the Vehicles card on Home: the saved fund becomes the down payment, but you pay interest and this dream closes without a reward."
+INSIGHT_VEHICLE_SEIZED,Kendaraanmu ditarik %d kali karena kredit macet. Pastikan cicilan kendaraan tetap terjangkau walau penghasilan turun.,Your vehicle was repossessed %d times after loan defaults. Keep vehicle installments affordable even if your income drops.
+INSIGHT_VEHICLE_COST,"Kendaraan menghabiskan biaya rutin %s selama permainan, belum termasuk nilainya yang terus turun. Kendaraan memudahkan hidup, tapi bukan investasi.","Vehicles cost %s in running costs over the game, not counting their falling value. Vehicles make life easier, but they aren't investments."

@@ -1,7 +1,8 @@
 class_name Debt
 extends GameModule
-## Utang & kredit (v1.5c langkah 1): pinjaman bank, cicilan anuitas bulanan, tunggakan & denda,
-## gagal bayar (macet), pelunasan dipercepat, dan skor kredit. Data: data/loans.json.
+## Utang & kredit (v1.5c): pinjaman bank, cicilan anuitas bulanan, tunggakan & denda, gagal bayar
+## (macet), pelunasan dipercepat, dan skor kredit. Kredit beragunan (kendaraan, langkah 2) menarik
+## agunannya saat macet. Data: data/loans.json.
 ##
 ## Analogi web: mirip modul tagihan langganan. Tiap bulan tagihan ditarik otomatis; yang gagal
 ## ditarik menumpuk menjadi tunggakan, dan setelah beberapa kali gagal seluruh sisa ditagih.
@@ -10,8 +11,9 @@ const LOANS_PATH := "res://data/loans.json"
 
 var data: Dictionary = {}  # isi data/loans.json
 ## Pinjaman aktif: [{id, product, principal, balance, rate, months_total, months_left, start_month,
-## arrears, missed, interest_paid}]. balance = sisa pokok; rate = bunga per tahun (dikunci saat
-## cair); arrears = tunggakan + denda (Rupiah); missed = bulan menunggak berturut-turut.
+## arrears, missed, interest_paid, collateral}]. balance = sisa pokok; rate = bunga per tahun (dikunci
+## saat cair); arrears = tunggakan + denda (Rupiah); missed = bulan menunggak berturut-turut;
+## collateral = agunan {"type": "vehicle", "id": "motor"} atau {} (tanpa agunan).
 var loans: Array[Dictionary] = []
 var credit_score := 60  # 0-100, lihat loans.json "credit"
 var loan_seq := 0  # nomor pinjaman terakhir (id pinjaman berikutnya = loan_seq + 1)
@@ -40,6 +42,7 @@ func load_from(d: Dictionary) -> void:
 			loan[key] = int(loan[key])
 		for key: String in ["balance", "rate", "interest_paid"]:
 			loan[key] = float(loan[key])
+		loan["collateral"] = loan.get("collateral", {})
 		loans.append(loan)
 	credit_score = int(d.get("credit_score", credit_score))
 	loan_seq = int(d.get("loan_seq", 0))
@@ -169,10 +172,11 @@ func max_amount(prod: Dictionary) -> int:
 
 
 ## Pilihan jumlah pinjaman (harga hari ini) sampai plafon. Pilihan terkecil selalu ada agar
-## hitungannya tetap bisa dilihat walau syarat belum terpenuhi.
+## hitungannya tetap bisa dilihat walau syarat belum terpenuhi. Kredit kendaraan tidak punya
+## pilihan jumlah (jumlahnya = harga - uang muka).
 func amount_options(prod: Dictionary) -> Array[int]:
 	var result: Array[int] = []
-	for amount: float in prod["amounts"]:
+	for amount: float in prod.get("amounts", []):
 		var value := gs.nominal(amount, 1_000_000)
 		if value <= max_amount(prod) or result.is_empty():
 			result.append(value)
@@ -210,7 +214,8 @@ func requirements(prod: Dictionary, amount: int, payment: int) -> Array[Dictiona
 	if prod.has("max_active"):
 		reqs.append({"type": "active", "need": int(prod["max_active"]),
 			"met": active_count(prod["id"]) < int(prod["max_active"])})
-	reqs.append({"type": "limit", "need": max_amount(prod), "have": amount, "met": amount <= max_amount(prod)})
+	if prod.has("max_salary_mult"):
+		reqs.append({"type": "limit", "need": max_amount(prod), "have": amount, "met": amount <= max_amount(prod)})
 	var dsr := dsr_with(payment)
 	reqs.append({"type": "dsr", "need": float(data["dsr_limit"]), "have": dsr,
 		"met": dsr >= 0.0 and dsr <= float(data["dsr_limit"]) + 0.0001})
@@ -231,8 +236,9 @@ func quote(product_id: String, amount: int, tenor: int) -> Dictionary:
 
 
 ## Mengajukan pinjaman. Jika semua syarat terpenuhi, uang langsung cair ke kas; cicilan
-## pertama ditagih awal bulan depan.
-func take(product_id: String, amount: int, tenor: int) -> Dictionary:
+## pertama ditagih awal bulan depan. `collateral`: agunan untuk kredit beragunan (lihat `loans`);
+## pemanggilnya (mis. Vehicles.buy) langsung membayarkan uangnya ke penjual.
+func take(product_id: String, amount: int, tenor: int, collateral: Dictionary = {}) -> Dictionary:
 	var prod := product(product_id)
 	if prod.is_empty() or not tenor in tenor_options(prod):
 		return {"ok": false}
@@ -242,7 +248,7 @@ func take(product_id: String, amount: int, tenor: int) -> Dictionary:
 	loan_seq += 1
 	var loan := {"id": loan_seq, "product": product_id, "principal": amount, "balance": float(amount),
 		"rate": q["rate"], "months_total": tenor, "months_left": tenor, "start_month": gs.month,
-		"arrears": 0, "missed": 0, "interest_paid": 0.0}
+		"arrears": 0, "missed": 0, "interest_paid": 0.0, "collateral": collateral}
 	loans.append(loan)
 	gs.cash += amount
 	gs.stats["loans_taken"] += 1
@@ -332,15 +338,30 @@ func pay_off(id: int) -> bool:
 	return true
 
 
-## Macet: pinjaman tanpa agunan ditagih seluruhnya sekaligus (sisa pokok + tunggakan). Kas boleh
-## minus; GameState lalu menjual aset secara paksa, dan kas yang tetap minus berujung bangkrut.
+## Macet. Tanpa agunan: ditagih seluruhnya sekaligus (sisa pokok + tunggakan); kas boleh minus,
+## GameState lalu menjual aset secara paksa, dan kas yang tetap minus berujung bangkrut.
+## Beragunan: agunan ditarik & dilelang; sisa hasil lelang dikembalikan, kekurangannya dihapus.
 func _default(loan: Dictionary) -> Dictionary:
 	var total := ceili(loan["balance"]) + int(loan["arrears"])
-	gs.cash -= total
 	loans.erase(loan)
 	gs.stats["loan_defaults"] += 1
 	_add_score(int(data["credit"]["default"]))
-	return {"name": product(loan["product"])["short"], "amount": total}
+	var result := {"name": product(loan["product"])["short"], "amount": total}
+	var collateral: Dictionary = loan.get("collateral", {})
+	if collateral.is_empty():
+		gs.cash -= total
+		return result
+	var seized := _seize(collateral)
+	gs.cash += maxi(0, int(seized["value"]) - total)
+	return result.merged({"seized": seized["name"], "auction": seized["value"]})
+
+
+## Menarik agunan dari modul pemiliknya. -> {name, value} (nama barang & hasil lelang).
+func _seize(collateral: Dictionary) -> Dictionary:
+	match collateral.get("type", ""):
+		"vehicle":
+			return gs.vehicles.seize(collateral["id"])
+	return {"name": "", "value": 0}
 
 
 ## Tagihan otomatis: kekurangan kas diambil dari tabungan dana darurat. false jika tetap kurang.

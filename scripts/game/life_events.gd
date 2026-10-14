@@ -92,10 +92,10 @@ func _still_valid(def: Dictionary) -> bool:
 	return catalog.requires_met(def, gs)
 
 
-## Biaya pilihan event (harga hari ini). "cost_vehicle" = persen dari harga kendaraan pemain.
+## Biaya pilihan event (harga hari ini). "cost_vehicle" = persen dari nilai pasar kendaraan utama.
 func choice_cost(choice: Dictionary) -> int:
 	if choice.has("cost_vehicle"):
-		return gs.nominal(gs.dreams.vehicle_base_value() * float(choice["cost_vehicle"]))
+		return roundi(gs.vehicles.repair_base() * float(choice["cost_vehicle"]) / 1000.0) * 1000
 	return gs.nominal(choice.get("cost", 0))
 
 

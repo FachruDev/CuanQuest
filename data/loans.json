@@ -3,13 +3,15 @@
 		"Utang & kredit (v1.5c). Jumlah uang = harga awal permainan (dikali indeks harga lewat GameState.nominal).",
 		"Bunga per tahun = suku bunga acuan BI saat pinjaman cair + rate_spread + penyesuaian tingkat skor kredit (credit.grades[].rate). Cicilan anuitas: sama tiap bulan, porsi bunga besar di awal.",
 		"Disetujui jika semua syarat terpenuhi: pekerjaan (requires: career = pegawai, employed = termasuk kerja lepas) & lama di perusahaan (min_months), skor kredit >= credit.min_score, tidak sedang menunggak, jumlah pinjaman aktif produk ini < max_active, dan total cicilan <= dsr_limit x gaji bruto.",
-		"Menunggak: tunggakan + denda late_fee x tunggakan per bulan. default_after bulan berturut-turut menunggak: pinjaman tanpa agunan ditagih seluruhnya sekaligus.",
+		"Menunggak: tunggakan + denda late_fee x tunggakan per bulan. default_after bulan berturut-turut menunggak: pinjaman tanpa agunan ditagih seluruhnya sekaligus; pinjaman beragunan (collateral) -> agunan ditarik & dilelang seharga seize_value_ratio x nilai pasar, sisa hasil lelang dikembalikan.",
+		"Kredit beragunan (collateral: vehicle) tidak muncul di tombol Ajukan pinjaman; diajukan dari layar beli kendaraan. min_dp = uang muka minimal, dp_steps = pilihan uang muka.",
 		"amounts = pilihan jumlah pinjaman (dibatasi max_salary_mult x gaji bruto). prepay_penalty = penalti pelunasan dipercepat (persen sisa pokok).",
 		"Teks ditulis langsung dalam bahasa Indonesia dan ditampilkan lewat tr(), seperti event, impian, dan asuransi."
 	],
 	"dsr_limit": 0.35,
 	"late_fee": 0.05,
 	"default_after": 3,
+	"seize_value_ratio": 0.7,
 	"credit": {
 		"_comment": "Skor kredit 0-100 (mirip SLIK OJK / BI checking). grades: dari skor tertinggi; rate = tambahan bunga per tahun; tingkat dengan min di bawah min_score ditolak bank.",
 		"start": 60,
@@ -35,6 +37,20 @@
 			"rate_spread": 0.12, "tenors": [12, 24, 36],
 			"amounts": [5000000, 10000000, 15000000, 20000000, 30000000, 40000000, 50000000, 75000000, 100000000, 150000000, 200000000, 300000000],
 			"max_salary_mult": 5, "prepay_penalty": 0.03
+		},
+		{
+			"id": "motor_loan", "name": "Kredit Motor", "short": "Kredit motor", "collateral": "vehicle",
+			"desc": "Kredit dari perusahaan pembiayaan (leasing). Mudah disetujui, tapi bunganya tinggi. Motor menjadi jaminan dan ditarik jika kamu menunggak 3 bulan.",
+			"requires": "employed", "min_months": 3, "max_active": 1,
+			"rate_spread": 0.18, "tenors": [12, 24, 36],
+			"min_dp": 0.2, "dp_steps": [0.2, 0.3, 0.4, 0.5, 0.6, 0.7], "prepay_penalty": 0.03
+		},
+		{
+			"id": "car_loan", "name": "Kredit Mobil", "short": "Kredit mobil", "collateral": "vehicle",
+			"desc": "Kredit kendaraan dari bank. Bunganya jauh lebih rendah daripada kredit motor, tapi syaratnya lebih ketat. Mobil menjadi jaminan dan ditarik jika kamu menunggak 3 bulan.",
+			"requires": "career", "min_months": 12, "max_active": 1,
+			"rate_spread": 0.035, "tenors": [12, 24, 36, 48, 60],
+			"min_dp": 0.25, "dp_steps": [0.25, 0.3, 0.4, 0.5, 0.6, 0.7], "prepay_penalty": 0.03
 		}
 	]
 }

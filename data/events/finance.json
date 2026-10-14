@@ -88,11 +88,11 @@
 			]
 		},
 		{
-			"id": "vehicle_accident", "bad": true, "category": "finance", "weight": 2, "cooldown": 18, "requires": "has_vehicle",
+			"id": "vehicle_accident", "bad": true, "category": "finance", "weight": 1, "cooldown": 18, "requires": "has_vehicle",
 			"title": "Kecelakaan di Jalan", "text": "Kendaraanmu ditabrak dari belakang saat lampu merah. Kamu hanya lecet, tapi kendaraanmu rusak cukup parah.",
 			"choices": [
-				{ "label": "Perbaiki di bengkel resmi", "cost_vehicle": 0.15, "claim": "vehicle", "effects": { "health": -2 }, "result": "Kendaraanmu kembali seperti baru." },
-				{ "label": "Perbaiki seadanya di bengkel biasa", "cost_vehicle": 0.06, "claim": "vehicle", "effects": { "health": -2, "happiness": -3 }, "result": "Bisa jalan lagi, walau bekas benturannya masih terlihat." },
+				{ "label": "Perbaiki di bengkel resmi", "cost_vehicle": 0.06, "claim": "vehicle", "effects": { "health": -2 }, "result": "Kendaraanmu kembali seperti baru." },
+				{ "label": "Perbaiki seadanya di bengkel biasa", "cost_vehicle": 0.025, "claim": "vehicle", "effects": { "health": -2, "happiness": -3 }, "result": "Bisa jalan lagi, walau bekas benturannya masih terlihat." },
 				{ "label": "Biarkan dulu, naik angkutan umum", "effects": { "health": -2, "happiness": -6 }, "result": "Kendaraanmu teronggok di garasi. Perjalanan setiap hari jadi melelahkan." }
 			]
 		},

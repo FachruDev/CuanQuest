@@ -4,7 +4,7 @@ extends Node
 ##
 ## Analogi web: ini root "store" (Redux/Pinia). Logika tiap domain ada di modul terpisah di
 ## scripts/game/ (seperti slice/store per fitur): career, education, insurance, debt, portfolio,
-## budget, dreams, targets, events, activities, progress. File ini hanya memegang data bersama
+## budget, dreams, vehicles, targets, events, activities, progress. File ini hanya memegang data bersama
 ## (profil, bulan, kas, kondisi, statistik, pasar, RNG), mengatur alur tiap bulan, menjalankan
 ## efek event, menyimpan/memuat, dan memeriksa akhir permainan.
 ##
@@ -87,12 +87,14 @@ var events := LifeEvents.new(self)
 var portfolio := Portfolio.new(self)
 var budget := Budget.new(self)
 var dreams := Dreams.new(self)
+var vehicles := Vehicles.new(self)
 var targets := Targets.new(self)
 var activities := Activities.new(self)
 ## Urutan dipakai untuk reset, simpan/muat, dan efek event. Karier sebelum rencana gaji
-## (rencana awal memakai gaji); pendidikan sebelum aktivitas (energi memakai beban kuliah).
+## (rencana awal memakai gaji); pendidikan sebelum aktivitas (energi memakai beban kuliah);
+## impian sebelum kendaraan (save lama: impian kendaraan yang terwujud menjadi kendaraan).
 var modules: Array[GameModule] = [progress, career, education, insurance, debt, events, portfolio,
-	budget, dreams, targets, activities]
+	budget, dreams, vehicles, targets, activities]
 
 var fast_forwarding := false
 ## Naik setiap game baru / dimuat (tidak disimpan). SaveManager memakainya untuk tahu apakah
@@ -228,6 +230,7 @@ func advance_month() -> void:
 		"interest_tax": portfolio.month_costs["interest_tax"],
 		"inflation_month": month_inflation,
 		"inflation_year": market.inflation,
+		"vehicle_depreciation": vehicles.depreciation_since(from_month, level_before),
 		"erosion": idle_money * month_inflation,
 	})
 	dreams.queue_overdue()
@@ -248,8 +251,8 @@ func advance_month() -> void:
 	state_committed.emit()
 
 
-## Awal bulan: hasil lamaran diumumkan, gaji masuk (kecuali menganggur/cuti), biaya hidup
-## terpotong, kesehatan & kebahagiaan berubah, cicilan utang lalu premi & uang kuliah dibayar,
+## Awal bulan: hasil lamaran diumumkan, gaji masuk (kecuali menganggur/cuti), biaya hidup &
+## biaya kendaraan terpotong, kesehatan & kebahagiaan berubah, cicilan utang lalu premi & uang kuliah dibayar,
 ## rencana gaji dijalankan, target & lowongan baru muncul. Januari: penyesuaian inflasi + kenaikan prestasi.
 func _start_month() -> Dictionary:
 	var food := food_option()
@@ -267,16 +270,18 @@ func _start_month() -> Dictionary:
 
 	var food_cost := option_cost(food)
 	var housing_cost := option_cost(housing)
+	var vehicle_cost := vehicles.running_cost()
 	var salary_tax := income_tax(paid)
-	cash += paid - salary_tax - food_cost - housing_cost
+	cash += paid - salary_tax - food_cost - housing_cost - vehicle_cost
 	budget.month_income = paid - salary_tax  # gaji bersih: dasar rencana gaji
 	stats["total_salary"] += paid
 	stats["total_taxes"] += salary_tax
 	stats["total_living"] += food_cost + housing_cost
+	stats["vehicle_costs"] += vehicle_cost
 	if food_id == "luxury" or housing_id == "apartment":
 		stats["luxury_months"] += 1
 	health = clampi(health + int(food["health"]) + int(housing["health"]) + _drift("health", health, working), 0, 100)
-	happiness = clampi(happiness + int(food["happiness"]) + int(housing["happiness"])
+	happiness = clampi(happiness + int(food["happiness"]) + int(housing["happiness"]) + vehicles.happiness()
 		+ _drift("happiness", happiness, working), 0, 100)
 	var debt_report := debt.pay_installments()  # kewajiban utang sebelum premi, kuliah, dan rencana gaji
 	var premiums := insurance.pay_premiums()
@@ -299,6 +304,7 @@ func _start_month() -> Dictionary:
 		"applications_rejected": job_news["rejected"],
 		"food_cost": food_cost,
 		"housing_cost": housing_cost,
+		"vehicle_cost": vehicle_cost,
 		"health_delta": health - health_before,
 		"happiness_delta": happiness - happiness_before,
 		"salary_raise": salary_raise,
@@ -416,11 +422,11 @@ func option_cost(option: Dictionary) -> int:
 	return nominal(option["cost"] * difficulty["expense_mult"])
 
 
-## Kas + tabungan dana darurat cukup untuk berapa bulan biaya hidup, cicilan, premi, dan uang
-## kuliah (ditampilkan di Beranda saat menganggur).
+## Kas + tabungan dana darurat cukup untuk berapa bulan biaya hidup, biaya kendaraan, cicilan,
+## premi, dan uang kuliah (ditampilkan di Beranda saat menganggur).
 func runway_months() -> int:
-	var monthly := maxi(monthly_expenses() + debt.installments_total() + insurance.premiums_total()
-		+ education.tuition_fee(), 1)
+	var monthly := maxi(monthly_expenses() + vehicles.running_cost() + debt.installments_total()
+		+ insurance.premiums_total() + education.tuition_fee(), 1)
 	return floori((maxf(cash, 0.0) + budget.emergency_balance()) / monthly)
 
 
@@ -467,9 +473,9 @@ func round_thousand(value: float) -> int:
 	return maxi(0, floori(value / 1000.0) * 1000)
 
 
-## Kekayaan bersih = semua aset dikurangi utang (sisa pokok + tunggakan).
+## Kekayaan bersih = semua aset (termasuk nilai kendaraan) dikurangi utang (sisa pokok + tunggakan).
 func net_worth() -> float:
-	return cash + portfolio.investments_value() + dreams.funds() - debt.outstanding()
+	return cash + portfolio.investments_value() + dreams.funds() + vehicles.total_value() - debt.outstanding()
 
 
 # --- Data global pemain: tutorial, petunjuk, cerita ----------------------------------
@@ -594,6 +600,7 @@ func _new_stats() -> Dictionary:
 		"tuition": 0, "enrollments": 0, "graduations": 0, "dropouts": 0, "scholarships": 0,
 		"loans_taken": 0, "borrowed_total": 0, "debt_interest": 0.0, "debt_fees": 0, "missed_payments": 0,
 		"loan_defaults": 0, "loans_paid_off": 0,
+		"vehicles_bought": 0, "vehicles_sold": 0, "vehicles_seized": 0, "vehicle_costs": 0,
 		"best_trade": {}, "worst_trade": {}, "best_event": {}, "worst_event": {},
 	}
 
@@ -657,10 +664,12 @@ func passive_income() -> float:
 
 
 ## Pengeluaran rutin sebulan yang harus ditutup pendapatan pasif agar bebas finansial:
-## biaya hidup + cicilan utang + premi asuransi + belanja gaya hidup sesuai rencana gaji. Gaya
-## hidup ikut naik bersama gaji, jadi "lifestyle creep" ikut menjauhkan kebebasan finansial.
+## biaya hidup + biaya kendaraan + cicilan utang + premi asuransi + belanja gaya hidup sesuai
+## rencana gaji. Gaya hidup ikut naik bersama gaji, jadi "lifestyle creep" ikut menjauhkan
+## kebebasan finansial.
 func monthly_spending() -> int:
-	return monthly_expenses() + debt.installments_total() + insurance.premiums_total() + budget.lifestyle_spending()
+	return monthly_expenses() + vehicles.running_cost() + debt.installments_total() + insurance.premiums_total() \
+		+ budget.lifestyle_spending()
 
 
 func is_financially_free() -> bool:
@@ -727,7 +736,8 @@ func _merge_reports(reports: Array[Dictionary]) -> Dictionary:
 		return merged
 	for key: String in ["salary", "food_cost", "housing_cost", "invest_change", "interest",
 			"health_delta", "happiness_delta", "lifestyle_cost", "emergency_saved",
-			"income_tax", "trade_fee", "trade_tax", "interest_tax", "insurance_premium", "loan_paid"]:
+			"income_tax", "trade_fee", "trade_tax", "interest_tax", "insurance_premium", "loan_paid",
+			"vehicle_cost", "vehicle_depreciation"]:
 		var total := 0.0
 		for r: Dictionary in reports:
 			total += float(r.get(key, 0))

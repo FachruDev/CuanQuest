@@ -85,6 +85,15 @@ func _ready() -> void:
 		_show_toast(tr("TOAST_LOAN") % [tr(loan_name), Fmt.rupiah(amount)]))
 	%LoanPopup.loan_paid_off.connect(func(loan_name: String) -> void:
 		_show_toast(tr("TOAST_LOAN_PAID") % tr(loan_name)))
+	%HomeScreen.vehicle_buy_requested.connect(func(vehicle_id: String) -> void:
+		_enqueue(%VehiclePopup.open_buy.bind(vehicle_id)))
+	%HomeScreen.vehicle_detail_requested.connect(func(vehicle_id: String) -> void:
+		_enqueue(%VehiclePopup.open_detail.bind(vehicle_id)))
+	%VehiclePopup.vehicle_bought.connect(func(vehicle_name: String) -> void:
+		_show_toast(tr("TOAST_VEHICLE_BOUGHT") % tr(vehicle_name))
+		_enqueue_plan_review())
+	%VehiclePopup.vehicle_sold.connect(func(vehicle_name: String, net: int) -> void:
+		_show_toast(tr("TOAST_VEHICLE_SOLD") % [tr(vehicle_name), Fmt.rupiah(net)]))
 	%MarketScreen.trade_requested.connect(func(asset_id: String, is_buy: bool, amount: int) -> void:
 		_enqueue(%TradeConfirmPopup.open.bind(asset_id, is_buy, amount)))
 	%TradeConfirmPopup.trade_done.connect(%MarketScreen.show_trade_result)
@@ -124,7 +133,7 @@ func _ready() -> void:
 		_enqueue(%QuizPopup.open.bind(question)))
 	for popup: ModalPopup in [%SummaryPopup, %InfoPopup, %EventPopup, %QuizPopup, %GlossaryPopup, %TextPopup,
 			%PlanPopup, %DreamPickerPopup, %DreamPopup, %TradeConfirmPopup, %InsurancePopup, %OrderPopup, %OfferPopup,
-			%LoanPopup]:
+			%LoanPopup, %VehiclePopup]:
 		popup.closed.connect(_show_next_popup)
 
 	_build_toast()

@@ -35,7 +35,7 @@ func _build_rows() -> void:
 	_clear(%Rows)
 	for category: String in GameState.insurance.data["categories"]:
 		%Rows.add_child(_label(tr("INS_CAT_" + category.to_upper()), &"ReportHeaderLabel"))
-		if category == "vehicle" and GameState.dreams.vehicle() == "":
+		if category == "vehicle" and not GameState.vehicles.has_any():
 			%Rows.add_child(_label(tr("INS_NEED_VEHICLE"), &"SmallMutedLabel"))
 			continue
 		var group := ButtonGroup.new()
@@ -84,7 +84,7 @@ func _refresh() -> void:
 	var total := 0
 	for category: String in _choices:
 		var product := GameState.insurance.find_product(_choices[category])
-		if not product.is_empty() and not (category == "vehicle" and GameState.dreams.vehicle() == ""):
+		if not product.is_empty() and not (category == "vehicle" and not GameState.vehicles.has_any()):
 			total += GameState.insurance.premium(product)
 	%Subtitle.text = tr("INS_TOTAL") % Fmt.rupiah(total)
 

@@ -36,6 +36,11 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 	_add_header(box, "REPORT_EXPENSES")
 	_add_row(box, "REPORT_FOOD", Fmt.signed_rupiah(-r["food_cost"]), Palette.LOSS)
 	_add_row(box, "REPORT_HOUSING", Fmt.signed_rupiah(-r["housing_cost"]), Palette.LOSS)
+	if int(r.get("vehicle_cost", 0)) > 0:
+		_add_row(box, "REPORT_VEHICLE", Fmt.signed_rupiah(-r["vehicle_cost"]), Palette.LOSS)
+	if int(r.get("vehicle_depreciation", 0)) >= 1000:
+		_add_text(box, TranslationServer.translate("REPORT_VEHICLE_DEPRECIATION") % Fmt.rupiah(r["vehicle_depreciation"]),
+			Palette.MUTED)
 	if int(r.get("loan_paid", 0)) > 0:
 		_add_row(box, "REPORT_LOAN_PAID", Fmt.signed_rupiah(-r["loan_paid"]), Palette.LOSS)
 	if int(r.get("insurance_premium", 0)) > 0:
@@ -136,7 +141,11 @@ static func _add_debt(box: VBoxContainer, r: Dictionary) -> void:
 		_add_text(box, TranslationServer.translate("REPORT_LOAN_MISSED") % [item["name"], int(item["months"]),
 			int(item["limit"]), Fmt.rupiah(item["arrears"])], Palette.LOSS)
 	for item: Dictionary in defaults:
-		_add_text(box, TranslationServer.translate("REPORT_LOAN_DEFAULT") % [item["name"], Fmt.rupiah(item["amount"])], Palette.LOSS)
+		if item.has("seized"):
+			_add_text(box, TranslationServer.translate("REPORT_LOAN_SEIZED") % [item["name"],
+				TranslationServer.translate(item["seized"]), Fmt.rupiah(item["auction"]), Fmt.rupiah(item["amount"])], Palette.LOSS)
+		else:
+			_add_text(box, TranslationServer.translate("REPORT_LOAN_DEFAULT") % [item["name"], Fmt.rupiah(item["amount"])], Palette.LOSS)
 	for loan_name: String in closed:
 		_add_text(box, TranslationServer.translate("REPORT_LOAN_CLOSED") % loan_name, Palette.GAIN)
 	if score_change != 0:

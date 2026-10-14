@@ -31,11 +31,12 @@ data/
   events/<kategori>.json      49 event hidup per kategori (finance, work, education, health, social,
                               market, scam): syarat, pilihan, efek. Cara menambah: docs/PANDUAN_EVENT.md
   insurance.json              Produk asuransi: premi, tanggungan, masa tunggu
-  loans.json                  Pinjaman (v1.5c): produk, bunga, plafon, tenor, denda, skor kredit
+  loans.json                  Pinjaman (v1.5c): KTA, kredit motor/mobil, bunga, tenor, denda, skor kredit
+  vehicles.json               Kendaraan (v1.5c): harga, penyusutan, biaya rutin, kebahagiaan, produk kredit
   jobs.json                   Pekerjaan (bidang, jenjang, syarat, gaji, beban kerja) & aturan lowongan
   education.json              Program kuliah (syarat, lama, biaya, hasil) & beban kuliah
   quiz.json                   39 soal kuis (4 topik)
-  glossary.json               53 istilah glosarium
+  glossary.json               56 istilah glosarium
   legal.json                  Kebijakan privasi & syarat penggunaan (tampil di game)
   activities.json             6 aktivitas bulanan & aturan energi
   risk_profile.json           Kuesioner & 3 profil risiko
@@ -57,6 +58,7 @@ scripts/
     portfolio.gd              Kepemilikan aset, beli/jual, stop loss/take profit, bunga, profil risiko
     budget.gd                 Rencana gaji, autodebet, dana darurat
     debt.gd                   Utang & kredit: pinjaman, cicilan anuitas, tunggakan, macet, skor kredit
+    vehicles.gd               Kendaraan: nilai menyusut, biaya rutin, beli tunai/kredit, jual, ditarik
     insurance.gd, dreams.gd, targets.gd, activities.gd, progress.gd
     life_events.gd            Event Director: jadwal event, antrean, keputusan, efek tertunda
   core/                       Logika murni tanpa UI (mudah dites)
@@ -181,7 +183,7 @@ scenes/
   - [x] (5) Penyeimbangan
 - [ ] **v1.5c "Utang, Properti, Hunian"**:
   - [x] (1) Utang & skor kredit (KTA, cicilan, tunggakan, macet, pelunasan)
-  - [ ] (2) Kendaraan (aset menyusut, kredit motor/mobil)
+  - [x] (2) Kendaraan (aset menyusut, kredit motor/mobil)
   - [ ] (3) Properti & KPR
   - [ ] (4) Tampilan & cerita (ilustrasi hunian & kendaraan, event)
   - [ ] (5) Penyeimbangan
@@ -259,6 +261,25 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Laporan & UI:** bagian Ekonomi di laporan bulanan (inflasi, daya beli kas + tabungan + pos impian yang tergerus), kartu Daya Beli di Profil, chip inflasi di Pasar.
 - **Simulasi 40 permainan x 10 tahun** (pilihan acak): indeks harga median 1,43; kekayaan nominal median Rp775 jt, kekayaan riil Rp536 jt (tanpa inflasi Rp587 jt); gaji akhir median Rp20,1 jt nominal. Semua permainan bertahan, jadi game masih tergolong mudah. Penyeimbangan dijadwalkan di langkah 5 setelah pajak & asuransi.
 - **Save lama:** slot tanpa data inflasi tetap bisa dimuat; indeks harga dianggap mulai dari 1,0 saat dimuat.
+
+## Kendaraan (v1.5c langkah 2)
+
+- **Data:** `data/vehicles.json` (motor Rp28 jt & mobil Rp250 jt: `depreciation` 12%/10% per tahun, `running_cost` Rp400 rb/Rp2 jt per bulan, `happiness` +1/+2, `loan` = produk kredit, `dream` = impian yang menghasilkan kendaraan ini), `sell_ratio` 90% (dijual ke dealer), `min_value_ratio` 15%. Produk `motor_loan` (BI + 18%, DP min 20%, kerja ≥3 bulan termasuk kerja lepas) dan `car_loan` (BI + 3,5%, DP min 25%, pegawai ≥12 bulan) di `loans.json` dengan `"collateral": "vehicle"`. Impian Motor Baru & Mobil Keluarga punya `"vehicle"` di `dreams.json`.
+- **Modul** `GameState.vehicles` (`scripts/game/vehicles.gd`, kelas `Vehicles`). State: `owned` = `[{id, since, paid, loan_id}]`. Nilai pasar dihitung saat dibutuhkan (`value()` = harga baru hari ini x (1 - penyusutan)^usia), jadi tidak perlu diperbarui tiap bulan. Analogi web: *computed property*, bukan kolom yang disimpan.
+- **Membeli:** `vehicles.buy_quote(id, method, dp_ratio, tenor)` = satu sumber angka untuk popup dan `vehicles.buy()`. Dana impian kendaraan itu dipakai lebih dulu. Tunai → impiannya terwujud (`dreams.achieve()`, ada perayaan); kredit → `debt.take(..., collateral)` lalu uang pinjaman langsung dibayarkan ke dealer, impiannya ditutup tanpa hadiah (`dreams.close_entry()`). Impian kendaraan yang dananya penuh (`dreams.check()`) otomatis menjadi kendaraan.
+- **Bulanan:** di `_start_month()` biaya rutin dipotong bersama biaya hidup (`vehicles.running_cost()`) dan kebahagiaan kendaraan ditambahkan. Laporan berisi `vehicle_cost` dan `vehicle_depreciation` (penurunan nilai bulan itu).
+- **Menjual & ditarik:** `vehicles.sell()` menerima 90% nilai pasar dan melunasi kreditnya lebih dulu. Kredit kendaraan yang macet 3 bulan → `Debt._default()` memanggil `vehicles.seize()`: kendaraan dilelang 70% nilai pasar, sisa hasil lelang dikembalikan, kekurangannya dihapus.
+- **Terhubung ke sistem lain:** kekayaan bersih menambah nilai kendaraan; `monthly_spending()`, `runway_months()`, dan `budget.preview_for()` (baris `vehicle`) menghitung biaya rutin; premi asuransi kendaraan & biaya perbaikan di event (`cost_vehicle`) = persen dari **nilai pasar** kendaraan utama (`vehicles.repair_base()`); syarat event `has_vehicle` = `vehicles.has_any()`. Impian kendaraan tidak bisa dipilih jika kendaraannya sudah dimiliki.
+- **UI:** kartu **Kendaraan** di Beranda (kendaraan dimiliki + tombol Beli), popup **Kendaraan** (`scenes/ui/vehicle_popup.tscn`: `open_buy()` dengan biaya kepemilikan, Tunai/Kredit, uang muka, tenor (bawaan: tenor terpendek yang cicilannya lolos), rincian & syarat; `open_detail()` dengan nilai, penurunan, kredit, dan jual), baris Biaya kendaraan di Rencana Gaji, Beranda, dan laporan, petunjuk kredit di detail impian kendaraan, 3 istilah glosarium. Teks syarat pinjaman kini dipakai bersama lewat `UiText.fill_loan_requirements()`.
+- **Save lama:** tanpa kunci `vehicles`, impian motor/mobil yang sudah terwujud otomatis menjadi kendaraan (karena itu `vehicles` dimuat setelah `dreams` di `GameState.modules`).
+- **Penyeimbangan (hasil simulator):** event Kecelakaan di Jalan dibuat lebih jarang (bobot 2 → 1) dan lebih murah (perbaikan 6% / 2,5% dari nilai pasar, sebelumnya 15% / 6% dari harga baru). Sebelumnya klaim asuransi kendaraan mencapai 6,5x premi; kini ±57% dari premi (asuransi melindungi dari kejadian besar, bukan cara mencetak uang). Tipe pemain **pengendara** (hemat + motor kredit begitu bisa, mobil kredit saat gaji riil ≥ Rp15 jt):
+
+| Tipe pemain (Normal, 40 permainan x 30 tahun) | Bebas finansial | Kekayaan riil tahun 30 | Kendaraan |
+|:--|:--|:--|:--|
+| S1 hemat (tanpa kendaraan) | 100%, median tahun 12,6 | Rp8,16 M | - |
+| S1 pengendara (hemat + motor & mobil kredit) | 100%, median tahun 20,1 | Rp5,43 M | motor & mobil 100%; biaya rutin total Rp1,19 M (nominal); bunga kredit Rp58 jt |
+| SMA hemat | 98%, tahun 18,4 | Rp3,06 M | - |
+| SMA pengendara | 93%, tahun 21,0 | Rp2,73 M | motor 98%, mobil 38% |
 
 ## Utang & Skor Kredit (v1.5c langkah 1)
 
@@ -374,7 +395,7 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **State:** `GameState.insurance.policies` = `{kategori: {"id", "since"}}`. `insurance.set_policies()` dari popup Perlindungan; ganti produk = masa tunggu ulang. `insurance.active_policy()` hanya mengembalikan polis yang sudah melewati masa tunggu.
 - **Premi:** `insurance.pay_premiums()` di `_start_month` setelah gaji & biaya hidup, sebelum rencana gaji. Kas kurang = polis berhenti (`insurance_lapsed` di laporan). `budget.preview_for()` memasukkan premi sehingga "Sisa ke kas" sudah memperhitungkannya.
 - **Klaim:** pilihan event dengan `"claim": "medical"` (ditanggung asuransi kesehatan) atau `"vehicle"` (asuransi kendaraan, dikurangi risiko sendiri). `insurance.cover(choice)` dipakai di `can_choose` (yang ditanggung tidak perlu dibayar dulu), `resolve_event`, dan label pilihan di popup event. Event `"critical": true` membayar uang pertanggungan asuransi jiwa.
-- **Kendaraan:** `dreams.vehicle()` = "car"/"motor" dari impian yang sudah terwujud (v1.5c akan menjadikannya aset sungguhan). Event dengan `"requires": "has_vehicle"` hanya muncul jika punya kendaraan; `"cost_vehicle": 0.15` = biaya 15% dari harga kendaraan.
+- **Kendaraan:** sejak v1.5c langkah 2 kendaraan dikelola modul `GameState.vehicles` (lihat "Kendaraan (v1.5c langkah 2)"). Event dengan `"requires": "has_vehicle"` hanya muncul jika punya kendaraan; `"cost_vehicle": 0.06` = biaya 6% dari nilai pasar kendaraan utama; premi asuransi kendaraan = persen per tahun dari nilai pasar kendaraan.
 - **Menambah event yang bisa diklaim:** beri pilihan `"claim": "medical"` atau `"vehicle"`. Teks event tidak perlu menyebut asuransi; popup menampilkan bagian yang ditanggung secara otomatis.
 
 ## Pajak & Layar Konfirmasi Transaksi (v1.5a langkah 2)

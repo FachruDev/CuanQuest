@@ -40,6 +40,8 @@ func _build_rows() -> void:
 	_values.clear()
 	_notes.clear()
 	%Rows.add_child(_row("basic", tr("PLAN_BASIC"), false))
+	if GameState.vehicles.has_any():
+		%Rows.add_child(_row("vehicle", tr("PLAN_VEHICLE"), false))
 	if not GameState.debt.loans.is_empty():
 		%Rows.add_child(_row("debt", tr("PLAN_DEBT"), false))
 	%Rows.add_child(_row("insurance", tr("PLAN_INSURANCE"), false))
@@ -85,7 +87,7 @@ func _row(key: String, title: String, adjustable: bool) -> VBoxContainer:
 		row.add_child(value)
 	box.add_child(row)
 	_values[key] = value
-	if key in ["basic", "debt", "insurance", "tuition", "lifestyle", "emergency"] or key.begins_with(DREAM_PREFIX):
+	if key in ["basic", "vehicle", "debt", "insurance", "tuition", "lifestyle", "emergency"] or key.begins_with(DREAM_PREFIX):
 		var note := _label("", &"SmallMutedLabel")
 		box.add_child(note)
 		_notes[key] = note
@@ -132,6 +134,9 @@ func _refresh() -> void:
 	var preview := GameState.budget.preview_for(_draft, income)
 	_values["basic"].text = Fmt.rupiah(preview["basic"])
 	_notes["basic"].text = tr("PLAN_BASIC_NOTE")
+	if _values.has("vehicle"):
+		_values["vehicle"].text = Fmt.rupiah(preview["vehicle"])
+		_notes["vehicle"].text = tr("PLAN_VEHICLE_NOTE")
 	if _values.has("debt"):
 		_values["debt"].text = Fmt.rupiah(preview["debt"])
 		_notes["debt"].text = tr("PLAN_DEBT_NOTE")
@@ -154,7 +159,7 @@ func _refresh() -> void:
 			int(GameState.budget.config()["emergency_target_months"])]
 
 	for key: String in _values:
-		if key in ["basic", "debt", "insurance", "tuition", "lifestyle", "emergency"]:
+		if key in ["basic", "vehicle", "debt", "insurance", "tuition", "lifestyle", "emergency"]:
 			continue  # baris tetap & baris dengan hitungan sendiri (diisi di atas)
 		var amount := 0
 		var id := key.trim_prefix(DREAM_PREFIX)

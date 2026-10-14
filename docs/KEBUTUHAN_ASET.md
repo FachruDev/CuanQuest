@@ -2,7 +2,7 @@
 
 Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang **dibutuhkan**, dan **di file mana** aset itu dipakai. Diperbarui setiap kali sebuah langkah membutuhkan aset baru.
 
-- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5c langkah 1: popup Pinjaman memakai ikon dompet sementara)
+- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5c langkah 2: popup Kendaraan memakai ikon kerja sampingan sementara)
 - **Rencana pembuatan:** pengembang membuat aset setelah **v2 selesai**. Sampai saat itu game memakai aset sementara (🔁), dan daftar di bawah terus diperbarui setiap langkah.
 - **Tanda:** ✅ sudah ada · ⬜ dibutuhkan · 🔁 sementara memakai aset lain (game tetap jalan)
 - Tabel aset yang sudah ada dibuat otomatis dengan memindai `scenes/`, `scripts/`, `theme/`, dan `data/`.
@@ -15,7 +15,7 @@ Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang
 | **v1.5-0** Giliran bulanan yang hidup | Tidak ada; memakai ulang lencana & ikon (confetti digambar lewat kode) | ✅ |
 | **v1.5a** Realisme ekonomi | Tidak ada; memakai ulang `shield.svg`, `wallet.svg`, `trend_line.svg`, `warning_small.svg` | ✅ |
 | **v1.5b** Pekerjaan & karier | 13 ikon (3 latar pendidikan, 6 bidang kerja, 1 navigasi Karier, 3 program kuliah) + 2 opsional | ⬜ 🔁 |
-| **v1.5c** Utang, properti, hunian | 1 ikon dipakai sekarang (lencana popup Pinjaman); ilustrasi hunian & kendaraan, ikon properti menyusul | ⬜ 🔁 |
+| **v1.5c** Utang, properti, hunian | 2 ikon dipakai sekarang (lencana popup Pinjaman & Kendaraan); ilustrasi hunian & kendaraan, ikon properti menyusul | ⬜ 🔁 |
 | **v1.5d** Tokoh & konten | Potret tokoh berulang, lencana pencapaian, kosmetik | ⬜ (rencana) |
 | **v2** | Ikon instrumen lanjut, ilustrasi bab kehidupan | ⬜ (rencana) |
 | **M7** Rilis Play Store | Ikon aplikasi adaptif, grafis & screenshot Play Store | ⬜ (rencana) |
@@ -62,11 +62,12 @@ Game sudah jalan memakai aset sementara (🔁). Begitu file baru ditaruh di path
 
 ## v1.5c: Utang, Properti, dan Hunian yang Tumbuh ⬜
 
-**Sudah dipakai (langkah 1), sementara memakai aset lain:**
+**Sudah dipakai (langkah 1-2), sementara memakai aset lain:**
 
 | File | Isi | Dipakai di | Sementara | Cara memasang |
 |:--|:--|:--|:--|:--|
 | `assets/icons/loan.svg` | Lencana popup Pinjaman (dokumen + koin) | `scenes/ui/loan_popup.tscn` (popup ajukan pinjaman & rincian pinjaman, dari kartu Utang & Kredit di Beranda) | 🔁 `wallet.svg` | Ganti path `wallet.svg` di `scenes/ui/loan_popup.tscn` (atau minta saya) |
+| `assets/icons/vehicle.svg` | Lencana popup Kendaraan (motor/mobil + kunci) | `scenes/ui/vehicle_popup.tscn` (popup beli kendaraan & rincian/jual, dari kartu Kendaraan di Beranda) | 🔁 `activities/side_job.svg` | Ganti path `activities/side_job.svg` di `scenes/ui/vehicle_popup.tscn` (atau minta saya) |
 
 **Rencana (langkah berikutnya):**
 
@@ -141,7 +142,7 @@ Game sudah jalan memakai aset sementara (🔁). Begitu file baru ditaruh di path
 | `assets/icons/activities/hangout.svg` | `scripts/ui/screens/activity_screen.gd (dinamis: %s.svg)` |
 | `assets/icons/activities/rest.svg` | `scripts/ui/screens/activity_screen.gd (dinamis: %s.svg)` |
 | `assets/icons/activities/self_study.svg` | `scripts/ui/screens/activity_screen.gd (dinamis: %s.svg)` |
-| `assets/icons/activities/side_job.svg` | `scripts/ui/screens/activity_screen.gd (dinamis: %s.svg)`<br>`scripts/ui/ui_text.gd` |
+| `assets/icons/activities/side_job.svg` | `scenes/ui/vehicle_popup.tscn`<br>`scripts/ui/screens/activity_screen.gd (dinamis: %s.svg)`<br>`scripts/ui/ui_text.gd` |
 
 #### Ikon navigasi bawah (5)
 

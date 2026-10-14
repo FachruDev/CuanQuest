@@ -1,0 +1,23 @@
+{
+	"_comment": [
+		"Kendaraan (v1.5c langkah 2): aset yang nilainya menyusut, punya biaya rutin, dan menambah kebahagiaan. Uang = harga awal permainan (ikut indeks harga).",
+		"Nilai pasar = harga baru hari ini x (1 - depreciation)^usia (tahun), minimal min_value_ratio. Dijual ke dealer: sell_ratio x nilai pasar.",
+		"running_cost = bensin, servis, pajak per bulan (dikali expense_mult tingkat kesulitan). happiness = kebahagiaan per bulan selama dimiliki.",
+		"loan = produk kredit di loans.json. dream = id impian di dreams.json yang menghasilkan kendaraan ini saat terwujud (harganya disamakan).",
+		"Teks ditulis langsung dalam bahasa Indonesia dan ditampilkan lewat tr()."
+	],
+	"sell_ratio": 0.9,
+	"min_value_ratio": 0.15,
+	"vehicles": [
+		{
+			"id": "motor", "name": "Motor", "dream": "motor", "loan": "motor_loan",
+			"desc": "Motor 125 cc untuk ke kantor dan sehari-hari. Hemat bensin, tapi tetap ada servis rutin dan pajak tahunan.",
+			"price": 28000000, "depreciation": 0.12, "running_cost": 400000, "happiness": 1
+		},
+		{
+			"id": "car", "name": "Mobil", "dream": "car", "loan": "car_loan",
+			"desc": "Mobil keluarga 7 penumpang. Nyaman saat hujan dan bepergian, tapi bensin, tol, parkir, servis, dan pajaknya besar.",
+			"price": 250000000, "depreciation": 0.10, "running_cost": 2000000, "happiness": 2
+		}
+	]
+}

@@ -137,13 +137,15 @@ func preview_for(p: Dictionary, income: int) -> Dictionary:
 		var amount := mini(gs.round_thousand(income * share), needed)  # jangan menabung melebihi biayanya
 		dream_items.append({"id": entry["id"], "name": gs.dreams.find_def(entry["id"])["name"], "share": share, "amount": amount})
 		dreams_total += amount
+	var vehicle := gs.vehicles.running_cost()
 	var debt := gs.debt.installments_total()
 	var insurance := gs.insurance.premiums_total()
 	var tuition := gs.education.tuition_fee()
-	return {"income": income, "basic": basic, "debt": debt, "insurance": insurance, "tuition": tuition,
-		"lifestyle": lifestyle, "emergency": emergency, "emergency_room": room, "invest": invest,
-		"invest_total": invest_total, "dreams": dream_items, "dreams_total": dreams_total,
-		"surplus": income - basic - debt - insurance - tuition - lifestyle - emergency - invest_total - dreams_total}
+	return {"income": income, "basic": basic, "vehicle": vehicle, "debt": debt, "insurance": insurance,
+		"tuition": tuition, "lifestyle": lifestyle, "emergency": emergency, "emergency_room": room,
+		"invest": invest, "invest_total": invest_total, "dreams": dream_items, "dreams_total": dreams_total,
+		"surplus": income - basic - vehicle - debt - insurance - tuition - lifestyle - emergency - invest_total
+			- dreams_total}
 
 
 ## Menjalankan rencana setelah gaji masuk: belanja gaya hidup, setor dana darurat, lalu

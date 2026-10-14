@@ -5,7 +5,7 @@ extends Node
 ##
 ## Jalankan (data asli aman karena --save-root):
 ##   Godot --headless --path . res://tools/balance/balance_sim.tscn -- --save-root=user://_sim/
-##       [--games=40] [--years=30] [--persona=all|hemat|penabung|boros|spekulan|acak|pelajar|pengutang]
+##       [--games=40] [--years=30] [--persona=all|hemat|penabung|boros|spekulan|acak|pelajar|pengutang|pengendara]
 ##       [--difficulty=normal]
 ##       [--background=s1|d3|sma]
 ## Folder tools/ tidak ikut ke APK (exclude_filter di export_presets.cfg).
@@ -29,6 +29,9 @@ const PERSONAS := {
 		"quiz": true, "lump_invest": true, "activities": true, "study": true, "courses": true},
 	"pengutang": {"desc": "Gaya hidup mewah + KTA saat kas menipis", "food": "luxury", "housing": "kos", "lifestyle": 0.2,
 		"emergency": 0.0, "invest": 0.0, "insurance": {}, "choice": "lavish", "quiz": false, "borrow": true},
+	"pengendara": {"desc": "Hemat + motor & mobil kredit", "food": "standard", "housing": "kos", "lifestyle": 0.05,
+		"emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic", "vehicle": "vehicle_allrisk"},
+		"choice": "prudent", "quiz": true, "lump_invest": true, "activities": true, "vehicles": true},
 }
 const CHECKPOINTS := [5, 10, 20, 30]
 
@@ -145,6 +148,12 @@ func _snapshot(start_salary: int) -> Dictionary:
 		"loan_defaults": int(GameState.stats["loan_defaults"]),
 		"debt_interest": float(GameState.stats["debt_interest"]),
 		"credit_score": GameState.debt.credit_score,
+		"motor": GameState.vehicles.owns("motor"),
+		"car": GameState.vehicles.owns("car"),
+		"vehicle_value": GameState.vehicles.total_value(),
+		"vehicle_costs": float(GameState.stats["vehicle_costs"]),
+		"vehicles_seized": int(GameState.stats["vehicles_seized"]),
+		"vehicles_bought": int(GameState.stats["vehicles_bought"]),
 	}
 
 
@@ -210,6 +219,32 @@ func _borrow_actions(expenses: float) -> void:
 			return
 
 
+## Tipe pemain pengendara: motor kredit (DP 20%, 24 bulan) begitu disetujui; mobil kredit (DP 30%,
+## 48 bulan) saat gaji riil >= Rp15 jt dan kas + investasi cukup untuk DP + 3 bulan biaya hidup.
+func _vehicle_actions(expenses: float) -> void:
+	var vehicles := GameState.vehicles
+	if not vehicles.owns("motor"):
+		vehicles.buy("motor", "credit", 0.2, 24)
+	if vehicles.owns("car") or GameState.career.salary / GameState.price_level() < 15_000_000:
+		return
+	var dp := vehicles.price("car") * 0.3
+	if GameState.portfolio.liquid_assets() + GameState.portfolio.investments_value() < dp + expenses * 3:
+		return
+	if not vehicles.buy_quote("car", "credit", 0.3, 48)["requirements"].all(func(r: Dictionary) -> bool:
+			return r["met"] or r["type"] == "cash"):
+		return
+	var short := dp + expenses - GameState.cash  # jual investasi secukupnya untuk uang muka
+	for asset_id: String in GameState.portfolio.holdings.keys():
+		if short <= 0.0:
+			break
+		if GameState.portfolio.is_locked(asset_id):
+			continue
+		var amount := mini(ceili(short * 1.01), ceili(GameState.portfolio.holding_value(asset_id)))
+		if GameState.portfolio.sell(asset_id, amount)["ok"]:
+			short = dp + expenses - GameState.cash
+	vehicles.buy("car", "credit", 0.3, 48)
+
+
 ## Ambil tawaran bergaji tertinggi (jika lebih baik dari pekerjaan sekarang).
 func _take_offer() -> void:
 	if GameState.career.job_offers.is_empty():
@@ -231,6 +266,8 @@ func _monthly_actions(p: Dictionary) -> void:
 		_study_actions(expenses)
 	if p.get("borrow", false):
 		_borrow_actions(expenses)
+	if p.get("vehicles", false):
+		_vehicle_actions(expenses)
 	if p.get("courses", false) and GameState.career.skill < 80.0 and GameState.cash > expenses * 2:
 		GameState.activities.perform("course")
 	if p["quiz"]:
@@ -396,6 +433,14 @@ func _print_summary(persona: String, results: Array[Dictionary], years: int) -> 
 	print("  tahun %d: promosi median %d | pernah PHK %d%% | jenjang tertinggi median %d | kinerja median %d" % [
 		last, int(_median(finals, "promotions")), roundi(100.0 * laid_off / finals.size()),
 		int(_median(finals, "top_level")), int(_median(careers, "performance")) if not careers.is_empty() else -1])
+	var owners := finals.filter(func(f: Dictionary) -> bool: return f["vehicles_bought"] > 0)
+	if not owners.is_empty():
+		var seized := owners.filter(func(f: Dictionary) -> bool: return f["vehicles_seized"] > 0).size()
+		print("  tahun %d: punya motor %d%% | punya mobil %d%% | biaya kendaraan total median %s | nilai kendaraan median %s | pernah ditarik %d%%" % [
+			last, roundi(100.0 * finals.filter(func(f: Dictionary) -> bool: return f["motor"]).size() / finals.size()),
+			roundi(100.0 * finals.filter(func(f: Dictionary) -> bool: return f["car"]).size() / finals.size()),
+			Fmt.rupiah_short(_median(owners, "vehicle_costs")), Fmt.rupiah_short(_median(owners, "vehicle_value")),
+			roundi(100.0 * seized / owners.size())])
 	var borrowers := finals.filter(func(f: Dictionary) -> bool: return f["loans_taken"] > 0)
 	if not borrowers.is_empty():
 		var defaulted := borrowers.filter(func(f: Dictionary) -> bool: return f["loan_defaults"] > 0).size()

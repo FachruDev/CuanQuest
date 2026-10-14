@@ -1,12 +1,13 @@
 class_name Dreams
 extends GameModule
-## Impian (v1.5-0 langkah 3): tujuan menabung dengan tenggat, pos dana berbunga, perayaan saat
-## terwujud, dan kendaraan yang dimiliki. Data: data/dreams.json.
+## Impian (v1.5-0 langkah 3): tujuan menabung dengan tenggat, pos dana berbunga, dan perayaan saat
+## terwujud. Impian kendaraan ("vehicle" di data) menghasilkan kendaraan di modul Vehicles.
+## Data: data/dreams.json.
 
 const DREAMS_PATH := "res://data/dreams.json"
 
 ## Impian (v1.5-0 langkah 3): [{id, saved, start_month, deadline, status, achieved_month}]
-## status: active | achieved | released
+## status: active | achieved | released (dilepas, atau ditutup karena kendaraannya dibeli kredit)
 var entries: Array[Dictionary] = []
 var asked := false  # pemain sudah ditawari memilih impian di awal permainan
 var defs: Array = []  # isi data/dreams.json
@@ -33,21 +34,6 @@ func load_from(d: Dictionary) -> void:
 		entry["saved"] = float(entry["saved"])
 		entries.append(entry)
 	asked = d.get("dreams_asked", false)
-
-
-## Kendaraan yang dimiliki dari impian yang sudah terwujud: "car", "motor", atau "".
-func vehicle() -> String:
-	for id: String in ["car", "motor"]:
-		for entry: Dictionary in entries:
-			if entry["id"] == id and entry["status"] == "achieved":
-				return id
-	return ""
-
-
-## Harga kendaraan (harga awal permainan) untuk premi & biaya perbaikan.
-func vehicle_base_value() -> float:
-	var id := vehicle()
-	return float(find_def(id)["cost"]) if id != "" else 0.0
 
 
 func cost_of(def: Dictionary) -> int:
@@ -84,14 +70,16 @@ func can_add() -> bool:
 	return active().size() < int(config()["max_active"])
 
 
-## Impian yang bisa dipilih: belum dipilih/terwujud, dan usia sudah cukup.
+## Impian yang bisa dipilih: belum dipilih/terwujud, usia sudah cukup, dan kendaraannya (untuk
+## impian kendaraan) belum dimiliki.
 func available() -> Array:
 	var taken := {}
 	for entry: Dictionary in entries:
 		if entry["status"] != "released":
 			taken[entry["id"]] = true
 	return defs.filter(func(def: Dictionary) -> bool:
-		return not taken.has(def["id"]) and gs.age() >= int(def.get("min_age", 0)))
+		return not taken.has(def["id"]) and gs.age() >= int(def.get("min_age", 0)) \
+			and not gs.vehicles.owns(def.get("vehicle", "")))
 
 
 ## Setoran per bulan yang dibutuhkan agar impian tercapai tepat waktu.
@@ -202,6 +190,7 @@ func find_entry(id: String) -> Dictionary:
 
 
 ## Impian yang dananya sudah cukup langsung terwujud (dana dipakai, kelebihannya kembali ke kas).
+## Impian kendaraan menjadi kendaraan yang dimiliki.
 func check() -> void:
 	for entry: Dictionary in active():
 		var def := find_def(entry["id"])
@@ -210,14 +199,31 @@ func check() -> void:
 			continue
 		gs.cash += roundi(entry["saved"] - float(cost))
 		entry["saved"] = float(cost)
-		entry["status"] = "achieved"
-		entry["achieved_month"] = gs.month
-		gs.budget.plan["dreams"].erase(entry["id"])
-		gs.happiness = clampi(gs.happiness + int(def["happiness"]), 0, 100)
-		gs.progress.xp += int(def["xp"])
-		gs.stats["dreams_achieved"] += 1
-		var view := view_of(entry)
-		gs.queue_after_report(func() -> void: gs.dream_achieved.emit(view))
+		if def.has("vehicle"):
+			gs.vehicles.add_owned(def["vehicle"], gs.month, cost)
+			gs.stats["vehicles_bought"] += 1
+		achieve(entry)
+
+
+## Menandai impian terwujud: hadiah kebahagiaan & XP, lalu perayaan setelah laporan bulanan.
+func achieve(entry: Dictionary) -> void:
+	var def := find_def(entry["id"])
+	entry["status"] = "achieved"
+	entry["achieved_month"] = gs.month
+	gs.budget.plan["dreams"].erase(entry["id"])
+	gs.happiness = clampi(gs.happiness + int(def["happiness"]), 0, 100)
+	gs.progress.xp += int(def["xp"])
+	gs.stats["dreams_achieved"] += 1
+	var view := view_of(entry)
+	gs.queue_after_report(func() -> void: gs.dream_achieved.emit(view))
+
+
+## Menutup impian tanpa hadiah dan tanpa penalti (kendaraannya dibeli kredit; dananya sudah dipakai
+## sebagai uang muka oleh Vehicles.buy).
+func close_entry(entry: Dictionary) -> void:
+	entry["saved"] = 0.0
+	entry["status"] = "released"
+	gs.budget.plan["dreams"].erase(entry["id"])
 
 
 func queue_overdue() -> void:

@@ -55,10 +55,11 @@ func active_policy(category: String) -> Dictionary:
 	return policy_product(category)
 
 
-## Premi sebulan (harga hari ini). Kendaraan: persen per tahun dari harga kendaraan.
+## Premi sebulan (harga hari ini). Kendaraan: persen per tahun dari nilai pasar kendaraan yang
+## dimiliki, jadi premi ikut turun saat nilainya menyusut.
 func premium(product: Dictionary) -> int:
 	if product.has("premium_rate"):
-		return gs.nominal(gs.dreams.vehicle_base_value() * float(product["premium_rate"]) / 12.0)
+		return roundi(gs.vehicles.total_value() * float(product["premium_rate"]) / 12.0 / 1000.0) * 1000
 	return gs.nominal(product["premium"])
 
 
@@ -112,7 +113,7 @@ func pay_premiums() -> Dictionary:
 	var lapsed: Array[String] = []
 	for category: String in policies.keys():
 		var product := policy_product(category)
-		if product.is_empty() or (category == "vehicle" and gs.dreams.vehicle() == ""):
+		if product.is_empty() or (category == "vehicle" and not gs.vehicles.has_any()):
 			policies.erase(category)
 			continue
 		var amount := premium(product)
