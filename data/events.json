@@ -73,10 +73,10 @@
 			]
 		},
 		{
-			"id": "promotion", "category": "work", "weight": 1, "min_month": 12, "max_times": 3, "cooldown": 18, "requires": "employed",
+			"id": "promotion", "category": "work", "weight": 1, "min_month": 12, "max_times": 2, "cooldown": 24, "requires": "employed",
 			"title": "Tawaran Promosi", "text": "Atasan menawarkan posisi baru dengan gaji naik 20%, tapi beban kerja dan tanggung jawab juga naik.",
 			"choices": [
-				{ "label": "Terima promosi", "effects": { "salary_pct": 0.2, "happiness": -3, "xp": 20 }, "result": "Selamat! Gajimu naik 20%. Jangan lupa jaga kesehatan." },
+				{ "label": "Terima promosi", "effects": { "salary_pct": 0.15, "happiness": -3, "xp": 20 }, "result": "Selamat! Gajimu naik 15%. Jangan lupa jaga kesehatan." },
 				{ "label": "Tolak, fokus ke keseimbangan hidup", "effects": { "happiness": 3 }, "result": "Kamu memilih waktu luang yang lebih banyak." }
 			]
 		},
@@ -84,7 +84,7 @@
 			"id": "raise", "category": "work", "weight": 2, "min_month": 10, "cooldown": 12, "requires": "employed",
 			"title": "Kenaikan Gaji Tahunan", "text": "Perusahaan menaikkan gaji karyawan sebesar 5% untuk menyesuaikan inflasi.",
 			"choices": [
-				{ "label": "Alhamdulillah!", "effects": { "salary_pct": 0.05 }, "result": "Gajimu naik 5%. Tingkatkan juga porsi investasimu, jangan hanya gaya hidup." }
+				{ "label": "Alhamdulillah!", "effects": { "salary_pct": 0.03 }, "result": "Gajimu naik 3% di luar penyesuaian inflasi. Tingkatkan juga porsi investasimu, jangan hanya gaya hidup." }
 			]
 		},
 		{
@@ -99,7 +99,7 @@
 			"title": "Tawaran dari Startup", "text": "Sebuah startup menawarimu gaji 35% lebih tinggi. Tapi startup itu belum untung dan masih bergantung pada pendanaan investor.",
 			"choices": [
 				{ "label": "Pindah ke startup", "outcomes": [
-					{ "chance": 0.65, "effects": { "salary_pct": 0.35, "happiness": 5, "xp": 15 }, "result": "Startup berkembang pesat dan gajimu naik 35%!" },
+					{ "chance": 0.65, "effects": { "salary_pct": 0.2, "happiness": 5, "xp": 15 }, "result": "Startup berkembang pesat dan gajimu naik 20%!" },
 					{ "chance": 0.35, "effects": { "unemployed_months": 2, "happiness": -8 }, "result": "Dua bulan kemudian startup kehabisan dana dan tutup. Kamu harus mencari kerja lagi." }
 				] },
 				{ "label": "Tetap di perusahaan sekarang", "effects": {}, "result": "Kamu memilih stabilitas." }
@@ -109,7 +109,7 @@
 			"id": "course", "category": "work", "weight": 2, "min_month": 3, "max_times": 3, "cooldown": 12,
 			"title": "Kursus Sertifikasi", "text": "Ada kursus sertifikasi profesional yang bisa meningkatkan nilai jualmu di kantor.",
 			"choices": [
-				{ "label": "Ikut kursus", "cost": 2500000, "effects": { "salary_pct": 0.08, "xp": 30, "happiness": -2 }, "result": "Lulus! Sertifikat barumu membuat gaji naik 8%. Investasi terbaik adalah investasi pada diri sendiri." },
+				{ "label": "Ikut kursus", "cost": 2500000, "effects": { "salary_pct": 0.05, "xp": 30, "happiness": -2 }, "result": "Lulus! Sertifikat barumu membuat gaji naik 5%. Investasi terbaik adalah investasi pada diri sendiri." },
 				{ "label": "Lewati dulu", "effects": {}, "result": "Mungkin lain kali." }
 			]
 		},

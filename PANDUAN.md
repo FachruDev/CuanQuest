@@ -123,13 +123,14 @@ scenes/
   - [x] (3) Impian + target bulanan + perayaan
   - [x] (4) Event Director + kuis 6/minggu tanpa iklan
   - [x] (5) SQLite (semua langkah selesai; tinggal playtest)
-- [ ] **v1.5a "Realisme Ekonomi"**:
+- [x] **v1.5a "Realisme Ekonomi"**:
   - [x] (1) Inflasi, suku bunga BI & daya beli
   - [x] (2) Pajak + layar konfirmasi transaksi
   - [x] (3) Asuransi
   - [x] (4) Stop loss & take profit
-  - [ ] (5) Penyeimbangan ekonomi
-- [ ] **v1.5b/c, v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
+  - [x] (5) Penyeimbangan ekonomi + simulator `tools/balance`
+- [ ] **v1.5b "Pekerjaan & Karier"** (melamar kerja, keahlian, pendidikan, jenjang karier)
+- [ ] **v1.5c/d, v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
 Rangkuman semua checklist MVP (v1, v1.5, v2, M7) ada di [docs/CHECKLIST_MVP.md](docs/CHECKLIST_MVP.md).
 - [ ] **M7: Export rilis & Play Store** (setelah v2 selesai; tanpa monetisasi)
@@ -204,6 +205,26 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Simulasi 40 permainan x 10 tahun** (pilihan acak): indeks harga median 1,43; kekayaan nominal median Rp775 jt, kekayaan riil Rp536 jt (tanpa inflasi Rp587 jt); gaji akhir median Rp20,1 jt nominal. Semua permainan bertahan, jadi game masih tergolong mudah. Penyeimbangan dijadwalkan di langkah 5 setelah pajak & asuransi.
 - **Save lama:** slot tanpa data inflasi tetap bisa dimuat; indeks harga dianggap mulai dari 1,0 saat dimuat.
 
+## Penyeimbangan & Simulator (v1.5a langkah 5)
+
+- **Simulator** `tools/balance/balance_sim.tscn` memainkan banyak permainan tanpa UI dengan 5 tipe pemain (hemat & investasi rutin, menabung saja, gaya hidup mewah, spekulan, acak), lalu mencetak ringkasan tahun 10/20/30: kekalahan, bebas finansial, kekayaan riil (median, p10, p90), pertumbuhan gaji riil, kesehatan, kebahagiaan, pajak, premi, dan klaim. Analogi web: skrip load test yang menjalankan ribuan sesi otomatis. Folder `tools/` tidak ikut ke APK.
+- **Menjalankan** (±2,5 menit untuk semua tipe):
+  `Godot_v4.7.2-stable_win64_console.exe --headless --path . res://tools/balance/balance_sim.tscn -- --save-root=user://_sim/ --games=40 --years=30`
+  Opsi: `--persona=hemat|penabung|boros|spekulan|acak`, `--difficulty=easy|normal|hard`. Hapus folder `_sim` di `%APPDATA%\Godot\app_userdata\Cuan Quest\` setelahnya.
+- **Yang diubah:** event naik gaji/promosi/tawaran kerja/kursus dikecilkan; aktivitas Kursus dibatasi 10 kali (`max_total` di `activities.json`); rutinitas kerja `monthly_drift` (kesehatan & kebahagiaan -1/bulan, pulih +2 di bawah 50) di `economy.json`; premi asuransi memakai tabungan dana darurat jika kas kurang; imbal hasil kripto diturunkan.
+- **Hasil (40 permainan x 30 tahun, Normal, latar Pekerja Kantoran):**
+
+| Tipe pemain (Normal) | Kalah | Bebas finansial | Kekayaan riil tahun 10 | Kekayaan riil tahun 30 | Gaji riil tahun 10 |
+|:--|:--|:--|:--|:--|:--|
+| Hemat & investasi rutin | 0% | 100%, median tahun 16,6 | Rp424 jt | Rp4,11 M | x1,95 |
+| Menabung saja (tabungan) | 0% | 100%, median tahun 21,0 | Rp343 jt | Rp1,76 M | x1,95 |
+| Gaya hidup mewah | 75% bangkrut | 0% | negatif | negatif | x1,17 |
+| Spekulasi saham & kripto | 0% | 100%, median tahun 16,7 | Rp285 jt (p10-p90: Rp155 jt-Rp769 jt) | Rp3,67 M (Rp0,98 M-Rp14,8 M) | x1,70 |
+| Pilihan acak | 0% | 13%, median tahun 29,2 | Rp304 jt | Rp1,58 M | x1,76 |
+
+- **Target keseimbangan:** berinvestasi rutin harus jelas mengalahkan menabung saja (tahun 30: 2,3x); gaya hidup di atas kemampuan berujung bangkrut; spekulasi berhasil sangat beragam; pemain acak jarang bebas finansial; tingkat kesulitan terasa (bebas finansial pemain hemat tahun 12 / 16,6 / 18,4 di Santai / Normal / Sulit).
+- **Setiap perubahan ekonomi berikutnya** (pekerjaan, utang, properti) sebaiknya diukur ulang dengan simulator ini sebelum APK dibagikan.
+
 ## Stop Loss & Take Profit (v1.5a langkah 4)
 
 - **State:** `GameState.orders` = `{asset_id: {"stop_loss": harga, "take_profit": harga}}` (0 = mati). Dipasang lewat `set_order()` dari `OrderPopup` (tombol di kartu kepemilikan tab Pasar). Pilihan jarak di `economy.json` bagian `orders`.
@@ -218,7 +239,7 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **State:** `GameState.policies` = `{kategori: {"id", "since"}}`. `set_insurance()` dari popup Perlindungan; ganti produk = masa tunggu ulang. `active_policy()` hanya mengembalikan polis yang sudah melewati masa tunggu.
 - **Premi:** `_pay_premiums()` di `_start_month` setelah gaji & biaya hidup, sebelum rencana gaji. Kas kurang = polis berhenti (`insurance_lapsed` di laporan). `plan_preview()` memasukkan premi sehingga "Sisa ke kas" sudah memperhitungkannya.
 - **Klaim:** pilihan event dengan `"claim": "medical"` (ditanggung asuransi kesehatan) atau `"vehicle"` (asuransi kendaraan, dikurangi risiko sendiri). `insurance_cover(choice)` dipakai di `can_choose` (yang ditanggung tidak perlu dibayar dulu), `resolve_event`, dan label pilihan di popup event. Event `"critical": true` membayar uang pertanggungan asuransi jiwa.
-- **Kendaraan:** `vehicle()` = "car"/"motor" dari impian yang sudah terwujud (v1.5b akan menjadikannya aset sungguhan). Event dengan `"requires": "has_vehicle"` hanya muncul jika punya kendaraan; `"cost_vehicle": 0.15` = biaya 15% dari harga kendaraan.
+- **Kendaraan:** `vehicle()` = "car"/"motor" dari impian yang sudah terwujud (v1.5c akan menjadikannya aset sungguhan). Event dengan `"requires": "has_vehicle"` hanya muncul jika punya kendaraan; `"cost_vehicle": 0.15` = biaya 15% dari harga kendaraan.
 - **Menambah event yang bisa diklaim:** beri pilihan `"claim": "medical"` atau `"vehicle"`. Teks event tidak perlu menyebut asuransi; popup menampilkan bagian yang ditanggung secara otomatis.
 
 ## Pajak & Layar Konfirmasi Transaksi (v1.5a langkah 2)

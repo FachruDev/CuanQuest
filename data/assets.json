@@ -45,12 +45,12 @@
 		},
 		{
 			"id": "GRD", "name_key": "ASSET_GRD", "class": "crypto", "factor": "crypto",
-			"start_price": 950000000, "drift": 0.25, "volatility": 0.70, "beta": 1.0, "rho": 0.8,
+			"start_price": 950000000, "drift": 0.20, "volatility": 0.70, "beta": 1.0, "rho": 0.8,
 			"buy_fee": 0.003, "sell_fee": 0.003, "buy_tax": 0.0011, "sell_tax": 0.001, "stage": 4, "risk": 5
 		},
 		{
 			"id": "MRP", "name_key": "ASSET_MRP", "class": "crypto", "factor": "crypto",
-			"start_price": 12000, "drift": 0.45, "volatility": 0.9, "beta": 1.5, "rho": 0.7,
+			"start_price": 12000, "drift": 0.35, "volatility": 0.9, "beta": 1.5, "rho": 0.7,
 			"buy_fee": 0.003, "sell_fee": 0.003, "buy_tax": 0.0011, "sell_tax": 0.001, "stage": 4, "risk": 5
 		}
 	]

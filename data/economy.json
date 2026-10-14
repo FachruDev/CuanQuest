@@ -1,6 +1,8 @@
 {
 	"start_health": 70,
 	"start_happiness": 70,
+	"_monthly_drift_comment": "Rutinitas & stres kerja (v1.5a langkah 5): perubahan kesehatan & kebahagiaan tiap bulan, ditambah efek makanan, tempat tinggal, gaya hidup, aktivitas, dan event. Di bawah recover_below, tubuh & pikiran pulih alami +recover per bulan.",
+	"monthly_drift": { "health": -1, "happiness": -1, "recover_below": 50, "recover": 2 },
 	"default_background": "employee",
 	"default_difficulty": "normal",
 	"backgrounds": [

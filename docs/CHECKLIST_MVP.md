@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5a langkah 4 selesai)
+- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5a selesai; roadmap: Pekerjaan & Karier jadi v1.5b)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -14,9 +14,10 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **UI "Senja Cuan"** | Redesain seluruh tampilan | ✅ |
 | **Prototipe waktu A/B/C** | Uji sistem waktu berjalan (tidak dipakai, diarsipkan) | ✅ |
 | **v1.5-0** | Giliran Bulanan yang Hidup | 🔄 5/5 langkah; tinggal playtest |
-| **v1.5a** | Realisme ekonomi | 🔄 4/5 langkah |
-| **v1.5b** | Utang, properti, hunian yang tumbuh | ⬜ |
-| **v1.5c** | Karier, tokoh, konten | ⬜ |
+| **v1.5a** | Realisme ekonomi | ✅ 5/5 langkah |
+| **v1.5b** | Pekerjaan & karier (melamar kerja, keahlian, jenjang) | ⬜ |
+| **v1.5c** | Utang, properti, hunian yang tumbuh | ⬜ |
+| **v1.5d** | Tokoh, riset, kontrak, konten | ⬜ |
 | **v2a-v2d** | Instrumen lanjut, hidup penuh, dana investor, mini-game | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
 
@@ -124,7 +125,7 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 
 ---
 
-## v1.5a: Realisme Ekonomi 🔄
+## v1.5a: Realisme Ekonomi ✅
 
 ### Langkah pengerjaan
 
@@ -134,7 +135,7 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 | 2 | Pajak + layar konfirmasi transaksi (fee, pajak, konsentrasi, indikator risiko) | ✅ |
 | 3 | Asuransi kesehatan, jiwa, kendaraan + klaim di event | ✅ |
 | 4 | Stop loss & take profit (dicek harian) | ✅ |
-| 5 | Penyeimbangan ekonomi (simulasi + playtest) | ⬜ |
+| 5 | Penyeimbangan ekonomi (simulasi + playtest) | ✅ |
 
 ### Rincian fitur
 
@@ -179,8 +180,15 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 - ✅ Jual semua secara manual menghapus pesanan; simpan & muat tetap persis
 - ✅ Glosarium: Stop loss, Take profit
 
-**Langkah 5: Penyeimbangan** ⬜
-- ⬜ Simulasi ulang setelah pajak & asuransi; atur event positif, kenaikan gaji, dan biaya agar game tidak terlalu mudah
+**Langkah 5: Penyeimbangan** ✅
+- ✅ Simulator keseimbangan permanen `tools/balance/` (5 tipe pemain x 40 permainan x 30 tahun; tidak ikut APK)
+- ✅ Kenaikan gaji dari event dikecilkan: naik gaji +3%, promosi +15% (maks. 2, jeda 24 bulan), tawaran kerja +20%, kursus +5%
+- ✅ Aktivitas Kursus: +1% gaji, maksimal 10 kali sepanjang permainan (sebelumnya +2% tanpa batas)
+- ✅ Rutinitas kerja: kesehatan & kebahagiaan -1 per bulan, pulih alami +2 di bawah 50
+- ✅ Premi asuransi diambil dari tabungan dana darurat jika kas kurang
+- ✅ Imbal hasil kripto diturunkan (GRD 20%, MRP 35% per tahun)
+- ✅ Hasil (Normal): pemain hemat bebas finansial median tahun 16,6 (sebelumnya 10,6); menabung saja tertinggal jauh dari berinvestasi; gaji riil tahun 10 x1,95 (sebelumnya x3,8)
+- ✅ Tingkat kesulitan terasa: bebas finansial pemain hemat tahun 12 (Santai) / 16,6 (Normal) / 18,4 (Sulit); pemain acak 48% / 13% / 0%
 
 **Kriteria selesai**
 - ✅ Uang yang hanya disimpan di tabungan terasa tergerus dari waktu ke waktu
@@ -188,7 +196,24 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 - ✅ Event sakit/kecelakaan berbeda hasilnya bagi yang berasuransi
 - ✅ Stop loss & take profit tereksekusi tepat dan tercatat di riwayat
 
-## v1.5b: Utang, Properti, dan Hunian yang Tumbuh ⬜
+## v1.5b: Pekerjaan & Karier ⬜ (usulan pengembang, disetujui 14 Oktober 2026)
+
+- ⬜ Mulai tanpa pekerjaan dengan modal awal (±Rp5 jt); latar belakang menentukan pendidikan & keahlian awal, bukan gaji
+- ⬜ Papan lowongan bulanan dari `data/jobs.json`: gaji, syarat (pendidikan, keahlian, pengalaman, kesehatan), beban kerja
+- ⬜ Melamar: peluang diterima naik jika melebihi syarat; wawancara sebagai event
+- ⬜ Stat baru: Keahlian (kursus, belajar, kuis), Pendidikan (kuliah/sertifikasi dengan biaya & waktu), Pengalaman (bulan bekerja)
+- ⬜ Jalur karier minimal 5 jenjang: naik jabatan lewat kinerja, pengalaman, dan keahlian; bisa pindah kerja
+- ⬜ Beban kerja tiap pekerjaan memengaruhi energi, kesehatan, kebahagiaan (menggantikan "rutinitas kerja" umum)
+- ⬜ Kerja sampingan saat menganggur (ojol, freelance)
+- ⬜ Event naik gaji generik diganti event karier; simulasi keseimbangan diperbarui (`tools/balance`)
+
+**Kriteria selesai**
+- ⬜ Pemain mulai tanpa pekerjaan dan harus melamar
+- ⬜ Minimal 15 pekerjaan dan 5 jenjang karier dengan syarat jelas
+- ⬜ Keahlian & pendidikan bisa ditingkatkan dan membuka pekerjaan lebih baik
+- ⬜ Pekerjaan & karier baru bisa ditambah lewat file data saja
+
+## v1.5c: Utang, Properti, dan Hunian yang Tumbuh ⬜
 
 - ⬜ Utang: pinjaman pribadi, kredit kendaraan, KPR, skor kredit, gagal bayar, pinjol ilegal (event)
 - ⬜ Properti: rumah, apartemen, tanah; tunai atau KPR; dihuni, disewakan, dijual
@@ -200,9 +225,8 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 - ⬜ Gagal bayar berkonsekuensi nyata; bangkrut menghitung utang dengan benar
 - ⬜ Ilustrasi hunian dan kendaraan berubah sesuai kepemilikan
 
-## v1.5c: Konten, Karier, dan Cerita ⬜
+## v1.5d: Konten dan Cerita ⬜
 
-- ⬜ Jalur karier (minimal 5 jenjang)
 - ⬜ 4-6 tokoh berulang di event dan rantai event
 - ⬜ Riset pasar (laporan analis dengan tingkat keyakinan)
 - ⬜ Kontrak dengan tenggat 1-3 bulan
@@ -211,10 +235,9 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 - ⬜ Sekitar 80 event dan 150 soal kuis
 
 **Kriteria selesai**
-- ⬜ Minimal 5 jenjang karier dengan syarat dan dampak yang jelas
 - ⬜ Minimal 10 rantai event dengan tokoh berulang
 - ⬜ Laporan analis benar/salah sesuai akurasi
-- ⬜ Event, soal, impian, dan karier baru bisa ditambah lewat file data saja
+- ⬜ Event, soal, dan impian baru bisa ditambah lewat file data saja
 
 ## Penutup v1.5 ⬜
 

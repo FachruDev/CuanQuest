@@ -15,9 +15,9 @@
 			"effects": { "cash_salary": 0.25, "health": -2, "happiness": -1, "xp": 5 }
 		},
 		{
-			"id": "course", "name": "Kursus Online", "desc": "Tingkatkan keahlian kerja. Setiap kursus menaikkan gaji 2%.",
-			"energy": 2, "cost": 1000000, "max_per_month": 1,
-			"effects": { "salary_pct": 0.02, "xp": 20 }
+			"id": "course", "name": "Kursus Online", "desc": "Tingkatkan keahlian kerja. Setiap kursus menaikkan gaji 1%, maksimal 10 kursus.",
+			"energy": 2, "cost": 1000000, "max_per_month": 1, "max_total": 10,
+			"effects": { "salary_pct": 0.01, "xp": 20 }
 		},
 		{
 			"id": "self_study", "name": "Belajar Investasi Mandiri", "desc": "Baca buku dan artikel keuangan. Menambah XP.",

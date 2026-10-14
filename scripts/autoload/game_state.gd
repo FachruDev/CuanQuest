@@ -385,8 +385,9 @@ func _start_month() -> Dictionary:
 	stats["total_living"] += food_cost + housing_cost
 	if food_id == "luxury" or housing_id == "apartment":
 		stats["luxury_months"] += 1
-	health = clampi(health + int(food["health"]) + int(housing["health"]), 0, 100)
-	happiness = clampi(happiness + int(food["happiness"]) + int(housing["happiness"]), 0, 100)
+	health = clampi(health + int(food["health"]) + int(housing["health"]) + _drift("health", health), 0, 100)
+	happiness = clampi(happiness + int(food["happiness"]) + int(housing["happiness"])
+		+ _drift("happiness", happiness), 0, 100)
 	var insurance := _pay_premiums()
 	# Rencana gaji baru berjalan setelah pemain menyimpannya pertama kali (lihat set_plan).
 	var budget := _apply_budget(month_income) if plan.get("confirmed", false) else {}
@@ -501,7 +502,8 @@ func vehicle_base_value() -> float:
 	return float(dream_def(id)["cost"]) if id != "" else 0.0
 
 
-## Premi semua polis di awal bulan. Jika kas tidak cukup, polis berhenti (lapse).
+## Premi semua polis di awal bulan. Jika kas kurang, kekurangannya diambil dari tabungan dana
+## darurat; jika masih tidak cukup, polis berhenti (lapse).
 func _pay_premiums() -> Dictionary:
 	var paid := 0
 	var lapsed: Array[String] = []
@@ -511,6 +513,9 @@ func _pay_premiums() -> Dictionary:
 			policies.erase(category)
 			continue
 		var amount := premium(product)
+		var savings := emergency_asset_id()
+		if cash < amount and units_of(savings) >= amount - cash:  # autodebet dari tabungan dana darurat
+			sell(savings, ceili(amount - cash), "forced")
 		if cash < amount:
 			policies.erase(category)
 			lapsed.append(product["name"])
@@ -552,6 +557,16 @@ func _new_month_costs() -> Dictionary:
 func _add_tax(key: String, amount: float) -> void:
 	month_costs[key] += amount
 	stats["total_taxes"] += amount
+
+
+## Rutinitas & stres kerja per bulan (economy.json "monthly_drift"); di bawah ambang,
+## tubuh & pikiran pulih alami sehingga pemain pasif tidak terus merosot.
+func _drift(stat: String, value: int) -> int:
+	var drift: Dictionary = economy.get("monthly_drift", {})
+	var change := int(drift.get(stat, 0))
+	if value < int(drift.get("recover_below", 0)):
+		change += int(drift.get("recover", 0))
+	return change
 
 
 ## Penyesuaian gaji tahunan (setiap Januari) sebesar inflasi 12 bulan terakhir, agar gaji
@@ -1407,6 +1422,7 @@ func _new_stats() -> Dictionary:
 		"unaffordable_choices": 0, "luxury_months": 0, "cash_heavy_months": 0,
 		"panic_sell": false, "total_lifestyle": 0, "total_autodebet": 0, "dreams_achieved": 0,
 		"targets_done": 0, "insurance_premiums": 0, "insurance_claims": 0, "uninsured_medical": 0, "orders_executed": 0,
+		"activity_totals": {},
 		"best_trade": {}, "worst_trade": {}, "best_event": {}, "worst_event": {},
 	}
 
@@ -1551,9 +1567,16 @@ func activity_block_reason(def: Dictionary) -> String:
 		return "ERR_NO_ENERGY"
 	if activity_counts.get(def["id"], 0) >= int(def.get("max_per_month", 1)):
 		return "ERR_ACTIVITY_LIMIT"
+	if def.has("max_total") and activity_total(def["id"]) >= int(def["max_total"]):
+		return "ERR_ACTIVITY_MAXED"
 	if activity_cost(def) > cash:
 		return "ERR_NOT_ENOUGH_CASH"
 	return ""
+
+
+## Berapa kali aktivitas ini sudah dilakukan sepanjang permainan (untuk batas "max_total").
+func activity_total(activity_id: String) -> int:
+	return int(stats["activity_totals"].get(activity_id, 0))
 
 
 ## Mengembalikan { "ok", "error", "changes" }.
@@ -1568,6 +1591,7 @@ func do_activity(activity_id: String) -> Dictionary:
 	var before := _snapshot()
 	energy -= int(def["energy"])
 	activity_counts[activity_id] = activity_counts.get(activity_id, 0) + 1
+	stats["activity_totals"][activity_id] = activity_total(activity_id) + 1
 	cash -= activity_cost(def)
 	_apply_effects(def["effects"])
 	stats["activities"] = stats.get("activities", 0) + 1

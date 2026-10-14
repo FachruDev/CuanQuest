@@ -649,3 +649,5 @@ REPORT_ORDER_TAKE_PROFIT,Take profit %s,Take profit %s
 REPORT_ORDER_DETAIL,"Terpicu tanggal %d di %s, untung/rugi %s. Harga akhir bulan %s.","Triggered on day %d at %s, gain/loss %s. Month-end price %s."
 TX_STOP_LOSS,Stop loss,Stop loss
 TX_TAKE_PROFIT,Take profit,Take profit
+ERR_ACTIVITY_MAXED,Manfaat kursus sudah maksimal,Course benefits maxed out
+HOME_DRIFT_NOTE,"Rutinitas kerja mengurangi kesehatan %d dan kebahagiaan %d tiap bulan. Jaga lewat makanan, gaya hidup, dan aktivitas.","Work routine lowers health by %d and happiness by %d each month. Keep them up with food, lifestyle, and activities."

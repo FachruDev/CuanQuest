@@ -20,6 +20,10 @@ func _ready() -> void:
 	_housing_buttons = _build_options(%HousingOptions, GameState.economy["housing"], GameState.set_housing)
 	_build_plan_rows()
 	_build_goal_cards()
+	var drift: Dictionary = GameState.economy.get("monthly_drift", {})
+	if not drift.is_empty():  # rutinitas kerja (v1.5a langkah 5): jelaskan kenapa kondisi turun pelan
+		$VBox/WellbeingCard/VBox.add_child(_wrap_label(tr("HOME_DRIFT_NOTE") % [
+			absi(int(drift.get("health", 0))), absi(int(drift.get("happiness", 0)))], &"SmallMutedLabel"))
 	GameState.changed.connect(_refresh)
 	_refresh()
 
