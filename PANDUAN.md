@@ -30,6 +30,7 @@ data/
   news.json                   Template berita pasar & dampaknya ke harga
   events.json                 42 event hidup: syarat muncul, pilihan, efek, klaim asuransi
   insurance.json              Produk asuransi: premi, tanggungan, masa tunggu
+  jobs.json                   Pekerjaan (bidang, jenjang, syarat, gaji, beban kerja) & aturan lowongan
   quiz.json                   39 soal kuis (4 topik)
   glossary.json               31 istilah glosarium
   legal.json                  Kebijakan privasi & syarat penggunaan (tampil di game)
@@ -129,7 +130,12 @@ scenes/
   - [x] (3) Asuransi
   - [x] (4) Stop loss & take profit
   - [x] (5) Penyeimbangan ekonomi + simulator `tools/balance`
-- [ ] **v1.5b "Pekerjaan & Karier"** (melamar kerja, keahlian, pendidikan, jenjang karier)
+- [ ] **v1.5b "Pekerjaan & Karier"**:
+  - [x] (1) Fondasi: latar SMA/D3/S1 tanpa kerja, lowongan & melamar, tab Karier
+  - [ ] (2) Karier: kinerja, promosi, kenaikan prestasi, PHK, event kerja
+  - [ ] (3) Pendidikan & keahlian
+  - [ ] (4) Tampilan & cerita
+  - [ ] (5) Penyeimbangan
 - [ ] **v1.5c/d, v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
 Rangkuman semua checklist MVP (v1, v1.5, v2, M7) ada di [docs/CHECKLIST_MVP.md](docs/CHECKLIST_MVP.md).
@@ -204,6 +210,16 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Laporan & UI:** bagian Ekonomi di laporan bulanan (inflasi, daya beli kas + tabungan + pos impian yang tergerus), kartu Daya Beli di Profil, chip inflasi di Pasar.
 - **Simulasi 40 permainan x 10 tahun** (pilihan acak): indeks harga median 1,43; kekayaan nominal median Rp775 jt, kekayaan riil Rp536 jt (tanpa inflasi Rp587 jt); gaji akhir median Rp20,1 jt nominal. Semua permainan bertahan, jadi game masih tergolong mudah. Penyeimbangan dijadwalkan di langkah 5 setelah pajak & asuransi.
 - **Save lama:** slot tanpa data inflasi tetap bisa dimuat; indeks harga dianggap mulai dari 1,0 saat dimuat.
+
+## Pekerjaan & Lowongan (v1.5b langkah 1)
+
+- **Data:** `data/jobs.json` berisi tingkat pendidikan, aturan lowongan (`board`), batas lamaran, syarat keahlian & pengalaman per jenjang, rumus peluang (`chance`), bidang (`tracks` + nama perusahaan), dan 28 pekerjaan. Latar belakang (`economy.json` `backgrounds`) kini menentukan usia, pendidikan, keahlian awal, dan tempat tinggal; modal awal ada di `difficulties[].start_cash`.
+- **State** di `GameState`: `job` (`{id, company, since}` atau `{}`), `salary` (gaji bruto pekerjaan sekarang, 0 jika belum bekerja), `education` (indeks), `skill`, `experience` (bidang -> bulan), `job_board`, `applications`, `job_offers`. `unpaid_months` = cuti tanpa gaji (pekerjaan tetap).
+- **Alur bulanan** (`_start_month`): hasil lamaran bulan lalu diundi (`_resolve_applications`) -> gaji (`_monthly_pay`, kerja lepas naik-turun) -> pengalaman & keahlian (`_work_month`) -> biaya hidup dst. -> lowongan baru (`_refresh_job_board`). Tawaran dikirim lewat signal `job_offers_received` setelah laporan; `accept_offer()` membayar gaji pertama jika bulan ini belum ada gaji.
+- **Syarat & peluang:** `job_requirements()` (untuk ✓/✗ di UI), `meets_requirements()`, `hire_chance()`; `apply_block_reason()` menjelaskan kenapa tombol Lamar nonaktif. Analogi web: seperti endpoint validasi yang dipakai form (tombol nonaktif + pesan) dan endpoint submit.
+- **UI:** tab Aktivitas berganti nama menjadi Karier (`activity_screen.gd`: `_refresh_job`, `_refresh_board`), popup `OfferPopup`, bagian LAMARAN KERJA di laporan, chip jabatan & pendidikan di Profil.
+- **Menambah pekerjaan:** cukup tambah entri di `jobs.json` (id unik, `track`, `level`, `title`, `education`, `salary`, `workload`; opsional `skill`, `volatility`). Bidang baru butuh entri di `tracks` dan ikon `assets/icons/tracks/<id>.svg` (opsional).
+- **Save:** `SAVE_VERSION` 3; save v1.5a ditolak dengan pesan `SAVE_OUTDATED`.
 
 ## Penyeimbangan & Simulator (v1.5a langkah 5)
 

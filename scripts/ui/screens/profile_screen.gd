@@ -34,7 +34,9 @@ func _refresh() -> void:
 	%Avatar.display_name = GameState.player_name
 	%NameLabel.text = GameState.player_name
 	_clear(%InfoChips)
-	%InfoChips.add_child(_chip(tr(GameState.background["name_key"]), &"MoodGold"))
+	var job_title := tr(GameState.current_job_def()["title"]) if GameState.is_employed() else tr("CAREER_UNEMPLOYED")
+	%InfoChips.add_child(_chip(job_title, &"MoodGold"))
+	%InfoChips.add_child(_chip(GameState.education_name(GameState.education), &"MoodNeutral"))
 	%InfoChips.add_child(_chip(tr("PROFILE_AGE") % GameState.age(), &"MoodNeutral"))
 	%InfoChips.add_child(_chip(tr("PROFILE_DIFFICULTY") % tr(GameState.difficulty["name_key"]), &"MoodNeutral"))
 	%InfoChips.add_child(_chip(tr("ACT_LEVEL") % GameState.level(), &"MoodGold"))

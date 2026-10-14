@@ -52,6 +52,14 @@ func _ready() -> void:
 		_enqueue(%SummaryPopup.show_report.bind(report))
 		_enqueue_plan_review())
 	%HomeScreen.plan_requested.connect(func() -> void: _enqueue(%PlanPopup.open))
+	GameState.job_offers_received.connect(func(_offers: Array) -> void:
+		_enqueue(_celebrating(%OfferPopup.open)))
+	%OfferPopup.offer_accepted.connect(func(title: String, first_salary: int) -> void:
+		var text := tr("TOAST_JOB") % tr(title)
+		if first_salary > 0:
+			text += " " + tr("TOAST_FIRST_SALARY") % Fmt.rupiah(first_salary)
+		_show_toast(text)
+		_enqueue_plan_review())  # gaji pertama/baru: susun atau tinjau rencana gaji
 	%HomeScreen.insurance_requested.connect(func() -> void: _enqueue(%InsurancePopup.open))
 	%MarketScreen.trade_requested.connect(func(asset_id: String, is_buy: bool, amount: int) -> void:
 		_enqueue(%TradeConfirmPopup.open.bind(asset_id, is_buy, amount)))
@@ -91,7 +99,7 @@ func _ready() -> void:
 	%ActivityScreen.quiz_requested.connect(func(question: Dictionary) -> void:
 		_enqueue(%QuizPopup.open.bind(question)))
 	for popup: ModalPopup in [%SummaryPopup, %InfoPopup, %EventPopup, %QuizPopup, %GlossaryPopup, %TextPopup,
-			%PlanPopup, %DreamPickerPopup, %DreamPopup, %TradeConfirmPopup, %InsurancePopup, %OrderPopup]:
+			%PlanPopup, %DreamPickerPopup, %DreamPopup, %TradeConfirmPopup, %InsurancePopup, %OrderPopup, %OfferPopup]:
 		popup.closed.connect(_show_next_popup)
 
 	_build_toast()
@@ -101,6 +109,8 @@ func _ready() -> void:
 	# Event yang belum diputuskan saat game disimpan muncul lagi setelah dimuat.
 	if GameState.has_pending_event():
 		_enqueue(%EventPopup.open.bind(GameState.pending_event))
+	if not GameState.job_offers.is_empty():  # tawaran kerja yang belum diputuskan
+		_enqueue(%OfferPopup.open)
 	# Permainan baru: pilih impian dulu, lalu susun rencana gaji pertama.
 	if not GameState.dreams_asked:
 		_enqueue(%DreamPickerPopup.open)

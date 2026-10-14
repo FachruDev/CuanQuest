@@ -13,7 +13,7 @@ const CHECK_ICON := preload("res://assets/icons/check_badge.svg")
 const RADIO_ON := preload("res://assets/icons/radio_on.svg")
 const RADIO_OFF := preload("res://assets/icons/radio_off.svg")
 const BACKGROUND_ICON := "res://assets/icons/background_%s.svg"
-const BACKGROUND_TILES := {"student": &"IconTileMint", "employee": &"IconTileGold", "freelancer": &"IconTileCoral"}
+const BACKGROUND_TILES := {"sma": &"IconTileMint", "d3": &"IconTileCoral", "s1": &"IconTileGold"}
 ## Gaya meter & warna nama per profil risiko.
 const PROFILE_LOOK := {
 	"conservative": [&"MeterTeal", Color("#23877b")],
@@ -160,7 +160,7 @@ func _build_background_cards() -> void:
 		tile.custom_minimum_size = Vector2(72, 72)
 		tile.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		tile.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var icon_path := BACKGROUND_ICON % id
+		var icon_path := BACKGROUND_ICON % option.get("icon", id)
 		if ResourceLoader.exists(icon_path):
 			var icon := TextureRect.new()
 			icon.texture = load(icon_path)
@@ -185,7 +185,8 @@ func _build_background_cards() -> void:
 		chip.theme_type_variation = &"SalaryChip"
 		chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		chip.add_child(_label(tr("NG_SALARY") % Fmt.rupiah(option["salary"]), &"SalaryLabel"))
+		chip.add_child(_label(tr("NG_BACKGROUND_CHIP") % [
+			GameState.education_name(GameState.education_index(option["education"])), int(option["skill"])], &"SalaryLabel"))
 		title_row.add_child(chip)
 		text.add_child(title_row)
 		var desc := _label(tr(option["desc_key"]), &"OptionDescLabel")

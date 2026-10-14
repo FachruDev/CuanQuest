@@ -3,29 +3,30 @@
 	"start_happiness": 70,
 	"_monthly_drift_comment": "Rutinitas & stres kerja (v1.5a langkah 5): perubahan kesehatan & kebahagiaan tiap bulan, ditambah efek makanan, tempat tinggal, gaya hidup, aktivitas, dan event. Di bawah recover_below, tubuh & pikiran pulih alami +recover per bulan.",
 	"monthly_drift": { "health": -1, "happiness": -1, "recover_below": 50, "recover": 2 },
-	"default_background": "employee",
+	"default_background": "s1",
 	"default_difficulty": "normal",
+	"_backgrounds_comment": "Latar pendidikan (v1.5b): semua mulai tanpa pekerjaan. education = id di jobs.json education_levels; skill = keahlian awal; icon = nama ikon assets/icons/background_<icon>.svg.",
 	"backgrounds": [
 		{
-			"id": "student", "name_key": "BG_STUDENT", "desc_key": "BG_STUDENT_DESC",
-			"salary": 3000000, "start_cash": 1500000, "start_age": 20, "income_volatility": 0.0,
+			"id": "sma", "name_key": "BG_SMA", "desc_key": "BG_SMA_DESC", "icon": "student",
+			"start_age": 18, "education": "SMA", "skill": 15,
 			"default_food": "standard", "default_housing": "family"
 		},
 		{
-			"id": "employee", "name_key": "BG_EMPLOYEE", "desc_key": "BG_EMPLOYEE_DESC",
-			"salary": 5500000, "start_cash": 2000000, "start_age": 23, "income_volatility": 0.0,
-			"default_food": "standard", "default_housing": "kos"
+			"id": "d3", "name_key": "BG_D3", "desc_key": "BG_D3_DESC", "icon": "freelancer",
+			"start_age": 21, "education": "D3", "skill": 25,
+			"default_food": "standard", "default_housing": "family"
 		},
 		{
-			"id": "freelancer", "name_key": "BG_FREELANCER", "desc_key": "BG_FREELANCER_DESC",
-			"salary": 6500000, "start_cash": 3000000, "start_age": 25, "income_volatility": 0.35,
+			"id": "s1", "name_key": "BG_S1", "desc_key": "BG_S1_DESC", "icon": "employee",
+			"start_age": 22, "education": "S1", "skill": 30,
 			"default_food": "standard", "default_housing": "kos"
 		}
 	],
 	"difficulties": [
-		{ "id": "easy", "name_key": "DIFF_EASY", "desc_key": "DIFF_EASY_DESC", "salary_mult": 1.15, "expense_mult": 0.9, "event_counts": [25, 45, 25, 5], "bad_event_mult": 0.6 },
-		{ "id": "normal", "name_key": "DIFF_NORMAL", "desc_key": "DIFF_NORMAL_DESC", "salary_mult": 1.0, "expense_mult": 1.0, "event_counts": [15, 40, 30, 15], "bad_event_mult": 1.0 },
-		{ "id": "hard", "name_key": "DIFF_HARD", "desc_key": "DIFF_HARD_DESC", "salary_mult": 0.9, "expense_mult": 1.1, "event_counts": [10, 30, 35, 25], "bad_event_mult": 1.6 }
+		{ "id": "easy", "name_key": "DIFF_EASY", "desc_key": "DIFF_EASY_DESC", "start_cash": 7500000, "salary_mult": 1.15, "expense_mult": 0.9, "event_counts": [25, 45, 25, 5], "bad_event_mult": 0.6 },
+		{ "id": "normal", "name_key": "DIFF_NORMAL", "desc_key": "DIFF_NORMAL_DESC", "start_cash": 5000000, "salary_mult": 1.0, "expense_mult": 1.0, "event_counts": [15, 40, 30, 15], "bad_event_mult": 1.0 },
+		{ "id": "hard", "name_key": "DIFF_HARD", "desc_key": "DIFF_HARD_DESC", "start_cash": 3000000, "salary_mult": 0.9, "expense_mult": 1.1, "event_counts": [10, 30, 35, 25], "bad_event_mult": 1.6 }
 	],
 	"end": {
 		"_comment": "Kondisi menang/kalah (GDD 5.11). freedom_rate = aturan 4%: investasi x 4% / 12 >= pengeluaran bulanan.",

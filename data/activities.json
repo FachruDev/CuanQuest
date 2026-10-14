@@ -10,19 +10,19 @@
 	"health_penalty_below": 30,
 	"activities": [
 		{
-			"id": "side_job", "name": "Kerja Sampingan", "desc": "Ambil proyek lepas di akhir pekan. Penghasilan tambahan seperempat gaji, tapi melelahkan.",
+			"id": "side_job", "name": "Kerja Sampingan", "desc": "Ojek, kurir, atau proyek lepas di akhir pekan. Uang tambahan {rp:750000}, tapi melelahkan.",
 			"energy": 2, "cost": 0, "max_per_month": 1,
-			"effects": { "cash_salary": 0.25, "health": -2, "happiness": -1, "xp": 5 }
+			"effects": { "cash": 750000, "health": -2, "happiness": -1, "xp": 5 }
 		},
 		{
-			"id": "course", "name": "Kursus Online", "desc": "Tingkatkan keahlian kerja. Setiap kursus menaikkan gaji 1%, maksimal 10 kursus.",
-			"energy": 2, "cost": 1000000, "max_per_month": 1, "max_total": 10,
-			"effects": { "salary_pct": 0.01, "xp": 20 }
+			"id": "course", "name": "Kursus Online", "desc": "Tingkatkan keahlian kerja (+3 keahlian, makin kecil saat keahlian sudah tinggi).",
+			"energy": 2, "cost": 1000000, "max_per_month": 1,
+			"effects": { "skill": 3, "xp": 20 }
 		},
 		{
-			"id": "self_study", "name": "Belajar Investasi Mandiri", "desc": "Baca buku dan artikel keuangan. Menambah XP.",
+			"id": "self_study", "name": "Belajar Investasi Mandiri", "desc": "Baca buku dan artikel. Menambah XP dan sedikit keahlian.",
 			"energy": 1, "cost": 0, "max_per_month": 1,
-			"effects": { "xp": 10 }
+			"effects": { "xp": 10, "skill": 1 }
 		},
 		{
 			"id": "exercise", "name": "Olahraga", "desc": "Lari pagi atau senam. Menjaga kesehatan tetap prima.",

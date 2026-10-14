@@ -86,7 +86,9 @@ func _is_eligible(def: Dictionary, state: Node) -> bool:
 		return false
 	match def.get("requires", ""):
 		"employed":
-			return state.unemployed_months == 0
+			return state.is_employed() and state.unpaid_months == 0
+		"unemployed":
+			return not state.is_employed()
 		"has_investments":
 			return not state.holdings.is_empty()
 		"low_happiness":

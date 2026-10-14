@@ -1,0 +1,63 @@
+{
+	"_comment": [
+		"Pekerjaan & karier (v1.5b). Gaji = harga AWAL permainan (dikali pengali gaji tingkat kesulitan & indeks harga saat lowongan muncul).",
+		"Syarat: pendidikan (education), keahlian (skill; default skill_by_level), pengalaman di bidang yang sama (experience_by_level). workload = perubahan kesehatan & kebahagiaan per bulan (dipakai mulai langkah 2).",
+		"Peluang diterima jika semua syarat terpenuhi: chance.base + chance.per_5_skill per 5 poin keahlian di atas syarat + chance.higher_education jika pendidikan lebih tinggi, maksimal chance.max (kerja lepas: chance.gig)."
+	],
+	"education_levels": [
+		{ "id": "SMA", "name": "SMA/SMK" },
+		{ "id": "D3", "name": "D3" },
+		{ "id": "S1", "name": "S1" },
+		{ "id": "S2", "name": "S2" }
+	],
+	"board": { "min": 4, "max": 6, "salary_spread": [0.95, 1.1] },
+	"applications_per_month": 3,
+	"apply_energy": 1,
+	"skill_by_level": [10, 25, 40, 55, 70],
+	"experience_by_level": [0, 12, 24, 48, 84],
+	"chance": { "base": 0.5, "per_5_skill": 0.05, "higher_education": 0.1, "max": 0.9, "gig": 0.95 },
+	"skill_every_months": 6,
+	"tracks": [
+		{ "id": "retail", "name": "Ritel & Layanan", "companies": ["Toko Sinar Jaya", "Mart Sejahtera", "Swalayan Nusantara", "Kafe Kopi Kita"] },
+		{ "id": "admin", "name": "Administrasi & Operasional", "companies": ["PT Maju Bersama", "PT Logistik Andalan", "CV Karya Mandiri", "PT Sentosa Abadi"] },
+		{ "id": "finance", "name": "Keuangan & Perbankan", "companies": ["Bank Sentosa", "Bank Rakyat Makmur", "Koperasi Sejahtera", "PT Asuransi Aman"] },
+		{ "id": "tech", "name": "Teknologi", "companies": ["Startup Kilat", "PT Data Nusantara", "Studio Aplikasi Maju", "Agensi Digital Cerah"] },
+		{ "id": "creative", "name": "Kreatif & Pemasaran", "companies": ["Agensi Iklan Warna", "PT Media Ceria", "Brand Lokal Kece", "Studio Konten Senja"] },
+		{ "id": "gig", "name": "Kerja Lepas", "companies": ["Aplikasi Ojek Kilat", "Kurir Cepat", "Platform Freelance"] }
+	],
+	"jobs": [
+		{ "id": "retail_1", "track": "retail", "level": 1, "title": "Kasir", "education": "SMA", "salary": 4800000, "workload": { "health": -1, "happiness": -1 } },
+		{ "id": "retail_2", "track": "retail", "level": 2, "title": "Kepala Shift", "education": "SMA", "salary": 6000000, "workload": { "health": -1, "happiness": -1 } },
+		{ "id": "retail_3", "track": "retail", "level": 3, "title": "Supervisor Toko", "education": "SMA", "salary": 8500000, "workload": { "health": -1, "happiness": -1 } },
+		{ "id": "retail_4", "track": "retail", "level": 4, "title": "Manajer Toko", "education": "D3", "salary": 13000000, "workload": { "health": -1, "happiness": -2 } },
+		{ "id": "retail_5", "track": "retail", "level": 5, "title": "Manajer Area", "education": "S1", "salary": 22000000, "workload": { "health": -1, "happiness": -2 } },
+
+		{ "id": "admin_1", "track": "admin", "level": 1, "title": "Staf Admin", "education": "SMA", "salary": 5200000, "workload": { "health": 0, "happiness": -1 } },
+		{ "id": "admin_2", "track": "admin", "level": 2, "title": "Staf Admin Senior", "education": "SMA", "salary": 7000000, "workload": { "health": 0, "happiness": -1 } },
+		{ "id": "admin_3", "track": "admin", "level": 3, "title": "Supervisor Operasional", "education": "D3", "salary": 10000000, "workload": { "health": -1, "happiness": -1 } },
+		{ "id": "admin_4", "track": "admin", "level": 4, "title": "Manajer Operasional", "education": "S1", "salary": 17000000, "workload": { "health": -1, "happiness": -2 } },
+		{ "id": "admin_5", "track": "admin", "level": 5, "title": "Direktur Operasional", "education": "S1", "salary": 35000000, "workload": { "health": -1, "happiness": -2 } },
+
+		{ "id": "finance_1", "track": "finance", "level": 1, "title": "Teller Bank", "education": "D3", "salary": 5500000, "workload": { "health": 0, "happiness": -1 } },
+		{ "id": "finance_2", "track": "finance", "level": 2, "title": "Analis Kredit", "education": "S1", "salary": 8500000, "workload": { "health": -1, "happiness": -1 } },
+		{ "id": "finance_3", "track": "finance", "level": 3, "title": "Analis Kredit Senior", "education": "S1", "salary": 13000000, "workload": { "health": -1, "happiness": -1 } },
+		{ "id": "finance_4", "track": "finance", "level": 4, "title": "Manajer Cabang", "education": "S1", "salary": 22000000, "workload": { "health": -1, "happiness": -2 } },
+		{ "id": "finance_5", "track": "finance", "level": 5, "title": "Kepala Divisi", "education": "S2", "salary": 40000000, "workload": { "health": -2, "happiness": -2 } },
+
+		{ "id": "tech_1", "track": "tech", "level": 1, "title": "Junior Developer", "education": "D3", "skill": 25, "salary": 7000000, "workload": { "health": 0, "happiness": -1 } },
+		{ "id": "tech_2", "track": "tech", "level": 2, "title": "Developer", "education": "D3", "skill": 40, "salary": 11000000, "workload": { "health": 0, "happiness": -1 } },
+		{ "id": "tech_3", "track": "tech", "level": 3, "title": "Senior Developer", "education": "S1", "skill": 55, "salary": 18000000, "workload": { "health": -1, "happiness": -1 } },
+		{ "id": "tech_4", "track": "tech", "level": 4, "title": "Tech Lead", "education": "S1", "skill": 70, "salary": 27000000, "workload": { "health": -1, "happiness": -2 } },
+		{ "id": "tech_5", "track": "tech", "level": 5, "title": "Engineering Manager", "education": "S1", "skill": 85, "salary": 40000000, "workload": { "health": -1, "happiness": -2 } },
+
+		{ "id": "creative_1", "track": "creative", "level": 1, "title": "Staf Konten", "education": "SMA", "salary": 5000000, "workload": { "health": 0, "happiness": 0 } },
+		{ "id": "creative_2", "track": "creative", "level": 2, "title": "Spesialis Pemasaran", "education": "D3", "salary": 7500000, "workload": { "health": 0, "happiness": -1 } },
+		{ "id": "creative_3", "track": "creative", "level": 3, "title": "Spesialis Pemasaran Senior", "education": "S1", "salary": 11000000, "workload": { "health": -1, "happiness": -1 } },
+		{ "id": "creative_4", "track": "creative", "level": 4, "title": "Manajer Pemasaran", "education": "S1", "salary": 18000000, "workload": { "health": -1, "happiness": -1 } },
+		{ "id": "creative_5", "track": "creative", "level": 5, "title": "Kepala Pemasaran", "education": "S1", "salary": 30000000, "workload": { "health": -1, "happiness": -2 } },
+
+		{ "id": "gig_ojol", "track": "gig", "level": 1, "title": "Pengemudi Ojek Online", "education": "", "skill": 0, "salary": 4000000, "volatility": 0.3, "workload": { "health": -2, "happiness": -1 } },
+		{ "id": "gig_courier", "track": "gig", "level": 1, "title": "Kurir Paket", "education": "", "skill": 0, "salary": 4200000, "volatility": 0.15, "workload": { "health": -2, "happiness": -1 } },
+		{ "id": "gig_designer", "track": "gig", "level": 1, "title": "Desainer Lepas", "education": "", "skill": 35, "salary": 6000000, "volatility": 0.5, "workload": { "health": 0, "happiness": 0 } }
+	]
+}

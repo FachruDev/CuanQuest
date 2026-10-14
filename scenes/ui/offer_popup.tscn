@@ -1,0 +1,112 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/offer_popup.gd" id="1_script"]
+[ext_resource type="Theme" path="res://theme/senja_theme.tres" id="2_theme"]
+[ext_resource type="Texture2D" path="res://assets/icons/badge_star.svg" id="3_icon"]
+
+[node name="OfferPopup" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.169, 0.129, 0.278, 0.62)
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Dialog" type="VBoxContainer" parent="Center"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(632, 0)
+layout_mode = 2
+theme_override_constants/separation = -64
+
+[node name="BadgeHolder" type="CenterContainer" parent="Center/Dialog"]
+z_index = 1
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Badge" type="PanelContainer" parent="Center/Dialog/BadgeHolder"]
+custom_minimum_size = Vector2(122, 129)
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"BadgeGoldPanel"
+
+[node name="Icon" type="TextureRect" parent="Center/Dialog/BadgeHolder/Badge"]
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("3_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Panel" type="PanelContainer" parent="Center/Dialog"]
+layout_mode = 2
+theme_type_variation = &"DialogPanel"
+
+[node name="VBox" type="VBoxContainer" parent="Center/Dialog/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Center/Dialog/Panel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"PopupTitleLabel"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="SubtitleHolder" type="CenterContainer" parent="Center/Dialog/Panel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Pill" type="PanelContainer" parent="Center/Dialog/Panel/VBox/SubtitleHolder"]
+layout_mode = 2
+theme_type_variation = &"SubtitlePill"
+
+[node name="Subtitle" type="Label" parent="Center/Dialog/Panel/VBox/SubtitleHolder/Pill"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"PillMutedLabel"
+
+[node name="Body" type="Label" parent="Center/Dialog/Panel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(1, 0)
+layout_mode = 2
+theme_type_variation = &"PopupBodyLabel"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Scroll" type="ScrollContainer" parent="Center/Dialog/Panel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Rows" type="VBoxContainer" parent="Center/Dialog/Panel/VBox/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="Buttons" type="VBoxContainer" parent="Center/Dialog/Panel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 10

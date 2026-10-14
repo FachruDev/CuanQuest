@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5a selesai; roadmap: Pekerjaan & Karier jadi v1.5b)
+- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5b langkah 1 selesai)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -15,7 +15,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **Prototipe waktu A/B/C** | Uji sistem waktu berjalan (tidak dipakai, diarsipkan) | ✅ |
 | **v1.5-0** | Giliran Bulanan yang Hidup | 🔄 5/5 langkah; tinggal playtest |
 | **v1.5a** | Realisme ekonomi | ✅ 5/5 langkah |
-| **v1.5b** | Pekerjaan & karier (melamar kerja, keahlian, jenjang) | ⬜ |
+| **v1.5b** | Pekerjaan & karier (melamar kerja, keahlian, jenjang) | 🔄 1/5 langkah |
 | **v1.5c** | Utang, properti, hunian yang tumbuh | ⬜ |
 | **v1.5d** | Tokoh, riset, kontrak, konten | ⬜ |
 | **v2a-v2d** | Instrumen lanjut, hidup penuh, dana investor, mini-game | ⬜ |
@@ -196,12 +196,38 @@ Tambahan di M6.5 (semua ✅): energi & 6 aktivitas bulanan, riwayat transaksi, p
 - ✅ Event sakit/kecelakaan berbeda hasilnya bagi yang berasuransi
 - ✅ Stop loss & take profit tereksekusi tepat dan tercatat di riwayat
 
-## v1.5b: Pekerjaan & Karier ⬜ (usulan pengembang, disetujui 14 Oktober 2026)
+## v1.5b: Pekerjaan & Karier 🔄 (usulan pengembang, disetujui 14 Oktober 2026)
 
-- ⬜ Mulai tanpa pekerjaan dengan modal awal (±Rp5 jt); latar belakang menentukan pendidikan & keahlian awal, bukan gaji
-- ⬜ Papan lowongan bulanan dari `data/jobs.json`: gaji, syarat (pendidikan, keahlian, pengalaman, kesehatan), beban kerja
-- ⬜ Melamar: peluang diterima naik jika melebihi syarat; wawancara sebagai event
-- ⬜ Stat baru: Keahlian (kursus, belajar, kuis), Pendidikan (kuliah/sertifikasi dengan biaya & waktu), Pengalaman (bulan bekerja)
+Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.2 (semua keputusan 5.2.10 disetujui). Kebutuhan aset: `docs/KEBUTUHAN_ASET.md`.
+
+### Langkah pengerjaan
+
+| Langkah | Isi | Status |
+|:--|:--|:--|
+| 1 | Fondasi pekerjaan: jobs.json, latar SMA/D3/S1 tanpa kerja (Rp5 jt), lowongan & melamar, tab Karier awal | ✅ |
+| 2 | Karier: kinerja, beban kerja, kenaikan prestasi, promosi, berhenti, PHK + pesangon, event kerja | ⬜ |
+| 3 | Pendidikan & keahlian: kuliah D3/S1/S2, kursus, sertifikasi, beasiswa | ⬜ |
+| 4 | Tampilan & cerita: wizard Game Baru, Beranda, Profil, petunjuk | ⬜ |
+| 5 | Penyeimbangan dengan simulator | ⬜ |
+
+### Rincian fitur
+
+**Langkah 1: Fondasi pekerjaan** ✅
+- ✅ `data/jobs.json`: 5 bidang x 5 jenjang + 3 kerja lepas (28 pekerjaan), syarat pendidikan/keahlian/pengalaman, gaji, beban kerja
+- ✅ Latar baru SMA/SMK (18), D3 (21), S1 (22); semua mulai tanpa pekerjaan dengan modal Rp5 jt (Santai Rp7,5 jt, Sulit Rp3 jt)
+- ✅ Statistik Pendidikan, Keahlian (0-100, kenaikan makin kecil saat tinggi), Pengalaman per bidang
+- ✅ Lowongan 4-6 per bulan (selalu ada kerja lepas & lowongan yang cocok), syarat ✓/✗, peluang diterima dalam persen
+- ✅ Melamar memakai 1 energi, maks. 3 per bulan; hasil awal bulan berikutnya di laporan (LAMARAN KERJA) + popup Tawaran Kerja; gaji pertama langsung dibayar
+- ✅ Tab Aktivitas menjadi **Karier** (kartu Pekerjaan + Lowongan + aktivitas, kuis, unlock)
+- ✅ Kursus & belajar mandiri menambah keahlian; kerja sampingan memberi uang tetap
+- ✅ Event naik gaji/promosi/tawaran startup dihapus (39 event); PHK membuat kehilangan pekerjaan + pesangon 2x gaji; sakit kritis = cuti tanpa gaji
+- ✅ Simulator `tools/balance` bisa mencari kerja (`--background=sma|d3|s1`)
+- ✅ `SAVE_VERSION` 3 (save v1.5a ditolak); `docs/KEBUTUHAN_ASET.md` disusun ulang per versi
+- 🔁 Ikon latar, ikon bidang, dan ikon tab Karier masih memakai ikon lain (lihat `docs/KEBUTUHAN_ASET.md`)
+
+**Langkah berikutnya**
+- ⬜ Wawancara sebagai event (langkah 2)
+- ⬜ Pendidikan lewat kuliah/sertifikasi dengan biaya & waktu (langkah 3)
 - ⬜ Jalur karier minimal 5 jenjang: naik jabatan lewat kinerja, pengalaman, dan keahlian; bisa pindah kerja
 - ⬜ Beban kerja tiap pekerjaan memengaruhi energi, kesehatan, kebahagiaan (menggantikan "rutinitas kerja" umum)
 - ⬜ Kerja sampingan saat menganggur (ojol, freelance)

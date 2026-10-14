@@ -6,6 +6,7 @@ extends Node
 ## Jalankan (data asli aman karena --save-root):
 ##   Godot --headless --path . res://tools/balance/balance_sim.tscn -- --save-root=user://_sim/
 ##       [--games=40] [--years=30] [--persona=all|hemat|penabung|boros|spekulan|acak] [--difficulty=normal]
+##       [--background=s1|d3|sma]
 ## Folder tools/ tidak ikut ke APK (exclude_filter di export_presets.cfg).
 
 ## Tipe pemain. invest = porsi gaji untuk autodebet; choice = cara memilih di event.
@@ -33,17 +34,18 @@ func _ready() -> void:
 	var games := int(args.get("games", "40"))
 	var years := int(args.get("years", "30"))
 	var difficulty: String = args.get("difficulty", "normal")
+	var background: String = args.get("background", "s1")
 	var names: Array = PERSONAS.keys() if args.get("persona", "all") == "all" else [args["persona"]]
 	# Simpan otomatis tidak perlu (dan memperlambat) selama simulasi.
 	for connection: Dictionary in GameState.state_committed.get_connections():
 		GameState.state_committed.disconnect(connection["callable"])
 	GameState.tutorial_done = true
-	print("Simulasi %d permainan x %d tahun, kesulitan %s, latar Pekerja Kantoran" % [games, years, difficulty])
+	print("Simulasi %d permainan x %d tahun, kesulitan %s, latar %s" % [games, years, difficulty, background])
 	var start := Time.get_ticks_msec()
 	for persona: String in names:
 		var results: Array[Dictionary] = []
 		for g in games:
-			results.append(_play(persona, 9000 + g, years, difficulty))
+			results.append(_play(persona, 9000 + g, years, difficulty, background))
 		_print_summary(persona, results, years)
 	print("Selesai dalam %d detik" % ((Time.get_ticks_msec() - start) / 1000))
 	get_tree().quit()
@@ -60,10 +62,10 @@ func _args() -> Dictionary:
 
 # --- Satu permainan ----------------------------------------------------------------
 
-func _play(persona: String, seed_value: int, years: int, difficulty: String) -> Dictionary:
+func _play(persona: String, seed_value: int, years: int, difficulty: String, background: String) -> Dictionary:
 	var p: Dictionary = PERSONAS[persona]
 	_rng.seed = seed_value * 7 + persona.hash()
-	GameState.new_game({"name": "Sim", "background": "employee", "difficulty": difficulty}, seed_value)
+	GameState.new_game({"name": "Sim", "background": background, "difficulty": difficulty}, seed_value)
 	GameState.dreams_asked = true
 	GameState.quiz.correct_ids.clear()
 	if p["food"] != "":
@@ -74,7 +76,7 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String) -> 
 	var snapshots := {}
 	var freedom_month := -1
 	var millionaire_month := -1
-	var start_salary := GameState.salary
+	var start_salary := 0  # gaji pekerjaan pertama (v1.5b: mulai tanpa kerja)
 	for m in years * 12:
 		if GameState.is_over:
 			break
@@ -83,6 +85,9 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String) -> 
 		if GameState.month % 12 == 0:
 			_update_plan(p)
 		GameState.advance_month()
+		_take_offer()
+		if start_salary == 0 and GameState.is_employed():
+			start_salary = roundi(GameState.salary / GameState.price_level())
 		_resolve_events(p)
 		if freedom_month < 0 and GameState.is_financially_free():
 			freedom_month = GameState.month
@@ -106,7 +111,10 @@ func _snapshot(start_salary: int) -> Dictionary:
 		"alive": not GameState.is_over,
 		"worth": GameState.net_worth(),
 		"real_worth": GameState.real_value(GameState.net_worth()),
-		"real_salary_growth": (GameState.salary / level) / float(start_salary),
+		"real_salary_growth": (GameState.salary / level) / float(maxi(start_salary, 1)),
+		"employed": GameState.is_employed(),
+		"skill": GameState.skill,
+		"months_unemployed": int(GameState.stats["months_unemployed"]),
 		"health": GameState.health, "happiness": GameState.happiness,
 		"taxes": float(GameState.stats["total_taxes"]),
 		"claims": float(GameState.stats["insurance_claims"]),
@@ -140,7 +148,38 @@ func _update_plan(p: Dictionary) -> void:
 	GameState.set_plan(plan)
 
 
+## Semua tipe pemain mencari kerja: lamar lowongan dengan gaji x peluang terbaik
+## (jika sudah bekerja, hanya yang gajinya minimal 10% lebih tinggi).
+func _job_actions() -> void:
+	var options: Array = []
+	for i in GameState.job_board.size():
+		if GameState.apply_block_reason(i) != "":
+			continue
+		var opening: Dictionary = GameState.job_board[i]
+		if GameState.is_employed() and opening["salary"] <= GameState.salary * 1.1:
+			continue
+		options.append([float(opening["salary"]) * GameState.hire_chance(GameState.job_def(opening["job_id"])), i])
+	options.sort_custom(func(a: Array, b: Array) -> bool: return a[0] > b[0])
+	for option: Array in options.slice(0, int(GameState.job_data["applications_per_month"])):
+		GameState.apply_job(option[1])
+
+
+## Ambil tawaran bergaji tertinggi (jika lebih baik dari pekerjaan sekarang).
+func _take_offer() -> void:
+	if GameState.job_offers.is_empty():
+		return
+	var best := 0
+	for i in GameState.job_offers.size():
+		if GameState.job_offers[i]["salary"] > GameState.job_offers[best]["salary"]:
+			best = i
+	if not GameState.is_employed() or GameState.job_offers[best]["salary"] > GameState.salary:
+		GameState.accept_offer(best)
+	else:
+		GameState.decline_offers()
+
+
 func _monthly_actions(p: Dictionary) -> void:
+	_job_actions()
 	var expenses := float(GameState.monthly_expenses())
 	if p["quiz"]:
 		_simulate_quiz()
@@ -274,9 +313,11 @@ func _print_summary(persona: String, results: Array[Dictionary], years: int) -> 
 		if year > years:
 			continue
 		var snaps: Array = results.map(func(r: Dictionary) -> Dictionary: return r["snapshots"][year])
-		print("  tahun %2d: kekayaan riil %s | nominal median %s | gaji riil x%s | sehat %s | bahagia %s" % [
+		var employed := snaps.filter(func(s: Dictionary) -> bool: return s["employed"]).size()
+		print("  tahun %2d: kekayaan riil %s | nominal median %s | gaji riil x%s | sehat %s | bahagia %s | bekerja %d%% | keahlian %d" % [
 			year, _range(snaps, "real_worth", true), Fmt.rupiah_short(_median(snaps, "worth")),
-			Fmt.number(_median(snaps, "real_salary_growth"), 2), int(_median(snaps, "health")), int(_median(snaps, "happiness"))])
+			Fmt.number(_median(snaps, "real_salary_growth"), 2), int(_median(snaps, "health")), int(_median(snaps, "happiness")),
+			roundi(100.0 * employed / snaps.size()), int(_median(snaps, "skill"))])
 	var last: int = CHECKPOINTS.filter(func(y: int) -> bool: return y <= years).max()
 	var finals: Array = results.map(func(r: Dictionary) -> Dictionary: return r["snapshots"][last])
 	print("  tahun %d: pajak total %s | premi asuransi %s | klaim %s | berobat tanpa asuransi %s (median, nominal)" % [

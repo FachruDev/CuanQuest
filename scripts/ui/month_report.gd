@@ -18,12 +18,16 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 	_add_header(box, "REPORT_INCOME")
 	if r.get("unemployed", false):
 		_add_row(box, "REPORT_SALARY_UNEMPLOYED", Fmt.rupiah(0), Palette.LOSS)
+	elif r.get("unpaid_leave", false):
+		_add_row(box, "REPORT_SALARY_UNPAID", Fmt.rupiah(0), Palette.LOSS)
 	else:
 		_add_row(box, "REPORT_SALARY", Fmt.signed_rupiah(r["salary"]), Palette.GAIN)
 		if int(r.get("income_tax", 0)) > 0:
 			_add_row(box, "REPORT_INCOME_TAX", Fmt.signed_rupiah(-r["income_tax"]), Palette.LOSS)
 	if float(r.get("salary_raise", 0.0)) > 0.0:
 		_add_row(box, "REPORT_SALARY_RAISE", Fmt.percent(r["salary_raise"]), Palette.GAIN)
+
+	_add_applications(box, r)
 
 	_add_header(box, "REPORT_EXPENSES")
 	_add_row(box, "REPORT_FOOD", Fmt.signed_rupiah(-r["food_cost"]), Palette.LOSS)
@@ -108,6 +112,19 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 			TranslationServer.translate(sale["asset_key"]), Fmt.rupiah(sale["proceeds"])], Palette.LOSS)
 	for warning: String in r.get("warnings", []):
 		_add_text(box, warning, Palette.LOSS)
+
+
+## Hasil lamaran kerja bulan lalu (v1.5b): diterima -> tawaran menunggu keputusan; ditolak.
+static func _add_applications(box: VBoxContainer, r: Dictionary) -> void:
+	var accepted: Array = r.get("applications_accepted", [])
+	var rejected: Array = r.get("applications_rejected", [])
+	if accepted.is_empty() and rejected.is_empty():
+		return
+	_add_header(box, "REPORT_APPLICATIONS")
+	for title: String in accepted:
+		_add_text(box, TranslationServer.translate("REPORT_APPLICATION_ACCEPTED") % title, Palette.GAIN)
+	for title: String in rejected:
+		_add_text(box, TranslationServer.translate("REPORT_APPLICATION_REJECTED") % title, Palette.LOSS)
 
 
 ## Stop loss / take profit yang terpicu bulan ini (v1.5a langkah 4): tanggal, harga, untung/rugi,

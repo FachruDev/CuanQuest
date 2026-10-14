@@ -17,13 +17,15 @@ signal game_ended(result: Dictionary)
 signal goal_reached(goal: String)
 ## Impian terwujud (dana pos impian mencapai biayanya). `dream` = entri impian + "def".
 signal dream_achieved(dream: Dictionary)
+## Lamaran kerja diterima (v1.5b): `offers` = tawaran yang menunggu keputusan pemain.
+signal job_offers_received(offers: Array)
 ## Tenggat impian terlewat; pemain memilih memperpanjang atau melepas.
 signal dream_overdue(dream: Dictionary)
 ## Target bulanan selesai di tengah bulan (untuk notifikasi singkat).
 signal target_completed(target: Dictionary)
 
 ## Versi slot save. Naik ke 2 di v1.5 (pasar harian); save lama ditolak, tanpa migrasi.
-const SAVE_VERSION := 2
+const SAVE_VERSION := 3
 ## Versi data pemain (user://player.json): kuis, tutorial, riwayat. Tidak ikut naik
 ## agar progres kuis tidak hilang saat format slot save berubah.
 const PLAYER_VERSION := 1
@@ -38,6 +40,7 @@ const QUIZ_PATH := "res://data/quiz.json"
 const ACTIVITIES_PATH := "res://data/activities.json"
 const DREAMS_PATH := "res://data/dreams.json"
 const INSURANCE_PATH := "res://data/insurance.json"
+const JOBS_PATH := "res://data/jobs.json"
 const RISK_PROFILE_PATH := "res://data/risk_profile.json"
 const MAX_TRANSACTIONS := 200
 
@@ -55,11 +58,20 @@ var difficulty: Dictionary = {}    # salah satu economy.difficulties
 
 var month: int = 0                 # 0 = Jan tahun 1
 var cash: int = 0                  # Rupiah disimpan sebagai int (hindari error pembulatan float)
-var salary: int = 0
+var salary: int = 0                # gaji bruto pekerjaan sekarang (0 = belum bekerja)
 var health: int = 0                # 0..100
 var happiness: int = 0             # 0..100
 var xp: int = 0
-var unemployed_months: int = 0     # sisa bulan tanpa gaji (setelah PHK)
+var unpaid_months: int = 0         # sisa bulan cuti tanpa gaji (mis. sakit kritis), pekerjaan tetap
+## Pekerjaan & karier (v1.5b). job = {} jika belum/tidak bekerja; {"id", "company", "since"}.
+var job: Dictionary = {}
+var education := 0                       # indeks jobs.json education_levels (0 = SMA)
+var skill := 0.0                         # keahlian 0-100
+var experience: Dictionary = {}          # bidang -> bulan bekerja
+var job_board: Array[Dictionary] = []    # lowongan bulan ini: [{job_id, company, salary, applied}]
+var applications: Array[Dictionary] = [] # lamaran bulan ini (hasilnya awal bulan depan)
+var job_offers: Array[Dictionary] = []   # lamaran yang diterima, menunggu keputusan pemain
+var job_data: Dictionary = {}            # isi data/jobs.json
 var food_id: String = ""
 var housing_id: String = ""
 var holdings: Dictionary = {}      # asset_id -> { "units": float, "cost": float, "locked_until": int }
@@ -142,6 +154,7 @@ func _ready() -> void:
 	risk_data = DataLoader.load_json(RISK_PROFILE_PATH)
 	dream_defs = DataLoader.load_json(DREAMS_PATH).get("dreams", [])
 	insurance_data = DataLoader.load_json(INSURANCE_PATH)
+	job_data = DataLoader.load_json(JOBS_PATH)
 
 
 ## `profile`: { "name", "avatar", "background", "difficulty" } (semua opsional).
@@ -161,12 +174,19 @@ func new_game(profile: Dictionary = {}, seed_value: int = -1) -> void:
 	difficulty = _find_option(economy["difficulties"], profile.get("difficulty", economy["default_difficulty"]))
 
 	month = 0
-	cash = int(background["start_cash"])
-	salary = roundi(background["salary"] * difficulty["salary_mult"] / 1000.0) * 1000
+	cash = int(difficulty["start_cash"])
+	salary = 0  # v1.5b: mulai tanpa pekerjaan, harus melamar
+	job = {}
+	education = education_index(background["education"])
+	skill = float(background["skill"])
+	experience.clear()
+	job_board.clear()
+	applications.clear()
+	job_offers.clear()
 	health = int(economy["start_health"])
 	happiness = int(economy["start_happiness"])
 	xp = 0
-	unemployed_months = 0
+	unpaid_months = 0
 	food_id = background["default_food"]
 	housing_id = background["default_housing"]
 	plan = default_plan()
@@ -281,6 +301,8 @@ func advance_month() -> void:
 	if not _fast_forwarding:
 		month_advanced.emit(last_report)
 	_flush_dream_signals()
+	if not job_offers.is_empty() and not _fast_forwarding:
+		job_offers_received.emit(job_offers)
 	if _check_end():
 		return
 	_check_goals()
@@ -355,21 +377,16 @@ func _pay_interest() -> float:
 
 
 ## Awal bulan: gaji masuk (kecuali sedang menganggur), biaya hidup terpotong,
-## kesehatan & kebahagiaan berubah. Freelancer: penghasilan naik-turun tiap bulan.
+## kesehatan & kebahagiaan berubah. Hasil lamaran bulan lalu diumumkan & lowongan baru muncul.
 func _start_month() -> Dictionary:
 	var food := food_option()
 	var housing := housing_option()
 	var health_before := health
 	var happiness_before := happiness
-	var salary_raise := _index_salary() if month > 0 and month % 12 == 0 else 0.0
-
-	var paid := salary
-	var volatility := float(background["income_volatility"])
-	if volatility > 0.0:
-		paid = roundi(salary * (1.0 + rng.randf_range(-volatility, volatility)) / 1000.0) * 1000
-	if unemployed_months > 0:
-		paid = 0
-		unemployed_months -= 1
+	var salary_raise := _index_salary() if month > 0 and month % 12 == 0 and is_employed() else 0.0
+	var job_news := _resolve_applications()
+	var paid := _monthly_pay()
+	_work_month()
 
 	energy_capacity = energy_max()
 	energy = energy_capacity
@@ -393,17 +410,255 @@ func _start_month() -> Dictionary:
 	var budget := _apply_budget(month_income) if plan.get("confirmed", false) else {}
 	_check_dreams()
 	targets = _new_targets()
+	_refresh_job_board()
 
 	return {
 		"salary": paid,
 		"income_tax": salary_tax,
-		"unemployed": paid == 0,
+		"unemployed": not is_employed(),
+		"unpaid_leave": is_employed() and paid == 0,
+		"applications_accepted": job_news["accepted"],
+		"applications_rejected": job_news["rejected"],
 		"food_cost": food_cost,
 		"housing_cost": housing_cost,
 		"health_delta": health - health_before,
 		"happiness_delta": happiness - happiness_before,
 		"salary_raise": salary_raise,
 	}.merged(insurance).merged(budget)
+
+
+# --- Pekerjaan & karier (v1.5b) ------------------------------------------------------
+# Permainan dimulai tanpa pekerjaan. Tiap awal bulan muncul lowongan (data/jobs.json);
+# melamar memakai energi dan hasilnya diumumkan awal bulan berikutnya. Lamaran yang diterima
+# menjadi tawaran: diambil = mulai bekerja (gaji pertama langsung dibayar jika belum ada gaji).
+
+func is_employed() -> bool:
+	return not job.is_empty()
+
+
+func job_def(id: String) -> Dictionary:
+	for def: Dictionary in job_data.get("jobs", []):
+		if def["id"] == id:
+			return def
+	return {}
+
+
+func track_def(id: String) -> Dictionary:
+	for def: Dictionary in job_data.get("tracks", []):
+		if def["id"] == id:
+			return def
+	return {}
+
+
+func current_job_def() -> Dictionary:
+	return job_def(job.get("id", ""))
+
+
+## Kerja lepas: penghasilan naik-turun tiap bulan (0.3 = hingga 30%).
+func income_volatility() -> float:
+	return float(current_job_def().get("volatility", 0.0))
+
+
+## "SMA" -> 0, "S1" -> 2. "" (tanpa syarat) -> -1.
+func education_index(id: String) -> int:
+	var levels: Array = job_data.get("education_levels", [])
+	for i in levels.size():
+		if levels[i]["id"] == id:
+			return i
+	return -1
+
+
+func education_name(index: int) -> String:
+	var levels: Array = job_data.get("education_levels", [])
+	return levels[index]["name"] if index >= 0 and index < levels.size() else ""
+
+
+func job_skill_requirement(def: Dictionary) -> float:
+	if def.has("skill"):
+		return float(def["skill"])
+	return float(job_data["skill_by_level"][int(def["level"]) - 1])
+
+
+## Pengalaman di bidang yang sama yang dibutuhkan pelamar dari luar (kerja lepas: tidak ada).
+func job_experience_requirement(def: Dictionary) -> int:
+	if def["track"] == "gig":
+		return 0
+	return int(job_data["experience_by_level"][int(def["level"]) - 1])
+
+
+## Syarat lowongan untuk ditampilkan: [{type: education|skill|experience, need, have, met}]
+func job_requirements(def: Dictionary) -> Array[Dictionary]:
+	var reqs: Array[Dictionary] = []
+	var need_education := education_index(def.get("education", ""))
+	if need_education >= 0:
+		reqs.append({"type": "education", "need": need_education, "have": education, "met": education >= need_education})
+	var need_skill := job_skill_requirement(def)
+	if need_skill > 0.0:
+		reqs.append({"type": "skill", "need": need_skill, "have": skill, "met": skill + 0.001 >= need_skill})
+	var need_experience := job_experience_requirement(def)
+	if need_experience > 0:
+		var have := int(experience.get(def["track"], 0))
+		reqs.append({"type": "experience", "need": need_experience, "have": have, "met": have >= need_experience})
+	return reqs
+
+
+func meets_requirements(def: Dictionary) -> bool:
+	return job_requirements(def).all(func(r: Dictionary) -> bool: return r["met"])
+
+
+## Peluang diterima (0-1). 0 jika ada syarat yang belum terpenuhi.
+func hire_chance(def: Dictionary) -> float:
+	if not meets_requirements(def):
+		return 0.0
+	var cfg: Dictionary = job_data["chance"]
+	if def["track"] == "gig":
+		return float(cfg["gig"])
+	var chance := float(cfg["base"]) + float(cfg["per_5_skill"]) * floorf((skill - job_skill_requirement(def)) / 5.0)
+	if education > education_index(def.get("education", "")):
+		chance += float(cfg["higher_education"])
+	return clampf(chance, 0.0, float(cfg["max"]))
+
+
+## "" jika lowongan ke-`index` bisa dilamar, atau key pesan alasannya.
+func apply_block_reason(index: int) -> String:
+	var opening: Dictionary = job_board[index]
+	if opening.get("applied", false):
+		return "ERR_JOB_APPLIED"
+	if is_employed() and job["id"] == opening["job_id"] and job["company"] == opening["company"]:
+		return "ERR_JOB_CURRENT"
+	if is_over or has_pending_event():
+		return "ERR_ACTIVITY_BUSY"
+	if not meets_requirements(job_def(opening["job_id"])):
+		return "ERR_JOB_REQUIREMENTS"
+	if applications.size() >= int(job_data["applications_per_month"]):
+		return "ERR_JOB_LIMIT"
+	if energy < int(job_data["apply_energy"]):
+		return "ERR_NO_ENERGY"
+	return ""
+
+
+## Melamar lowongan ke-`index` bulan ini (memakai energi). -> {ok, error}
+func apply_job(index: int) -> Dictionary:
+	var reason := apply_block_reason(index)
+	if reason != "":
+		return {"ok": false, "error": reason}
+	var opening: Dictionary = job_board[index]
+	energy -= int(job_data["apply_energy"])
+	opening["applied"] = true
+	applications.append({"job_id": opening["job_id"], "company": opening["company"],
+		"salary": opening["salary"], "chance": hire_chance(job_def(opening["job_id"]))})
+	stats["applications"] += 1
+	changed.emit()
+	state_committed.emit()
+	return {"ok": true}
+
+
+## Mengambil tawaran ke-`index`; tawaran lain otomatis ditolak. Jika bulan ini belum ada
+## gaji (baru mulai bekerja), gaji pertama langsung dibayar agar modal tidak habis menunggu.
+func accept_offer(index: int) -> void:
+	var offer: Dictionary = job_offers[index]
+	var first_salary := 0
+	if not is_employed() and month_income == 0:
+		first_salary = int(offer["salary"])
+	job = {"id": offer["job_id"], "company": offer["company"], "since": month}
+	salary = int(offer["salary"])
+	unpaid_months = 0
+	job_offers.clear()
+	stats["jobs_taken"] += 1
+	if first_salary > 0:
+		var tax := income_tax(first_salary)
+		cash += first_salary - tax
+		month_income = first_salary - tax
+		stats["total_salary"] += first_salary
+		stats["total_taxes"] += tax
+	changed.emit()
+	state_committed.emit()
+
+
+func decline_offers() -> void:
+	job_offers.clear()
+	changed.emit()
+	state_committed.emit()
+
+
+## Hasil lamaran bulan lalu: diterima -> tawaran (job_offers), sisanya ditolak.
+## Tawaran lama yang tidak diambil sudah kedaluwarsa.
+func _resolve_applications() -> Dictionary:
+	job_offers.clear()
+	var accepted: Array[String] = []
+	var rejected: Array[String] = []
+	for application: Dictionary in applications:
+		var title: String = job_def(application["job_id"])["title"]
+		if rng.randf() < float(application["chance"]):
+			job_offers.append(application)
+			accepted.append("%s · %s" % [title, application["company"]])
+		else:
+			rejected.append("%s · %s" % [title, application["company"]])
+	applications.clear()
+	return {"accepted": accepted, "rejected": rejected}
+
+
+## Gaji bulan ini: 0 jika belum bekerja atau sedang cuti tanpa gaji; kerja lepas naik-turun.
+func _monthly_pay() -> int:
+	if not is_employed():
+		stats["months_unemployed"] += 1
+		return 0
+	if unpaid_months > 0:
+		unpaid_months -= 1
+		return 0
+	var volatility := income_volatility()
+	if volatility > 0.0:
+		return roundi(salary * (1.0 + rng.randf_range(-volatility, volatility)) / 1000.0) * 1000
+	return salary
+
+
+## Bekerja sebulan: pengalaman di bidang ini +1 bulan, keahlian +1 tiap beberapa bulan.
+func _work_month() -> void:
+	if not is_employed():
+		return
+	var track: String = current_job_def()["track"]
+	experience[track] = int(experience.get(track, 0)) + 1
+	var months_worked := month - int(job["since"])
+	if months_worked > 0 and months_worked % int(job_data["skill_every_months"]) == 0:
+		_gain_skill(1.0)
+
+
+## Keahlian naik makin pelan saat sudah tinggi (maks. 100).
+func _gain_skill(amount: float) -> void:
+	skill = clampf(skill + amount * (1.0 - skill / 150.0), 0.0, 100.0)
+
+
+func _leave_job() -> void:
+	job = {}
+	salary = 0
+	unpaid_months = 0
+
+
+## Lowongan bulan ini: 1 kerja lepas, 1 yang paling tinggi jenjangnya di antara yang syaratnya
+## terpenuhi, sisanya acak sampai jenjang berikutnya (sebagai motivasi). Gaji ikut inflasi.
+func _refresh_job_board() -> void:
+	var cfg: Dictionary = job_data["board"]
+	var gigs: Array = job_data["jobs"].filter(func(def: Dictionary) -> bool: return def["track"] == "gig")
+	var careers: Array = job_data["jobs"].filter(func(def: Dictionary) -> bool: return def["track"] != "gig")
+	var count := rng.randi_range(int(cfg["min"]), int(cfg["max"]))
+	var picked: Array = [gigs[rng.randi() % gigs.size()]]
+	var qualified: Array = careers.filter(meets_requirements)
+	var best_level := 1
+	if not qualified.is_empty():
+		best_level = qualified.map(func(def: Dictionary) -> int: return int(def["level"])).max()
+		var best: Array = qualified.filter(func(def: Dictionary) -> bool: return int(def["level"]) == best_level)
+		picked.append(best[rng.randi() % best.size()])
+	var pool: Array = careers.filter(func(def: Dictionary) -> bool:
+		return int(def["level"]) <= best_level + 1 and not def in picked)
+	while picked.size() < count and not pool.is_empty():
+		picked.append(pool.pop_at(rng.randi() % pool.size()))
+	job_board.clear()
+	var spread: Array = cfg["salary_spread"]
+	for def: Dictionary in picked:
+		var companies: Array = track_def(def["track"])["companies"]
+		var base := float(def["salary"]) * float(difficulty["salary_mult"]) * rng.randf_range(float(spread[0]), float(spread[1]))
+		job_board.append({"job_id": def["id"], "company": companies[rng.randi() % companies.size()],
+			"salary": nominal(base), "applied": false})
 
 
 # --- Asuransi (v1.5a langkah 3) ---------------------------------------------------
@@ -797,6 +1052,7 @@ func event_context() -> Dictionary:
 		"low_health": health < int(cfg["low_health"]),
 		"holds_risky": risky,
 		"holds_crypto": crypto,
+		"unemployed": not is_employed(),
 	}
 
 
@@ -878,7 +1134,12 @@ func _apply_effects(e: Dictionary) -> void:
 	xp += int(e.get("xp", 0))
 	if e.has("salary_pct"):
 		salary = roundi(salary * (1.0 + float(e["salary_pct"])) / 1000.0) * 1000
-	unemployed_months += int(e.get("unemployed_months", 0))
+	if is_employed():  # cuti tanpa gaji hanya berarti jika sedang bekerja
+		unpaid_months += int(e.get("unpaid_months", 0))
+	if e.has("skill"):
+		_gain_skill(float(e["skill"]))
+	if e.get("lose_job", false):
+		_leave_job()
 	if e.has("delayed"):
 		var d: Dictionary = e["delayed"].duplicate(true)
 		d["due"] = month + int(d["months"])
@@ -1280,7 +1541,7 @@ func to_dict() -> Dictionary:
 		"profile": {"name": player_name, "avatar": avatar,
 			"background": background["id"], "difficulty": difficulty["id"]},
 		"month": month, "cash": cash, "salary": salary, "health": health,
-		"happiness": happiness, "xp": xp, "unemployed_months": unemployed_months,
+		"happiness": happiness, "xp": xp, "unpaid_months": unpaid_months,
 		"food_id": food_id, "housing_id": housing_id,
 		"holdings": holdings, "unlocked_stages": unlocked_stages,
 		"net_worth_history": net_worth_history, "last_report": last_report,
@@ -1296,6 +1557,8 @@ func to_dict() -> Dictionary:
 		"transactions": transactions, "transaction_seq": transaction_seq, "risk_profile": risk_profile_id,
 		"plan": plan, "plan_applied_month": plan_applied_month, "month_income": month_income,
 		"dreams": dreams, "dreams_asked": dreams_asked, "targets": targets, "policies": policies, "orders": orders,
+		"job": job, "education": education, "skill": skill, "experience": experience,
+		"job_board": job_board, "applications": applications, "job_offers": job_offers,
 		"turn_units": turn_units, "turn_fees": turn_fees, "turn_trades": turn_trades, "month_costs": month_costs,
 		"event_queue": event_queue, "chain_events": chain_events, "director": director,
 	}
@@ -1319,7 +1582,7 @@ func load_from_dict(d: Dictionary) -> bool:
 	health = int(d["health"])
 	happiness = int(d["happiness"])
 	xp = int(d["xp"])
-	unemployed_months = int(d["unemployed_months"])
+	unpaid_months = int(d["unpaid_months"])
 	food_id = d["food_id"]
 	housing_id = d["housing_id"]
 	holdings.clear()
@@ -1378,6 +1641,21 @@ func load_from_dict(d: Dictionary) -> bool:
 	for category: String in d.get("policies", {}):
 		var saved_policy: Dictionary = d["policies"][category]
 		policies[category] = {"id": saved_policy["id"], "since": int(saved_policy["since"])}
+	job = {}
+	if not d["job"].is_empty():
+		job = {"id": d["job"]["id"], "company": d["job"]["company"], "since": int(d["job"]["since"])}
+	education = int(d["education"])
+	skill = float(d["skill"])
+	experience.clear()
+	for track: String in d["experience"]:
+		experience[track] = int(d["experience"][track])
+	for list: Array in [[job_board, d["job_board"]], [applications, d["applications"]], [job_offers, d["job_offers"]]]:
+		var target: Array[Dictionary] = list[0]
+		target.clear()
+		for entry: Dictionary in list[1]:
+			var copy := entry.duplicate()
+			copy["salary"] = int(entry["salary"])
+			target.append(copy)
 	orders.clear()
 	for asset_id: String in d.get("orders", {}):
 		var saved_order: Dictionary = d["orders"][asset_id]
@@ -1422,7 +1700,7 @@ func _new_stats() -> Dictionary:
 		"unaffordable_choices": 0, "luxury_months": 0, "cash_heavy_months": 0,
 		"panic_sell": false, "total_lifestyle": 0, "total_autodebet": 0, "dreams_achieved": 0,
 		"targets_done": 0, "insurance_premiums": 0, "insurance_claims": 0, "uninsured_medical": 0, "orders_executed": 0,
-		"activity_totals": {},
+		"activity_totals": {}, "months_unemployed": 0, "applications": 0, "jobs_taken": 0,
 		"best_trade": {}, "worst_trade": {}, "best_event": {}, "worst_event": {},
 	}
 
@@ -1711,6 +1989,8 @@ func default_plan() -> Dictionary:
 
 ## Rencana perlu dicek pemain: belum pernah disimpan, atau gaji pokok berubah sejak terakhir dicek.
 func plan_needs_review() -> bool:
+	if not is_employed():
+		return false  # belum ada gaji untuk dibagi; popup muncul setelah diterima kerja
 	return not plan.get("confirmed", false) or int(plan.get("salary_seen", 0)) != salary
 
 

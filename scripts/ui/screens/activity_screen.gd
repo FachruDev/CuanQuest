@@ -1,6 +1,6 @@
 extends ScrollContainer
-## Tab Aktivitas (tema "Senja Cuan"): aktivitas bulanan (energi), level & XP,
-## kuis (jatah mingguan, tanpa iklan), dan progres unlock instrumen.
+## Tab Karier (dulu Aktivitas, tema "Senja Cuan"): pekerjaan & lowongan (v1.5b), aktivitas
+## bulanan (energi), level & XP, kuis (jatah mingguan, tanpa iklan), dan progres unlock instrumen.
 
 ## Main yang menampilkan popup kuis (lewat antrean popup), screen ini hanya meminta.
 signal quiz_requested(question: Dictionary)
@@ -15,6 +15,16 @@ const ACTIVITY_TILES := {
 	"exercise": &"IconTileCoral", "hangout": &"IconTilePurple", "rest": &"IconTileBlue",
 }
 const DIMMED := Color(1, 1, 1, 0.5)
+## Ikon & warna kotak per bidang pekerjaan (assets/icons/tracks/<bidang>.svg, cadangan: dompet).
+const TRACK_ICON := "res://assets/icons/tracks/%s.svg"
+const TRACK_ICON_FALLBACK := "res://assets/icons/wallet.svg"
+const TRACK_TILES := {
+	"retail": &"IconTileCoral", "admin": &"IconTileBlue", "finance": &"IconTileMint",
+	"tech": &"IconTilePurple", "creative": &"IconTileGold", "gig": &"IconTileCoral",
+}
+
+var _job_box: VBoxContainer    # isi kartu Pekerjaan (dibangun ulang saat data berubah)
+var _board_box: VBoxContainer  # daftar lowongan bulan ini
 
 ## activity_id -> { button, faded: Array[Control], cost: Label, used: Label, reason: Label }
 var _activity_rows: Dictionary = {}
@@ -22,6 +32,7 @@ var _activity_rows: Dictionary = {}
 
 func _ready() -> void:
 	%StartQuizButton.pressed.connect(_on_start_quiz)
+	_build_career_sections()
 	_build_activities()
 	GameState.changed.connect(_refresh)
 	visibility_changed.connect(_refresh)  # jatah kuis bisa reset karena waktu nyata berjalan
@@ -31,6 +42,8 @@ func _ready() -> void:
 func _refresh() -> void:
 	if not is_visible_in_tree():
 		return
+	_refresh_job()
+	_refresh_board()
 	_refresh_energy()
 	_refresh_activities()
 
@@ -129,6 +142,194 @@ func _on_start_quiz() -> void:
 		quiz_requested.emit(question)
 
 
+# --- Pekerjaan & lowongan (v1.5b) --------------------------------------------
+
+## Judul + kartu Pekerjaan di paling atas, judul + daftar Lowongan setelah kartu energi,
+## lalu judul untuk daftar aktivitas yang sudah ada.
+func _build_career_sections() -> void:
+	var page: VBoxContainer = $VBox
+	var job_card := PanelContainer.new()
+	job_card.theme_type_variation = &"HomeCard"
+	_job_box = VBoxContainer.new()
+	_job_box.add_theme_constant_override("separation", 10)
+	job_card.add_child(_job_box)
+	page.add_child(job_card)
+	page.move_child(job_card, 0)
+	var job_title := _section_title(tr("CAREER_JOB_TITLE"))
+	page.add_child(job_title)
+	page.move_child(job_title, 0)
+
+	_board_box = VBoxContainer.new()
+	_board_box.add_theme_constant_override("separation", 12)
+	var index := %FeedbackBox.get_index() + 1
+	for node: Control in [_section_title(tr("CAREER_BOARD_TITLE")), _board_box, _section_title(tr("ACT_LIST_TITLE"))]:
+		page.add_child(node)
+		page.move_child(node, index)
+		index += 1
+
+
+func _section_title(text: String) -> Label:
+	var label := _label(text, &"SubSectionLabel")
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	return label
+
+
+## Pekerjaan sekarang (atau "Belum bekerja" + lamaran terkirim) dan bekal karier pemain.
+func _refresh_job() -> void:
+	_clear(_job_box)
+	if GameState.is_employed():
+		var def := GameState.current_job_def()
+		var track := GameState.track_def(def["track"])
+		var since := int(GameState.job["since"])
+		_job_box.add_child(_job_head(def, "%s · %s" % [tr(track["name"]), GameState.job["company"]],
+			tr("CAREER_PER_MONTH") % Fmt.rupiah(GameState.salary)))
+		var info := tr("CAREER_SINCE") % [Fmt.game_date(since), GameState.month - since]
+		if GameState.income_volatility() > 0.0:
+			info += " · " + tr("HOME_INCOME_VARIES") % roundi(GameState.income_volatility() * 100)
+		if GameState.unpaid_months > 0:
+			info += "\n" + tr("CAREER_UNPAID") % GameState.unpaid_months
+		_job_box.add_child(_wrap(info, &"SmallMutedLabel"))
+	else:
+		var title := _label(tr("CAREER_UNEMPLOYED"), &"AssetNameLabel")
+		title.add_theme_color_override("font_color", Palette.LOSS)
+		_job_box.add_child(title)
+		_job_box.add_child(_wrap(tr("CAREER_UNEMPLOYED_HINT"), &"SmallMutedLabel"))
+	if not GameState.applications.is_empty():
+		var sent: Array[String] = []
+		for application: Dictionary in GameState.applications:
+			sent.append(tr("CAREER_SENT_ITEM") % [tr(GameState.job_def(application["job_id"])["title"]),
+				roundi(float(application["chance"]) * 100)])
+		_job_box.add_child(_wrap(tr("CAREER_SENT") % ", ".join(sent), &"InfoLabel"))
+
+	var chips := HFlowContainer.new()
+	chips.add_theme_constant_override("h_separation", 6)
+	chips.add_theme_constant_override("v_separation", 6)
+	chips.add_child(_text_chip(tr("CAREER_EDUCATION") % GameState.education_name(GameState.education), &"SmallChipGold"))
+	chips.add_child(_text_chip(tr("CAREER_SKILL") % floori(GameState.skill), &"SmallChipGold"))
+	for track: Dictionary in GameState.job_data["tracks"]:
+		var months := int(GameState.experience.get(track["id"], 0))
+		if months > 0:
+			chips.add_child(_text_chip(tr("CAREER_EXPERIENCE") % [tr(track["name"]), months], &"SmallChipNeutral"))
+	_job_box.add_child(chips)
+
+
+## Kartu per lowongan: nama, bidang & perusahaan, gaji, syarat ✓/✗, peluang, tombol Lamar.
+func _refresh_board() -> void:
+	_clear(_board_box)
+	_board_box.add_child(_wrap(tr("CAREER_BOARD_HINT") % [int(GameState.job_data["applications_per_month"]),
+		int(GameState.job_data["apply_energy"])], &"SmallMutedLabel"))
+	for i in GameState.job_board.size():
+		var opening: Dictionary = GameState.job_board[i]
+		var def := GameState.job_def(opening["job_id"])
+		var track := GameState.track_def(def["track"])
+		var card := PanelContainer.new()
+		card.theme_type_variation = &"HomeCard"
+		var box := VBoxContainer.new()
+		box.add_theme_constant_override("separation", 8)
+		card.add_child(box)
+		var sub := "%s · %s" % [tr(track["name"]), opening["company"]]
+		if def["track"] != "gig":
+			sub = "%s · %s" % [tr("CAREER_LEVEL") % int(def["level"]), sub]
+		box.add_child(_job_head(def, sub, tr("CAREER_PER_MONTH") % Fmt.rupiah(opening["salary"])))
+
+		var reqs := HFlowContainer.new()
+		reqs.add_theme_constant_override("h_separation", 12)
+		reqs.add_theme_constant_override("v_separation", 2)
+		for req: Dictionary in GameState.job_requirements(def):
+			var label := _label("%s %s" % ["✓" if req["met"] else "✗", _requirement_text(req, def)], &"ReqLabel")
+			label.add_theme_color_override("font_color", Palette.GAIN if req["met"] else Palette.LOSS)
+			reqs.add_child(label)
+		if reqs.get_child_count() == 0:
+			reqs.add_child(_label("✓ " + tr("CAREER_NO_REQUIREMENTS"), &"ReqLabel"))
+		box.add_child(reqs)
+
+		var footer := HBoxContainer.new()
+		footer.add_theme_constant_override("separation", 8)
+		var chance := GameState.hire_chance(def)
+		var chance_chip := _text_chip(tr("CAREER_CHANCE") % roundi(chance * 100),
+			&"MoodGreen" if chance >= 0.7 else (&"MoodGold" if chance > 0.0 else &"MoodRed"))
+		chance_chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		footer.add_child(chance_chip)
+		if float(def.get("volatility", 0.0)) > 0.0:
+			var varies := _text_chip(tr("CAREER_VARIES") % roundi(float(def["volatility"]) * 100), &"MoodNeutral")
+			varies.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			footer.add_child(varies)
+		var spacer := Control.new()
+		spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		footer.add_child(spacer)
+		var reason := GameState.apply_block_reason(i)
+		var button := UiText.chunky_button(tr("CAREER_APPLY") if reason == "" else tr(reason + "_SHORT"),
+			&"PrimaryButton" if reason == "" else &"NeutralButton",
+			&"PrimaryButtonLabel" if reason == "" else &"NeutralButtonLabel", 60.0, 20)
+		button.custom_minimum_size.x = 200
+		button.disabled = reason != ""
+		button.pressed.connect(_on_apply.bind(i))
+		footer.add_child(button)
+		box.add_child(footer)
+		_board_box.add_child(card)
+
+
+func _job_head(def: Dictionary, sub: String, value: String) -> HBoxContainer:
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 12)
+	var icon := TRACK_ICON % def["track"]
+	head.add_child(UiText.icon_tile(icon if ResourceLoader.exists(icon) else TRACK_ICON_FALLBACK,
+		TRACK_TILES.get(def["track"], &"IconTileGold")))
+	var texts := VBoxContainer.new()
+	texts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	texts.add_theme_constant_override("separation", 0)
+	var title := _wrap(tr(def["title"]), &"AssetNameLabel")
+	texts.add_child(title)
+	texts.add_child(_wrap(sub, &"SmallMutedLabel"))
+	head.add_child(texts)
+	var value_label := _label(value, &"AssetValueLabel")
+	value_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	head.add_child(value_label)
+	return head
+
+
+func _requirement_text(req: Dictionary, def: Dictionary) -> String:
+	match req["type"]:
+		"education":
+			return tr("CAREER_REQ_EDUCATION") % GameState.education_name(int(req["need"]))
+		"skill":
+			return tr("CAREER_REQ_SKILL") % [int(req["need"]), floori(req["have"])]
+		"experience":
+			return tr("CAREER_REQ_EXPERIENCE") % [int(req["need"]), tr(GameState.track_def(def["track"])["name"]), int(req["have"])]
+	return ""
+
+
+func _on_apply(index: int) -> void:
+	var result := GameState.apply_job(index)
+	%FeedbackBox.show()
+	if result["ok"]:
+		Sfx.play("success")
+		var opening: Dictionary = GameState.job_board[index]
+		%ActivityFeedback.text = tr("CAREER_APPLIED") % tr(GameState.job_def(opening["job_id"])["title"])
+		%FeedbackBox.theme_type_variation = &"FeedbackGood"
+		%ActivityFeedback.add_theme_color_override("font_color", Color("#1e5e45"))
+	else:
+		%ActivityFeedback.text = tr(result["error"])
+		%FeedbackBox.theme_type_variation = &"FeedbackBad"
+		%ActivityFeedback.add_theme_color_override("font_color", Palette.LOSS)
+
+
+func _text_chip(text: String, variation: StringName) -> PanelContainer:
+	var label_variation := &"MoodLabel"
+	if variation == &"SmallChipGold":
+		label_variation = &"SmallChipGoldLabel"
+	elif variation == &"SmallChipNeutral":
+		label_variation = &"SmallChipNeutralLabel"
+	return _chip(_label(text, label_variation), variation)
+
+
+func _wrap(text: String, variation: StringName) -> Label:
+	var label := _label(text, variation)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.custom_minimum_size.x = 1
+	return label
+
+
 # --- Aktivitas bulanan (energi) ---------------------------------------------
 
 ## Satu kartu per aktivitas: ikon | nama, chip (energi, biaya, jumlah dipakai), deskripsi, alasan terkunci.
@@ -172,7 +373,7 @@ func _build_activities() -> void:
 		chips.add_child(_chip(used_label, &"SmallChipNeutral"))
 		text.add_child(chips)
 
-		var desc := _label(tr(def["desc"]), &"SmallMutedLabel")
+		var desc := _label(UiText.money(tr(def["desc"])), &"SmallMutedLabel")
 		desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		text.add_child(desc)
 		var reason := _label("", &"ReasonLabel")

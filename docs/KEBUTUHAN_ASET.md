@@ -1,229 +1,205 @@
 # Kebutuhan Aset Cuan Quest
 
-Dokumen ini berisi daftar aset yang dibutuhkan agar game terasa lebih hidup, beserta **format, ukuran, dan nama file** yang langsung cocok dengan kode. Nama file sengaja disamakan dengan `id` di folder `data/`, sehingga nanti aset bisa dimuat otomatis tanpa daftar manual.
+Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang **dibutuhkan**, dan **di file mana** aset itu dipakai. Diperbarui setiap kali sebuah langkah membutuhkan aset baru.
 
-> **Status:** game masih memakai tampilan sekarang. Pada milestone redesain UI, saya akan membuat pemuat aset (`GameAssets`) dengan *fallback*: jika file belum ada, tampilan lama tetap dipakai. Jadi aset bisa Anda tambahkan **sedikit demi sedikit**, tidak harus lengkap sekaligus.
+- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5b langkah 1)
+- **Tanda:** ✅ sudah ada · ⬜ dibutuhkan · 🔁 sementara memakai aset lain (game tetap jalan)
+- Tabel aset yang sudah ada dibuat otomatis dengan memindai `scenes/`, `scripts/`, `theme/`, dan `data/`.
 
----
+## Ringkasan per Versi
 
-## 1. Aturan Umum
+| Versi | Aset baru | Status |
+|:--|:--|:--|
+| **v1 + Redesain "Senja Cuan"** | 79 aset: font, ilustrasi, ikon (dibuat pengembang) | ✅ |
+| **v1.5-0** Giliran bulanan yang hidup | Tidak ada; memakai ulang lencana & ikon (confetti digambar lewat kode) | ✅ |
+| **v1.5a** Realisme ekonomi | Tidak ada; memakai ulang `shield.svg`, `wallet.svg`, `trend_line.svg`, `warning_small.svg` | ✅ |
+| **v1.5b** Pekerjaan & karier | 10 ikon (3 latar pendidikan, 6 bidang kerja, 1 navigasi Karier) + 4 ikon pendidikan (langkah 3) | ⬜ 🔁 |
+| **v1.5c** Utang, properti, hunian | Ilustrasi hunian & kendaraan di Beranda, ikon utang/properti | ⬜ (rencana) |
+| **v1.5d** Tokoh & konten | Potret tokoh berulang, lencana pencapaian, kosmetik | ⬜ (rencana) |
+| **v2** | Ikon instrumen lanjut, ilustrasi bab kehidupan | ⬜ (rencana) |
+| **M7** Rilis Play Store | Ikon aplikasi adaptif, grafis & screenshot Play Store | ⬜ (rencana) |
 
-### Format
+## Aturan Umum
 
-| Jenis | Format | Alasan |
-|---|---|---|
-| Ikon (UI, kelas aset, kategori) | **SVG** (utama) atau PNG | Godot 4 mengimpor SVG menjadi gambar tajam di ukuran berapa pun. Hindari filter/blur, efek bayangan SVG, dan teks di dalam SVG (ubah teks jadi *outline/path*). |
-| Ilustrasi (karakter, ruangan, latar) | **PNG 32-bit** (dengan transparansi) | Detail ilustrasi lebih aman di PNG. |
-| Panel, kartu, tombol | **PNG 9-slice** | Bisa diregangkan tanpa sudut gepeng. Cantumkan ukuran margin sudut (mis. 24 px) di nama file atau catatan. |
-| Animasi pendek (koin, kilau) | **PNG sprite sheet** (frame berjajar dalam grid) | Godot belum mendukung Lottie/GIF secara bawaan. |
-| Font | **TTF/OTF**, lisensi **OFL** (Google Fonts) | Wajib mendukung huruf Latin, angka, dan simbol `Rp % + - , . / ( )`. |
-| Efek suara | **WAV** 16-bit 44,1 kHz (atau OGG) | Pendek, langsung bunyi. |
-| Musik | **OGG Vorbis**, bisa di-*loop* | Ukuran file kecil. Atur loop di Import dock Godot. |
+| Jenis | Format | Catatan |
+|:--|:--|:--|
+| Ikon | **SVG** | Satu warna/flat seperti ikon yang ada. Ukuran kanvas 24x24 atau 48x48; tanpa teks (ubah jadi path), tanpa filter/blur |
+| Ilustrasi | **SVG** (utama) atau PNG 2x | Gaya "Senja Cuan": warna hangat senja, garis tebal tinta `#2B2147`, sudut membulat |
+| Font | TTF/OTF lisensi **OFL** | Saat ini Fredoka (isi) & Lilita One (judul) |
+| Efek suara / musik | WAV 16-bit / OGG | Saat ini efek suara dibuat lewat kode (`scripts/autoload/sfx.gd`); musik belum ada |
 
-### Ukuran
-
-- Layar dasar game **720 x 1280** (portrait). Di HP, layar ini diperbesar sekitar 1,5x sampai 2x.
-- **Buat semua gambar raster (PNG) 2x ukuran tampil.** Contoh: avatar tampil 110 px, jadi buat **220 x 220** (dibulatkan menjadi 256 x 256 juga boleh).
-- SVG cukup dibuat di ukuran tampil; ketajamannya diatur saat impor.
-
-### Penamaan & Folder
-
-- Huruf kecil, kata dipisah garis bawah (`snake_case`), tanpa spasi.
-- Taruh di folder `assets/` dalam project:
-
-```
-assets/
-  fonts/          heading.ttf, body.ttf, body_bold.ttf
-  ui/             tombol, panel, popup, progress bar (9-slice)
-  icons/          ikon UI & tab
-  icons/assets/   logo tiap instrumen
-  icons/classes/  ikon kelas aset
-  illustrations/  avatar, ruangan, tutorial, layar akhir, event
-  effects/        koin, kilau, konfeti
-  audio/sfx/      efek suara
-  audio/music/    musik
-  branding/       logo, ikon aplikasi, aset Play Store
-```
-
-- **Lisensi:** jika memakai aset CC0 atau font OFL, catat sumbernya di `assets/LICENSES.md`.
-
-### Palet Warna
-
-Sebelum membuat aset, tetapkan dulu palet tema baru (misalnya 6-8 warna dalam kode hex): latar, kartu, teks utama, teks redup, aksen utama, hijau (untung), merah (rugi), dan kuning (peringatan). Kirim paletnya ke saya; semua warna di kode akan saya pindahkan ke satu file Theme agar mengikuti palet Anda.
+- Layar dasar **720 x 1280** (portrait). Gambar PNG dibuat 2x ukuran tampil.
+- Nama file `snake_case`, tanpa spasi. Ikon yang dipilih lewat data (mis. bidang kerja) **harus** memakai id dari file data, misalnya `tracks/tech.svg` untuk bidang `tech`.
+- Palet: tinta `#2B2147`, emas `#F6B93B`, teal `#23877B`, kertas `#FFF8EC`, hijau untung, merah rugi (lihat `scripts/ui/palette.gd`).
+- Aset CC0/OFL dari luar: catat sumbernya di `assets/LICENSES.md`.
 
 ---
 
-## 2. Prioritas
+## v1.5b: Pekerjaan & Karier ⬜
 
-- **P1 (paling berdampak):** dibutuhkan untuk milestone redesain UI.
-- **P2:** memperkaya tampilan; sebagian wajib untuk rilis (aset Play Store).
-- **P3:** bonus, bisa menyusul lewat update.
+Game sudah jalan memakai aset sementara (🔁). Begitu file baru ditaruh di path di bawah, sebagian langsung terpakai otomatis; sisanya cukup ubah satu baris (kolom "Cara memasang").
 
----
+| File | Isi | Dipakai di | Sementara | Cara memasang |
+|:--|:--|:--|:--|:--|
+| `assets/icons/background_sma.svg` | Latar SMA/SMK (buku/tas sekolah) | `scripts/ui/new_game_screen.gd` (kartu latar di wizard Game Baru) | 🔁 `background_student.svg` | Ubah `"icon"` latar `sma` di `data/economy.json` menjadi `"sma"` |
+| `assets/icons/background_d3.svg` | Latar D3 (laptop/alat praktik) | `scripts/ui/new_game_screen.gd` | 🔁 `background_freelancer.svg` | Ubah `"icon"` latar `d3` menjadi `"d3"` |
+| `assets/icons/background_s1.svg` | Latar S1 (toga wisuda) | `scripts/ui/new_game_screen.gd` | 🔁 `background_employee.svg` | Ubah `"icon"` latar `s1` menjadi `"s1"` |
+| `assets/icons/tracks/retail.svg` | Bidang Ritel & Layanan (keranjang/kasir) | `scripts/ui/screens/activity_screen.gd` (tab Karier: kartu Pekerjaan & Lowongan) | 🔁 `wallet.svg` | Otomatis |
+| `assets/icons/tracks/admin.svg` | Bidang Administrasi (map/dokumen) | `scripts/ui/screens/activity_screen.gd` | 🔁 `wallet.svg` | Otomatis |
+| `assets/icons/tracks/finance.svg` | Bidang Keuangan & Perbankan (gedung bank) | `scripts/ui/screens/activity_screen.gd` | 🔁 `wallet.svg` | Otomatis |
+| `assets/icons/tracks/tech.svg` | Bidang Teknologi (kode `</>`) | `scripts/ui/screens/activity_screen.gd` | 🔁 `wallet.svg` | Otomatis |
+| `assets/icons/tracks/creative.svg` | Bidang Kreatif & Pemasaran (kuas/megafon) | `scripts/ui/screens/activity_screen.gd` | 🔁 `wallet.svg` | Otomatis |
+| `assets/icons/tracks/gig.svg` | Kerja Lepas (helm/motor) | `scripts/ui/screens/activity_screen.gd` | 🔁 `wallet.svg` | Otomatis |
+| `assets/icons/nav_career.svg` | Navigasi tab Karier (koper) | `scenes/main.tscn` (tombol navigasi ke-4) | 🔁 `nav_activity.svg` | Ganti path `nav_activity.svg` di `scenes/main.tscn` (atau minta saya) |
+| `assets/icons/badge_job.svg` (opsional) | Lencana popup Tawaran Kerja (koper + bintang) | `scenes/ui/offer_popup.tscn` | 🔁 `badge_star.svg` | Ganti path di `scenes/ui/offer_popup.tscn` |
 
-## 3. Daftar Aset
+**Menyusul di langkah 3 (pendidikan & keahlian), rencana:**
 
-### 3.1 Font (P1)
-
-| File | Kegunaan | Saran |
-|---|---|---|
-| `fonts/heading.ttf` | Judul, angka besar (harga, kas) | Font bulat & ramah, mis. Fredoka, Baloo 2, Nunito ExtraBold |
-| `fonts/body.ttf` | Teks biasa | Mudah dibaca di layar kecil, mis. Nunito, Poppins |
-| `fonts/body_bold.ttf` | Teks tebal | Versi bold dari font body |
-
-### 3.2 UI Kit (P1)
-
-| File | Ukuran (px, 2x) | Catatan |
-|---|---|---|
-| `ui/button_primary.png` | 192 x 96 | 9-slice. Tombol utama (Lanjut, Konfirmasi) |
-| `ui/button_primary_pressed.png` | 192 x 96 | Saat ditekan |
-| `ui/button_secondary.png` | 192 x 96 | Tombol biasa |
-| `ui/button_secondary_pressed.png` | 192 x 96 | |
-| `ui/button_disabled.png` | 192 x 96 | Tombol nonaktif |
-| `ui/toggle_on.png`, `ui/toggle_off.png` | 120 x 64 | Saklar pengaturan |
-| `ui/panel_card.png` | 96 x 96 | 9-slice. Kartu (kepemilikan, slot simpan, dll.) |
-| `ui/popup_frame.png` | 128 x 128 | 9-slice. Bingkai popup |
-| `ui/progress_bg.png`, `ui/progress_fill.png` | 64 x 32 | 9-slice. Bar kesehatan, kebahagiaan, XP |
-| `ui/tab_bar_bg.png` | 1440 x 160 | Latar navigasi bawah |
-| `ui/top_bar_bg.png` | 1440 x 220 | Latar bar atas (kas, kekayaan) |
-| `ui/input_field.png` | 96 x 96 | 9-slice. Kolom isian nominal & nama |
-
-### 3.3 Ikon UI (P1)
-
-SVG, tampil sekitar 40-48 px.
-
-| File | Kegunaan |
-|---|---|
-| `icons/tab_home.svg`, `tab_market.svg`, `tab_portfolio.svg`, `tab_activity.svg`, `tab_profile.svg` | Navigasi bawah (5 tab). Opsional versi aktif: `tab_home_active.svg`, dst. |
-| `icons/cash.svg` | Kas (dompet/koin) |
-| `icons/net_worth.svg` | Kekayaan bersih (peti harta/grafik) |
-| `icons/calendar.svg` | Tanggal game |
-| `icons/level.svg` | Level / XP (bintang) |
-| `icons/energy.svg` | Energi (petir) |
-| `icons/health.svg` | Kesehatan (hati) |
-| `icons/happiness.svg` | Kebahagiaan (wajah senyum) |
-| `icons/help.svg` | Tombol glosarium "?" |
-| `icons/back.svg`, `icons/close.svg` | Kembali, tutup |
-| `icons/lock.svg`, `icons/check.svg`, `icons/warning.svg` | Terkunci, terpenuhi, peringatan |
-| `icons/trend_up.svg`, `icons/trend_down.svg` | Naik / turun |
-| `icons/news.svg` | Berita pasar |
-| `icons/skip.svg` | Lompat waktu (+6 Bln / +1 Thn) |
-| `icons/settings.svg`, `sound_on.svg`, `sound_off.svg`, `vibration.svg`, `language.svg` | Pengaturan |
-| `icons/save.svg`, `load.svg`, `reset.svg`, `book.svg`, `privacy.svg` | Simpan, muat, reset, glosarium/tutorial, kebijakan |
-
-### 3.4 Ikon Kelas Aset & Logo Instrumen
-
-| File | Prioritas | Kegunaan |
-|---|---|---|
-| `icons/classes/savings.svg` | P1 | Tabungan (celengan) |
-| `icons/classes/deposit.svg` | P1 | Deposito (brankas) |
-| `icons/classes/mutual_fund.svg` | P1 | Reksa dana (keranjang) |
-| `icons/classes/stock.svg` | P1 | Saham (grafik candle) |
-| `icons/classes/crypto.svg` | P1 | Kripto (koin digital) |
-| `icons/assets/tab.svg` | P2 | Tabungan Bank Sentosa |
-| `icons/assets/dep.svg` | P2 | Deposito 3 Bulan |
-| `icons/assets/rdpu.svg` | P2 | RD Pasar Uang Amanah |
-| `icons/assets/rds.svg` | P2 | RD Saham Nusantara |
-| `icons/assets/bsnt.svg` | P2 | PT Bank Sentosa (bank) |
-| `icons/assets/mpgn.svg` | P2 | PT Mitra Pangan (makanan/konsumer) |
-| `icons/assets/nusa.svg` | P2 | PT Nusa Karya (konstruksi) |
-| `icons/assets/bara.svg` | P2 | PT Bara Jaya (batu bara) |
-| `icons/assets/grd.svg` | P2 | Garuda Coin |
-| `icons/assets/mrp.svg` | P2 | Merapi Token |
-
-> Semua perusahaan & koin **fiktif**. Jangan membuat logo yang mirip merek asli (aturan Google Play & hak merek).
-
-### 3.5 Karakter (Avatar)
-
-| File | Ukuran (2x) | Prioritas | Catatan |
-|---|---|---|---|
-| `illustrations/avatar_0.svg` ... `avatar_9.svg` | 256 x 256 | P1 | **Sudah ada** (gaya anime "Senja Cuan"): 0-4 pria, 5-9 wanita. Nama saran & deskripsi di `AvatarView.NAMES` dan kunci `AVATAR_DESC_<n>`. Versi PNG buatan sendiri boleh menggantikan, asal nama & urutannya sama |
-| `illustrations/avatar_0_happy.png`, `_neutral`, `_sad` (per avatar) | 256 x 256 | P3 | Ekspresi mengikuti kebahagiaan (>=60 / 30-59 / <30): 30 gambar |
-| `illustrations/background_student.png`, `background_employee.png`, `background_freelancer.png` | 480 x 480 | P2 | Ilustrasi pilihan latar belakang di layar Buat Karakter |
-
-### 3.6 Ilustrasi Ruangan & Beranda
-
-| File | Ukuran (2x) | Prioritas | Catatan |
-|---|---|---|---|
-| `illustrations/housing_family.png` | 1440 x 720 | P1 | Rumah orang tua (Menumpang). Tampil di atas Beranda, berganti sesuai pilihan |
-| `illustrations/housing_kos.png` | 1440 x 720 | P1 | Kamar kos |
-| `illustrations/housing_apartment.png` | 1440 x 720 | P1 | Apartemen |
-| `icons/food_frugal.svg`, `food_standard.svg`, `food_luxury.svg` | 96 x 96 | P3 | Ikon pilihan makan |
-
-> Ide cozy: buat 3 ruangan ini dengan **lapisan terpisah** (latar, perabot, karakter) agar nanti bisa ditambah detail sesuai kekayaan, mis. tanaman atau rak buku yang muncul saat level naik.
-
-### 3.7 Aktivitas, Kuis, Event
-
-| File | Ukuran | Prioritas | Kegunaan |
-|---|---|---|---|
-| `icons/activity_side_job.svg`, `activity_course.svg`, `activity_self_study.svg`, `activity_exercise.svg`, `activity_hangout.svg`, `activity_rest.svg` | 64 px | P2 | 6 aktivitas bulanan |
-| `icons/topic_basics.svg`, `topic_risk.svg`, `topic_scam.svg`, `topic_instruments.svg` | 64 px | P2 | 4 topik kuis |
-| `illustrations/event_finance.png`, `event_work.png`, `event_health.png`, `event_social.png`, `event_market.png`, `event_scam.png` | 1200 x 480 | P2 | Banner kartu event per kategori |
-| `illustrations/event_<id>.png` (33 file, mis. `event_motor_broken.png`) | 1200 x 480 | P3 | Ilustrasi khusus per event; jika ada, menggantikan banner kategori. Daftar id ada di `data/events.json` |
-| `illustrations/quiz_header.png` | 1200 x 320 | P3 | Hiasan atas popup kuis |
-
-### 3.8 Popup Khusus, Tutorial, Layar Akhir
-
-| File | Ukuran (2x) | Prioritas | Kegunaan |
-|---|---|---|---|
-| `illustrations/tutorial_1.png` ... `tutorial_5.png` | 1200 x 800 | P2 | Satu ilustrasi per halaman tutorial |
-| `illustrations/unlock.png` | 480 x 480 | P2 | Popup "Instrumen Baru Terbuka" |
-| `illustrations/goal_millionaire.png`, `goal_freedom.png` | 480 x 480 | P2 | Popup target tercapai |
-| `illustrations/hint.png` | 240 x 240 | P3 | Popup petunjuk (bohlam) |
-| `illustrations/end_win.png`, `end_lose.png`, `end_retired.png` | 1200 x 720 | P2 | Layar akhir |
-| `illustrations/stage_1.png` ... `stage_4.png` | 480 x 320 | P3 | Kartu tahap unlock |
-| `illustrations/risk_conservative.png`, `risk_moderate.png`, `risk_aggressive.png` | 240 x 240 | P3 | Hasil kuesioner profil risiko |
-| `illustrations/empty_state.png` | 480 x 480 | P3 | Saat portofolio/riwayat masih kosong |
-
-### 3.9 Layar Judul & Branding
-
-| File | Ukuran | Prioritas | Catatan |
-|---|---|---|---|
-| `branding/logo.png` (atau `.svg`) | 1200 x 400 | P1 | Logo "Cuan Quest" di layar judul |
-| `branding/title_background.png` | 1440 x 2560 | P2 | Latar layar judul |
-| `branding/app_icon.png` | 1024 x 1024 | P1 | Ikon aplikasi (sumber untuk semua ukuran) |
-| `branding/icon_foreground.png` | 432 x 432 | P2 (wajib rilis) | Adaptive icon Android (lapisan depan, objek di tengah ~66% area) |
-| `branding/icon_background.png` | 432 x 432 | P2 (wajib rilis) | Adaptive icon Android (lapisan belakang, polos/pola) |
-| `branding/icon_monochrome.png` | 432 x 432 | P3 | Ikon tema Android 13+ (satu warna) |
-| `branding/boot_splash.png` | 1080 x 1920 | P2 | Layar saat game dibuka |
-| `branding/play_icon_512.png` | 512 x 512 | P2 (wajib rilis) | Ikon Play Store |
-| `branding/feature_graphic.png` | 1024 x 500 | P2 (wajib rilis) | Banner Play Store |
-
-> Screenshot Play Store akan saya ambil dari game setelah redesain selesai.
-
-### 3.10 Efek Visual (P2)
-
-| File | Ukuran | Kegunaan |
-|---|---|---|
-| `effects/coin_sheet.png` | 8 frame x 128 px (1024 x 128) | Animasi koin berputar saat gaji masuk/untung |
-| `effects/sparkle_sheet.png` | 6 frame x 128 px | Kilau saat unlock/level naik |
-| `effects/confetti.png` | 64 x 64 (beberapa warna) | Partikel konfeti saat menang |
-
-### 3.11 Audio
-
-| File | Prioritas | Kegunaan |
-|---|---|---|
-| `audio/sfx/click.wav` | P2 | Semua tombol |
-| `audio/sfx/coin.wav` | P2 | Lanjut bulan, uang masuk |
-| `audio/sfx/success.wav` | P2 | Kuis benar, unlock, aktivitas |
-| `audio/sfx/fail.wav` | P2 | Kuis salah, kalah |
-| `audio/sfx/alert.wav` | P2 | Event muncul |
-| `audio/sfx/buy.wav`, `audio/sfx/sell.wav` | P3 | Transaksi |
-| `audio/sfx/level_up.wav`, `audio/sfx/page.wav` | P3 | Naik level, halaman tutorial |
-| `audio/music/title.ogg` | P3 | Musik layar judul (loop) |
-| `audio/music/gameplay.ogg` | P3 | Musik santai saat bermain (loop, tidak mengganggu) |
-| `audio/music/end_win.ogg`, `audio/music/end_lose.ogg` | P3 | Potongan pendek layar akhir |
-
-> Efek suara saat ini dibuat dengan kode (`scripts/autoload/sfx.gd`). Jika file WAV dengan nama di atas tersedia, nanti file itulah yang dipakai.
+| File | Isi | Akan dipakai di |
+|:--|:--|:--|
+| `assets/icons/education/d3.svg`, `s1.svg`, `s2.svg` | Program kuliah D3 / S1 / S2 | Kartu Pendidikan di tab Karier (`scripts/ui/screens/activity_screen.gd`) |
+| `assets/icons/education/certificate.svg` | Sertifikasi | Event & kartu Keahlian |
 
 ---
 
-## 4. Ringkasan Jumlah
+## v1.5c: Utang, Properti, dan Hunian yang Tumbuh ⬜ (rencana)
 
-| Prioritas | Kira-kira jumlah file |
-|---|---|
-| P1 | ~45 (3 font, ~12 UI kit, ~30 ikon, 5 ikon kelas, 6 avatar, 3 ruangan, logo, ikon aplikasi) |
-| P2 | ~60 |
-| P3 | ~90 (sebagian besar ilustrasi per event & ekspresi avatar) |
+| File | Isi | Akan dipakai di |
+|:--|:--|:--|
+| `assets/illustrations/home/family.svg`, `kos.svg`, `kontrakan.svg`, `rumah.svg`, `apartemen.svg` | Ilustrasi tempat tinggal (berubah sesuai kepemilikan) | Kartu hunian baru di Beranda (`scenes/screens/home_screen.tscn`) |
+| `assets/illustrations/vehicle/walk.svg`, `motor.svg`, `car.svg` | Ilustrasi kendaraan | Kartu hunian/kendaraan di Beranda |
+| `assets/icons/loan.svg`, `property.svg`, `credit_score.svg` | Ikon utang, properti, skor kredit | Tab Portofolio & popup pinjaman (rencana) |
 
-**Saran urutan:** palet warna → font → UI kit → ikon tab & bar atas → avatar → 3 ruangan → logo & ikon aplikasi. Setelah P1 ada, kirim ke saya untuk dipasang di milestone redesain UI, sambil Anda melanjutkan P2.
+## v1.5d: Tokoh, Riset, Kontrak, Konten ⬜ (rencana)
+
+| File | Isi | Akan dipakai di |
+|:--|:--|:--|
+| `assets/illustrations/characters/<id>.svg` (4-6) | Potret tokoh berulang (teman, orang tua, atasan, rekan kerja) | Popup event (`scenes/ui/event_popup.tscn`) |
+| `assets/icons/achievements/<id>.svg` (15+) | Lencana pencapaian | Tab Profil (`scenes/screens/profile_screen.tscn`) |
+| Tema & avatar tambahan | Kosmetik yang dibuka lewat pencapaian | `theme/`, `assets/illustrations/avatar_*.svg` |
+
+## v2 ⬜ (rencana)
+
+| File | Isi | Akan dipakai di |
+|:--|:--|:--|
+| `assets/icons/classes/commodity.svg`, `forex.svg` | Kelas instrumen lanjut | Tab Pasar & Portofolio (`scripts/ui/ui_text.gd`, dinamis per kelas) |
+| `assets/illustrations/chapters/<bab>.svg` | Ilustrasi bab kehidupan (awal karier, membangun, puncak, pensiun) | Popup pergantian bab (rencana) |
+
+## M7: Rilis Play Store ⬜ (rencana)
+
+| File | Isi | Dipakai di |
+|:--|:--|:--|
+| `assets/branding/icon_foreground.png`, `icon_background.png` (432x432) | Ikon aplikasi adaptif Android | `export_presets.cfg` (preset Android) |
+| `assets/branding/feature_graphic.png` (1024x500) | Grafis fitur Play Store | Halaman Play Store |
+| Screenshot 1080x1920 (4-8) | Tangkapan layar game | Halaman Play Store |
+
+---
+
+## v1 + Redesain "Senja Cuan": Aset yang Sudah Ada ✅
+
+#### Font (2)
+
+| File | Dipakai di |
+|:--|:--|
+| `assets/fonts/Fredoka.ttf` | `theme/fonts/fredoka_bold.tres`<br>`theme/fonts/fredoka_caps.tres`<br>`theme/fonts/fredoka_medium.tres`<br>`theme/fonts/fredoka_regular.tres`<br>`theme/fonts/fredoka_semibold.tres` |
+| `assets/fonts/LilitaOne-Regular.ttf` | `theme/fonts/lilita.tres`<br>`theme/fonts/lilita_spaced.tres` |
+
+#### Ilustrasi (20)
+
+| File | Dipakai di |
+|:--|:--|
+| `assets/illustrations/end_bg.svg` | `scenes/end_screen.tscn` |
+| `assets/illustrations/header_bg.svg` | `scenes/new_game.tscn` |
+| `assets/illustrations/title_bg.svg` | `scenes/title.tscn` |
+| `assets/illustrations/title_coin.svg` | `scenes/title.tscn` |
+| `assets/illustrations/topbar_bg.svg` | `scenes/main.tscn` |
+| `assets/illustrations/avatar_{0,1,2,3,4,5,6,7,8,9}.svg` | `scripts/ui/avatar_view.gd (dinamis: avatar_%d.svg)` |
+| `assets/illustrations/tutorial_{1,2,3,4,5}.svg` | `scripts/ui/tutorial_screen.gd (dinamis: tutorial_%d.svg)` |
+
+#### Ikon kelas aset (5)
+
+| File | Dipakai di |
+|:--|:--|
+| `assets/icons/classes/crypto.svg` | `scripts/ui/ui_text.gd (dinamis: %s.svg)` |
+| `assets/icons/classes/deposit.svg` | `scripts/ui/ui_text.gd (dinamis: %s.svg)` |
+| `assets/icons/classes/mutual_fund.svg` | `scripts/ui/ui_text.gd (dinamis: %s.svg)` |
+| `assets/icons/classes/savings.svg` | `scripts/ui/ui_text.gd (dinamis: %s.svg)` |
+| `assets/icons/classes/stock.svg` | `scripts/ui/ui_text.gd (dinamis: %s.svg)` |
+
+#### Ikon aktivitas (6)
+
+| File | Dipakai di |
+|:--|:--|
+| `assets/icons/activities/course.svg` | `scripts/ui/screens/activity_screen.gd (dinamis: %s.svg)` |
+| `assets/icons/activities/exercise.svg` | `scripts/ui/screens/activity_screen.gd (dinamis: %s.svg)` |
+| `assets/icons/activities/hangout.svg` | `scripts/ui/screens/activity_screen.gd (dinamis: %s.svg)` |
+| `assets/icons/activities/rest.svg` | `scripts/ui/screens/activity_screen.gd (dinamis: %s.svg)` |
+| `assets/icons/activities/self_study.svg` | `scripts/ui/screens/activity_screen.gd (dinamis: %s.svg)` |
+| `assets/icons/activities/side_job.svg` | `scripts/ui/screens/activity_screen.gd (dinamis: %s.svg)` |
+
+#### Ikon navigasi bawah (5)
+
+| File | Dipakai di |
+|:--|:--|
+| `assets/icons/nav_activity.svg` | `scenes/main.tscn` |
+| `assets/icons/nav_home.svg` | `scenes/main.tscn`<br>`scripts/ui/screens/profile_screen.gd` |
+| `assets/icons/nav_market.svg` | `scenes/main.tscn` |
+| `assets/icons/nav_portfolio.svg` | `scenes/main.tscn` |
+| `assets/icons/nav_profile.svg` | `scenes/main.tscn` |
+
+#### Lencana popup (badge) (5)
+
+| File | Dipakai di |
+|:--|:--|
+| `assets/icons/badge_calendar.svg` | `scenes/ui/month_summary_popup.tscn` |
+| `assets/icons/badge_lose.svg` | `scripts/ui/end_screen.gd` |
+| `assets/icons/badge_retire.svg` | `scripts/ui/end_screen.gd` |
+| `assets/icons/badge_star.svg` | `scenes/ui/dream_picker_popup.tscn`<br>`scenes/ui/info_popup.tscn`<br>`scenes/ui/offer_popup.tscn` |
+| `assets/icons/badge_trophy.svg` | `scenes/end_screen.tscn`<br>`scenes/ui/dream_popup.tscn`<br>`scripts/ui/end_screen.gd` |
+
+#### Ikon latar belakang (3)
+
+| File | Dipakai di |
+|:--|:--|
+| `assets/icons/background_employee.svg` | `scripts/ui/new_game_screen.gd (dinamis: background_%s.svg)` |
+| `assets/icons/background_freelancer.svg` | `scripts/ui/new_game_screen.gd (dinamis: background_%s.svg)` |
+| `assets/icons/background_student.svg` | `scripts/ui/new_game_screen.gd (dinamis: background_%s.svg)` |
+
+#### Ikon UI lainnya (33)
+
+| File | Dipakai di |
+|:--|:--|
+| `assets/icons/arrow_badge.svg` | `scenes/new_game.tscn`<br>`scenes/tutorial.tscn`<br>`scripts/ui/new_game_screen.gd`<br>`scripts/ui/tutorial_screen.gd` |
+| `assets/icons/bolt.svg` | `scripts/ui/main.gd`<br>`scripts/ui/screens/activity_screen.gd` |
+| `assets/icons/book.svg` | `scenes/ui/glossary_popup.tscn`<br>`scripts/ui/screens/profile_screen.gd` |
+| `assets/icons/calendar_badge.svg` | `scenes/main.tscn` |
+| `assets/icons/check_badge.svg` | `scripts/ui/new_game_screen.gd` |
+| `assets/icons/chevron_left.svg` | `scenes/new_game.tscn`<br>`scenes/screens/market_screen.tscn` |
+| `assets/icons/chevron_right.svg` | `scenes/ui/save_slot_button.tscn`<br>`scripts/ui/screens/profile_screen.gd` |
+| `assets/icons/close.svg` | `scenes/title.tscn`<br>`scenes/ui/glossary_popup.tscn` |
+| `assets/icons/folder.svg` | `scenes/title.tscn` |
+| `assets/icons/heart.svg` | `scenes/screens/home_screen.tscn` |
+| `assets/icons/info.svg` | `scenes/new_game.tscn`<br>`scenes/title.tscn` |
+| `assets/icons/lightbulb.svg` | `scenes/tutorial.tscn`<br>`scripts/ui/end_screen.gd`<br>`scripts/ui/screens/profile_screen.gd` |
+| `assets/icons/lock.svg` | `scripts/ui/title_screen.gd` |
+| `assets/icons/news.svg` | `scenes/screens/market_screen.tscn`<br>`scripts/ui/screens/profile_screen.gd` |
+| `assets/icons/play_badge.svg` | `scenes/end_screen.tscn`<br>`scenes/title.tscn`<br>`scripts/ui/new_game_screen.gd`<br>`scripts/ui/tutorial_screen.gd` |
+| `assets/icons/plus.svg` | `scenes/title.tscn` |
+| `assets/icons/plus_badge.svg` | `scenes/title.tscn` |
+| `assets/icons/radio_off.svg` | `scripts/ui/new_game_screen.gd` |
+| `assets/icons/radio_on.svg` | `scripts/ui/new_game_screen.gd` |
+| `assets/icons/save.svg` | `scenes/title.tscn` |
+| `assets/icons/search.svg` | `scenes/ui/glossary_popup.tscn` |
+| `assets/icons/shield.svg` | `scenes/ui/insurance_popup.tscn`<br>`scenes/ui/text_popup.tscn`<br>`scripts/ui/screens/profile_screen.gd` |
+| `assets/icons/skip.svg` | `scenes/tutorial.tscn` |
+| `assets/icons/smile.svg` | `scenes/screens/home_screen.tscn` |
+| `assets/icons/switch_off.svg` | `theme/senja_theme.tres` |
+| `assets/icons/switch_on.svg` | `theme/senja_theme.tres` |
+| `assets/icons/trend_down.svg` | `scripts/ui/end_screen.gd`<br>`scripts/ui/title_screen.gd` |
+| `assets/icons/trend_line.svg` | `scenes/main.tscn`<br>`scenes/ui/order_popup.tscn` |
+| `assets/icons/trend_up.svg` | `scenes/title.tscn`<br>`scripts/ui/end_screen.gd` |
+| `assets/icons/wallet.svg` | `scenes/main.tscn`<br>`scenes/ui/plan_popup.tscn`<br>`scenes/ui/trade_confirm_popup.tscn`<br>`scripts/ui/screens/activity_screen.gd` |
+| `assets/icons/warning.svg` | `scenes/title.tscn` |
+| `assets/icons/warning_small.svg` | `scenes/screens/market_screen.tscn`<br>`scenes/screens/portfolio_screen.tscn`<br>`scripts/ui/trade_confirm_popup.gd` |
+| `assets/icons/welcome.svg` | `scenes/title.tscn` |
+

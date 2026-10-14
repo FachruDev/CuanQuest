@@ -33,7 +33,7 @@ CHART_EMPTY,Belum cukup data. Tekan Lanjut.,Not enough data yet. Press Next.
 NAV_HOME,Beranda,Home
 NAV_MARKET,Pasar,Market
 NAV_PORTFOLIO,Portofolio,Portfolio
-NAV_ACTIVITY,Aktivitas,Activity
+NAV_ACTIVITY,Karier,Career
 NAV_PROFILE,Profil,Profile
 HOME_WELLBEING,Kondisi,Wellbeing
 STAT_HEALTH,Kesehatan,Health
@@ -199,9 +199,9 @@ Lihat di tab Pasar.","%s
 %s
 
 Check the Market tab."
-REPORT_SALARY_UNEMPLOYED,Gaji (menganggur),Salary (unemployed)
+REPORT_SALARY_UNEMPLOYED,Gaji (belum bekerja),Salary (not working)
 REPORT_EVENTS,KEJADIAN,EVENTS
-HOME_UNEMPLOYED,Menganggur: tanpa gaji %d bulan lagi,Unemployed: no salary for %d more months
+HOME_UNEMPLOYED,Belum bekerja. Cari lowongan di tab Karier.,Not working yet. Find openings in the Career tab.
 DEFAULT_PLAYER_NAME,Pemain,Player
 BTN_CLOSE,Tutup,Close
 TITLE_TAGLINE,Simulasi kehidupan finansial & investasi,A personal finance & investing life sim
@@ -651,3 +651,56 @@ TX_STOP_LOSS,Stop loss,Stop loss
 TX_TAKE_PROFIT,Take profit,Take profit
 ERR_ACTIVITY_MAXED,Manfaat kursus sudah maksimal,Course benefits maxed out
 HOME_DRIFT_NOTE,"Rutinitas kerja mengurangi kesehatan %d dan kebahagiaan %d tiap bulan. Jaga lewat makanan, gaya hidup, dan aktivitas.","Work routine lowers health by %d and happiness by %d each month. Keep them up with food, lifestyle, and activities."
+BG_SMA,Lulusan SMA/SMK,High School Graduate
+BG_SMA_DESC,"Usia 18, masih menumpang keluarga. Pilihan kerja awal terbatas, tapi waktumu paling panjang untuk kuliah sambil bekerja.","Age 18, living with family. Few starting jobs, but the most time to study while working."
+BG_D3,Lulusan D3,Diploma Graduate
+BG_D3_DESC,"Usia 21, masih menumpang keluarga. Bisa melamar teller bank dan junior developer.","Age 21, living with family. Can apply as a bank teller or junior developer."
+BG_S1,Sarjana (S1),Bachelor's Graduate
+BG_S1_DESC,"Usia 22, tinggal di kos. Pilihan kerja paling luas, tapi biaya hidup sudah mandiri.","Age 22, renting a room. The widest job choices, but you pay your own living costs."
+NG_BACKGROUND_CHIP,%s · Keahlian %d,%s · Skill %d
+CAREER_JOB_TITLE,Pekerjaan,Job
+CAREER_BOARD_TITLE,Lowongan Bulan Ini,This Month's Openings
+ACT_LIST_TITLE,Aktivitas,Activities
+CAREER_PER_MONTH,%s/bln,%s/mo
+CAREER_SINCE,Bekerja sejak %s (%d bulan),Working since %s (%d months)
+CAREER_UNPAID,Cuti tanpa gaji %d bulan lagi.,Unpaid leave for %d more months.
+CAREER_UNEMPLOYED,Belum bekerja,Not working
+CAREER_UNEMPLOYED_HINT,"Lamar lowongan di bawah. Hasilnya keluar awal bulan depan; jika diterima, gaji pertama langsung dibayar. Sementara itu, kerja sampingan bisa menambah uang.","Apply to openings below. Results arrive early next month; if hired, your first salary is paid right away. Meanwhile, side jobs can bring in cash."
+CAREER_SENT,Lamaran terkirim: %s. Hasilnya awal bulan depan.,Applications sent: %s. Results early next month.
+CAREER_SENT_ITEM,%s (%d%%),%s (%d%%)
+CAREER_EDUCATION,Pendidikan %s,Education %s
+CAREER_SKILL,Keahlian %d,Skill %d
+CAREER_EXPERIENCE,%s %d bln,%s %d mo
+CAREER_BOARD_HINT,"Maksimal %d lamaran per bulan, masing-masing memakai %d energi. Lowongan berganti setiap bulan.","Up to %d applications per month, each costs %d energy. Openings change every month."
+CAREER_LEVEL,Jenjang %d,Level %d
+CAREER_NO_REQUIREMENTS,Tanpa syarat khusus,No special requirements
+CAREER_REQ_EDUCATION,Pendidikan %s,Education %s
+CAREER_REQ_SKILL,Keahlian %d (kamu %d),Skill %d (you %d)
+CAREER_REQ_EXPERIENCE,Pengalaman %d bln di %s (kamu %d),%d mo experience in %s (you %d)
+CAREER_CHANCE,Peluang %d%%,Chance %d%%
+CAREER_VARIES,Naik-turun %d%%,Varies %d%%
+CAREER_APPLY,Lamar,Apply
+CAREER_APPLIED,Lamaran untuk %s terkirim. Hasilnya keluar awal bulan depan.,Application for %s sent. Results arrive early next month.
+ERR_JOB_APPLIED,Kamu sudah melamar lowongan ini.,You already applied for this opening.
+ERR_JOB_APPLIED_SHORT,Sudah dilamar,Applied
+ERR_JOB_CURRENT,Ini pekerjaanmu sekarang.,This is your current job.
+ERR_JOB_CURRENT_SHORT,Pekerjaanmu,Your job
+ERR_JOB_REQUIREMENTS,Syarat lowongan ini belum terpenuhi.,You don't meet this opening's requirements yet.
+ERR_JOB_REQUIREMENTS_SHORT,Belum memenuhi syarat,Not qualified
+ERR_JOB_LIMIT,Batas lamaran bulan ini sudah tercapai.,You've reached this month's application limit.
+ERR_JOB_LIMIT_SHORT,Batas lamaran,Limit reached
+ERR_NO_ENERGY_SHORT,Energi habis,No energy
+ERR_ACTIVITY_BUSY_SHORT,Selesaikan event,Resolve event
+OFFER_TITLE,Tawaran Kerja!,Job Offer!
+OFFER_SUBTITLE,%d lamaran diterima,%d applications accepted
+OFFER_BODY,Pilih satu tawaran. Gaji pertama langsung dibayar begitu kamu mulai bekerja. Tawaran yang tidak diambil berakhir bulan ini.,Pick one offer. Your first salary is paid as soon as you start. Offers you don't take expire this month.
+OFFER_BODY_SWITCH,"Menerima tawaran berarti berhenti dari pekerjaanmu sekarang (%s, %s/bln). Pilih satu, atau tetap di tempat sekarang.","Accepting means leaving your current job (%s, %s/mo). Pick one, or stay where you are."
+OFFER_ACCEPT,Ambil tawaran ini,Take this offer
+OFFER_DECLINE,Tolak semua,Decline all
+TOAST_JOB,Selamat bekerja sebagai %s!,Congrats on your new job as %s!
+TOAST_FIRST_SALARY,Gaji pertama %s sudah masuk.,First salary %s received.
+HOME_UNPAID,Cuti tanpa gaji %d bulan lagi,Unpaid leave for %d more months
+REPORT_SALARY_UNPAID,Gaji (cuti tanpa gaji),Salary (unpaid leave)
+REPORT_APPLICATIONS,LAMARAN KERJA,JOB APPLICATIONS
+REPORT_APPLICATION_ACCEPTED,Diterima: %s. Lihat tawarannya setelah laporan ini.,Accepted: %s. See the offer after this report.
+REPORT_APPLICATION_REJECTED,Ditolak: %s.,Rejected: %s.
