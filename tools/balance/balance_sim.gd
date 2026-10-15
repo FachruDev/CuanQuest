@@ -61,6 +61,9 @@ const CHECKPOINTS := [5, 10, 20, 30]
 
 var _rng := RandomNumberGenerator.new()
 var _skip_events: PackedStringArray = []
+## Event yang diputuskan di permainan ini (penutup v1.5): jumlah & dampak langsung ke kekayaan bersih riil,
+## dipisah baik/buruk (kekayaan, bukan kas: panik jual atau pesangon mengubah aset menjadi kas).
+var _event_stats := {}
 var _rumor_position: Dictionary = {}  # aset yang dibeli karena rumor (v1.5d), dijual setelah rumor terjawab
 var _rumor_trades: Array[float] = []  # imbal hasil tiap transaksi rumor (0.05 = +5%)
 
@@ -116,6 +119,7 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 	_rumor_position = {}
 	_rumor_trades.clear()
 	GameState.achievements.unlocked.clear()  # pencapaian dihitung per permainan di simulasi (v1.5d)
+	_event_stats = {"good": 0, "bad": 0, "good_cash": 0.0, "bad_cash": 0.0, "positive": 0}
 	var snapshots := {}
 	var freedom_month := -1
 	var millionaire_month := -1
@@ -160,6 +164,7 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 		"home_month": home_month, "default_month": default_month, "recovered_month": recovered_month,
 		"rumors": int(GameState.research.record["rumors"]), "rumor_trades": _rumor_trades.duplicate(),
 		"achievements": GameState.achievements.unlocked.keys(), "annual_reports": GameState.annual.reports.size(),
+		"event_stats": _event_stats.duplicate(), "months": GameState.month,
 		"research": GameState.research.record.duplicate(true)}
 
 
@@ -475,7 +480,15 @@ func _resolve_events(p: Dictionary) -> void:
 	var guard := 0
 	while GameState.events.has_pending() and guard < 10:
 		guard += 1
-		GameState.events.resolve(_pick_choice(GameState.events.pending, p["choice"]))
+		var event: Dictionary = GameState.events.pending
+		var worth_before := GameState.net_worth()
+		GameState.events.resolve(_pick_choice(event, p["choice"]))
+		var change := (GameState.net_worth() - worth_before) / GameState.price_level()  # rupiah awal permainan
+		var kind := "bad" if event.get("bad", false) else "good"
+		_event_stats[kind] += 1
+		_event_stats[kind + "_cash"] += change
+		if change > 0.0:
+			_event_stats["positive"] += 1
 
 
 func _pick_choice(event: Dictionary, style: String) -> int:
@@ -641,6 +654,7 @@ func _print_summary(persona: String, results: Array[Dictionary], years: int) -> 
 			last, share.call("offer_loans"), share.call("restructures"), share.call("refinances")])
 	_print_rumors(results)
 	_print_achievements(results)
+	_print_events(results)
 	var freelancers := finals.filter(func(f: Dictionary) -> bool: return f["projects_done"] + f["projects_failed"] > 0)
 	if not freelancers.is_empty():
 		print("  tahun %d: proyek selesai median %d | gagal median %d | revisi median %d | penghasilan proyek median %s (nominal) | reputasi median %d" % [
@@ -656,6 +670,28 @@ func _print_summary(persona: String, results: Array[Dictionary], years: int) -> 
 			defaults.size(), roundi(100.0 * recovered.size() / defaults.size()),
 			Fmt.number(_pct(waits, 0.5), 0) if not waits.is_empty() else "-",
 			defaults.filter(func(r: Dictionary) -> bool: return r["over"]).size()])
+
+
+## Event Director (penutup v1.5): event per tahun, porsi event buruk, porsi event yang langsung menambah
+## kekayaan, dan dampaknya ke kekayaan bersih riil per tahun (rupiah awal permainan, median antar permainan).
+func _print_events(results: Array[Dictionary]) -> void:
+	var per_year := func(r: Dictionary, key: String) -> float:
+		return float(r["event_stats"][key]) / maxf(float(r["months"]) / 12.0, 1.0)
+	var rows := {"total": [], "bad_share": [], "positive_share": [], "good_cash": [], "bad_cash": []}
+	for r: Dictionary in results:
+		var e: Dictionary = r["event_stats"]
+		var total := int(e["good"]) + int(e["bad"])
+		rows["total"].append(per_year.call(r, "good") + per_year.call(r, "bad"))
+		rows["bad_share"].append(float(e["bad"]) / maxf(total, 1.0))
+		rows["positive_share"].append(float(e["positive"]) / maxf(total, 1.0))
+		rows["good_cash"].append(per_year.call(r, "good_cash"))
+		rows["bad_cash"].append(per_year.call(r, "bad_cash"))
+	for key: String in rows:
+		rows[key].sort()
+	print("  event: %s/tahun | buruk %d%% | menambah kekayaan %d%% | dampak ke kekayaan riil per tahun: event baik %s, event buruk %s (median)" % [
+		Fmt.number(_pct(rows["total"], 0.5), 1), roundi(100.0 * _pct(rows["bad_share"], 0.5)),
+		roundi(100.0 * _pct(rows["positive_share"], 0.5)), Fmt.signed_rupiah(_pct(rows["good_cash"], 0.5)),
+		Fmt.signed_rupiah(_pct(rows["bad_cash"], 0.5))])
 
 
 ## Pencapaian (v1.5d langkah 4): median jumlah per permainan dan persentase permainan yang membuka

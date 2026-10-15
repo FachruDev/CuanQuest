@@ -44,10 +44,13 @@ func _ready() -> void:
 	_workload_label = _wrap_label("", &"SmallMutedLabel")  # kenapa kondisi berubah tiap bulan
 	$VBox/WellbeingCard/VBox.add_child(_workload_label)
 	GameState.changed.connect(_refresh)
+	visibility_changed.connect(_refresh)  # tab tersembunyi tidak diperbarui (penutup v1.5)
 	_refresh()
 
 
 func _refresh() -> void:
+	if not is_visible_in_tree():
+		return
 	%HealthBar.value = GameState.health
 	%HappinessBar.value = GameState.happiness
 	%HealthValue.text = "%d / 100" % GameState.health

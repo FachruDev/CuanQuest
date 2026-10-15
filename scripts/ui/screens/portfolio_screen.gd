@@ -14,6 +14,7 @@ const TX_CHIPS := {"buy": &"MoodGreen", "auto": &"MoodGreen", "sell": &"MoodGold
 const BUY_KINDS := ["buy", "auto"]  # transaksi beli tidak punya untung/rugi terealisasi
 
 var _sheet_box: VBoxContainer  # isi kartu Neraca (v1.5c langkah 4)
+var _render: Dictionary = {}  # kunci data terakhir per bagian (UiText.changed_key)
 
 
 func _ready() -> void:
@@ -46,9 +47,15 @@ func _refresh() -> void:
 	%NetWorthChart.set_data(GameState.net_worth_history)
 	BalanceSheet.fill(_sheet_box, GameState.balance_sheet())
 	_build_allocation()
-	_build_holdings()
-	MonthReport.fill(%ReportBox, GameState.last_report)
-	_build_transactions()
+	var base := [GameState.run_id, GameState.month, Fmt.compact]
+	if UiText.changed_key(_render, "holdings", base + [GameState.portfolio.holdings, GameState.portfolio.orders,
+			GameState.portfolio.risk_profile_id]):
+		_build_holdings()
+	if UiText.changed_key(_render, "report", base + [GameState.last_report.get("to_month", -1), GameState.last_report.size()]):
+		MonthReport.fill(%ReportBox, GameState.last_report)
+	var txs := GameState.portfolio.transactions
+	if UiText.changed_key(_render, "tx", base + [txs.size(), txs[0] if not txs.is_empty() else {}]):
+		_build_transactions()
 
 
 ## Judul + kartu Neraca disisipkan setelah grafik kekayaan bersih.

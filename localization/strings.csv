@@ -28,7 +28,7 @@ MONTH_9,September,September
 MONTH_10,Oktober,October
 MONTH_11,November,November
 MONTH_12,Desember,December
-DISCLAIMER,"Simulasi untuk edukasi, bukan saran keuangan. Uang virtual.","Educational simulation, not financial advice. Virtual money."
+DISCLAIMER,"Simulasi untuk edukasi, bukan saran keuangan. Uang virtual; aturan disederhanakan.","Educational simulation, not financial advice. Virtual money; rules are simplified."
 CHART_EMPTY,Belum cukup data. Tekan Lanjut.,Not enough data yet. Press Next.
 NAV_HOME,Beranda,Home
 NAV_MARKET,Pasar,Market
@@ -1333,3 +1333,11 @@ TOPIC_DEBT,Utang & Kredit,Debt & Credit
 TOPIC_PROPERTY,Properti,Property
 TOPIC_CAREER,Karier & Pajak,Career & Tax
 TOPIC_INSURANCE,Asuransi,Insurance
+SETTINGS_PERF,Info performa (untuk uji di HP),Performance info (for device testing)
+SETTINGS_LICENSES,Lisensi Pihak Ketiga,Third-Party Licenses
+PERF_OVERLAY,%d FPS · proses %s ms · memori %d MB · %d node,%d FPS · process %s ms · memory %d MB · %d nodes
+PROFILE_SESSIONS_TITLE,Sesi Bermain,Play Sessions
+PROFILE_SESSIONS_AVERAGE,Rata-rata %d sesi terakhir,Average of the last %d sessions
+PROFILE_SESSIONS_MONTHS,%s bulan,%s months
+PROFILE_SESSION_ROW,%s · %d menit,%s · %d min
+PROFILE_SESSIONS_NOTE,Sesi baru dimulai jika kamu kembali bermain setelah jeda 15 menit. Data ini hanya disimpan di perangkatmu.,A new session starts when you come back after a 15-minute break. This data stays on your device.

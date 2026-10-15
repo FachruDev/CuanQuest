@@ -46,10 +46,13 @@ func _ready() -> void:
 	_build_asset_list()
 	UiText.build_period_buttons(%PeriodRow, %Chart, 3, [1, 3, 12, 0])  # data harian
 	GameState.changed.connect(_refresh)
+	visibility_changed.connect(_refresh)  # tab tersembunyi tidak diperbarui (penutup v1.5)
 	_show_list()
 
 
 func _refresh() -> void:
+	if not is_visible_in_tree():
+		return
 	_refresh_list()
 	if _selected_id != "":
 		_refresh_detail()

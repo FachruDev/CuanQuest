@@ -242,6 +242,18 @@ static func apply_avatar_frame(panel: PanelContainer, frame: Dictionary) -> void
 	panel.add_theme_stylebox_override("panel", style)
 
 
+## Cache render sederhana (penutup v1.5): true jika `key` untuk bagian `part` berbeda dari yang terakhir
+## digambar (lalu disimpan). Layar memakainya agar daftar panjang tidak dibangun ulang di setiap aksi
+## kecil. Analogi web: seperti React.memo / useMemo dengan daftar dependensi. Kunci sebaiknya memuat
+## run_id (permainan baru/dimuat) dan format angka (Fmt.compact).
+static func changed_key(cache: Dictionary, part: String, key: Variant) -> bool:
+	var text := str(key)
+	if cache.get(part, "") == text:
+		return false
+	cache[part] = text
+	return true
+
+
 ## Nominal ringkas untuk tombol: 500000 -> "Rp500 rb", 1000000 -> "Rp1 jt"
 static func amount_short(amount: int) -> String:
 	if amount >= 1_000_000 and amount % 1_000_000 == 0:

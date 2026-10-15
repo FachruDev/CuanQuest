@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 15 Oktober 2026 (v1.5d selesai: langkah 5 perluasan konten & penyeimbangan)
+- **Terakhir diperbarui:** 15 Oktober 2026 (penutup v1.5: legal & lisensi selesai, alat uji performa & playtest siap; menunggu uji di HP)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -18,6 +18,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v1.5b** | Pekerjaan & karier (melamar kerja, keahlian, jenjang) | ✅ 5/5 langkah |
 | **v1.5c** | Utang, properti, hunian yang tumbuh | ✅ 5/5 langkah (aset final menyusul setelah v2) |
 | **v1.5d** | Tokoh, riset, kontrak, konten | ✅ 5/5 langkah (aset final menyusul setelah v2) |
+| **Penutup v1.5** | Performa & baterai, playtest, legal | 🔄 legal ✅; performa & playtest menunggu uji di HP (`docs/UJI_AKHIR_V15.md`) |
 | **v2a-v2d** | Instrumen lanjut, hidup penuh, dana investor, mini-game | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
 
@@ -427,11 +428,28 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.4 (ditulis 15 Oktober 202
 - ✅ Laporan analis benar/salah sesuai akurasi
 - ✅ Event, soal, dan impian baru bisa ditambah lewat file data saja (divalidasi uji konten)
 
-## Penutup v1.5 ⬜
+## Penutup v1.5 🔄
 
-- ⬜ Uji performa dan baterai di HP kelas menengah
-- ⬜ Playtest ulang dan penyeimbangan ekonomi (termasuk frekuensi event positif dari Event Director)
-- ⬜ Disclaimer simulasi dan kebijakan privasi diperbarui
+Panduan uji di HP: `docs/UJI_AKHIR_V15.md` (tabel performa, baterai, dan pertanyaan playtest).
+
+**Uji performa dan baterai di HP kelas menengah** 🔄
+- ✅ Hemat baterai: mode hemat prosesor (layar hanya digambar ulang saat ada perubahan) dan FPS dibatasi 60 (layar 90/120 Hz)
+- ✅ Info performa di Profil > Pengaturan: FPS, waktu proses, memori, jumlah node (mati secara bawaan)
+- ✅ Benchmark 30 tahun di PC: Lanjut ±2 ms, simpan ±15-30 ms, memori +1,6 MB dalam 30 tahun
+- ✅ Refresh tab dipercepat dengan cache tampilan (`UiText.changed_key`): Portofolio 141 → ±3-8 ms, Karier 67 → ±10 ms, Profil 90 → ±8 ms; Beranda & Pasar tidak diperbarui saat tidak terlihat
+- ⬜ Uji di HP oleh pemilik proyek (8 uji performa + uji baterai 30 menit, target turun ≤ 6%)
+
+**Playtest ulang dan penyeimbangan ekonomi** 🔄
+- ✅ Sesi bermain tercatat otomatis (Profil > Sesi Bermain: rata-rata bulan per sesi, 5 sesi terakhir; disimpan lokal)
+- ✅ Analisis Event Director di simulator: ±19-20 event per tahun, ±26% buruk, hanya ±3% event yang langsung menambah kekayaan; dampak bersih ±-Rp8 jt/tahun riil (pemain hemat). Kekhawatiran v1.5-0 (event positif terlalu sering) sudah teratasi sejak kenaikan gaji pindah ke sistem karier, jadi bobot event tidak diubah
+- ✅ Ekonomi semua tipe pemain simulator tetap seimbang (lihat langkah 5 v1.5d)
+- ⬜ Playtest di HP oleh pemilik proyek (dan 2-3 teman), target rata-rata ≥ 10 bulan per sesi
+
+**Disclaimer simulasi dan kebijakan privasi diperbarui** ✅
+- ✅ Disclaimer di layar judul: bukan saran keuangan, uang virtual, aturan disederhanakan
+- ✅ Kebijakan privasi (`data/legal.json` & `docs/kebijakan-privasi.md`): database lokal, data pemain lintas permainan, statistik sesi, izin getar, jam perangkat untuk kuis, tanpa iklan & analitik
+- ✅ Syarat & ketentuan: bukan saran, aturan disederhanakan, tidak berafiliasi dengan OJK/BI/LPS/BPJS/BPOM/BPN, uang virtual, data fiktif, contoh penipuan
+- ✅ Layar Lisensi Pihak Ketiga (Godot & godot-sqlite: MIT; SQLite: domain publik; Fredoka & Lilita One: OFL 1.1)
 
 ---
 
@@ -463,7 +481,7 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.4 (ditulis 15 Oktober 202
 ## M7: Rilis Play Store (setelah v2) ⬜
 
 - ⬜ Export Android rilis (keystore, ikon adaptif; arm64 saja)
-- ⬜ Layar lisensi pihak ketiga (Godot & godot-sqlite: MIT; SQLite: domain publik; font: OFL)
-- ⬜ Isi `[EMAIL KONTAK]` dan `[NAMA PENGEMBANG]` di `data/legal.json` dan `docs/kebijakan-privasi.md`
+- ✅ Layar lisensi pihak ketiga (Godot & godot-sqlite: MIT; SQLite: domain publik; font: OFL), selesai di penutup v1.5
+- ⬜ Isi `[EMAIL KONTAK]` di `data/legal.json` serta `[EMAIL KONTAK]` & `[NAMA PENGEMBANG]` di `docs/kebijakan-privasi.md`
 - ⬜ Kebijakan privasi di URL publik, formulir *Data safety*
 - ⬜ Rilis Play Store (tanpa iklan dan tanpa pembelian)

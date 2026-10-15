@@ -32,6 +32,7 @@ var _education_box: VBoxContainer  # isi kartu Pendidikan & Keahlian
 
 ## activity_id -> { button, faded: Array[Control], cost: Label, used: Label, reason: Label }
 var _activity_rows: Dictionary = {}
+var _render: Dictionary = {}  # kunci data terakhir per bagian (UiText.changed_key)
 
 
 func _ready() -> void:
@@ -46,8 +47,17 @@ func _ready() -> void:
 func _refresh() -> void:
 	if not is_visible_in_tree():
 		return
-	_refresh_job()
-	_refresh_board()
+	var career := GameState.career
+	var busy := [GameState.events.has_pending(), GameState.is_over, GameState.activities.energy]
+	var base := [GameState.run_id, GameState.month, Fmt.compact] + busy
+	if UiText.changed_key(_render, "job", base + [career.job, roundi(career.performance), floori(career.skill),
+			career.salary, career.unpaid_months, career.applications.size(), GameState.contracts.active.size(),
+			GameState.education.level,
+			GameState.characters.rel_of("coworker")]):
+		_refresh_job()
+	if UiText.changed_key(_render, "board", base + [career.job_board, career.applications.size(), floori(career.skill),
+			GameState.education.level, career.experience, career.job]):
+		_refresh_board()
 	_refresh_contracts()
 	_refresh_education()
 	_refresh_energy()
@@ -66,6 +76,9 @@ func _refresh() -> void:
 	%StartQuizButton.disabled = not quiz.can_start()
 	%StartQuizButton.get_child(0).modulate = DIMMED if %StartQuizButton.disabled else Color.WHITE
 
+	if not UiText.changed_key(_render, "topics", [quiz.correct_ids.size(), quiz.topics]):
+		_refresh_unlocks()
+		return
 	_clear(%TopicChips)
 	for topic: String in quiz.topics:
 		var chip := PanelContainer.new()
@@ -73,8 +86,15 @@ func _refresh() -> void:
 		chip.add_child(_label("%s  %d" % [tr("TOPIC_" + topic.to_upper()), quiz.correct_in_topic(topic)],
 				&"TopicChipLabel"))
 		%TopicChips.add_child(chip)
+	_refresh_unlocks()
 
-	_build_unlocks()
+
+func _refresh_unlocks() -> void:
+	var progress := GameState.progress
+	if UiText.changed_key(_render, "unlocks", [GameState.run_id, progress.unlocked_stages, progress.level(),
+			roundi(GameState.net_worth() / 100_000.0), roundi(GameState.budget.emergency_balance() / 100_000.0),
+			GameState.quiz.correct_ids.size(), GameState.tutorial_done, Fmt.compact]):
+		_build_unlocks()
 
 
 ## Satu ikon petir per poin energi bulan ini: kuning = tersisa, ungu redup = terpakai.

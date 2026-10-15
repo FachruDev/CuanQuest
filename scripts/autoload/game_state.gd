@@ -120,6 +120,8 @@ var _report_signals: Array[Callable] = []  # impian & kelulusan, dikirim setelah
 var quiz := QuizManager.new()
 ## Pencapaian & kosmetik (bingkai avatar, gelar), berlaku lintas permainan (v1.5d).
 var achievements := Achievements.new(self)
+## Statistik sesi bermain untuk playtest (penutup v1.5), hanya disimpan di perangkat.
+var sessions := PlaySessions.new()
 var tutorial_done := false
 var hints_seen: Array[String] = []
 var history: Array[Dictionary] = []  # ringkasan permainan sebelumnya (maks 10)
@@ -268,6 +270,7 @@ func advance_month() -> void:
 	flush_report_signals()
 	_advancing = false
 	check_achievements()
+	sessions.record_month(int(Time.get_unix_time_from_system()))
 	# Tawaran pekerjaan berjenjang didahului event wawancara (lihat Career.scheduled_events).
 	if not career.job_offers.is_empty() and career.interview_offer_index() < 0 and not fast_forwarding:
 		job_offers_received.emit(career.job_offers)
@@ -593,12 +596,13 @@ func _on_changed() -> void:
 
 func player_to_dict() -> Dictionary:
 	return {"version": PLAYER_VERSION, "quiz": quiz.to_dict(), "achievements": achievements.to_dict(),
-		"tutorial_done": tutorial_done, "hints_seen": hints_seen, "history": history}
+		"sessions": sessions.to_dict(), "tutorial_done": tutorial_done, "hints_seen": hints_seen, "history": history}
 
 
 func player_from_dict(d: Dictionary) -> void:
 	quiz.from_dict(d.get("quiz", {}))
 	achievements.from_dict(d.get("achievements", {}))
+	sessions.from_dict(d.get("sessions", {}))
 	tutorial_done = d.get("tutorial_done", false)
 	hints_seen.assign(d.get("hints_seen", []))
 	history.assign(d.get("history", []))

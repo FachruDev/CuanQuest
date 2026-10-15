@@ -26,6 +26,10 @@ var _achievement_title: Label
 var _achievement_box: VBoxContainer  # daftar pencapaian
 var _style_box: VBoxContainer  # pilihan bingkai avatar & gelar
 var _annual_row: Button  # menu laporan tahunan terakhir
+var _sessions_title: Label  # sesi bermain untuk playtest (penutup v1.5)
+var _sessions_box: VBoxContainer
+var _render: Dictionary = {}  # kunci data terakhir per bagian (UiText.changed_key)
+var _save_count := 0  # naik setiap simpan manual (ringkasan slot perlu dibaca ulang)
 
 
 func _ready() -> void:
@@ -33,6 +37,7 @@ func _ready() -> void:
 	_setup_risk_profile()
 	_build_slots()
 	_build_history()
+	_build_sessions()
 	_build_career_log()
 	_build_people()
 	_build_research()
@@ -74,6 +79,33 @@ func _refresh() -> void:
 
 	var s := GameState.stats
 	var best: Dictionary = s["best_trade"]
+	var base := [GameState.run_id, GameState.month, Fmt.compact]
+	if UiText.changed_key(_render, "stats", base + [s, GameState.quiz.correct_ids.size()]):
+		_refresh_stats(s, best)
+	if UiText.changed_key(_render, "career", base + [GameState.career.history.size()]):
+		UiText.fill_career_log(_career_log_box, 8)
+	var characters := GameState.characters
+	if UiText.changed_key(_render, "people", base + [characters.rel, characters.met, characters.work_company]):
+		_refresh_people()
+	var research := GameState.research
+	if UiText.changed_key(_render, "research", base + [research.record, research.has_rumor()]):
+		_refresh_research()
+	var achievements := GameState.achievements
+	if UiText.changed_key(_render, "achievements", base + [achievements.unlocked_count(), achievements.frame,
+			achievements.title, GameState.quiz.correct_ids.size(), roundi(GameState.net_worth() / 1_000_000.0),
+			GameState.debt.credit_score, GameState.stats["events"]]):
+		_refresh_achievements()
+	_annual_row.visible = not GameState.annual.reports.is_empty()
+	var sessions := GameState.sessions.sessions
+	if UiText.changed_key(_render, "sessions", [sessions.size(), sessions[-1] if not sessions.is_empty() else {}]):
+		_refresh_sessions()
+	if UiText.changed_key(_render, "slots", base + [_save_count]):  # query database hanya bila perlu
+		for slot: String in _slot_labels:
+			_slot_labels[slot].text = SaveManager.slot_summary(slot)
+
+
+## Kotak statistik permainan (dibangun ulang hanya saat statistik berubah).
+func _refresh_stats(s: Dictionary, best: Dictionary) -> void:
 	_clear(%StatsGrid)
 	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_PEAK", Fmt.rupiah(s["peak_net_worth"])))
 	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_MONTHS", str(GameState.month)))
@@ -87,14 +119,6 @@ func _refresh() -> void:
 	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_PROJECTS", tr("PROFILE_STAT_PROJECTS_VALUE") % [
 		int(s.get("projects_done", 0)), int(s.get("projects_failed", 0))]))
 	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_PROJECT_INCOME", Fmt.rupiah(float(s.get("project_income", 0)))))
-	UiText.fill_career_log(_career_log_box, 8)
-	_refresh_people()
-	_refresh_research()
-	_refresh_achievements()
-	_annual_row.visible = not GameState.annual.reports.is_empty()
-
-	for slot: String in _slot_labels:
-		_slot_labels[slot].text = SaveManager.slot_summary(slot)
 
 
 # --- Daya beli (v1.5a langkah 1) ------------------------------------------------
@@ -138,6 +162,15 @@ func _setup_settings() -> void:
 	%CompactToggle.toggled.connect(func(on: bool) -> void:
 		Settings.set_compact_numbers(on)
 		GameState.changed.emit())  # gambar ulang semua angka
+	var perf := CheckButton.new()  # info performa untuk uji di HP (penutup v1.5)
+	perf.name = "PerfToggle"
+	perf.custom_minimum_size = Vector2(0, 52)
+	perf.theme_type_variation = &"SenjaSwitch"
+	perf.text = tr("SETTINGS_PERF")
+	perf.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	perf.button_pressed = Settings.perf_overlay
+	perf.toggled.connect(Settings.set_perf_overlay)
+	%CompactToggle.add_sibling(perf)
 
 	var group := ButtonGroup.new()
 	for code: String in Settings.LANGUAGES:
@@ -162,6 +195,7 @@ func _build_menu() -> void:
 		_leave_to.bind(TUTORIAL_SCENE))
 	_add_menu_row("SETTINGS_PRIVACY", "res://assets/icons/shield.svg", &"IconTileInk", _show_legal.bind("privacy"))
 	_add_menu_row("SETTINGS_TERMS", "res://assets/icons/news.svg", &"IconTileInk", _show_legal.bind("terms"))
+	_add_menu_row("SETTINGS_LICENSES", "res://assets/icons/book.svg", &"IconTileInk", _show_legal.bind("licenses"))
 	_add_menu_row("PROFILE_TO_TITLE", "res://assets/icons/nav_home.svg", &"IconTileTeal", _leave_to.bind(TITLE_SCENE))
 
 	var reset := _chunky(&"DangerButton", tr("SETTINGS_RESET"), &"DangerButtonLabel", 84.0, 8.0)
@@ -269,6 +303,47 @@ func _build_slots() -> void:
 		%SlotList.add_child(card)
 
 
+## Judul + kartu "Sesi Bermain" setelah Riwayat Permainan (tampil setelah sesi pertama).
+func _build_sessions() -> void:
+	var page: VBoxContainer = $VBox
+	var index := %HistoryList.get_parent().get_index() + 1
+	_sessions_title = _label(tr("PROFILE_SESSIONS_TITLE"), &"SubSectionLabel")
+	var card := PanelContainer.new()
+	card.theme_type_variation = &"HomeCard"
+	_sessions_box = VBoxContainer.new()
+	_sessions_box.add_theme_constant_override("separation", 6)
+	card.add_child(_sessions_box)
+	page.add_child(_sessions_title)
+	page.move_child(_sessions_title, index)
+	page.add_child(card)
+	page.move_child(card, index + 1)
+
+
+## Rata-rata bulan per sesi, lalu 5 sesi terakhir: tanggal & jam mulai, lama, jumlah bulan.
+func _refresh_sessions() -> void:
+	var sessions := GameState.sessions
+	var shown := not sessions.sessions.is_empty()
+	_sessions_title.visible = shown
+	_sessions_box.get_parent().visible = shown
+	if not shown:
+		return
+	_clear(_sessions_box)
+	_sessions_box.add_child(_value_row(tr("PROFILE_SESSIONS_AVERAGE") % mini(sessions.sessions.size(), 10),
+		tr("PROFILE_SESSIONS_MONTHS") % Fmt.number(sessions.average_months(10), 1)))
+	var bias := int(Time.get_time_zone_from_system()["bias"]) * 60
+	var recent := sessions.sessions.slice(-5)
+	recent.reverse()
+	for s: Dictionary in recent:
+		var t := Time.get_datetime_dict_from_unix_time(int(s["start"]) + bias)
+		var when := "%02d/%02d %02d:%02d" % [t["day"], t["month"], t["hour"], t["minute"]]
+		_sessions_box.add_child(_value_row(tr("PROFILE_SESSION_ROW") % [when, PlaySessions.minutes(s)],
+			tr("PROFILE_SESSIONS_MONTHS") % str(int(s["months"]))))
+	var note := _label(tr("PROFILE_SESSIONS_NOTE"), &"SmallMutedLabel")
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	note.custom_minimum_size.x = 1
+	_sessions_box.add_child(note)
+
+
 ## Riwayat permainan selesai: "Nama · hasil" + alasan & lama bermain, kekayaan akhir berwarna.
 func _build_history() -> void:
 	if GameState.history.is_empty():
@@ -303,6 +378,7 @@ func _build_history() -> void:
 
 func _on_save(slot: String) -> void:
 	var ok := SaveManager.save_slot(slot)
+	_save_count += 1
 	_show_save_feedback(tr("SAVE_OK") if ok else tr("SAVE_FAILED"), ok)
 	_refresh()
 

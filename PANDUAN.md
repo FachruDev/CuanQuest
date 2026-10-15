@@ -43,7 +43,7 @@ data/
   education.json              Program kuliah (syarat, lama, biaya, hasil) & beban kuliah
   quiz.json                   150 soal kuis (8 topik, urutan topik di "topics")
   glossary.json               81 istilah glosarium
-  legal.json                  Kebijakan privasi & syarat penggunaan (tampil di game)
+  legal.json                  Kebijakan privasi, syarat penggunaan & lisensi pihak ketiga (tampil di game)
   activities.json             6 aktivitas bulanan & aturan energi
   risk_profile.json           Kuesioner & 3 profil risiko
   unlocks.json                Syarat membuka tiap tahap instrumen
@@ -54,7 +54,7 @@ scripts/
   autoload/game_state.gd      ROOT STORE (class GameStore): profil, bulan, kas, kondisi, statistik, alur
                               bulanan, efek event, simpan/muat, akhir permainan. Domain lain di game/
   autoload/ad_service.gd      Iklan rewarded (STUB, nanti diganti AdMob dengan interface sama)
-  autoload/settings.gd        Pengaturan perangkat (user://settings.cfg)
+  autoload/settings.gd        Pengaturan perangkat (user://settings.cfg), mode hemat prosesor, batas FPS
   autoload/save_manager.gd    Simpan/muat ke database SQLite (user://cuan_quest.db) + simpan otomatis
   autoload/sfx.gd             Efek suara buatan kode + getar
   game/                       Modul GameState per domain (lihat "Arsitektur GameState")
@@ -80,6 +80,7 @@ scripts/
     quiz_manager.gd           Bank soal + jatah mingguan (waktu nyata) + kredit iklan
     event_manager.gd          Pemilihan event berdasarkan syarat & bobot
     save_db.gd                Pembungkus tipis SQLite: query, insert banyak baris, transaksi, skema
+    play_sessions.gd          Statistik sesi bermain (mulai, lama, jumlah bulan) untuk playtest
   ui/
     main.gd                   Shell: top bar, router tab, tombol Lanjut, popup
     price_chart.gd            Grafik garis (dipakai di Pasar & Portofolio)
@@ -87,7 +88,8 @@ scripts/
     modal_popup.gd            Base class popup (signal closed)
     month_summary_popup.gd    Modal laporan bulanan
     event_popup.gd, quiz_popup.gd, info_popup.gd
-    ui_text.gd                Helper teks: perubahan efek, syarat unlock
+    ui_text.gd                Helper teks: perubahan efek, syarat unlock, cache tampilan (changed_key)
+    perf_overlay.gd           Info performa (FPS, waktu proses, memori, node) untuk uji di HP
     home_scene.gd             Ilustrasi Hunian & Kendaraan di Beranda (3 lapis gambar, v1.5c)
     balance_sheet.gd          Kartu Neraca (aset - utang) di Portofolio & layar akhir (v1.5c)
     character_portrait.gd     Potret tokoh (SVG atau lingkaran + inisial) di popup event & Profil (v1.5d)
@@ -215,6 +217,7 @@ scenes/
   - [x] (3) Kontrak & proyek sampingan
   - [x] (4) Pencapaian, kosmetik & laporan tahunan
   - [x] (5) Perluasan konten & penyeimbangan
+- [ ] **Penutup v1.5**: legal & lisensi selesai; alat uji performa & playtest siap, menunggu uji di HP (`docs/UJI_AKHIR_V15.md`)
 - [ ] **v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
 Rangkuman semua checklist MVP (v1, v1.5, v2, M7) ada di [docs/CHECKLIST_MVP.md](docs/CHECKLIST_MVP.md).
@@ -323,6 +326,16 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Save:** kunci baru `contract_board`, `contracts`, `contract_reputation`, `contract_energy`, `contract_seq`, `contract_rng`; statistik `projects_*` & `project_income` (save lama: tanpa proyek, papan terisi bulan berikutnya).
 - **Hasil simulator** (40 × 30 tahun): tahun bebas finansial S1 hemat 12,6 → selalu 1 proyek 10,5 → selalu 2 proyek 9,6; SMA 18,4 → 14,7 → 13,4. Dua proyek sekaligus menguras kesehatan (±75) & kebahagiaan (±81) dan menurunkan kinerja kantor. Versi awal (bayaran 2× lebih besar dan keahlian lebih banyak) membuat S1 bebas finansial di tahun 7,6, jadi angka di data sudah diturunkan.
 - **Menambah proyek:** salin satu baris di `projects` (`id`, `track` = id bidang di `jobs.json` atau `general`, `tier`, `months` [min, max], `weight`), lalu tambahkan nama & deskripsinya di CSV.
+
+## Penutup v1.5: Performa, Playtest & Legal
+
+- **Hemat baterai** (`Settings._ready()`): `OS.low_processor_usage_mode = true`, jadi layar hanya digambar ulang saat ada yang berubah (animasi, scroll, sentuhan). Diam di Beranda = hampir 0 FPS. `Engine.max_fps = 60` agar HP berlayar 90/120 Hz tidak menggambar lebih sering dari perlu. Analogi web: halaman statis yang hanya *repaint* saat DOM berubah, bukan *game loop* `requestAnimationFrame` terus-menerus.
+- **Info performa** (`PerfOverlay`, `scripts/ui/perf_overlay.gd`): Profil > Pengaturan > Info performa. Kotak kecil di atas tombol Lanjut, diperbarui tiap 0,5 detik: FPS, waktu proses per frame, memori statis, jumlah node. Disimpan di `settings.cfg` (`display/perf_overlay`), mati secara bawaan. Analogi web: panel *Performance* di DevTools, versi mini.
+- **Cache tampilan** (`UiText.changed_key(cache, bagian, kunci)`): setiap bagian layar yang berat (riwayat transaksi, laporan, pencapaian, papan lowongan, statistik, tokoh) hanya dibangun ulang jika kunci datanya berubah. Kunci = `[run_id, bulan, format angka]` + data yang dipakai bagian itu. Analogi web: `React.memo` / `useMemo` dengan *dependency array*. Bila menambah data baru ke sebuah bagian, **tambahkan juga ke kuncinya**, kalau tidak tampilan tidak ikut berubah. Beranda & Pasar juga tidak di-*refresh* saat tabnya tidak terlihat (diperbarui saat tab dibuka lagi lewat `visibility_changed`).
+- **Hasil di PC** (benchmark 30 tahun): Lanjut ±2 ms, simpan ±15-30 ms, memori +1,6 MB dalam 30 tahun. Refresh setelah aksi: Portofolio 141 → ±3-8 ms, Karier 67 → ±10 ms, Profil 90 → ±8 ms. Uji di HP: `docs/UJI_AKHIR_V15.md`.
+- **Sesi bermain** (`PlaySessions`, `scripts/core/play_sessions.gd`, data pemain kunci `sessions`): setiap Lanjut mencatat waktu nyata. Jeda > 15 menit memulai sesi baru; maks. 20 sesi disimpan. Profil > **Sesi Bermain** menampilkan rata-rata bulan per sesi (10 terakhir) dan 5 sesi terakhir, untuk mengukur target playtest v1.5-0 (≥ 10 bulan per sesi). Data hanya di HP.
+- **Analisis event di simulator** (`tools/balance/balance_sim.gd`, baris "Event"): jumlah event per tahun, persentase event buruk, persentase event yang menambah kekayaan, dan dampak riil per tahun (perubahan kekayaan bersih dibagi tingkat harga). Hasil: ±19-20 event/tahun, ±26% buruk, hanya ±3% yang langsung menambah kekayaan. Kekhawatiran lama (event positif terlalu sering) sudah teratasi sejak kenaikan gaji pindah ke sistem karier.
+- **Legal:** disclaimer di layar judul ("... Uang virtual; aturan disederhanakan."), kebijakan privasi & syarat diperbarui (database lokal, data pemain lintas permainan, statistik sesi, izin getar, jam perangkat, tanpa iklan & analitik, tidak berafiliasi dengan lembaga resmi), dan menu baru **Lisensi Pihak Ketiga** (`legal.json` kunci `licenses`: Godot & godot-sqlite MIT, SQLite domain publik, Fredoka & Lilita One OFL 1.1). Teks MIT/OFL **wajib** ikut ditampilkan di aplikasi; jika menambah pustaka atau font baru, tambahkan lisensinya di sini.
 
 ## Pencapaian, Kosmetik & Laporan Tahunan (v1.5d langkah 4)
 
@@ -626,7 +639,7 @@ Tingkat kesulitan (S1 pembeli Rumah Tipe 45): Santai tahun 19,3, Normal 22,4, Su
 - **Analisis akhir** (`EndAnalysis`) dibuat berbasis aturan dari statistik selama bermain, misalnya rugi karena penipuan, panik jual, uang menganggur, gaya hidup mewah, biaya transaksi, dan konsentrasi aset.
 - **Efek suara** (`Sfx`) dibangkitkan dari gelombang sinus, tanpa file audio. Semua tombol otomatis berbunyi lewat signal `SceneTree.node_added`. Musik belum ada, karena butuh aset audio.
 - **Bahasa Inggris** baru mencakup tampilan; isi event/kuis/glosarium masih Bahasa Indonesia.
-- **Kebijakan privasi** untuk Play Store ada di `docs/kebijakan-privasi.md`. Isi `[EMAIL KONTAK]` & `[NAMA PENGEMBANG]` (juga di `data/legal.json`), lalu unggah ke URL publik.
+- **Kebijakan privasi** untuk Play Store ada di `docs/kebijakan-privasi.md` (diperbarui di penutup v1.5, termasuk catatan formulir *Data safety*: tidak ada data yang dikumpulkan). Isi `[EMAIL KONTAK]` & `[NAMA PENGEMBANG]` (dan `[EMAIL KONTAK]` di `data/legal.json`), lalu unggah ke URL publik.
 
 ## Energi, Lompat Waktu & Portofolio (M6.5)
 

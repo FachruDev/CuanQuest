@@ -2,25 +2,37 @@ extends Node
 ## Pengaturan perangkat (Autoload "Settings"), disimpan di user://settings.cfg.
 ## Memakai ConfigFile (format INI) bawaan Godot, bukan JSON, karena ini konfigurasi
 ## sederhana dan formatnya mudah dibaca/diedit manual.
+##
+## Hemat baterai (penutup v1.5): mode hemat prosesor dinyalakan sejak awal, jadi layar hanya
+## digambar ulang saat ada yang berubah (animasi, scroll, sentuhan). Saat pemain diam, mesin game
+## hampir tidak bekerja. Analogi web: seperti halaman yang hanya re-render saat state berubah.
 
 signal changed
 
 const PATH := "user://settings.cfg"
 const LANGUAGES := ["id", "en"]
+## Batas FPS: cukup untuk animasi mulus; HP berlayar 90/120 Hz tidak perlu menggambar lebih cepat.
+const MAX_FPS := 60
 
 var sfx_enabled := true
 var vibration_enabled := true
 var language := "id"
 var compact_numbers := false
+var perf_overlay := false  # info performa untuk uji di HP (PerfOverlay)
+
+var _overlay: PerfOverlay
 
 
 func _ready() -> void:
+	OS.low_processor_usage_mode = true
+	Engine.max_fps = MAX_FPS
 	var config := ConfigFile.new()
 	if config.load(PATH) == OK:
 		sfx_enabled = config.get_value("audio", "sfx", sfx_enabled)
 		vibration_enabled = config.get_value("audio", "vibration", vibration_enabled)
 		language = config.get_value("display", "language", language)
 		compact_numbers = config.get_value("display", "compact_numbers", compact_numbers)
+		perf_overlay = config.get_value("display", "perf_overlay", perf_overlay)
 	_apply()
 
 
@@ -45,9 +57,20 @@ func set_compact_numbers(enabled: bool) -> void:
 	_save()
 
 
+func set_perf_overlay(enabled: bool) -> void:
+	perf_overlay = enabled
+	_save()
+
+
 func _apply() -> void:
 	TranslationServer.set_locale(language)
 	Fmt.compact = compact_numbers
+	if perf_overlay and _overlay == null:
+		_overlay = PerfOverlay.new()
+		add_child(_overlay)
+	elif not perf_overlay and _overlay != null:
+		_overlay.queue_free()
+		_overlay = null
 
 
 func _save() -> void:
@@ -57,5 +80,6 @@ func _save() -> void:
 	config.set_value("audio", "vibration", vibration_enabled)
 	config.set_value("display", "language", language)
 	config.set_value("display", "compact_numbers", compact_numbers)
+	config.set_value("display", "perf_overlay", perf_overlay)
 	config.save(PATH)
 	changed.emit()
