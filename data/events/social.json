@@ -161,6 +161,54 @@
 				{ "label": "Ikut kelasnya", "cost": 750000, "effects": { "skill": 2, "xp": 20, "rel": { "wulan": 5 } }, "result": "Banyak hal baru yang langsung bisa kamu terapkan. Investasi terbaik adalah pada dirimu sendiri." },
 				{ "label": "Tidak ikut", "effects": { "rel": { "wulan": -2 } }, "result": "Kak Wulan memaklumi kesibukanmu." }
 			]
+		},
+		{
+			"id": "ramadan_sharing", "category": "social", "weight": 1, "month_of_year": 2, "cooldown": 11,
+			"title": "Ramadan dan Berbagi", "text": "Bulan Ramadan tiba. Ajakan buka puasa bersama berdatangan, dan ini juga waktu untuk berzakat dan berbagi.",
+			"choices": [
+				{ "label": "Berzakat & berbagi, bukber secukupnya", "cost": 1000000, "effects": { "happiness": 4, "xp": 10 }, "result": "Berbagi sesuai kemampuan, lalu menikmati kebersamaan tanpa berlebihan." },
+				{ "label": "Ikut semua ajakan bukber", "cost": 2500000, "effects": { "happiness": 5, "health": -2 }, "result": "Seru, tapi pengeluaran dan jadwal makanmu berantakan." },
+				{ "label": "Berhemat, buka puasa di rumah", "effects": { "happiness": -1, "xp": 5 }, "result": "Hemat, walau sesekali merasa ketinggalan kebersamaan." }
+			]
+		},
+		{
+			"id": "mudik", "category": "social", "weight": 1.5, "month_of_year": 3, "cooldown": 11, "character": "ibu",
+			"title": "Mudik Lebaran", "text": "Lebaran sebentar lagi. Ibu bertanya apakah tahun ini kamu pulang kampung. Harga tiket sudah mulai naik.",
+			"choices": [
+				{ "label": "Pulang naik pesawat", "cost": 2500000, "effects": { "happiness": 5, "rel": { "ibu": 6 } }, "result": "Perjalanan nyaman, dan Ibu menyambutmu dengan masakan favoritmu." },
+				{ "label": "Pulang naik bus malam", "cost": 800000, "effects": { "happiness": 3, "health": -2, "rel": { "ibu": 6 } }, "result": "Perjalanannya panjang dan melelahkan, tapi kebersamaan dengan keluarga tetap terasa." },
+				{ "label": "Tidak pulang, cukup video call", "effects": { "happiness": -3, "rel": { "ibu": -4 } }, "result": "Hemat, tapi suara Ibu terdengar sedikit kecewa." }
+			]
+		},
+		{
+			"id": "year_end_holiday", "category": "social", "weight": 1, "month_of_year": 11, "cooldown": 11,
+			"title": "Liburan Akhir Tahun", "text": "Libur akhir tahun tiba. Harga tiket dan penginapan sedang mahal-mahalnya, tapi rasanya semua orang sedang berlibur.",
+			"choices": [
+				{ "label": "Liburan ke luar kota", "cost": 4000000, "effects": { "happiness": 7 }, "result": "Liburan yang menyenangkan. Lain kali, pesan jauh-jauh hari agar lebih murah." },
+				{ "label": "Staycation di dalam kota", "cost": 1000000, "effects": { "happiness": 4 }, "result": "Santai tanpa macet dan tanpa harga musim liburan." },
+				{ "label": "Istirahat di rumah", "effects": { "happiness": 1, "health": 2 }, "result": "Tenang dan hemat. Tubuhmu pun berterima kasih." }
+			]
+		},
+		{
+			"id": "independence_day", "category": "social", "weight": 1, "month_of_year": 7, "cooldown": 11, "character": "ratna",
+			"title": "Lomba 17 Agustus", "text": "Bu Ratna mengajakmu ikut meramaikan lomba 17 Agustus di lingkungan.",
+			"choices": [
+				{ "label": "Ikut lomba & jadi panitia", "outcomes": [
+					{ "chance": 0.3, "effects": { "happiness": 5, "cash": 300000, "rel": { "ratna": 5 } }, "result": "Kamu menang lomba balap karung! Hadiahnya {rp:300000}." },
+					{ "chance": 0.7, "effects": { "happiness": 4, "rel": { "ratna": 5 } }, "result": "Tidak menang, tapi seru dan kamu jadi lebih akrab dengan tetangga." }
+				] },
+				{ "label": "Sumbang dana lomba", "cost": 200000, "effects": { "happiness": 2, "rel": { "ratna": 3 } }, "result": "Bu Ratna berterima kasih atas sumbanganmu." },
+				{ "label": "Di rumah saja", "effects": { "rel": { "ratna": -2 } }, "result": "Kamu mendengar keseruan lomba dari kejauhan." }
+			]
+		},
+		{
+			"id": "sibling_school", "bad": true, "category": "social", "weight": 1, "month_of_year": 6, "min_month": 6, "cooldown": 24, "max_times": 2, "character": "ibu",
+			"title": "Biaya Sekolah Adik", "text": "Tahun ajaran baru. Ibu bercerita uang pangkal sekolah adikmu masih kurang {rp:3000000}.",
+			"choices": [
+				{ "label": "Tanggung semuanya", "cost": 3000000, "effects": { "happiness": 3, "rel": { "ibu": 6 } }, "result": "Adikmu bisa mulai sekolah tanpa beban. Ibu terharu." },
+				{ "label": "Bantu separuh", "cost": 1500000, "effects": { "happiness": 1, "rel": { "ibu": 3 } }, "result": "Sisanya Ibu cari dari tabungan keluarga. Bantuanmu tetap berarti." },
+				{ "label": "Belum bisa membantu", "effects": { "happiness": -3, "rel": { "ibu": -4 } }, "result": "Membantu keluarga itu penting, tapi jangan sampai mengorbankan dana darurat sendiri." }
+			]
 		}
 	]
 }

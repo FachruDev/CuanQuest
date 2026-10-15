@@ -26,7 +26,7 @@
 		{ "id": "mortgage_paid", "type": "stat", "key": "mortgages_paid_off", "title": true },
 		{ "id": "debt_free", "type": "stat", "key": "loans_paid_off", "title": true },
 		{ "id": "scam_proof", "type": "stat", "key": "scams_avoided", "min": 5, "title": true },
-		{ "id": "quiz_30", "type": "quiz_correct", "min": 30, "title": true },
+		{ "id": "quiz_50", "type": "quiz_correct", "min": 50, "title": true },
 		{ "id": "career_4", "type": "job_level", "min": 4, "title": true },
 		{ "id": "graduate", "type": "stat", "key": "graduations", "title": true },
 		{ "id": "dreams_3", "type": "stat", "key": "dreams_achieved", "min": 3, "frame": "purple" },

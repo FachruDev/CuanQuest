@@ -70,6 +70,17 @@
 				{ "label": "Perawatan seadanya", "cost": 10000000, "claim": "medical", "effects": { "health": -15, "happiness": -6, "unpaid_months": 3 }, "result": "Pemulihanmu lambat dan melelahkan." },
 				{ "label": "Tidak menjalani perawatan", "effects": { "health": -35, "happiness": -10, "unpaid_months": 3 }, "result": "Kondisimu memburuk. Di saat seperti inilah dana darurat dan asuransi paling dibutuhkan." }
 			]
+		},
+		{
+			"id": "dengue_season", "bad": true, "category": "health", "weight": 0.5, "month_of_year": 1, "cooldown": 11, "character": "ratna",
+			"title": "Musim Demam Berdarah", "text": "Kasus demam berdarah sedang naik di lingkunganmu. Bu Ratna mengajak warga membersihkan sarang nyamuk.",
+			"choices": [
+				{ "label": "Ikut kerja bakti & fogging", "cost": 100000, "effects": { "health": 1, "rel": { "ratna": 3 } }, "result": "Lingkungan lebih bersih. Mencegah jauh lebih murah daripada mengobati." },
+				{ "label": "Tidak sempat", "outcomes": [
+					{ "chance": 0.75, "effects": { "rel": { "ratna": -2 } }, "result": "Musim hujan berlalu tanpa masalah. Kali ini kamu beruntung." },
+					{ "chance": 0.25, "effects": { "health": -12, "happiness": -4, "rel": { "ratna": -2 } }, "result": "Kamu terkena demam berdarah dan harus beristirahat lama." }
+				] }
+			]
 		}
 	]
 }

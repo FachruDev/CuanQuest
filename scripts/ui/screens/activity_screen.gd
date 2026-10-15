@@ -13,7 +13,6 @@ signal quit_study_requested
 ## Proyek sampingan diterima (main menampilkan petunjuk pertama kali).
 signal contract_accepted
 
-const TOPICS := ["basics", "risk", "scam", "instruments"]
 const BOLT_ICON := preload("res://assets/icons/bolt.svg")
 const BOLT_FULL := Color("#ffc95c")
 const BOLT_EMPTY := Color("#5a4e78")
@@ -68,7 +67,7 @@ func _refresh() -> void:
 	%StartQuizButton.get_child(0).modulate = DIMMED if %StartQuizButton.disabled else Color.WHITE
 
 	_clear(%TopicChips)
-	for topic: String in TOPICS:
+	for topic: String in quiz.topics:
 		var chip := PanelContainer.new()
 		chip.theme_type_variation = &"TopicChip"
 		chip.add_child(_label("%s  %d" % [tr("TOPIC_" + topic.to_upper()), quiz.correct_in_topic(topic)],

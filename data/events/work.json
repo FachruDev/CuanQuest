@@ -64,7 +64,7 @@
 			]
 		},
 		{
-			"id": "office_training", "category": "work", "weight": 2, "min_month": 2, "cooldown": 12, "requires": "career",
+			"id": "office_training", "category": "work", "weight": 2.5, "min_month": 2, "cooldown": 12, "requires": "career",
 			"title": "Pelatihan dari Kantor", "text": "Kantor membuka pelatihan gratis dua hari untuk meningkatkan keahlian karyawan.",
 			"choices": [
 				{ "label": "Ikut pelatihannya", "effects": { "skill": 4, "performance": 3, "xp": 20, "happiness": -1 }, "result": "Keahlianmu bertambah tanpa biaya sepeser pun. Manfaatkan setiap kesempatan belajar." },
@@ -164,6 +164,18 @@
 			"choices": [
 				{ "label": "Minta direkomendasikan", "effects": { "headhunter": true, "rel": { "wulan": 3 } }, "result": "Kak Wulan mengirimkan namamu. Tawaran kerja datang tak lama kemudian." },
 				{ "label": "Terima kasih, aku masih betah", "effects": { "rel": { "wulan": 1 } }, "result": "Kak Wulan menghargai keputusanmu. Jaringan yang baik terbentuk dari kepercayaan." }
+			]
+		},
+		{
+			"id": "coworker_freelance", "category": "work", "weight": 0.5, "min_month": 6, "cooldown": 24, "requires": "career", "character": "coworker",
+			"title": "Proyek Akhir Pekan {coworker}", "text": "{coworker} mendapat proyek lepas dari kenalannya dan mengajakmu mengerjakannya bersama di akhir pekan. Bagianmu {rp:2000000}.",
+			"choices": [
+				{ "label": "Ikut, minta perjanjian tertulis", "effects": { "cash": 2000000, "health": -2, "xp": 10, "rel": { "coworker": 4 } }, "result": "Lingkup kerja dan pembayarannya jelas. Proyek selesai dan dibayar tepat waktu." },
+				{ "label": "Ikut, cukup saling percaya", "outcomes": [
+					{ "chance": 0.6, "effects": { "cash": 2000000, "health": -2, "rel": { "coworker": 5 } }, "result": "Proyek selesai dan dibayar." },
+					{ "chance": 0.4, "effects": { "health": -3, "happiness": -4, "rel": { "coworker": -3 } }, "result": "Klien terus meminta revisi lalu menghilang tanpa membayar. Tanpa perjanjian, kalian sulit menagih." }
+				] },
+				{ "label": "Tolak, fokus istirahat", "effects": { "happiness": 1, "rel": { "coworker": -1 } }, "result": "Akhir pekanmu tetap tenang." }
 			]
 		}
 	]

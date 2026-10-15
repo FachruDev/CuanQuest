@@ -55,6 +55,11 @@ func is_unlocked(id: String) -> bool:
 	return unlocked.has(id)
 
 
+## Jumlah pencapaian terbuka yang masih ada di data (id lama yang sudah diganti tidak dihitung).
+func unlocked_count() -> int:
+	return defs().filter(func(d: Dictionary) -> bool: return unlocked.has(d["id"])).size()
+
+
 func icon(id: String) -> String:
 	var path := ICON_PATH % id
 	return path if ResourceLoader.exists(path) else ""

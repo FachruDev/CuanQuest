@@ -1251,9 +1251,9 @@ TITLE_DEBT_FREE,Disiplin Cicilan,Disciplined Payer
 ACH_SCAM_PROOF,Kebal Tipu,Scam-Proof
 ACH_SCAM_PROOF_DESC,Menolak 5 tawaran penipuan.,Turn down 5 scam offers.
 TITLE_SCAM_PROOF,Kebal Tipu,Scam-Proof
-ACH_QUIZ_30,Kutu Buku Keuangan,Money Bookworm
-ACH_QUIZ_30_DESC,Menjawab benar 30 soal kuis (dari semua permainan).,Answer 30 quiz questions correctly (across all games).
-TITLE_QUIZ_30,Kutu Buku,Bookworm
+ACH_QUIZ_50,Kutu Buku Keuangan,Money Bookworm
+ACH_QUIZ_50_DESC,Menjawab benar 50 soal kuis (dari semua permainan).,Answer 50 quiz questions correctly (across all games).
+TITLE_QUIZ_50,Kutu Buku,Bookworm
 ACH_CAREER_4,Jenjang Manajer,Manager Level
 ACH_CAREER_4_DESC,Mencapai jenjang karier 4.,Reach career level 4.
 TITLE_CAREER_4,Manajer,Manager
@@ -1329,3 +1329,7 @@ ANNUAL_MILESTONES,CATATAN TAHUN INI,THIS YEAR
 ANNUAL_EVENTS,%d kejadian dihadapi.,%d events faced.
 ANNUAL_DREAMS,Impian terwujud: %s,Dreams achieved: %s
 ANNUAL_ACHIEVEMENTS,Pencapaian baru: %s,New achievements: %s
+TOPIC_DEBT,Utang & Kredit,Debt & Credit
+TOPIC_PROPERTY,Properti,Property
+TOPIC_CAREER,Karier & Pajak,Career & Tax
+TOPIC_INSURANCE,Asuransi,Insurance

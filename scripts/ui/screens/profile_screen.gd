@@ -507,7 +507,7 @@ func _build_achievements() -> void:
 
 func _refresh_achievements() -> void:
 	var achievements := GameState.achievements
-	_achievement_title.text = tr("PROFILE_ACHIEVEMENTS_TITLE") % [achievements.unlocked.size(), achievements.defs().size()]
+	_achievement_title.text = tr("PROFILE_ACHIEVEMENTS_TITLE") % [achievements.unlocked_count(), achievements.defs().size()]
 	_refresh_style()
 	_clear(_achievement_box)
 	var ordered: Array = achievements.defs().filter(func(d: Dictionary) -> bool: return achievements.is_unlocked(d["id"]))

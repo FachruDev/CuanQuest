@@ -104,6 +104,49 @@
 				{ "label": "Pilih asuransi jiwa berjangka saja", "effects": { "xp": 15 }, "result": "Preminya jauh lebih murah dan sisa uangnya bisa kamu investasikan sendiri. Atur di kartu Perlindungan di Beranda." },
 				{ "label": "Tolak dengan sopan", "effects": { "xp": 5 }, "result": "Kamu memutuskan mempelajari asuransi lebih dulu sebelum membeli." }
 			]
+		},
+		{
+			"id": "tax_filing", "category": "finance", "weight": 1, "month_of_year": 2, "cooldown": 11, "requires": "employed",
+			"title": "Batas Lapor SPT", "text": "Akhir Maret adalah batas lapor SPT Tahunan. Walau pajak gajimu sudah dipotong kantor, laporannya tetap wajib kamu kirim sendiri.",
+			"choices": [
+				{ "label": "Lapor sendiri secara daring", "effects": { "xp": 15, "happiness": -1 }, "result": "Dengan bukti potong dari kantor, laporanmu beres dalam setengah jam. Kini kamu paham hitungan pajakmu sendiri." },
+				{ "label": "Pakai jasa konsultan pajak", "cost": 300000, "effects": { "xp": 5 }, "result": "Beres tanpa repot, walau ada biayanya." },
+				{ "label": "Nanti saja", "effects": { "delayed": { "months": 2, "effects": { "cash": -100000, "happiness": -2 }, "text": "Surat teguran datang: kamu terlambat lapor SPT dan kena denda {rp:100000}." } }, "result": "Kamu menunda... lalu lupa." }
+			]
+		},
+		{
+			"id": "new_year_resolution", "category": "finance", "weight": 1, "month_of_year": 0, "cooldown": 11, "min_month": 6,
+			"title": "Resolusi Tahun Baru", "text": "Tahun baru, semangat baru. Resolusi apa yang ingin kamu jalani tahun ini?",
+			"choices": [
+				{ "label": "Catat semua pengeluaran", "effects": { "xp": 10, "happiness": -1, "delayed": { "months": 1, "effects": { "cash_salary": 0.05 }, "text": "Catatan pengeluaranmu menemukan langganan yang terlupa dan jajan kecil yang menumpuk. Kamu berhasil menghemat sekitar 5% gaji." } }, "result": "Setiap pengeluaran kamu catat. Merepotkan di awal, tapi membuka mata." },
+				{ "label": "Rutin olahraga", "effects": { "health": 4, "happiness": 2 }, "result": "Lari pagi tiga kali seminggu. Badan lebih segar." },
+				{ "label": "Jalani saja tanpa resolusi", "effects": { "happiness": 1 }, "result": "Tidak ada janji yang perlu ditepati. Santai, tapi tidak ada yang berubah." }
+			]
+		},
+		{
+			"id": "rainy_flood", "bad": true, "category": "finance", "weight": 1, "month_of_year": 1, "cooldown": 11,
+			"title": "Banjir Musim Hujan", "text": "Hujan deras semalaman membuat air masuk ke tempat tinggalmu. Kasur dan beberapa barang elektronik terendam.",
+			"choices": [
+				{ "label": "Ganti barang yang rusak", "cost": 2500000, "effects": { "happiness": -2 }, "result": "Semua kembali seperti semula. Untung ada dana darurat." },
+				{ "label": "Bersihkan sendiri, perbaiki seperlunya", "cost": 800000, "effects": { "health": -3, "happiness": -4 }, "result": "Lebih hemat, tapi melelahkan dan beberapa barang tidak tertolong." }
+			]
+		},
+		{
+			"id": "phone_upgrade", "category": "finance", "weight": 1, "min_month": 6, "cooldown": 18,
+			"title": "HP Baru Rilis", "text": "Seri terbaru HP favoritmu rilis dengan harga {rp:12000000}. Teman-temanmu mulai memamerkannya.",
+			"choices": [
+				{ "label": "Beli seri terbaru", "cost": 12000000, "effects": { "happiness": 4 }, "result": "HP baru memang menyenangkan... selama beberapa minggu. Barang elektronik cepat turun nilainya." },
+				{ "label": "Beli seri lama yang turun harga", "cost": 4000000, "effects": { "happiness": 2, "xp": 5 }, "result": "Fiturnya hampir sama dengan harga sepertiganya. Pilihan cerdas." },
+				{ "label": "Tetap pakai HP lama", "effects": { "happiness": -1, "xp": 10 }, "result": "HP lamamu masih berfungsi baik. Uangnya tetap bekerja untukmu." }
+			]
+		},
+		{
+			"id": "bank_lucky_draw", "category": "finance", "weight": 0.5, "min_month": 6, "max_times": 2, "cooldown": 24,
+			"title": "Menang Undian Tabungan", "text": "Bank mengumumkan pemenang undian berhadiah untuk nasabah, dan namamu ada di daftar resminya! Hadiahnya {rp:2000000}.",
+			"choices": [
+				{ "label": "Terima dan tabung", "effects": { "cash": 2000000, "happiness": 4 }, "result": "Rezeki tak terduga masuk ke rekeningmu, tanpa diminta biaya apa pun. Undian asli tidak pernah meminta transfer atau OTP." },
+				{ "label": "Terima, sebagian disumbangkan", "effects": { "cash": 1000000, "happiness": 6, "xp": 5 }, "result": "Berbagi membuat rezeki terasa lebih berarti." }
+			]
 		}
 	]
 }

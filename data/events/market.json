@@ -55,6 +55,15 @@
 				{ "label": "Hibur Bima, ini pelajaran bersama", "effects": { "happiness": -3, "xp": 10, "rel": { "bima": 8 }, "chain": { "event": "bima_rebound", "months": [6, 10] } }, "result": "Kalian tertawa getir bersama. Aset tanpa nilai nyata bisa hilang dalam semalam." },
 				{ "label": "Salahkan Bima", "effects": { "happiness": -4, "rel": { "bima": -12 } }, "result": "Bima merasa bersalah dan menjauh. Keputusan membeli tetap ada di tanganmu." }
 			]
+		},
+		{
+			"id": "bank_hoax", "category": "market", "weight": 0.5, "min_month": 3, "cooldown": 24, "max_times": 2, "character": "ibu",
+			"title": "Pesan Berantai: Bank Bangkrut", "text": "Grup keluarga ramai pesan berantai: \"Bank-bank akan bangkrut minggu depan, segera tarik semua tabungan!\" Ibu ikut bertanya apakah uangnya harus ditarik.",
+			"choices": [
+				{ "label": "Cek faktanya & jelaskan jaminan LPS", "effects": { "xp": 15, "rel": { "ibu": 3 } }, "result": "Ternyata hoaks. Simpanan di bank dijamin LPS hingga batas tertentu selama bunganya wajar. Ibu jadi tenang." },
+				{ "label": "Tarik semua uang ke rumah", "effects": { "happiness": -2, "delayed": { "months": 1, "chance": 0.3, "effects": { "cash": -1500000 }, "text": "Sebagian uang tunai yang kamu simpan di rumah hilang. Uang di bank jauh lebih aman.", "fail_text": "Berita bank bangkrut terbukti hoaks. Kamu menyetor kembali uangmu ke bank." } }, "result": "Kamu menarik tabunganmu dan menyimpannya di lemari." },
+				{ "label": "Teruskan pesannya ke grup lain", "effects": { "happiness": -1 }, "result": "Kepanikan ikut menyebar. Sebelum meneruskan pesan, cek dulu kebenarannya." }
+			]
 		}
 	]
 }

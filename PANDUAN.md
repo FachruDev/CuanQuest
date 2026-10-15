@@ -31,7 +31,7 @@ data/
   rumors.json                 Rumor pasar (v1.5d): peluang, gerak harga benar/jebakan, riset dasar & mendalam
   contracts.json              Proyek sampingan (v1.5d): 17 proyek, tier & reputasi, 3 strategi, peluang, bayaran
   achievements.json           Pencapaian (v1.5d): 21 pencapaian (syarat sebagai data), gelar, 7 bingkai avatar
-  events/<kategori>.json      90 event hidup per kategori (finance, work, education, health, social,
+  events/<kategori>.json      104 event hidup per kategori (finance, work, education, health, social,
                               market, scam, property, debt): syarat, pilihan, efek, tokoh. Cara menambah:
                               docs/PANDUAN_EVENT.md
   characters.json             Tokoh berulang (v1.5d): Bima, Ibu, Kak Wulan, Bu Ratna, atasan, rekan kerja
@@ -41,8 +41,8 @@ data/
   properties.json             Properti (v1.5c): harga, sewa, kenaikan harga, biaya beli/jual/rutin, KPR
   jobs.json                   Pekerjaan (bidang, jenjang, syarat, gaji, beban kerja) & aturan lowongan
   education.json              Program kuliah (syarat, lama, biaya, hasil) & beban kuliah
-  quiz.json                   39 soal kuis (4 topik)
-  glossary.json               72 istilah glosarium
+  quiz.json                   150 soal kuis (8 topik, urutan topik di "topics")
+  glossary.json               81 istilah glosarium
   legal.json                  Kebijakan privasi & syarat penggunaan (tampil di game)
   activities.json             6 aktivitas bulanan & aturan energi
   risk_profile.json           Kuesioner & 3 profil risiko
@@ -209,12 +209,12 @@ scenes/
   - [x] (3) Properti & KPR
   - [x] (4) Tampilan & cerita (ilustrasi hunian & kendaraan, neraca, event utang & properti)
   - [x] (5) Penyeimbangan (tawaran KTA, rumah subsidi, skor setelah macet)
-- [ ] **v1.5d "Tokoh, Riset, Kontrak, Konten"**:
+- [x] **v1.5d "Tokoh, Riset, Kontrak, Konten"**:
   - [x] (1) Tokoh berulang & 10 rantai event
   - [x] (2) Riset pasar & rumor
   - [x] (3) Kontrak & proyek sampingan
   - [x] (4) Pencapaian, kosmetik & laporan tahunan
-  - [ ] (5) Perluasan konten & penyeimbangan
+  - [x] (5) Perluasan konten & penyeimbangan
 - [ ] **v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
 Rangkuman semua checklist MVP (v1, v1.5, v2, M7) ada di [docs/CHECKLIST_MVP.md](docs/CHECKLIST_MVP.md).
@@ -333,6 +333,15 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Save:** kunci slot baru `year_acc`, `annual_reports`; data pemain `achievements`.
 - **Hasil simulator** (S1, 40 × 30 tahun): median 12 dari 21 pencapaian untuk pemain hemat, 11 untuk pemain acak; Kebal Tipu 100% / 73% / 0% dan Investor Sabar 100% / 23% / 0% (hemat / acak / boros).
 - **Menambah pencapaian:** tambah satu baris di `achievements` (`id`, `type`, `min`, opsional `key`, `title`, `frame`), lalu teks `ACH_<ID>`, `ACH_<ID>_DESC` (dan `TITLE_<ID>`) di CSV. Ikon `assets/icons/achievements/<id>.svg` otomatis dipakai jika ada.
+
+## Perluasan Konten & Penyeimbangan (v1.5d langkah 5)
+
+- **Kuis 39 → 150 soal** (`data/quiz.json`): Dasar Keuangan 25, Risiko 20, Penipuan 20, Instrumen 25, dan 4 topik baru masing-masing 15 soal: **Utang & Kredit**, **Properti**, **Karier & Pajak**, **Asuransi**. Faktanya mengikuti aturan Indonesia (PTKP TK/0 Rp54 jt, SPT Tahunan 31 Maret, THR paling lambat H-7, PPh final sewa 10%, PPh penjualan properti 2,5%, jaminan LPS, SLIK OJK, batas akses aplikasi pinjol legal, kripto kini diawasi OJK). Urutan topik dibaca dari data (`topics`), sehingga chip topik di tab Karier bertambah otomatis. Pencapaian kuis dinaikkan ke **50 soal benar** (`quiz_50`).
+- **14 event baru (total 104)**. Musiman (`month_of_year`): resolusi tahun baru (Januari), banjir & demam berdarah (Februari), batas lapor SPT & Ramadan (Maret), mudik Lebaran (April), biaya sekolah adik (Juli), lomba 17 Agustus, liburan akhir tahun (Desember). Pelengkap: tawaran kartu kredit (bayar penuh vs bayar minimum), HP baru rilis, undian tabungan resmi, hoaks "bank bangkrut" di grup keluarga, proyek akhir pekan rekan kerja (perjanjian tertulis vs saling percaya). Sebagian memakai tokoh berulang (Ibu, Bu Ratna, rekan kerja).
+- **9 istilah glosarium baru** (total 81): aturan 72, bunga flat, dollar cost averaging, LPS, obligasi, rebalancing, SBN ritel, SPT Tahunan, THR.
+- **Uji konten otomatis** memeriksa semua soal (4 opsi berbeda, jawaban, penjelasan, topik) dan semua event (syarat, tokoh, efek, rantai, token uang `{rp:N}`, bulan musiman), sehingga konten yang ditambah lewat file data langsung tervalidasi.
+- **Menambah soal kuis:** satu baris di `data/quiz.json` (`id` unik, `topic` dari daftar `topics`, `q`, 4 `options`, `answer` mulai 0, `explain`). Topik baru = tambah id di `topics` dan teks `TOPIC_<TOPIK>` di CSV.
+- **Hasil simulator** (40 × 30 tahun): ekonomi tetap seimbang setelah bobot event baru diturunkan dan Pelatihan dari Kantor dinaikkan (S1 hemat bebas finansial tahun 12,6, SMA 19,1, pemain acak 60%). Pelajaran penting: menambah banyak event ke jatah acak bisa mengencerkan event karier; bandingkan dengan opsi simulator `--skip-events=id1,id2`.
 
 ## Penyeimbangan Utang, Properti & Hunian (v1.5c langkah 5)
 

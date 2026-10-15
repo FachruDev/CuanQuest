@@ -9,6 +9,7 @@ extends Node
 ##       pembeli_rumah|pembeli_rumah_kota|pembeli_rumah_nekat|pemburu_rumor|periset|pekerja_lepas|gila_kerja]
 ##       [--difficulty=normal]
 ##       [--background=s1|d3|sma]
+##       [--skip-events=id1,id2] (buang event tertentu untuk membandingkan dampaknya)
 ## Folder tools/ tidak ikut ke APK (exclude_filter di export_presets.cfg).
 
 ## Tipe pemain. invest = porsi gaji untuk autodebet; choice = cara memilih di event.
@@ -59,6 +60,7 @@ const PERSONAS := {
 const CHECKPOINTS := [5, 10, 20, 30]
 
 var _rng := RandomNumberGenerator.new()
+var _skip_events: PackedStringArray = []
 var _rumor_position: Dictionary = {}  # aset yang dibeli karena rumor (v1.5d), dijual setelah rumor terjawab
 var _rumor_trades: Array[float] = []  # imbal hasil tiap transaksi rumor (0.05 = +5%)
 
@@ -69,6 +71,7 @@ func _ready() -> void:
 	var years := int(args.get("years", "30"))
 	var difficulty: String = args.get("difficulty", "normal")
 	var background: String = args.get("background", "s1")
+	_skip_events = str(args.get("skip-events", "")).split(",", false)
 	var names: Array = PERSONAS.keys() if args.get("persona", "all") == "all" else [args["persona"]]
 	# Simpan otomatis tidak perlu (dan memperlambat) selama simulasi.
 	for connection: Dictionary in GameState.state_committed.get_connections():
@@ -100,6 +103,9 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 	var p: Dictionary = PERSONAS[persona]
 	_rng.seed = seed_value * 7 + persona.hash()
 	GameState.new_game({"name": "Sim", "background": background, "difficulty": difficulty}, seed_value)
+	if not _skip_events.is_empty():
+		GameState.events.catalog.defs = GameState.events.catalog.defs.filter(func(d: Dictionary) -> bool:
+			return not d["id"] in _skip_events)
 	GameState.dreams.asked = true
 	GameState.quiz.correct_ids.clear()
 	if p["food"] != "":

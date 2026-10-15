@@ -59,6 +59,15 @@
 				{ "label": "Lunasi sebagian pokok", "cost_var": "prepay", "effects": { "prepay_part": true }, "result": "Sisa pokok berkurang {prepay_amount}, sehingga cicilan mengambang turun menjadi sekitar {pay_prepaid} per bulan." },
 				{ "label": "Terima bunga mengambang", "effects": {}, "result": "Cicilanmu kini naik-turun mengikuti suku bunga BI. Pastikan dana daruratmu cukup untuk beberapa bulan cicilan." }
 			]
+		},
+		{
+			"id": "credit_card_offer", "category": "debt", "weight": 1, "min_month": 12, "max_times": 1, "requires": "career",
+			"title": "Tawaran Kartu Kredit", "text": "Bank menawarkan kartu kredit pertamamu dengan limit {rp:10000000}. Petugasnya bilang, \"Bisa bayar minimum saja tiap bulan.\"",
+			"choices": [
+				{ "label": "Ambil, selalu bayar penuh", "effects": { "xp": 10, "delayed": { "months": 6, "effects": { "credit_score": 4 }, "text": "Kartu kreditmu selalu dibayar penuh setiap bulan. Riwayat kredit yang baik menaikkan skor kreditmu." } }, "result": "Kamu memakai kartu kredit hanya untuk belanja yang direncanakan dan melunasinya setiap bulan." },
+				{ "label": "Ambil, belanja dulu bayar minimum", "effects": { "happiness": 3, "delayed": { "months": 4, "effects": { "cash": -3000000, "credit_score": -6, "happiness": -3 }, "text": "Tagihan kartu kreditmu membengkak karena bunga dari pembayaran minimum. Kamu melunasinya {rp:3000000} dan skor kreditmu turun." } }, "result": "Belanja terasa ringan... untuk sekarang." },
+				{ "label": "Tolak, belum butuh", "effects": { "xp": 5 }, "result": "Tanpa kartu kredit pun keuanganmu tetap rapi." }
+			]
 		}
 	]
 }

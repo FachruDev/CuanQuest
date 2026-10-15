@@ -2,7 +2,7 @@
 
 Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang **dibutuhkan**, dan **di file mana** aset itu dipakai. Diperbarui setiap kali sebuah langkah membutuhkan aset baru.
 
-- **Terakhir diperbarui:** 15 Oktober 2026 (v1.5d langkah 4: 21 lencana pencapaian sementara ikon bintang/gembok, bingkai avatar digambar kode; langkah 3: ikon bidang "Umum"; potret tokoh langkah 1 masih lingkaran berwarna + inisial)
+- **Terakhir diperbarui:** 15 Oktober 2026 (v1.5d langkah 5: tanpa aset baru; langkah 4: 21 lencana pencapaian sementara ikon bintang/gembok, bingkai avatar digambar kode; langkah 3: ikon bidang "Umum"; potret tokoh langkah 1 masih lingkaran berwarna + inisial)
 - **Rencana pembuatan:** pengembang membuat aset setelah **v2 selesai**. Sampai saat itu game memakai aset sementara (🔁), dan daftar di bawah terus diperbarui setiap langkah.
 - **Tanda:** ✅ sudah ada · ⬜ dibutuhkan · 🔁 sementara memakai aset lain atau gambar pengganti sederhana (game tetap jalan)
 - Tabel aset yang sudah ada dibuat otomatis dengan memindai `scenes/`, `scripts/`, `theme/`, dan `data/`.
@@ -120,6 +120,8 @@ Kartu proyek di tab Karier memakai ikon bidang kerja yang sama dengan lowongan (
 |:--|:--|:--|:--|:--|
 | `assets/icons/tracks/general.svg` | Bidang Umum (buku + pena) | `scripts/ui/ui_text.gd` (`track_icon`): kartu Proyek Sampingan di tab Karier | 🔁 `book.svg` | Otomatis |
 
+**Langkah 5 (konten: soal kuis, event pelengkap):** tidak butuh aset baru. Event memakai ikon kategori yang sudah ada; tokoh di event baru memakai potret tokoh langkah 1.
+
 **Langkah 2 (rumor & riset):** tidak butuh aset baru. Kartu **Kabar Burung** di tab Pasar, bagian Rumor & Riset di laporan bulanan, dan kartu Rekam Jejak Riset di Profil memakai gaya kartu, chip, dan tombol yang sudah ada.
 
 **Langkah 4 (pencapaian & kosmetik), sementara memakai ikon lain:**
@@ -138,7 +140,7 @@ Lencana dipakai `scripts/ui/screens/profile_screen.gd` (daftar Pencapaian di tab
 | `assets/icons/achievements/mortgage_paid.svg` | KPR Lunas | Kunci rumah + centang |
 | `assets/icons/achievements/debt_free.svg` | Lunas! | Rantai putus |
 | `assets/icons/achievements/scam_proof.svg` | Kebal Tipu | Perisai dengan tanda silang |
-| `assets/icons/achievements/quiz_30.svg` | Kutu Buku Keuangan | Tumpukan buku + bintang |
+| `assets/icons/achievements/quiz_50.svg` | Kutu Buku Keuangan | Tumpukan buku + bintang |
 | `assets/icons/achievements/career_4.svg` | Jenjang Manajer | Dasi/tangga karier |
 | `assets/icons/achievements/graduate.svg` | Wisuda | Toga wisuda |
 | `assets/icons/achievements/dreams_3.svg` | Tiga Impian | Tiga bintang impian |

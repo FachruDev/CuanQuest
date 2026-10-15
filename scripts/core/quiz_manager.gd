@@ -9,6 +9,7 @@ extends RefCounted
 ## dengan menekan Lanjut berulang kali (GDD 5.4).
 
 var questions: Array = []
+var topics: Array = []  # urutan topik untuk tampilan (quiz.json "topics")
 var config: Dictionary = {}
 var correct_ids: Dictionary = {}   # question_id -> true (pernah dijawab benar)
 var week_id := -1
@@ -16,9 +17,13 @@ var used_this_week := 0
 var shown_this_week: Dictionary = {}  # question_id -> true (sudah muncul minggu ini)
 
 
-func setup(question_defs: Array, quiz_config: Dictionary) -> void:
+func setup(question_defs: Array, quiz_config: Dictionary, topic_order: Array = []) -> void:
 	questions = question_defs
 	config = quiz_config
+	topics = topic_order.duplicate()
+	for q: Dictionary in questions:  # topik yang belum terdaftar ikut ditampilkan di akhir
+		if not q["topic"] in topics:
+			topics.append(q["topic"])
 
 
 ## Sisa jatah minggu ini.

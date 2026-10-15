@@ -49,7 +49,7 @@ Semua file dimuat oleh `EventManager.load_defs()` (`scripts/core/event_manager.g
 | `id` | ya | Id unik (dipakai di save, rantai event, dan riwayat) |
 | `category` | ya | Sama dengan nama file |
 | `title`, `text` | ya | Judul & cerita (boleh berisi token `{rp:N}` dan isian seperti `{job}`) |
-| `choices` | ya | 1-3 pilihan (lihat di bawah) |
+| `choices` | ya | 1-4 pilihan, sebaiknya 2-3 (lihat di bawah) |
 | `weight` | ya | Bobot peluang terpilih (relatif terhadap event lain) |
 | `bad` | - | `true` = event merugikan; bobotnya dikali `bad_event_mult` tingkat kesulitan dan lebih jarang setelah event buruk |
 | `min_month` | - | Paling cepat muncul di bulan ke-N |
@@ -133,6 +133,10 @@ Dihitung `GameState.events.context_flags()` (ambang di `economy.json` `event_dir
 | `{rate_from}`, `{rate_to}`, `{refi_rate}`, `{pay_from}`, `{pay_to}`, `{pay_refi}`, `{fee}`, `{prepay_amount}`, `{pay_prepaid}` | `Debt.event_vars()`: bunga & cicilan KPR sebelum/sesudah mengambang, take over, pelunasan sebagian |
 
 Isian dihitung sekali saat event mulai tampil dan ikut disimpan, sehingga teks dan efeknya selalu cocok. **Menambah isian baru:** kembalikan nilainya dari `event_vars(id)` di modul pemilik event, lalu tambahkan penggantinya di `UiText.event_text()`.
+
+## Event musiman (v1.5d)
+
+Event dengan `month_of_year` hanya bisa muncul di bulan itu (0 = Januari), biasanya dengan `cooldown` 11 agar paling banyak sekali setahun. Contoh: `new_year_resolution` (0), `rainy_flood` & `dengue_season` (1), `tax_filing` & `ramadan_sharing` (2), `thr` & `mudik` (3), `sibling_school` (6), `independence_day` (7), `harbolnas` & `year_end_holiday` (11). Tambahkan `"guaranteed": true` hanya untuk event yang pasti terjadi (seperti THR); event musiman lain tetap bersaing di jatah acak bulanan.
 
 ## Tokoh berulang & rantai cerita (v1.5d)
 

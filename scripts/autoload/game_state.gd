@@ -127,7 +127,8 @@ var history: Array[Dictionary] = []  # ringkasan permainan sebelumnya (maks 10)
 
 func _ready() -> void:
 	economy = DataLoader.load_json(ECONOMY_PATH)
-	quiz.setup(DataLoader.load_json(QUIZ_PATH).get("questions", []), economy["quiz"])
+	var quiz_data := DataLoader.load_json(QUIZ_PATH)
+	quiz.setup(quiz_data.get("questions", []), economy["quiz"], quiz_data.get("topics", []))
 	for module: GameModule in modules:
 		module.load_data()
 	achievements.load_data()
