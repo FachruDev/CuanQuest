@@ -30,6 +30,31 @@
 				{ "label": "Jual semua investasi", "effects": { "sell_all": true, "happiness": -2 }, "result": "Semua investasimu dijual (dengan biaya transaksi). Prediksi pasar jangka pendek jarang akurat." },
 				{ "label": "Tetap tenang, ikuti rencana", "effects": { "xp": 10 }, "result": "Kamu tidak membiarkan rasa takut orang lain menentukan keputusanmu." }
 			]
+		},
+		{
+			"id": "bima_coin", "category": "market", "weight": 1, "min_month": 4, "cooldown": 12, "max_times": 1, "context": { "cash_rich": 1.5 }, "character": "bima",
+			"title": "Koin Viral ala Bima", "text": "Bima pamer tangkapan layar: koin meme $KUCING naik 400% dalam seminggu. \"Masuk sekarang sebelum terbang ke bulan!\" Ia mengajakmu ikut {rp:2000000}.",
+			"choices": [
+				{ "label": "Ikut {rp:2000000}", "cost": 2000000, "effects": { "rel": { "bima": 5 }, "chain": { "event": "bima_coin_pump", "months": [1, 1] } }, "result": "Kamu membeli $KUCING lewat tautan dari Bima. Grup obrolan penuh emoji roket." },
+				{ "label": "Tolak, koin tanpa fundamental itu judi", "effects": { "xp": 10, "rel": { "bima": -3 }, "chain": { "event": "bima_coin_loss", "months": [2, 3] } }, "result": "Bima mengejekmu ketinggalan zaman. Koin yang naik hanya karena ramai dibicarakan bisa jatuh secepat naiknya." }
+			]
+		},
+		{
+			"id": "bima_coin_pump", "chain_only": true, "category": "market", "weight": 1, "character": "bima",
+			"title": "$KUCING Terbang!", "text": "Harga $KUCING naik tiga kali lipat. Di aplikasi nilainya {rp:6000000}, tapi pembelinya sedikit: jika dijual sekarang, setelah selisih harga dan biaya kamu kira-kira menerima {rp:2600000}. Bima: \"Tahan! Target 10x!\"",
+			"choices": [
+				{ "label": "Jual sekarang", "effects": { "cash": 2600000, "xp": 10, "rel": { "bima": -2 }, "chain": { "event": "bima_coin_loss", "months": [1, 1] } }, "result": "Kamu menjual. Nilai di layar ternyata tidak sama dengan uang yang bisa dicairkan: pasar yang sepi pembeli memakan sebagian besar \"untung\"-mu." },
+				{ "label": "Tahan, ikut target 10x", "effects": { "rel": { "bima": 3 }, "chain": { "event": "bima_coin_rug", "months": [1, 1] } }, "result": "Kamu menahan bersama Bima. Grup makin ramai." },
+				{ "label": "Tambah {rp:2000000}", "cost": 2000000, "effects": { "rel": { "bima": 5 }, "chain": { "event": "bima_coin_rug", "months": [1, 1] } }, "result": "Kamu menambah posisi di puncak euforia." }
+			]
+		},
+		{
+			"id": "bima_coin_rug", "chain_only": true, "bad": true, "category": "market", "weight": 1, "character": "bima",
+			"title": "Rug Pull!", "text": "Pengembang $KUCING menghilang membawa dana. Harga anjlok 99% dalam semalam: koinmu dan tabungan Bima nyaris tak bernilai.",
+			"choices": [
+				{ "label": "Hibur Bima, ini pelajaran bersama", "effects": { "happiness": -3, "xp": 10, "rel": { "bima": 8 }, "chain": { "event": "bima_rebound", "months": [6, 10] } }, "result": "Kalian tertawa getir bersama. Aset tanpa nilai nyata bisa hilang dalam semalam." },
+				{ "label": "Salahkan Bima", "effects": { "happiness": -4, "rel": { "bima": -12 } }, "result": "Bima merasa bersalah dan menjauh. Keputusan membeli tetap ada di tanganmu." }
+			]
 		}
 	]
 }

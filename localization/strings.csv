@@ -1064,3 +1064,21 @@ PROPERTY_COMMUTE,Ongkos ke kota (jika dihuni),Commute to the city (if lived in)
 PROPERTY_HOLD_NOTE,Aturan rumah subsidi: baru boleh dijual setelah %d tahun dimiliki.,Subsidized housing rule: can only be sold after %d years of ownership.
 PROPERTY_SELL_LOCKED,Baru boleh dijual mulai %s (aturan rumah subsidi).,Can only be sold from %s (subsidized housing rule).
 HOME_COMMUTE_NOTE,Ongkos perjalanan ke kota %s per bulan sudah termasuk biaya hidup.,Commuting to the city (%s per month) is included in living costs.
+CHAR_INFO,%s · %s (%d),%s · %s (%d)
+CHAR_LEVEL_VALUE,%s · %d,%s · %d
+REL_VERY_CLOSE,Sangat dekat,Very close
+REL_CLOSE,Akrab,Close
+REL_OK,Biasa,Neutral
+REL_DISTANT,Renggang,Distant
+CHANGE_REL,Kedekatan %s %+d,%s relationship %+d
+PROFILE_PEOPLE_TITLE,Orang Terdekat,People in Your Life
+PROFILE_PEOPLE_NOTE,"Pilihanmu di event mengubah kedekatan dan membuka cerita lanjutan. Atasan yang dekat lebih sering merekomendasikan promosi, hubungan yang renggang membuatmu lebih rentan PHK, dan rekan kerja yang akrab membantu kinerjamu.","Your event choices change these relationships and unlock follow-up stories. A close boss recommends you for promotion more often, a distant one leaves you more exposed to layoffs, and a close coworker helps your performance."
+CAREER_TEAM_BONUS,Rekan kerja akrab (%s): +%d.,Close coworker (%s): +%d.
+ADVICE_EMERGENCY,Dana daruratmu baru cukup untuk %d bulan. Kumpulkan dulu 3-6 kali pengeluaran bulanan di tabungan.,Your emergency fund covers only %d month(s). Build up 3-6x your monthly spending in savings first.
+ADVICE_HEALTH,Kamu belum punya asuransi kesehatan. BPJS Kesehatan murah dan melindungimu dari biaya rumah sakit.,You have no health insurance yet. BPJS Kesehatan is cheap and protects you from hospital bills.
+ADVICE_DEBT,Cicilanmu sudah %d%% gaji. Usahakan di bawah 30% sebelum menambah utang baru.,Your installments are %d%% of your salary. Keep them under 30% before taking on new debt.
+ADVICE_LIFESTYLE,Belanja gaya hidupmu %d%% gaji. Coba batasi 10-20% dan alihkan sisanya ke tujuan keuangan.,Lifestyle spending is %d%% of your salary. Try capping it at 10-20% and redirect the rest to your goals.
+ADVICE_INVEST,"Mulailah investasi rutin tiap gajian, misalnya di reksa dana yang sesuai jangka waktu tujuanmu.","Start investing every payday, for example in mutual funds that match your goal's time frame."
+ADVICE_DIVERSIFY,%d%% investasimu ada di satu aset. Sebarkan ke beberapa instrumen untuk mengurangi risiko.,%d%% of your investments sit in one asset. Spread them across several instruments to reduce risk.
+ADVICE_HEALTHY,Keuanganmu sudah sehat! Pertahankan kebiasaan baik ini dan tinjau tujuan jangka panjangmu setiap tahun.,Your finances are healthy! Keep these habits and review your long-term goals every year.
+ADVICE_NO_EMERGENCY,Kamu belum punya dana darurat. Mulailah menyisihkan gaji sampai terkumpul 3-6 kali pengeluaran bulanan.,You have no emergency fund yet. Start setting aside part of your salary until you have 3-6x your monthly spending.

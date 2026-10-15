@@ -29,37 +29,37 @@
 			]
 		},
 		{
-			"id": "overtime", "category": "work", "weight": 3, "cooldown": 4, "requires": "career",
-			"title": "Lembur Akhir Pekan", "text": "Ada pekerjaan mendesak dan atasan bertanya siapa yang bisa lembur akhir pekan ini. Uang lemburnya sekitar 10% gaji.",
+			"id": "overtime", "category": "work", "weight": 3, "cooldown": 4, "requires": "career", "character": "boss",
+			"title": "Lembur Akhir Pekan", "text": "Ada pekerjaan mendesak dan {boss} bertanya siapa yang bisa lembur akhir pekan ini. Uang lemburnya sekitar 10% gaji.",
 			"choices": [
-				{ "label": "Ambil lembur", "effects": { "cash_salary": 0.1, "performance": 4, "health": -3, "happiness": -2 }, "result": "Uang lembur masuk dan atasan mencatat dedikasimu, tapi badanmu lelah." },
+				{ "label": "Ambil lembur", "effects": { "cash_salary": 0.1, "performance": 4, "health": -3, "happiness": -2, "rel": { "boss": 3 } }, "result": "Uang lembur masuk dan {boss} mencatat dedikasimu, tapi badanmu lelah." },
 				{ "label": "Tolak dengan sopan", "effects": { "happiness": 2 }, "result": "Kamu menikmati akhir pekan. Sesekali menolak lembur itu wajar." }
 			]
 		},
 		{
-			"id": "big_project", "category": "work", "weight": 2, "min_month": 3, "cooldown": 8, "requires": "career",
-			"title": "Proyek Besar", "text": "Kantor mendapat proyek penting dan atasan menawarimu memimpinnya. Kalau berhasil, namamu akan dikenal manajemen.",
+			"id": "big_project", "category": "work", "weight": 2, "min_month": 3, "cooldown": 8, "requires": "career", "character": "boss",
+			"title": "Proyek Besar", "text": "Kantor mendapat proyek penting dan {boss} menawarimu memimpinnya. Kalau berhasil, namamu akan dikenal manajemen.",
 			"choices": [
 				{ "label": "Pimpin proyeknya", "outcomes": [
-					{ "chance": 0.65, "effects": { "performance": 12, "skill": 2, "xp": 25, "health": -3 }, "result": "Proyek sukses besar! Kinerjamu melonjak dan keahlianmu bertambah." },
-					{ "chance": 0.35, "effects": { "performance": -6, "happiness": -5, "health": -3 }, "result": "Proyek molor dan targetnya meleset. Pelajaran mahal tentang mengatur waktu dan tim." }
+					{ "chance": 0.65, "effects": { "performance": 12, "skill": 2, "xp": 25, "health": -3, "rel": { "boss": 8 } }, "result": "Proyek sukses besar! Kinerjamu melonjak dan keahlianmu bertambah." },
+					{ "chance": 0.35, "effects": { "performance": -6, "happiness": -5, "health": -3, "rel": { "boss": -3 } }, "result": "Proyek molor dan targetnya meleset. Pelajaran mahal tentang mengatur waktu dan tim." }
 				] },
-				{ "label": "Jadi anggota tim saja", "effects": { "performance": 4, "skill": 1, "health": -1 }, "result": "Kontribusimu solid tanpa tekanan berlebihan." },
-				{ "label": "Tolak, pekerjaanmu sudah penuh", "effects": { "performance": -3, "happiness": 1 }, "result": "Atasan mengerti, tapi kesempatan itu diambil rekan kerjamu." }
+				{ "label": "Jadi anggota tim saja", "effects": { "performance": 4, "skill": 1, "health": -1, "rel": { "boss": 2 } }, "result": "Kontribusimu solid tanpa tekanan berlebihan." },
+				{ "label": "Tolak, pekerjaanmu sudah penuh", "effects": { "performance": -3, "happiness": 1, "rel": { "boss": -3 } }, "result": "{boss} mengerti, tapi kesempatan itu diambil {coworker}." }
 			]
 		},
 		{
-			"id": "boss_conflict", "bad": true, "category": "work", "weight": 2, "min_month": 4, "cooldown": 12, "requires": "career", "context": { "low_happiness": 2 },
-			"title": "Beda Pendapat dengan Atasan", "text": "Atasanmu mengkritik hasil kerjamu di depan tim, padahal menurutmu arahannya sejak awal tidak jelas.",
+			"id": "boss_conflict", "bad": true, "category": "work", "weight": 2, "min_month": 4, "cooldown": 12, "requires": "career", "context": { "low_happiness": 2 }, "character": "boss",
+			"title": "Beda Pendapat dengan Atasan", "text": "{boss} mengkritik hasil kerjamu di depan tim, padahal menurutmu arahannya sejak awal tidak jelas.",
 			"choices": [
 				{ "label": "Bicarakan baik-baik secara empat mata", "outcomes": [
-					{ "chance": 0.7, "effects": { "performance": 4, "happiness": 3 }, "result": "Ternyata hanya salah paham. Hubungan kalian malah membaik." },
-					{ "chance": 0.3, "effects": { "happiness": -2 }, "result": "Atasanmu tetap pada pendapatnya, tapi setidaknya suasana tidak memanas." }
+					{ "chance": 0.7, "effects": { "performance": 4, "happiness": 3, "rel": { "boss": 8 } }, "result": "Ternyata hanya salah paham. Hubungan kalian malah membaik." },
+					{ "chance": 0.3, "effects": { "happiness": -2 }, "result": "{boss} tetap pada pendapatnya, tapi setidaknya suasana tidak memanas." }
 				] },
-				{ "label": "Diam dan ikuti saja", "effects": { "happiness": -5 }, "result": "Masalahnya tidak selesai dan kamu memendam kesal." },
+				{ "label": "Diam dan ikuti saja", "effects": { "happiness": -5, "rel": { "boss": -2 } }, "result": "Masalahnya tidak selesai dan kamu memendam kesal." },
 				{ "label": "Bantah langsung di depan tim", "outcomes": [
-					{ "chance": 0.3, "effects": { "performance": 5, "xp": 10 }, "result": "Argumenmu kuat dan tim setuju denganmu." },
-					{ "chance": 0.7, "effects": { "performance": -10, "happiness": -4 }, "result": "Atasanmu merasa dipermalukan. Penilaian kinerjamu ikut terdampak." }
+					{ "chance": 0.3, "effects": { "performance": 5, "xp": 10, "rel": { "boss": 2 } }, "result": "Argumenmu kuat dan tim setuju denganmu." },
+					{ "chance": 0.7, "effects": { "performance": -10, "happiness": -4, "rel": { "boss": -12 } }, "result": "{boss} merasa dipermalukan. Penilaian kinerjamu ikut terdampak." }
 				] }
 			]
 		},
@@ -89,6 +89,81 @@
 			"choices": [
 				{ "label": "Ambil proyeknya", "effects": { "cash": 2000000, "health": -3, "happiness": -2, "xp": 5 }, "result": "Proyek selesai dan uang masuk, meski akhir pekanmu habis." },
 				{ "label": "Tolak, istirahat di akhir pekan", "effects": { "happiness": 2, "health": 1 }, "result": "Kamu menikmati akhir pekan yang tenang." }
+			]
+		},
+		{
+			"id": "boss_pitch", "category": "work", "weight": 2, "min_month": 4, "cooldown": 18, "requires": "career", "character": "boss",
+			"title": "Presentasi untuk Klien Besar", "text": "{boss} menunjukmu memimpin presentasi untuk klien besar bulan depan. \"Kalau berhasil, ini masuk penilaian kinerjamu.\"",
+			"choices": [
+				{ "label": "Siapkan matang-matang, lembur seminggu", "effects": { "health": -3, "happiness": -2, "chain": { "event": "boss_pitch_prepared", "months": [1, 1] } }, "result": "Kamu berlatih berkali-kali dan menyiapkan jawaban untuk setiap pertanyaan." },
+				{ "label": "Siapkan seperlunya", "effects": { "chain": { "event": "boss_pitch_risky", "months": [1, 1] } }, "result": "Kamu menyusun slide inti dan berharap semuanya lancar." },
+				{ "label": "Ajak {coworker} menyusun bersama", "effects": { "rel": { "coworker": 5 }, "chain": { "event": "boss_pitch_team", "months": [1, 1] } }, "result": "{coworker} senang dilibatkan. Kalian membagi tugas." }
+			]
+		},
+		{
+			"id": "boss_pitch_prepared", "chain_only": true, "category": "work", "weight": 1, "requires": "career", "character": "boss",
+			"title": "Hari Presentasi", "text": "Hari presentasi tiba. Persiapanmu sangat matang.",
+			"choices": [
+				{ "label": "Mulai presentasi", "outcomes": [
+					{ "chance": 0.8, "effects": { "performance": 8, "xp": 20, "rel": { "boss": 10 } }, "result": "Klien terkesan dan kontrak ditandatangani. {boss} memujimu di depan tim." },
+					{ "chance": 0.2, "effects": { "performance": -2, "rel": { "boss": 2 } }, "result": "Klien memilih kompetitor karena harga. Persiapanmu tetap dihargai {boss}." }
+				] }
+			]
+		},
+		{
+			"id": "boss_pitch_risky", "chain_only": true, "category": "work", "weight": 1, "requires": "career", "character": "boss",
+			"title": "Hari Presentasi", "text": "Hari presentasi tiba. Persiapanmu seadanya.",
+			"choices": [
+				{ "label": "Mulai presentasi", "outcomes": [
+					{ "chance": 0.45, "effects": { "performance": 6, "xp": 10, "rel": { "boss": 6 } }, "result": "Lancar! Klien setuju melanjutkan kerja sama." },
+					{ "chance": 0.55, "effects": { "performance": -6, "happiness": -3, "rel": { "boss": -8 } }, "result": "Kamu gelagapan saat klien menanyakan detail angka. {boss} kecewa." }
+				] }
+			]
+		},
+		{
+			"id": "boss_pitch_team", "chain_only": true, "category": "work", "weight": 1, "requires": "career", "character": "boss",
+			"title": "Hari Presentasi", "text": "Hari presentasi tiba. Kamu dan {coworker} sudah membagi peran.",
+			"choices": [
+				{ "label": "Mulai presentasi", "outcomes": [
+					{ "chance": 0.7, "effects": { "performance": 5, "xp": 15, "rel": { "boss": 6, "coworker": 5 } }, "result": "Presentasi berhasil berkat kerja tim. Pujian dibagi berdua dengan {coworker}." },
+					{ "chance": 0.3, "effects": { "performance": -3, "rel": { "boss": -3 } }, "result": "Ada bagian yang tidak sinkron dan klien ragu. Lain kali latihan bersama lebih dulu." }
+				] }
+			]
+		},
+		{
+			"id": "boss_review", "category": "work", "weight": 1, "min_month": 10, "cooldown": 36, "max_times": 4, "requires": "high_performance", "character": "boss",
+			"title": "Evaluasi Kinerja", "text": "Waktunya evaluasi kinerja dengan {boss}. Catatan pencapaianmu tahun ini bagus.",
+			"choices": [
+				{ "label": "Ajukan kenaikan gaji dengan data pencapaian", "outcomes": [
+					{ "chance": 0.6, "effects": { "salary_pct": 0.03, "xp": 15, "rel": { "boss": 3 } }, "result": "{boss} menyetujui kenaikan 3% di luar kenaikan tahunan: datamu sulit dibantah. Negosiasi terbaik dimulai dari bukti, bukan perasaan." },
+					{ "chance": 0.4, "effects": { "happiness": -2, "rel": { "boss": 2 } }, "result": "Anggaran sedang ketat. {boss} berjanji meninjaunya lagi tahun depan." }
+				] },
+				{ "label": "Minta tanggung jawab lebih besar", "effects": { "performance": 4, "rel": { "boss": 5 }, "chain": { "event": "boss_review_followup", "months": [5, 7] } }, "result": "{boss} senang dengan inisiatifmu dan berjanji memikirkan kesempatan yang cocok." },
+				{ "label": "Tidak minta apa-apa", "effects": { "happiness": -1 }, "result": "Evaluasi selesai tanpa perubahan. Kinerja bagus tidak selalu terlihat jika tidak dibicarakan." }
+			]
+		},
+		{
+			"id": "boss_review_low", "category": "work", "weight": 1, "min_month": 10, "cooldown": 36, "max_times": 4, "requires": "low_performance", "character": "boss",
+			"title": "Evaluasi Kinerja", "text": "Waktunya evaluasi kinerja dengan {boss}. Beberapa targetmu tahun ini belum tercapai.",
+			"choices": [
+				{ "label": "Minta masukan yang konkret", "effects": { "performance": 4, "xp": 10, "rel": { "boss": 5 } }, "result": "{boss} memberi tiga hal yang perlu diperbaiki. Kamu tahu persis apa yang harus dikerjakan." },
+				{ "label": "Tetap minta kenaikan gaji", "effects": { "happiness": -3, "rel": { "boss": -6 } }, "result": "Tanpa data pencapaian, permintaanmu terdengar tidak realistis." },
+				{ "label": "Membela diri", "effects": { "happiness": -2, "rel": { "boss": -4 } }, "result": "Suasana jadi tegang dan masukan penting terlewat." }
+			]
+		},
+		{
+			"id": "boss_review_followup", "chain_only": true, "category": "work", "weight": 1, "requires": "career", "character": "boss", "min_rel": 50,
+			"title": "Janji {boss}", "text": "{boss} menepati janjinya: kamu diikutkan program pelatihan kepemimpinan yang dibiayai kantor.",
+			"choices": [
+				{ "label": "Ikuti dengan serius", "effects": { "skill": 2, "performance": 3, "xp": 20, "rel": { "boss": 3 } }, "result": "Kamu belajar memimpin rapat, memberi umpan balik, dan menyusun anggaran tim. Bekal penting untuk promosi." }
+			]
+		},
+		{
+			"id": "wulan_referral", "category": "work", "weight": 1, "min_month": 18, "cooldown": 24, "max_times": 1, "requires": "headhunter", "character": "wulan", "known": true, "min_rel": 65,
+			"title": "Rekomendasi Kak Wulan", "text": "Kak Wulan bercerita: kenalannya di {company} sedang mencari {job} dengan gaji {salary}. Ia bersedia merekomendasikanmu.",
+			"choices": [
+				{ "label": "Minta direkomendasikan", "effects": { "headhunter": true, "rel": { "wulan": 3 } }, "result": "Kak Wulan mengirimkan namamu. Tawaran kerja datang tak lama kemudian." },
+				{ "label": "Terima kasih, aku masih betah", "effects": { "rel": { "wulan": 1 } }, "result": "Kak Wulan menghargai keputusanmu. Jaringan yang baik terbentuk dari kepercayaan." }
 			]
 		}
 	]

@@ -2,7 +2,7 @@
 
 Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang **dibutuhkan**, dan **di file mana** aset itu dipakai. Diperbarui setiap kali sebuah langkah membutuhkan aset baru.
 
-- **Terakhir diperbarui:** 15 Oktober 2026 (v1.5c selesai; langkah 5 penyeimbangan tidak menambah aset)
+- **Terakhir diperbarui:** 15 Oktober 2026 (v1.5d langkah 1: potret tokoh berulang memakai lingkaran berwarna + inisial)
 - **Rencana pembuatan:** pengembang membuat aset setelah **v2 selesai**. Sampai saat itu game memakai aset sementara (🔁), dan daftar di bawah terus diperbarui setiap langkah.
 - **Tanda:** ✅ sudah ada · ⬜ dibutuhkan · 🔁 sementara memakai aset lain atau gambar pengganti sederhana (game tetap jalan)
 - Tabel aset yang sudah ada dibuat otomatis dengan memindai `scenes/`, `scripts/`, `theme/`, dan `data/`.
@@ -16,7 +16,7 @@ Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang
 | **v1.5a** Realisme ekonomi | Tidak ada; memakai ulang `shield.svg`, `wallet.svg`, `trend_line.svg`, `warning_small.svg` | ✅ |
 | **v1.5b** Pekerjaan & karier | 13 ikon (3 latar pendidikan, 6 bidang kerja, 1 navigasi Karier, 3 program kuliah) + 2 opsional | ⬜ 🔁 |
 | **v1.5c** Utang, properti, hunian | 3 ikon (lencana popup Pinjaman, Kendaraan, Properti) + 11 ilustrasi Hunian & Kendaraan (latar, 7 tempat tinggal, 3 kendaraan) yang sekarang berupa gambar pengganti sederhana | ⬜ 🔁 |
-| **v1.5d** Tokoh & konten | Potret tokoh berulang, lencana pencapaian, kosmetik | ⬜ (rencana) |
+| **v1.5d** Tokoh & konten | 6 potret tokoh (dipakai sekarang, sementara inisial berwarna); lencana pencapaian & kosmetik menyusul | ⬜ 🔁 |
 | **v2** | Ikon instrumen lanjut, ilustrasi bab kehidupan | ⬜ (rencana) |
 | **M7** Rilis Play Store | Ikon aplikasi adaptif, grafis & screenshot Play Store | ⬜ (rencana) |
 
@@ -97,11 +97,25 @@ Nama file = id di data: tempat tinggal sewa memakai id `housing` di `data/econom
 |:--|:--|:--|
 | `assets/icons/credit_score.svg` | Ikon skor kredit | Kartu Utang & Kredit di Beranda, kartu Neraca di tab Portofolio |
 
-## v1.5d: Tokoh, Riset, Kontrak, Konten ⬜ (rencana)
+## v1.5d: Tokoh, Riset, Kontrak, Konten ⬜
+
+**Sudah dipakai (langkah 1), sementara lingkaran berwarna + inisial nama (digambar kode):**
+
+Dipakai `scripts/ui/character_portrait.gd` di popup event (baris tokoh di bawah judul) dan kartu **Orang Terdekat** di tab Profil. Potret **bulat**, kanvas persegi 256 x 256 (lingkaran penuh, garis tinta `#2B2147`), gaya sama dengan avatar pemain. **Cara memasang: otomatis** begitu file ada (nama file = id tokoh di `data/characters.json`).
+
+| File | Tokoh | Kesan visual | Sementara |
+|:--|:--|:--|:--|
+| `assets/illustrations/characters/bima.svg` | Bima, sahabat | Pria muda santai, kaos & topi terbalik, ceria-impulsif | 🔁 lingkaran oranye "B" |
+| `assets/illustrations/characters/ibu.svg` | Ibu | Ibu paruh baya berkerudung, hangat | 🔁 lingkaran teal "I" |
+| `assets/illustrations/characters/wulan.svg` | Kak Wulan, mentor keuangan | Wanita ±30 tahun, blazer, rapi & percaya diri | 🔁 lingkaran biru "W" |
+| `assets/illustrations/characters/ratna.svg` | Bu Ratna, tetangga | Ibu-ibu ramah berdaster, suka bercerita | 🔁 lingkaran ungu "R" |
+| `assets/illustrations/characters/boss.svg` | Atasan (nama berganti per perusahaan, pria/wanita) | Netral gender, kemeja kantor & kacamata | 🔁 lingkaran tinta + inisial nama |
+| `assets/illustrations/characters/coworker.svg` | Rekan kerja (nama berganti per perusahaan) | Netral gender, kartu identitas karyawan | 🔁 lingkaran emas + inisial nama |
+
+**Rencana (langkah berikutnya):**
 
 | File | Isi | Akan dipakai di |
 |:--|:--|:--|
-| `assets/illustrations/characters/<id>.svg` (4-6) | Potret tokoh berulang (teman, orang tua, atasan, rekan kerja) | Popup event (`scenes/ui/event_popup.tscn`) |
 | `assets/icons/achievements/<id>.svg` (15+) | Lencana pencapaian | Tab Profil (`scenes/screens/profile_screen.tscn`) |
 | Tema & avatar tambahan | Kosmetik yang dibuka lewat pencapaian | `theme/`, `assets/illustrations/avatar_*.svg` |
 

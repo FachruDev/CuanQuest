@@ -442,7 +442,8 @@ func _choice_score(choice: Dictionary, scam: bool) -> float:
 		+ float(effects.get("performance", 0)) * 0.4 + float(effects.get("skill", 0)) * 2.0 \
 		+ float(effects.get("offer_raise", 0.0)) * 150.0 + float(effects.get("promote", 0)) * 40.0 \
 		+ float(effects.get("scholarship", 0.0)) * 30.0 + float(effects.get("sponsored_study", 0)) * 20.0 \
-		- float(effects.get("study_delay", 0)) * 3.0 + float(effects.get("credit_score", 0)) * 0.3
+		- float(effects.get("study_delay", 0)) * 3.0 + float(effects.get("credit_score", 0)) * 0.3 \
+		+ float(effects.get("rel", 0.0)) * 0.15  # kedekatan dengan tokoh (v1.5d)
 
 
 ## Nilai uang efek utang (v1.5c langkah 4), dari isian event yang sedang tampil: bunga tawaran kredit
@@ -478,6 +479,10 @@ func _expected_effects(choice: Dictionary) -> Dictionary:
 				"scholarship", "sponsored_study", "study_delay", "credit_score"]:
 			result[key] = float(result.get(key, 0.0)) + part[0] * float(effects.get(key, 0))
 		result["cash"] = float(result.get("cash", 0.0)) + part[0] * GameState.nominal(effects.get("cash", 0))
+		var rel_total := 0.0  # jumlah perubahan kedekatan semua tokoh
+		for id: String in effects.get("rel", {}):
+			rel_total += float(effects["rel"][id])
+		result["rel"] = float(result.get("rel", 0.0)) + part[0] * rel_total
 	return result
 
 

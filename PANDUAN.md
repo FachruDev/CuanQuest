@@ -28,9 +28,10 @@ data/
   economy.json                Gaji, modal awal, pilihan makan & tempat tinggal (untuk balancing)
   market.json                 Siklus pasar, suku bunga acuan, peluang berita
   news.json                   Template berita pasar & dampaknya ke harga
-  events/<kategori>.json      58 event hidup per kategori (finance, work, education, health, social,
-                              market, scam, property, debt): syarat, pilihan, efek. Cara menambah:
+  events/<kategori>.json      90 event hidup per kategori (finance, work, education, health, social,
+                              market, scam, property, debt): syarat, pilihan, efek, tokoh. Cara menambah:
                               docs/PANDUAN_EVENT.md
+  characters.json             Tokoh berulang (v1.5d): Bima, Ibu, Kak Wulan, Bu Ratna, atasan, rekan kerja
   insurance.json              Produk asuransi: premi, tanggungan, masa tunggu
   loans.json                  Pinjaman (v1.5c): KTA, kredit motor/mobil, KPR & KPR subsidi, denda, skor kredit
   vehicles.json               Kendaraan (v1.5c): harga, penyusutan, biaya rutin, kebahagiaan, produk kredit
@@ -62,6 +63,7 @@ scripts/
     debt.gd                   Utang & kredit: pinjaman, cicilan anuitas, tunggakan, macet, skor kredit
     vehicles.gd               Kendaraan: nilai menyusut, biaya rutin, beli tunai/kredit, jual, ditarik
     properties.gd             Properti: harga, beli tunai/KPR, dihuni/disewakan, jual, dilelang
+    characters.gd             Tokoh berulang: kedekatan, nama atasan/rekan per perusahaan, saran Kak Wulan
     insurance.gd, dreams.gd, targets.gd, activities.gd, progress.gd
     life_events.gd            Event Director: jadwal event, antrean, keputusan, efek tertunda
   core/                       Logika murni tanpa UI (mudah dites)
@@ -81,6 +83,7 @@ scripts/
     ui_text.gd                Helper teks: perubahan efek, syarat unlock
     home_scene.gd             Ilustrasi Hunian & Kendaraan di Beranda (3 lapis gambar, v1.5c)
     balance_sheet.gd          Kartu Neraca (aset - utang) di Portofolio & layar akhir (v1.5c)
+    character_portrait.gd     Potret tokoh (SVG atau lingkaran + inisial) di popup event & Profil (v1.5d)
     screens/                  Satu script per tab
 scenes/
   title.tscn                  Layar judul (main scene saat game dibuka)
@@ -192,7 +195,13 @@ scenes/
   - [x] (3) Properti & KPR
   - [x] (4) Tampilan & cerita (ilustrasi hunian & kendaraan, neraca, event utang & properti)
   - [x] (5) Penyeimbangan (tawaran KTA, rumah subsidi, skor setelah macet)
-- [ ] **v1.5d, v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
+- [ ] **v1.5d "Tokoh, Riset, Kontrak, Konten"**:
+  - [x] (1) Tokoh berulang & 10 rantai event
+  - [ ] (2) Riset pasar & rumor
+  - [ ] (3) Kontrak & proyek sampingan
+  - [ ] (4) Pencapaian, kosmetik & laporan tahunan
+  - [ ] (5) Perluasan konten & penyeimbangan
+- [ ] **v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
 Rangkuman semua checklist MVP (v1, v1.5, v2, M7) ada di [docs/CHECKLIST_MVP.md](docs/CHECKLIST_MVP.md).
 - [ ] **M7: Export rilis & Play Store** (setelah v2 selesai; tanpa monetisasi)
@@ -266,6 +275,19 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Laporan & UI:** bagian Ekonomi di laporan bulanan (inflasi, daya beli kas + tabungan + pos impian yang tergerus), kartu Daya Beli di Profil, chip inflasi di Pasar.
 - **Simulasi 40 permainan x 10 tahun** (pilihan acak): indeks harga median 1,43; kekayaan nominal median Rp775 jt, kekayaan riil Rp536 jt (tanpa inflasi Rp587 jt); gaji akhir median Rp20,1 jt nominal. Semua permainan bertahan, jadi game masih tergolong mudah. Penyeimbangan dijadwalkan di langkah 5 setelah pajak & asuransi.
 - **Save lama:** slot tanpa data inflasi tetap bisa dimuat; indeks harga dianggap mulai dari 1,0 saat dimuat.
+
+## Tokoh Berulang & Rantai Event (v1.5d langkah 1)
+
+- **Data:** `data/characters.json`: 6 tokoh (Bima sahabat, Ibu, Kak Wulan mentor keuangan, Bu Ratna tetangga, atasan & rekan kerja yang namanya dipilih dari daftar sesuai perusahaan), kedekatan awal, tingkat kedekatan (Renggang < 30, Biasa, Akrab ≥ 60, Sangat dekat ≥ 80), dan dampak kerja (`work_effects`).
+- **Modul** `GameState.characters` (`scripts/game/characters.gd`, kelas `Characters`). State: `rel` (id → kedekatan 0-100), `met` (sudah dikenal), `work_company` (perusahaan atasan & rekan kerja sekarang). Analogi web: tabel *relationships* milik user yang dibaca & ditulis event.
+- **Tokoh kantor:** namanya = `names[hash(perusahaan + id)]`, jadi selalu sama selama di perusahaan itu tanpa memakai undian. Pindah ke perusahaan baru (`_sync_work()`, dipanggil saat dibaca) = kedekatan kembali 50; setelah berhenti kerja, nama mantan atasan/rekan tetap dipakai di cerita lanjutan.
+- **Dampak karier** (kecil, `work_effects`): atasan ≥ 70 → peluang promosi ×1,25; atasan ≤ 30 → peluang PHK ×1,5; rekan kerja ≥ 70 → target kinerja +3 (tampil di kartu kinerja tab Karier).
+- **Event:** field `character`, `known`, `min_rel`/`max_rel`; efek `rel`; syarat `high_performance`/`low_performance`; isian `{boss}`, `{coworker}`, `{advice}` (saran Kak Wulan dari kondisi pemain: dana darurat, asuransi, rasio cicilan, gaya hidup, investasi, konsentrasi). `EventManager.requires_met()` kini juga memeriksa tokoh; event lanjutan (rantai) dicek ulang saat jatuh tempo (`LifeEvents.roll()`).
+- **10 rantai event bertokoh** (32 event baru, total 90): Bima pinjam uang (event lama), koin viral → rug pull → Bima bangkit, kedai kopi (perjanjian tertulis vs saling percaya); Ibu sakit & BPJS, arisan online bodong; Kak Wulan: cek kesehatan keuangan, kelas keuangan, rekomendasi kerja (kedekatan ≥ 65); Bu Ratna: kerja bakti, tanah murah bersurat girik; atasan: presentasi klien, evaluasi kinerja & negosiasi gaji; rekan kerja: robot trading ilegal. Event lama lembur, proyek besar, konflik dengan atasan, dan bantuan untuk Ibu kini bertokoh.
+- **UI:** baris tokoh (potret, nama, peran & kedekatan) di popup event, "Kedekatan Bima +5" di hasil event, kartu **Orang Terdekat** di Profil. Potret sementara: lingkaran berwarna + inisial (`CharacterPortrait`), otomatis memakai `assets/illustrations/characters/<id>.svg` jika ada.
+- **Save:** kunci baru `relationships`, `people_met`, `work_company` (save lama: kedekatan awal).
+- **Golden runner:** dengan 32 event baru dibuang, permainan identik dengan v1.5c.
+- **Simulator:** pilihan event kini juga menilai kedekatan (`rel` x 0,15). Event Evaluasi Kinerja diperkecil (kenaikan 3%, peluang 60%, jeda 36 bulan, maksimal 4 kali) setelah simulator menemukan gaji riil S1 hemat x5,6 dalam 30 tahun; kini x4,7 (target x4-5). Tahun bebas finansial praktis tidak berubah: S1 hemat 12,5, S1 pelajar 10,6, SMA hemat 18,4.
 
 ## Penyeimbangan Utang, Properti & Hunian (v1.5c langkah 5)
 

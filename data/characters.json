@@ -1,0 +1,49 @@
+{
+	"_comment": [
+		"Tokoh berulang (v1.5d). Event menyebut tokohnya lewat field \"character\" (id di bawah), efek \"rel\" mengubah kedekatan 0-100, dan \"min_rel\"/\"max_rel\" membatasi kapan event muncul. Cara menambah event bertokoh: docs/PANDUAN_EVENT.md.",
+		"start = kedekatan awal; known = sudah dikenal sejak awal permainan (tokoh lain dikenal saat pertama kali muncul di event).",
+		"work = tokoh kantor (hanya ada saat bekerja di pekerjaan berjenjang): namanya dipilih dari names sesuai perusahaan, dan kedekatannya kembali ke start saat pindah perusahaan.",
+		"color = warna potret sementara (lingkaran + inisial) sampai ada assets/illustrations/characters/<id>.svg.",
+		"work_effects: dampak kedekatan dengan tokoh kantor terhadap karier (lihat Characters di scripts/game/characters.gd).",
+		"Teks ditulis langsung dalam bahasa Indonesia dan ditampilkan lewat tr()."
+	],
+	"levels": [
+		{ "min": 80, "key": "REL_VERY_CLOSE" },
+		{ "min": 60, "key": "REL_CLOSE" },
+		{ "min": 30, "key": "REL_OK" },
+		{ "min": 0, "key": "REL_DISTANT" }
+	],
+	"work_effects": {
+		"boss_close": 70, "promotion_mult": 1.25,
+		"boss_distant": 30, "layoff_mult": 1.5,
+		"coworker_close": 70, "performance_bonus": 3
+	},
+	"characters": [
+		{
+			"id": "bima", "name": "Bima", "role": "Sahabat", "start": 60, "known": true, "color": "#F07A5F",
+			"desc": "Sahabatmu sejak sekolah. Seru dan setia kawan, tapi impulsif dan selalu punya ide \"cepat kaya\"."
+		},
+		{
+			"id": "ibu", "name": "Ibu", "role": "Orang tua", "start": 70, "known": true, "color": "#23877B",
+			"desc": "Ibumu di kampung. Selalu mendoakanmu, sesekali butuh bantuan."
+		},
+		{
+			"id": "wulan", "name": "Kak Wulan", "role": "Mentor keuangan", "start": 50, "color": "#4A6FB0",
+			"desc": "Kakak tingkatmu yang kini perencana keuangan bersertifikat. Sarannya jarang meleset, tapi ia tidak suka jalan pintas."
+		},
+		{
+			"id": "ratna", "name": "Bu Ratna", "role": "Tetangga", "start": 50, "color": "#7A4FB0",
+			"desc": "Tetangga yang tahu semua kabar di lingkunganmu, dari arisan sampai harga tanah."
+		},
+		{
+			"id": "boss", "role": "Atasan", "start": 50, "work": true, "color": "#2B2147",
+			"names": ["Pak Hendra", "Bu Diana", "Pak Yusuf", "Bu Melati", "Pak Gunawan", "Bu Retno"],
+			"desc": "Atasanmu di kantor. Penilaiannya menentukan kinerja dan promosimu."
+		},
+		{
+			"id": "coworker", "role": "Rekan kerja", "start": 50, "work": true, "color": "#C7841A",
+			"names": ["Mega", "Fajar", "Tiara", "Rizky", "Putri", "Galih"],
+			"desc": "Teman sekantor yang paling sering bekerja bersamamu."
+		}
+	]
+}

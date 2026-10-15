@@ -32,6 +32,41 @@
 				] },
 				{ "label": "Minta pindah, cari penyewa baru", "effects": { "rent_months": -2, "tenant_leave": true, "happiness": -1 }, "result": "Sewa dua bulan hilang dan propertimu kosong sampai ada penyewa baru. Lain kali, minta uang jaminan (deposit) di awal kontrak." }
 			]
+		},
+		{
+			"id": "ratna_neighbors", "category": "property", "weight": 1, "min_month": 2, "cooldown": 18, "max_times": 3, "character": "ratna",
+			"title": "Kerja Bakti", "text": "Bu Ratna, tetanggamu, mengajak warga kerja bakti membersihkan selokan sebelum musim hujan.",
+			"choices": [
+				{ "label": "Ikut kerja bakti", "effects": { "health": 1, "happiness": 2, "rel": { "ratna": 6 } }, "result": "Lingkungan bersih dan kamu makin akrab dengan tetangga. Bu Ratna senang sekali." },
+				{ "label": "Sumbang konsumsi {rp:200000}", "cost": 200000, "effects": { "rel": { "ratna": 4 } }, "result": "Gorengan dan teh manismu disambut hangat warga." },
+				{ "label": "Tidak ikut", "effects": { "rel": { "ratna": -4 } }, "result": "Tidak apa-apa, tapi tetangga yang akrab bisa jadi penolong pertama saat ada masalah." }
+			]
+		},
+		{
+			"id": "ratna_land", "bad": true, "category": "property", "weight": 1, "min_month": 24, "max_times": 1, "context": { "cash_rich": 2 }, "character": "ratna",
+			"title": "Tanah Murah dari Bu Ratna", "text": "Bu Ratna menawarkan tanah milik saudaranya seharga {rp:60000000}, jauh di bawah harga pasar. \"Suratnya masih girik, nanti gampang diurus jadi SHM. Cepat, banyak yang mau!\"",
+			"choices": [
+				{ "label": "Beli sebelum diambil orang", "cost": 60000000, "effects": { "rel": { "ratna": 5 }, "chain": { "event": "ratna_land_result", "months": [3, 6] } }, "result": "Kamu membayar tunai dan menerima kuitansi serta fotokopi girik." },
+				{ "label": "Cek dulu ke BPN dan notaris", "cost": 1500000, "effects": { "xp": 10, "chain": { "event": "ratna_land_check", "months": [1, 1] } }, "result": "Kamu meminta salinan dokumen dan membawanya ke notaris/PPAT untuk dicek." },
+				{ "label": "Tidak tertarik", "effects": {}, "result": "Harga yang terlalu murah dan desakan \"cepat\" adalah tanda bahaya." }
+			]
+		},
+		{
+			"id": "ratna_land_result", "chain_only": true, "category": "property", "weight": 1, "character": "ratna",
+			"title": "Mengurus Sertifikat Tanah", "text": "Kamu mulai mengurus sertifikat tanah yang kamu beli dari saudara Bu Ratna.",
+			"choices": [
+				{ "label": "Urus sertifikatnya", "outcomes": [
+					{ "chance": 0.65, "effects": { "cash": 15000000, "happiness": -8, "rel": { "ratna": -10 } }, "result": "Ternyata tanah itu sengketa waris dan pernah dijual ke orang lain. Setelah mediasi, kamu hanya mendapat kembali {rp:15000000}." },
+					{ "chance": 0.35, "effects": { "cash": 82000000, "happiness": 5, "rel": { "ratna": 5 } }, "result": "Surat berhasil ditingkatkan jadi SHM (biaya {rp:8000000}), lalu tanahnya laku {rp:90000000}. Kali ini kamu beruntung; lain kali cek sebelum membayar." }
+				] }
+			]
+		},
+		{
+			"id": "ratna_land_check", "chain_only": true, "category": "property", "weight": 1, "character": "ratna",
+			"title": "Hasil Pengecekan Tanah", "text": "Notaris menemukan tanah itu sedang sengketa waris dan pernah dijual ke dua orang sebelumnya.",
+			"choices": [
+				{ "label": "Batalkan, untung sudah dicek", "effects": { "happiness": 3, "xp": 15, "rel": { "ratna": 3 } }, "result": "Bu Ratna berterima kasih: saudaranya pun tertipu. Untuk tanah, pastikan sertifikat SHM atas nama penjual, cek di BPN, dan bertransaksi di PPAT." }
+			]
 		}
 	]
 }

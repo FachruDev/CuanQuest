@@ -127,7 +127,7 @@ func roll() -> void:
 			continue
 		chains.erase(chained)
 		var def := catalog.find(chained["id"])
-		if not def.is_empty():
+		if not def.is_empty() and catalog.requires_met(def, gs):  # mis. lanjutan yang butuh kedekatan
 			queue.append(def)
 	queue.append_array(gs.career.scheduled_events())  # wawancara / PHK / promosi, juga di luar jatah
 	queue.append_array(gs.debt.scheduled_events())  # penagih utang / bunga KPR mengambang, juga di luar jatah
@@ -250,6 +250,8 @@ func resolve(choice_index: int) -> Dictionary:
 	var effects: Dictionary = outcome.get("effects", {})
 	var offers_before := gs.career.job_offers.size()
 	var title_before: String = gs.career.current_job_def().get("title", "")
+	if event.has("character"):
+		gs.characters.meet(event["character"])
 	gs.apply_effects(effects)
 	var vars := pending_vars
 	pending = {}

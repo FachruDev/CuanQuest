@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 15 Oktober 2026 (v1.5c selesai: langkah 5 penyeimbangan)
+- **Terakhir diperbarui:** 15 Oktober 2026 (v1.5d langkah 1 tokoh berulang selesai)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -17,7 +17,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v1.5a** | Realisme ekonomi | ✅ 5/5 langkah |
 | **v1.5b** | Pekerjaan & karier (melamar kerja, keahlian, jenjang) | ✅ 5/5 langkah |
 | **v1.5c** | Utang, properti, hunian yang tumbuh | ✅ 5/5 langkah (aset final menyusul setelah v2) |
-| **v1.5d** | Tokoh, riset, kontrak, konten | ⬜ |
+| **v1.5d** | Tokoh, riset, kontrak, konten | 🔄 1/5 langkah |
 | **v2a-v2d** | Instrumen lanjut, hidup penuh, dana investor, mini-game | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
 
@@ -358,9 +358,32 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.3 (ditulis 14 Oktober 202
 - ✅ Gagal bayar berkonsekuensi nyata; bangkrut menghitung utang dengan benar
 - ✅ Ilustrasi hunian dan kendaraan berubah sesuai kepemilikan (gambar pengganti sampai aset final)
 
-## v1.5d: Konten dan Cerita ⬜
+## v1.5d: Konten dan Cerita 🔄
 
-- ⬜ 4-6 tokoh berulang di event dan rantai event
+Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.4 (ditulis 15 Oktober 2026; keputusan 5.4.9 masih bisa diubah sebelum langkahnya dikerjakan).
+
+### Langkah pengerjaan
+
+| Langkah | Isi | Status |
+|:--|:--|:--|
+| 1 | Tokoh berulang & rantai event: `data/characters.json`, kedekatan, 10 rantai, tokoh di popup event, kartu Orang Terdekat | ✅ |
+| 2 | Riset pasar & rumor: rumor benar/jebakan, riset dasar 55% & mendalam 75%, rekam jejak analis | ⬜ |
+| 3 | Kontrak & proyek sampingan: papan proyek, 3 strategi, tenggat 1-3 bulan | ⬜ |
+| 4 | Pencapaian (≥15), kosmetik (bingkai avatar & gelar), laporan tahunan | ⬜ |
+| 5 | Perluasan konten (±150 soal kuis, event pelengkap) & penyeimbangan | ⬜ |
+
+### Rincian fitur
+
+**Langkah 1: Tokoh berulang & rantai event** ✅
+- ✅ 6 tokoh di `data/characters.json`: Bima (sahabat), Ibu, Kak Wulan (mentor keuangan), Bu Ratna (tetangga), atasan & rekan kerja (nama mengikuti perusahaan)
+- ✅ Kedekatan 0-100 yang diubah pilihan event; lanjutan cerita bisa mensyaratkan kedekatan; atasan/rekan kerja sedikit memengaruhi promosi, PHK, dan kinerja
+- ✅ 10 rantai event bertokoh (32 event baru, total 90 event): koin viral & rug pull, kedai kopi & perjanjian tertulis, Ibu sakit & BPJS, arisan online bodong, cek kesehatan keuangan dengan saran sesuai kondisi pemain, tanah bersurat girik, presentasi klien, evaluasi kinerja & negosiasi gaji, robot trading ilegal, dan pinjam uang
+- ✅ Tokoh di popup event (potret, nama, peran, kedekatan), perubahan kedekatan di hasil event, kartu **Orang Terdekat** di Profil
+- ✅ Golden runner identik saat event baru dibuang; 57 uji tokoh + uji lama lulus
+- 🔁 Potret tokoh sementara lingkaran berwarna + inisial (lihat `docs/KEBUTUHAN_ASET.md`)
+
+**Daftar fitur v1.5d**
+- ✅ 4-6 tokoh berulang di event dan rantai event
 - ⬜ Riset pasar (laporan analis dengan tingkat keyakinan)
 - ⬜ Kontrak dengan tenggat 1-3 bulan
 - ⬜ Minimal 15 pencapaian; tema & avatar dibuka lewat pencapaian
@@ -368,7 +391,7 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.3 (ditulis 14 Oktober 202
 - ⬜ Sekitar 80 event dan 150 soal kuis
 
 **Kriteria selesai**
-- ⬜ Minimal 10 rantai event dengan tokoh berulang
+- ✅ Minimal 10 rantai event dengan tokoh berulang
 - ⬜ Laporan analis benar/salah sesuai akurasi
 - ⬜ Event, soal, dan impian baru bisa ditambah lewat file data saja
 

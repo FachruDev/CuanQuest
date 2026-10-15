@@ -61,6 +61,9 @@ Semua file dimuat oleh `EventManager.load_defs()` (`scripts/core/event_manager.g
 | `context` | - | Pengali bobot saat kondisi aktif, mis. `{ "cash_rich": 3 }` |
 | `chain_only` | - | Tidak pernah acak: hanya lewat efek `chain` atau dijadwalkan sistem (wawancara, promosi, PHK) |
 | `critical` | - | Penyakit kritis: asuransi jiwa membayar uang pertanggungan |
+| `character` | - | Tokoh event (id di `data/characters.json`): wajah, nama, dan kedekatannya tampil di popup (v1.5d). Tokoh kantor (`boss`, `coworker`) hanya muncul saat bekerja kantoran, kecuali di event lanjutan |
+| `known` | - | `true` = hanya muncul jika tokohnya sudah pernah ditemui |
+| `min_rel`, `max_rel` | - | Batas kedekatan dengan tokoh event (0-100), mis. `"min_rel": 65` untuk rekomendasi kerja |
 
 **Pilihan (`choices`):** `label`, `result`, lalu salah satu dari `effects` atau `outcomes` (`[{chance, effects, result}]`, peluangnya dijumlah 1). Opsional: `cost` (dibayar di muka; pilihan nonaktif jika kas kurang), `cost_vehicle` (persen nilai pasar kendaraan utama, mis. biaya perbaikan), `cost_property` (persen nilai pasar properti yang dituju event, mis. `0.004` = 0,4%), `cost_var` (biaya = angka dari isian event, mis. `"arrears"` untuk tunggakan atau `"fee"` untuk biaya take over KPR), `claim` (`medical` / `vehicle`, biaya ditanggung asuransi aktif).
 
@@ -80,6 +83,7 @@ Semua file dimuat oleh `EventManager.load_defs()` (`scripts/core/event_manager.g
 | `chain` `{event, months: [min, max]}` | LifeEvents | Jadwalkan event lanjutan (`chain_only`) |
 | `sell_all` | Portfolio | Jual semua investasi karena panik |
 | `credit_score` | Debt | Skor kredit naik/turun (0-100), mis. `-10` saat telat bayar tagihan (v1.5c) |
+| `rel` | Characters | Kedekatan dengan tokoh, mis. `{ "bima": 5, "boss": -3 }`; tokohnya otomatis menjadi dikenal (v1.5d) |
 | `take_loan` | Debt | Ambil tawaran kredit di isian `loan_offer`: `"spend"` = langsung dibelanjakan (kas tetap, utang bertambah), `"keep"` = uangnya masuk kas |
 | `pay_arrears`, `restructure` | Debt | Tunggakan pinjaman yang dituju lunas (bayar lewat `cost_var: "arrears"`); restrukturisasi = tunggakan masuk pokok, tenor +12 bulan |
 | `refinance`, `prepay_part` | Debt | Take over KPR (bunga tetap baru 2 tahun, biaya lewat `cost_var: "fee"`); lunasi sebagian pokok (`cost_var: "prepay"`) |
@@ -105,6 +109,7 @@ Didefinisikan di `EventManager.requires_met()`. Event yang sudah masuk antrean b
 | `owns_house` | Punya rumah tapak (`"kind": "house"` di `properties.json`); apartemen tidak termasuk karena bangunannya dirawat pengelola |
 | `lives_in_own_home` | Menghuni rumah/apartemen sendiri |
 | `has_tenant` | Punya properti yang sedang ditempati penyewa |
+| `high_performance`, `low_performance` | Pekerjaan berjenjang dengan kinerja ≥ 70 / < 70 (evaluasi kinerja, v1.5d) |
 | `paylater_offer`, `kta_offer` | Tawaran kredit lolos semua syarat bank (pekerjaan, skor, tunggakan, rasio cicilan) dan skor minimal `offer.min_score` (KTA: 60); jumlahnya dari `"offer"` produk di `loans.json` |
 | `low_happiness` | Kebahagiaan di bawah 40 |
 
@@ -121,11 +126,24 @@ Dihitung `GameState.events.context_flags()` (ambang di `economy.json` `event_dir
 | `{rp:N}` | `UiText.money()`: harga awal permainan → nominal hari ini |
 | `{job}`, `{company}`, `{salary}`, `{months}`, `{severance}`, `{raise}` | `Career.event_vars()` (wawancara, promosi, PHK, headhunter) |
 | `{program}`, `{cert}` | `Education.event_vars()` (beasiswa kantor, sertifikasi) |
+| `{boss}`, `{coworker}` | Nama atasan & rekan kerja di perusahaan sekarang (`Characters.name_of()`), selalu tersedia |
+| `{advice}` | `Characters.event_vars()`: saran Kak Wulan sesuai kondisi keuangan pemain |
 | `{property}`, `{rent2}` | `Properties.event_vars()`: nama properti yang dituju & sewa bersih 2 bulan |
 | `{loan}`, `{collateral}`, `{arrears}`, `{amount}`, `{installment}`, `{interest}`, `{months}` | `Debt.event_vars()`: pinjaman yang dituju, agunan, tunggakan, tawaran kredit |
 | `{rate_from}`, `{rate_to}`, `{refi_rate}`, `{pay_from}`, `{pay_to}`, `{pay_refi}`, `{fee}`, `{prepay_amount}`, `{pay_prepaid}` | `Debt.event_vars()`: bunga & cicilan KPR sebelum/sesudah mengambang, take over, pelunasan sebagian |
 
 Isian dihitung sekali saat event mulai tampil dan ikut disimpan, sehingga teks dan efeknya selalu cocok. **Menambah isian baru:** kembalikan nilainya dari `event_vars(id)` di modul pemilik event, lalu tambahkan penggantinya di `UiText.event_text()`.
+
+## Tokoh berulang & rantai cerita (v1.5d)
+
+Tokoh ada di `data/characters.json` (Bima, Ibu, Kak Wulan, Bu Ratna, serta atasan & rekan kerja yang namanya mengikuti perusahaan). Untuk membuat cerita bertokoh:
+
+1. Beri event `"character": "<id>"` dan tulis namanya langsung di teks (atau `{boss}` / `{coworker}` untuk tokoh kantor).
+2. Tambahkan efek `"rel"` di pilihan agar kedekatan berubah sesuai keputusan pemain.
+3. Sambungkan ke event lanjutan dengan efek `"chain"` (event lanjutan diberi `"chain_only": true`). Cabang cerita = pilihan/hasil berbeda menjadwalkan event lanjutan yang berbeda.
+4. Pakai `"min_rel"` / `"max_rel"` / `"known"` untuk lanjutan yang hanya terjadi jika hubungan cukup dekat. Syarat event lanjutan **dicek ulang saat jatuh tempo**; jika tidak terpenuhi, lanjutan dibatalkan.
+
+Contoh rantai: `bima_coin` → `bima_coin_pump` → `bima_coin_rug` → `bima_rebound` (hanya jika kedekatan dengan Bima ≥ 50).
 
 ## Event yang dijadwalkan sistem
 

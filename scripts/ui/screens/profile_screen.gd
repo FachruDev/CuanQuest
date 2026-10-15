@@ -15,6 +15,7 @@ var _slot_labels: Dictionary = {}  # slot -> Label
 var _confirm_reset := false
 var _reset_label: Label
 var _career_log_box: VBoxContainer  # perjalanan karier (v1.5b langkah 4)
+var _people_box: VBoxContainer  # orang terdekat (v1.5d)
 
 
 func _ready() -> void:
@@ -23,6 +24,7 @@ func _ready() -> void:
 	_build_slots()
 	_build_history()
 	_build_career_log()
+	_build_people()
 	_build_menu()
 	GameState.changed.connect(_refresh)
 	visibility_changed.connect(_refresh)
@@ -68,6 +70,7 @@ func _refresh() -> void:
 	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_PROMOTIONS", str(int(s["promotions"]))))
 	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_UNEMPLOYED", str(int(s["months_unemployed"]))))
 	UiText.fill_career_log(_career_log_box, 8)
+	_refresh_people()
 
 	for slot: String in _slot_labels:
 		_slot_labels[slot].text = SaveManager.slot_summary(slot)
@@ -348,6 +351,60 @@ func _build_career_log() -> void:
 	page.move_child(title, index)
 	page.add_child(card)
 	page.move_child(card, index + 1)
+
+
+## Judul + kartu "Orang Terdekat" setelah Perjalanan Karier.
+func _build_people() -> void:
+	var page: VBoxContainer = $VBox
+	var index := _career_log_box.get_parent().get_index() + 1
+	var title := _label(tr("PROFILE_PEOPLE_TITLE"), &"SubSectionLabel")
+	var card := PanelContainer.new()
+	card.theme_type_variation = &"HomeCard"
+	_people_box = VBoxContainer.new()
+	_people_box.add_theme_constant_override("separation", 12)
+	card.add_child(_people_box)
+	page.add_child(title)
+	page.move_child(title, index)
+	page.add_child(card)
+	page.move_child(card, index + 1)
+
+
+## Satu baris per tokoh yang sudah dikenal: potret, nama & peran, bar kedekatan.
+func _refresh_people() -> void:
+	_clear(_people_box)
+	var characters := GameState.characters
+	for id: String in characters.known():
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 12)
+		var portrait := CharacterPortrait.new(52.0)
+		portrait.character_id = id
+		row.add_child(portrait)
+		var texts := VBoxContainer.new()
+		texts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		texts.add_theme_constant_override("separation", 2)
+		var top := HBoxContainer.new()
+		var name_label := _label(characters.name_of(id), &"AssetNameLabel")
+		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		top.add_child(name_label)
+		var value := characters.rel_of(id)
+		top.add_child(_label(tr("CHAR_LEVEL_VALUE") % [tr(characters.level_key(value)), value], &"AssetValueLabel"))
+		texts.add_child(top)
+		var bar := ProgressBar.new()
+		bar.theme_type_variation = &"XpBar"
+		bar.custom_minimum_size = Vector2(0, 12)
+		bar.show_percentage = false
+		bar.max_value = 100
+		bar.value = value
+		texts.add_child(bar)
+		var role := _label(tr(characters.def(id)["role"]) + " · " + tr(characters.def(id)["desc"]), &"SmallMutedLabel")
+		role.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		role.custom_minimum_size.x = 1
+		texts.add_child(role)
+		row.add_child(texts)
+		_people_box.add_child(row)
+	_people_box.add_child(_label(tr("PROFILE_PEOPLE_NOTE"), &"SmallMutedLabel"))
+	_people_box.get_child(-1).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_people_box.get_child(-1).custom_minimum_size.x = 1
 
 
 func _stat_tile(key: String, value: String) -> PanelContainer:

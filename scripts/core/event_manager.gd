@@ -105,8 +105,28 @@ func _is_eligible(def: Dictionary, state: Node) -> bool:
 
 
 ## Syarat "requires" event terhadap kondisi pemain saat ini. Juga dicek ulang saat event di
-## antrean bulan ini mendapat giliran (kondisinya bisa berubah oleh event sebelumnya).
+## antrean bulan ini mendapat giliran (kondisinya bisa berubah oleh event sebelumnya) dan saat
+## event lanjutan (rantai) jatuh tempo.
 func requires_met(def: Dictionary, state: Node) -> bool:
+	return _character_ok(def, state) and _requirement_ok(def, state)
+
+
+## Tokoh event (v1.5d): tokoh kantor hanya ada saat bekerja kantoran (kecuali lanjutan cerita yang
+## sudah berjalan), "known" = tokoh sudah pernah ditemui, "min_rel"/"max_rel" = batas kedekatan.
+func _character_ok(def: Dictionary, state: Node) -> bool:
+	if not def.has("character"):
+		return true
+	var id: String = def["character"]
+	if not def.get("chain_only", false) and not state.characters.available(id):
+		return false
+	if def.get("known", false) and not state.characters.is_known(id):
+		return false
+	if def.has("min_rel") and state.characters.rel_of(id) < int(def["min_rel"]):
+		return false
+	return not def.has("max_rel") or state.characters.rel_of(id) <= int(def["max_rel"])
+
+
+func _requirement_ok(def: Dictionary, state: Node) -> bool:
 	match def.get("requires", ""):
 		"employed":
 			return state.career.is_employed() and state.career.unpaid_months == 0
@@ -136,4 +156,8 @@ func requires_met(def: Dictionary, state: Node) -> bool:
 			return not state.debt.offer("paylater").is_empty()
 		"kta_offer":
 			return not state.debt.offer("kta").is_empty()
+		"high_performance":  # pekerjaan berjenjang dengan kinerja Baik ke atas (v1.5d)
+			return state.career.is_career() and state.career.unpaid_months == 0 and state.career.performance >= 70.0
+		"low_performance":
+			return state.career.is_career() and state.career.unpaid_months == 0 and state.career.performance < 70.0
 	return true

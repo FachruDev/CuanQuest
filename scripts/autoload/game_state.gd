@@ -80,6 +80,7 @@ var end_result: Dictionary = {}
 # --- Modul per domain (scripts/game/) ---
 var progress := Progress.new(self)
 var career := Career.new(self)
+var characters := Characters.new(self)
 var education := Education.new(self)
 var insurance := Insurance.new(self)
 var debt := Debt.new(self)
@@ -94,7 +95,7 @@ var activities := Activities.new(self)
 ## Urutan dipakai untuk reset, simpan/muat, dan efek event. Karier sebelum rencana gaji
 ## (rencana awal memakai gaji); pendidikan sebelum aktivitas (energi memakai beban kuliah);
 ## impian sebelum kendaraan (save lama: impian kendaraan yang terwujud menjadi kendaraan).
-var modules: Array[GameModule] = [progress, career, education, insurance, debt, events, portfolio,
+var modules: Array[GameModule] = [progress, career, characters, education, insurance, debt, events, portfolio,
 	budget, dreams, vehicles, properties, targets, activities]
 
 var fast_forwarding := false
@@ -350,7 +351,16 @@ func apply_effects(e: Dictionary) -> void:
 func snapshot() -> Dictionary:
 	return {"cash": cash, "health": health, "happiness": happiness, "xp": progress.xp,
 		"salary": career.salary, "investments": portfolio.investments_value(), "skill": floori(career.skill),
-		"performance": roundi(career.performance), "debt": debt.outstanding(), "credit": debt.credit_score}
+		"performance": roundi(career.performance), "debt": debt.outstanding(), "credit": debt.credit_score}.merged(
+		_rel_snapshot())
+
+
+## Kedekatan tiap tokoh untuk diff() ("rel_bima": 60, ...), tanpa menyentuh state.
+func _rel_snapshot() -> Dictionary:
+	var result := {}
+	for id: String in characters.rel:
+		result["rel_" + id] = int(characters.rel[id])
+	return result
 
 
 func diff(before: Dictionary) -> Dictionary:

@@ -53,6 +53,59 @@
 				{ "label": "Lapor ke OJK & polisi, bayar pokoknya saja", "cost": 3000000, "effects": { "happiness": -4, "xp": 15 }, "result": "Kamu melapor dan hanya membayar pokok pinjaman. Teror berhenti setelah laporanmu diproses." },
 				{ "label": "Abaikan teror penagih", "effects": { "happiness": -12, "health": -5 }, "result": "Teror terus berdatangan ke keluarga dan rekan kerja. Masalah tidak hilang dengan diabaikan." }
 			]
+		},
+		{
+			"id": "ibu_arisan", "bad": true, "category": "scam", "weight": 1, "min_month": 8, "max_times": 1, "character": "ibu",
+			"title": "Arisan Online Ibu", "text": "Ibu ikut arisan online di grup WhatsApp: setor {rp:5000000}, bulan depan dapat {rp:7500000}. Ibu mengajakmu ikut juga supaya \"cepat dapat giliran\".",
+			"choices": [
+				{ "label": "Ikut {rp:5000000}", "cost": 5000000, "effects": { "rel": { "ibu": 3 }, "chain": { "event": "ibu_arisan_collapse", "months": [1, 2] } }, "result": "Kamu mentransfer ke rekening admin arisan. Ibu senang kamu ikut." },
+				{ "label": "Cek dulu, ajak Ibu waspada", "effects": { "xp": 15, "rel": { "ibu": -2 }, "chain": { "event": "ibu_arisan_warned", "months": [1, 2] } }, "result": "Kamu menjelaskan bahwa \"arisan\" dengan untung 50% sebulan adalah ciri investasi bodong. Ibu agak kecewa, tapi setuju menunda." },
+				{ "label": "Tolak saja", "effects": { "rel": { "ibu": -4 } }, "result": "Ibu tetap ikut dengan uangnya sendiri. Kamu tidak ikut rugi, tapi tidak ada yang mengingatkan Ibu." }
+			]
+		},
+		{
+			"id": "ibu_arisan_collapse", "chain_only": true, "bad": true, "category": "scam", "weight": 1, "character": "ibu",
+			"title": "Admin Arisan Menghilang", "text": "Grup arisan dibubarkan dan adminnya menghilang. Uangmu dan tabungan Ibu ikut raib.",
+			"choices": [
+				{ "label": "Hibur Ibu dan lapor polisi", "effects": { "happiness": -5, "xp": 10, "rel": { "ibu": 5 } }, "result": "Laporan dibuat bersama korban lain, tapi uangnya kemungkinan besar tidak kembali. Arisan dengan untung tetap yang tinggi adalah skema Ponzi." },
+				{ "label": "Kesal karena ikut-ikutan", "effects": { "happiness": -6, "rel": { "ibu": -5 } }, "result": "Kekesalan tidak mengembalikan uang. Lain kali, cek legalitas sebelum menyetor." }
+			]
+		},
+		{
+			"id": "ibu_arisan_warned", "chain_only": true, "category": "scam", "weight": 1, "character": "ibu",
+			"title": "Kabar dari Kampung", "text": "Berita lokal: admin arisan online di grup Ibu kabur membawa uang ratusan anggota. Ibu tidak jadi ikut karena nasihatmu.",
+			"choices": [
+				{ "label": "Syukurlah", "effects": { "happiness": 4, "xp": 5, "rel": { "ibu": 10 } }, "result": "Ibu berterima kasih dan kini bertanya padamu dulu sebelum ikut \"investasi\" apa pun." }
+			]
+		},
+		{
+			"id": "coworker_robot", "bad": true, "category": "scam", "weight": 1, "min_month": 8, "max_times": 1, "requires": "career", "context": { "cash_rich": 2 }, "character": "coworker",
+			"title": "Robot Trading {coworker}", "text": "{coworker} pamer saldo aplikasi robot trading yang naik 1% setiap hari. \"Aman, ada influencer terkenal yang promosi!\" Ia mengajakmu deposit {rp:5000000} lewat kode referalnya.",
+			"choices": [
+				{ "label": "Deposit {rp:5000000}", "cost": 5000000, "effects": { "rel": { "coworker": 5 }, "chain": { "event": "coworker_robot_profit", "months": [1, 1] } }, "result": "Saldo di aplikasi langsung tampil, lengkap dengan grafik hijau." },
+				{ "label": "Cek izinnya di OJK dulu", "effects": { "xp": 15, "rel": { "coworker": -3 } }, "result": "Robot trading itu tidak terdaftar dan izinnya palsu. Untung tetap setiap hari adalah ciri skema Ponzi." },
+				{ "label": "Tolak", "effects": { "rel": { "coworker": -2 } }, "result": "{coworker} mengangkat bahu. \"Nanti menyesal, lho.\"" }
+			]
+		},
+		{
+			"id": "coworker_robot_profit", "chain_only": true, "category": "scam", "weight": 1, "character": "coworker",
+			"title": "Saldo Robot Naik", "text": "Saldo robotmu kini {rp:6500000}. {coworker} mengajakmu menambah deposit agar \"level akun naik\".",
+			"choices": [
+				{ "label": "Tarik semua saldo", "outcomes": [
+					{ "chance": 0.3, "effects": { "cash": 5500000, "xp": 10 }, "result": "Penarikan berhasil setelah dipotong \"biaya administrasi\". Kamu beruntung keluar lebih awal." },
+					{ "chance": 0.7, "effects": { "chain": { "event": "coworker_robot_collapse", "months": [1, 1] } }, "result": "Penarikan \"sedang diproses\"... dan tidak kunjung selesai." }
+				] },
+				{ "label": "Tambah {rp:5000000}", "cost": 5000000, "effects": { "rel": { "coworker": 3 }, "chain": { "event": "coworker_robot_collapse", "months": [1, 1] } }, "result": "Level akunmu naik. Grafiknya makin hijau." },
+				{ "label": "Biarkan saja dulu", "effects": { "chain": { "event": "coworker_robot_collapse", "months": [1, 2] } }, "result": "Kamu membiarkan saldonya \"berkembang\"." }
+			]
+		},
+		{
+			"id": "coworker_robot_collapse", "chain_only": true, "bad": true, "category": "scam", "weight": 1, "character": "coworker",
+			"title": "Robot Trading Ditutup", "text": "Aplikasi robot trading itu ditutup dan pengelolanya ditangkap. OJK dan Bappebti menyatakannya ilegal. Saldo di aplikasi tidak bisa dicairkan.",
+			"choices": [
+				{ "label": "Ikut melapor bersama korban lain", "effects": { "happiness": -4, "xp": 15 }, "result": "Uang korban jarang kembali utuh. Selalu cek legalitas di OJK (157) atau Bappebti sebelum menaruh uang." },
+				{ "label": "Marah kepada {coworker}", "effects": { "happiness": -5, "rel": { "coworker": -15 } }, "result": "{coworker} juga kehilangan banyak uang. Suasana di kantor jadi canggung." }
+			]
 		}
 	]
 }

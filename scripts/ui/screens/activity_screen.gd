@@ -249,8 +249,11 @@ func _add_performance() -> void:
 	for item: Array in GameState.career.data["merit_raise"]["by_performance"]:
 		if float(item[1]) > 0.0:
 			merit.append(tr("CAREER_MERIT_ITEM") % [_percent_short(float(item[1])), int(item[0])])
-	_job_box.add_child(_wrap(tr("CAREER_PERFORMANCE_INFO") % [roundi(factors["target"]), roundi(factors["skill"]),
-		roundi(factors["wellbeing"]), ", ".join(merit)], &"SmallMutedLabel"))
+	var info := tr("CAREER_PERFORMANCE_INFO") % [roundi(factors["target"]), roundi(factors["skill"]),
+		roundi(factors["wellbeing"]), ", ".join(merit)]
+	if float(factors["team"]) > 0.0:  # rekan kerja yang dekat (v1.5d)
+		info += " " + tr("CAREER_TEAM_BONUS") % [GameState.characters.name_of("coworker"), roundi(factors["team"])]
+	_job_box.add_child(_wrap(info, &"SmallMutedLabel"))
 
 
 ## Jabatan berikutnya beserta syarat promosinya (✓/✗), atau keterangan jenjang tertinggi.

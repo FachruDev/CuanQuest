@@ -20,20 +20,20 @@
 			]
 		},
 		{
-			"id": "friend_loan", "category": "social", "weight": 2, "min_month": 3, "cooldown": 12, "context": { "cash_rich": 2 },
-			"title": "Teman Mau Pinjam Uang", "text": "Sahabatmu butuh pinjaman {rp:2000000} dan berjanji mengembalikan dalam 3 bulan.",
+			"id": "friend_loan", "category": "social", "weight": 2, "min_month": 3, "cooldown": 12, "context": { "cash_rich": 2 }, "character": "bima",
+			"title": "Bima Mau Pinjam Uang", "text": "Bima menunggak uang kos dan butuh pinjaman {rp:2000000}. Ia berjanji mengembalikan dalam 3 bulan.",
 			"choices": [
-				{ "label": "Pinjamkan", "cost": 2000000, "effects": { "chain": { "event": "friend_loan_due", "months": [2, 3] } }, "result": "Kamu meminjamkan {rp:2000000}. Prinsipnya: pinjamkan hanya uang yang siap kamu ikhlaskan." },
-				{ "label": "Tolak dengan halus", "effects": { "happiness": -2 }, "result": "Agak canggung, tapi keuanganmu aman." }
+				{ "label": "Pinjamkan", "cost": 2000000, "effects": { "rel": { "bima": 5 }, "chain": { "event": "friend_loan_due", "months": [2, 3] } }, "result": "Kamu meminjamkan {rp:2000000}. Prinsipnya: pinjamkan hanya uang yang siap kamu ikhlaskan." },
+				{ "label": "Tolak dengan halus", "effects": { "happiness": -2, "rel": { "bima": -5 } }, "result": "Agak canggung, tapi keuanganmu aman." }
 			]
 		},
 		{
-			"id": "parents", "bad": true, "category": "social", "weight": 1, "min_month": 6, "cooldown": 18,
-			"title": "Orang Tua Butuh Bantuan", "text": "Atap rumah orang tuamu bocor parah dan perlu diperbaiki.",
+			"id": "parents", "bad": true, "category": "social", "weight": 1, "min_month": 6, "cooldown": 18, "character": "ibu",
+			"title": "Ibu Butuh Bantuan", "text": "Atap rumah Ibu di kampung bocor parah dan perlu diperbaiki.",
 			"choices": [
-				{ "label": "Bantu {rp:3000000}", "cost": 3000000, "effects": { "happiness": 6 }, "result": "Orang tuamu sangat terbantu." },
-				{ "label": "Bantu {rp:1000000}", "cost": 1000000, "effects": { "happiness": 2 }, "result": "Bantuanmu tetap berarti." },
-				{ "label": "Belum bisa membantu", "effects": { "happiness": -6 }, "result": "Kamu merasa bersalah. Dana darurat juga melindungi orang-orang terdekat." }
+				{ "label": "Bantu {rp:3000000}", "cost": 3000000, "effects": { "happiness": 6, "rel": { "ibu": 6 } }, "result": "Ibu sangat terbantu." },
+				{ "label": "Bantu {rp:1000000}", "cost": 1000000, "effects": { "happiness": 2, "rel": { "ibu": 3 } }, "result": "Bantuanmu tetap berarti bagi Ibu." },
+				{ "label": "Belum bisa membantu", "effects": { "happiness": -6, "rel": { "ibu": -4 } }, "result": "Kamu merasa bersalah. Dana darurat juga melindungi orang-orang terdekat." }
 			]
 		},
 		{
@@ -55,15 +55,111 @@
 			]
 		},
 		{
-			"id": "friend_loan_due", "chain_only": true, "category": "social", "weight": 1,
-			"title": "Janji Temanmu", "text": "Beberapa bulan lalu kamu meminjamkan {rp:2000000}. Sekarang waktunya temanmu mengembalikan.",
+			"id": "friend_loan_due", "chain_only": true, "category": "social", "weight": 1, "character": "bima",
+			"title": "Janji Bima", "text": "Beberapa bulan lalu kamu meminjamkan {rp:2000000} kepada Bima. Sekarang waktunya ia mengembalikan.",
 			"choices": [
 				{ "label": "Tagih dengan sopan", "outcomes": [
-					{ "chance": 0.6, "effects": { "cash": 2000000, "happiness": 3 }, "result": "Temanmu membayar penuh dan berterima kasih atas bantuanmu." },
-					{ "chance": 0.4, "effects": { "happiness": -4 }, "result": "Temanmu menghindar dan sulit dihubungi. Pelajaran mahal: pinjamkan hanya uang yang siap kamu ikhlaskan." }
+					{ "chance": 0.6, "effects": { "cash": 2000000, "happiness": 3, "rel": { "bima": 5 } }, "result": "Bima membayar penuh dan berterima kasih atas bantuanmu." },
+					{ "chance": 0.4, "effects": { "happiness": -4, "rel": { "bima": -10 } }, "result": "Bima menghindar dan sulit dihubungi. Pelajaran mahal: pinjamkan hanya uang yang siap kamu ikhlaskan." }
 				] },
-				{ "label": "Beri waktu 2 bulan lagi", "effects": { "happiness": 1, "chain": { "event": "friend_loan_due", "months": [2, 2] } }, "result": "Kamu memberi kelonggaran. Semoga dia menepati janjinya." },
-				{ "label": "Ikhlaskan saja", "effects": { "happiness": 2, "xp": 5 }, "result": "Kamu mengikhlaskan uangnya. Pertemanan terjaga, tapi dompetmu yang menanggung." }
+				{ "label": "Beri waktu 2 bulan lagi", "effects": { "happiness": 1, "rel": { "bima": 3 }, "chain": { "event": "friend_loan_due", "months": [2, 2] } }, "result": "Kamu memberi kelonggaran. Semoga Bima menepati janjinya." },
+				{ "label": "Ikhlaskan saja", "effects": { "happiness": 2, "xp": 5, "rel": { "bima": 5 } }, "result": "Kamu mengikhlaskan uangnya. Persahabatan terjaga, tapi dompetmu yang menanggung." }
+			]
+		},
+		{
+			"id": "bima_coin_loss", "chain_only": true, "category": "social", "weight": 1, "character": "bima",
+			"title": "Kabar dari Bima", "text": "Bima menelepon dengan suara lesu: koin $KUCING kena rug pull dan tabungannya hilang. Ia butuh teman bicara.",
+			"choices": [
+				{ "label": "Temani dan dengarkan", "effects": { "happiness": -1, "rel": { "bima": 8 }, "chain": { "event": "bima_rebound", "months": [6, 10] } }, "result": "Bima merasa lebih baik. Kadang yang dibutuhkan teman bukan uang, tapi didengarkan." },
+				{ "label": "Bilang \"aku sudah bilang\"", "effects": { "rel": { "bima": -8 } }, "result": "Kamu benar, tapi Bima makin terpuruk." }
+			]
+		},
+		{
+			"id": "bima_rebound", "chain_only": true, "category": "social", "weight": 1, "character": "bima", "min_rel": 50,
+			"title": "Bima Bangkit", "text": "Bima kini bekerja lagi dan mulai menabung rutin. Ia mentraktirmu makan sebagai terima kasih karena menemaninya saat terpuruk.",
+			"choices": [
+				{ "label": "Rayakan bersama", "effects": { "happiness": 5, "rel": { "bima": 5 } }, "result": "Bima bercerita ia kini menyisihkan 10% gajinya untuk reksa dana. Pelajaran mahal yang berbuah baik." }
+			]
+		},
+		{
+			"id": "bima_cafe", "category": "social", "weight": 1, "min_month": 18, "max_times": 1, "context": { "cash_rich": 2 }, "character": "bima", "min_rel": 40,
+			"title": "Bima Buka Kedai Kopi", "text": "Bima ingin membuka kedai kopi dan menawarimu menjadi mitra: modal {rp:10000000} untuk bagian 20% keuntungan.",
+			"choices": [
+				{ "label": "Jadi mitra dengan perjanjian tertulis", "cost": 10000000, "effects": { "rel": { "bima": 5 }, "chain": { "event": "bima_cafe_result", "months": [6, 9] } }, "result": "Kalian menandatangani perjanjian di notaris: bagian keuntungan, hak keluar, dan pembagian aset jika tutup. Agak kaku, tapi semuanya jelas." },
+				{ "label": "Jadi mitra, cukup saling percaya", "cost": 10000000, "effects": { "rel": { "bima": 10 }, "chain": { "event": "bima_cafe_loose", "months": [6, 9] } }, "result": "Bima terharu dengan kepercayaanmu. Tidak ada hitam di atas putih." },
+				{ "label": "Tolak dengan halus", "effects": { "rel": { "bima": -3 } }, "result": "Bima sedikit kecewa. Ikut bisnis teman boleh saja, asal memakai uang yang siap hilang dan perjanjian tertulis." }
+			]
+		},
+		{
+			"id": "bima_cafe_result", "chain_only": true, "category": "social", "weight": 1, "character": "bima",
+			"title": "Laporan Kedai Bima", "text": "Beberapa bulan berjalan, Bima mengirim laporan keuangan kedai sesuai perjanjian.",
+			"choices": [
+				{ "label": "Baca laporannya", "outcomes": [
+					{ "chance": 0.35, "effects": { "cash": 5000000, "happiness": 4, "rel": { "bima": 5 }, "chain": { "event": "bima_cafe_bonus", "months": [10, 14] } }, "result": "Kedai ramai! Bagian keuntunganmu {rp:5000000} sudah ditransfer." },
+					{ "chance": 0.4, "effects": { "cash": 8000000, "rel": { "bima": 2 } }, "result": "Kedai bertahan tapi pas-pasan. Sesuai perjanjian, kamu memakai hak keluar dan Bima mengembalikan {rp:8000000}." },
+					{ "chance": 0.25, "effects": { "cash": 2000000, "happiness": -4 }, "result": "Kedai tutup karena sepi dan sewa tempat naik. Sesuai perjanjian, peralatan dijual dan bagianmu {rp:2000000}." }
+				] }
+			]
+		},
+		{
+			"id": "bima_cafe_loose", "chain_only": true, "category": "social", "weight": 1, "character": "bima",
+			"title": "Kabar Kedai Bima", "text": "Beberapa bulan berjalan. Kamu menanyakan bagian keuntunganmu, tapi tidak ada catatan tertulis tentang cara menghitungnya.",
+			"choices": [
+				{ "label": "Tanyakan baik-baik", "outcomes": [
+					{ "chance": 0.35, "effects": { "cash": 3000000, "rel": { "bima": 3 } }, "result": "Kedai ramai, tapi Bima menghitung bagianmu \"kira-kira\" {rp:3000000}. Tanpa perjanjian, sulit menagih lebih." },
+					{ "chance": 0.4, "effects": { "happiness": -5, "rel": { "bima": -10 } }, "result": "Kedai pas-pasan dan Bima bilang modalmu \"sudah terpakai untuk operasional\". Tidak ada dasar untuk menagih." },
+					{ "chance": 0.25, "effects": { "happiness": -8, "rel": { "bima": -15 } }, "result": "Kedai tutup dan modalmu hilang tanpa sisa. Persahabatan kalian ikut renggang." }
+				] }
+			]
+		},
+		{
+			"id": "bima_cafe_bonus", "chain_only": true, "category": "social", "weight": 1, "character": "bima",
+			"title": "Kedai Bima Berkembang", "text": "Kedai Bima berkembang pesat. Ia ingin membeli kembali bagianmu seharga {rp:12000000}.",
+			"choices": [
+				{ "label": "Terima, ambil untungnya", "effects": { "cash": 12000000, "happiness": 4, "rel": { "bima": 5 } }, "result": "Uangmu kembali lebih dari dua kali lipat. Bisnis teman bisa berhasil, dengan perjanjian yang jelas." },
+				{ "label": "Tetap jadi mitra", "effects": { "rel": { "bima": 5 }, "chain": { "event": "bima_cafe_result", "months": [10, 14] } }, "result": "Kamu tetap menjadi mitra. Keuntungan berikutnya bisa lebih besar, atau tidak: bisnis selalu berisiko." }
+			]
+		},
+		{
+			"id": "ibu_sick", "bad": true, "category": "social", "weight": 1, "min_month": 12, "cooldown": 36, "max_times": 2, "character": "ibu",
+			"title": "Ibu Masuk Rumah Sakit", "text": "Kabar dari kampung: Ibu dirawat karena tekanan darah tinggi. Ibu punya BPJS Kesehatan, tapi kamar kelasnya penuh. Keluarga menyarankan kamar VIP {rp:8000000}.",
+			"choices": [
+				{ "label": "Pakai BPJS, tunggu kamar kelas", "effects": { "happiness": -3, "rel": { "ibu": 2 }, "chain": { "event": "ibu_recover", "months": [2, 3] } }, "result": "BPJS menanggung perawatan Ibu. Antreannya lebih lama, tapi Ibu tertangani dengan baik. Pastikan iuran BPJS orang tua selalu aktif." },
+				{ "label": "Bayar kamar VIP", "cost": 8000000, "effects": { "happiness": 1, "rel": { "ibu": 6 }, "chain": { "event": "ibu_recover", "months": [2, 3] } }, "result": "Ibu dirawat di kamar VIP. Biayanya besar; di sinilah dana darurat menunjukkan gunanya." },
+				{ "label": "Pulang kampung menemani Ibu", "cost": 1500000, "effects": { "performance": -4, "happiness": 2, "rel": { "ibu": 10 }, "chain": { "event": "ibu_recover", "months": [2, 3] } }, "result": "Kamu mengambil cuti dan menemani Ibu. Pekerjaan sedikit tertinggal, tapi Ibu sangat senang." }
+			]
+		},
+		{
+			"id": "ibu_recover", "chain_only": true, "category": "social", "weight": 1, "character": "ibu",
+			"title": "Ibu Sudah Pulih", "text": "Ibu sudah sehat kembali. Kakakmu mengusulkan semua anak menyisihkan uang rutin untuk kebutuhan Ibu.",
+			"choices": [
+				{ "label": "Kirim {rp:1500000} untuk kebutuhan Ibu", "cost": 1500000, "effects": { "happiness": 4, "rel": { "ibu": 6 } }, "result": "Ibu terharu. Generasi sandwich: sisihkan pos khusus untuk orang tua tanpa mengorbankan dana daruratmu sendiri." },
+				{ "label": "Daftarkan Ibu cek kesehatan rutin", "cost": 500000, "effects": { "happiness": 2, "rel": { "ibu": 4 } }, "result": "Pencegahan jauh lebih murah daripada pengobatan." },
+				{ "label": "Belum bisa membantu sekarang", "effects": { "happiness": -3, "rel": { "ibu": -3 } }, "result": "Ibu memaklumi. Rencanakan bantuan untuk orang tua agar tidak selalu mendadak." }
+			]
+		},
+		{
+			"id": "wulan_meet", "category": "social", "weight": 2, "min_month": 3, "max_times": 1, "character": "wulan",
+			"title": "Bertemu Kak Wulan", "text": "Di acara alumni kamu bertemu Kak Wulan, kakak tingkatmu yang kini perencana keuangan bersertifikat. Ia menawarkan \"cek kesehatan keuangan\" gratis untukmu.",
+			"choices": [
+				{ "label": "Terima tawarannya", "effects": { "xp": 5, "rel": { "wulan": 10 }, "chain": { "event": "wulan_checkup", "months": [1, 1] } }, "result": "Kak Wulan memintamu membawa catatan pemasukan dan pengeluaran bulan depan." },
+				{ "label": "Lain kali saja", "effects": {}, "result": "Kak Wulan memberikan kartu namanya. Kapan-kapan kamu bisa menghubunginya." }
+			]
+		},
+		{
+			"id": "wulan_checkup", "chain_only": true, "category": "social", "weight": 1, "character": "wulan",
+			"title": "Cek Kesehatan Keuangan", "text": "Kak Wulan memeriksa catatan keuanganmu dan memberi saran:\n\n{advice}",
+			"choices": [
+				{ "label": "Terapkan sarannya", "effects": { "xp": 15, "happiness": 2, "rel": { "wulan": 5 } }, "result": "Kak Wulan tersenyum: \"Kebiasaan kecil yang konsisten mengalahkan strategi hebat yang tidak dijalankan.\"" },
+				{ "label": "Terima kasih, nanti kupikirkan", "effects": { "rel": { "wulan": -2 } }, "result": "Kak Wulan mengangguk. Saran baru berguna jika dijalankan." }
+			]
+		},
+		{
+			"id": "wulan_class", "category": "social", "weight": 1, "min_month": 10, "cooldown": 18, "max_times": 2, "character": "wulan", "known": true, "min_rel": 50,
+			"title": "Kelas Keuangan Akhir Pekan", "text": "Kak Wulan mengajakmu ikut kelas perencanaan keuangan akhir pekan. Biayanya {rp:750000}, materinya anggaran, investasi, dan pajak.",
+			"choices": [
+				{ "label": "Ikut kelasnya", "cost": 750000, "effects": { "skill": 2, "xp": 20, "rel": { "wulan": 5 } }, "result": "Banyak hal baru yang langsung bisa kamu terapkan. Investasi terbaik adalah pada dirimu sendiri." },
+				{ "label": "Tidak ikut", "effects": { "rel": { "wulan": -2 } }, "result": "Kak Wulan memaklumi kesibukanmu." }
 			]
 		}
 	]

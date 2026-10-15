@@ -42,6 +42,12 @@ static func money(text: String) -> String:
 ## {severance}, {raise}, {program}, {cert}.
 static func event_text(text: String, vars: Dictionary) -> String:
 	var result := money(text)
+	if not result.contains("{"):
+		return result
+	for id: String in ["boss", "coworker"]:  # tokoh kantor: namanya mengikuti perusahaan (v1.5d)
+		result = result.replace("{%s}" % id, GameState.characters.name_of(id))
+	if vars.has("advice"):  # saran Kak Wulan (sudah diterjemahkan saat event tampil)
+		result = result.replace("{advice}", vars["advice"])
 	if vars.is_empty() or not result.contains("{"):
 		return result
 	if vars.has("job_id"):
@@ -148,6 +154,9 @@ static func changes_text(changes: Dictionary) -> String:
 		parts.append("%s %+d" % [_t("STAT_PERFORMANCE"), int(changes["performance"])])
 	if changes.has("credit"):
 		parts.append("%s %+d" % [_t("CREDIT_SCORE"), int(changes["credit"])])
+	for key: String in changes:  # kedekatan dengan tokoh (v1.5d): "Kedekatan Bima +5"
+		if key.begins_with("rel_"):
+			parts.append(_t("CHANGE_REL") % [GameState.characters.name_of(key.trim_prefix("rel_")), int(changes[key])])
 	if changes.has("xp"):
 		parts.append("XP %+d" % int(changes["xp"]))
 	return " | ".join(parts)

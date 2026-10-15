@@ -110,7 +110,7 @@ func event_vars(id: String) -> Dictionary:
 		"layoff":
 			var months := severance_months()
 			return {"job_id": job["id"], "company": job["company"], "months": months, "severance": months * salary}
-		"headhunter":
+		"headhunter", "wulan_referral":  # rekomendasi Kak Wulan (v1.5d) = tawaran seperti headhunter
 			var offer := _headhunter_offer()
 			if not offer.is_empty():
 				return {"offer": offer, "job_id": offer["job_id"], "company": offer["company"],
@@ -380,8 +380,9 @@ func performance_factors() -> Dictionary:
 		float(cfg["skill_min"]), float(cfg["skill_max"]))
 	var wellbeing := clampf(((gs.health + gs.happiness) / 2.0 - float(cfg["wellbeing_from"])) * float(cfg["wellbeing_rate"]),
 		float(cfg["wellbeing_min"]), float(cfg["wellbeing_max"]))
-	return {"skill": skill_fit, "wellbeing": wellbeing,
-		"target": clampf(float(cfg["base"]) + skill_fit + wellbeing, 0.0, 100.0)}
+	var team := gs.characters.performance_bonus()  # rekan kerja yang dekat (v1.5d)
+	return {"skill": skill_fit, "wellbeing": wellbeing, "team": team,
+		"target": clampf(float(cfg["base"]) + skill_fit + wellbeing + team, 0.0, 100.0)}
 
 
 ## Key teks predikat kinerja ("PERF_GOOD", ...).
@@ -472,7 +473,7 @@ func layoff_chance() -> float:
 		chance *= float(cfg["mid_mult"])
 	if gs.market.regime_of("stock") == "bear":
 		chance *= float(cfg["bear_mult"])
-	return chance
+	return chance * gs.characters.layoff_mult()  # hubungan renggang dengan atasan (v1.5d)
 
 
 ## Pesangon PHK dalam bulan gaji: 1 bulan untuk tiap tahun masa kerja yang dimulai (maks. 9).
@@ -568,7 +569,7 @@ func scheduled_events() -> Array[Dictionary]:
 	elif gs.rng.randf() < layoff_chance():
 		id = "layoff"
 	elif promotion_ready() and gs.events.off_cooldown("promotion") \
-			and gs.rng.randf() < float(data["promotion"]["chance"]):
+			and gs.rng.randf() < float(data["promotion"]["chance"]) * gs.characters.promotion_mult():
 		id = "promotion"
 	var def := gs.events.catalog.find(id)
 	if not def.is_empty():
