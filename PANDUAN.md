@@ -24,10 +24,10 @@
 
 ```
 data/
-  assets.json                 Parameter aset (drift, volatilitas, fee)
+  assets.json                 Parameter aset (drift, volatilitas, fee, satuan, pola musiman, aliran acak)
   economy.json                Gaji, modal awal, pilihan makan & tempat tinggal (untuk balancing)
-  market.json                 Siklus pasar, suku bunga acuan, peluang berita
-  news.json                   Template berita pasar & dampaknya ke harga
+  market.json                 Siklus pasar, faktor (saham, kripto, komoditas, emas), suku bunga, peluang berita
+  news.json                   Template berita pasar & dampaknya ke harga (+ dampak ikutan "cross", berita komoditas)
   rumors.json                 Rumor pasar (v1.5d): peluang, gerak harga benar/jebakan, riset dasar & mendalam
   contracts.json              Proyek sampingan (v1.5d): 17 proyek, tier & reputasi, 3 strategi, peluang, bayaran
   achievements.json           Pencapaian (v1.5d): 21 pencapaian (syarat sebagai data), gelar, 7 bingkai avatar
@@ -74,7 +74,7 @@ scripts/
     insurance.gd, dreams.gd, targets.gd, activities.gd, progress.gd
     life_events.gd            Event Director: jadwal event, antrean, keputusan, efek tertunda
   core/                       Logika murni tanpa UI (mudah dites)
-    market.gd, market_asset.gd   Simulasi pasar (GBM, RNG ber-seed)
+    market.gd, market_asset.gd   Simulasi pasar (GBM, RNG ber-seed; aliran acak kedua untuk aset v2a)
     fmt.gd                    Format Rp1.234.567, +2,35%, tanggal game
     data_loader.gd            Baca JSON
     quiz_manager.gd           Bank soal + jatah mingguan (waktu nyata) + kredit iklan
@@ -217,8 +217,14 @@ scenes/
   - [x] (3) Kontrak & proyek sampingan
   - [x] (4) Pencapaian, kosmetik & laporan tahunan
   - [x] (5) Perluasan konten & penyeimbangan
-- [ ] **Penutup v1.5**: legal & lisensi selesai; alat uji performa & playtest siap, menunggu uji di HP (`docs/UJI_AKHIR_V15.md`)
-- [ ] **v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
+- [x] **Penutup v1.5**: legal & lisensi, performa & baterai, alat playtest (APK dicoba di HP; panduan `docs/UJI_AKHIR_V15.md`)
+- [ ] **v2a "Instrumen Lanjut"**:
+  - [x] (1) Komoditas & emas
+  - [ ] (2) Valas
+  - [ ] (3) Leverage & margin
+  - [ ] (4) Tampilan, peringatan & cerita
+  - [ ] (5) Penyeimbangan & uji celah
+- [ ] **v2b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
 Rangkuman semua checklist MVP (v1, v1.5, v2, M7) ada di [docs/CHECKLIST_MVP.md](docs/CHECKLIST_MVP.md).
 - [ ] **M7: Export rilis & Play Store** (setelah v2 selesai; tanpa monetisasi)
@@ -326,6 +332,18 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Save:** kunci baru `contract_board`, `contracts`, `contract_reputation`, `contract_energy`, `contract_seq`, `contract_rng`; statistik `projects_*` & `project_income` (save lama: tanpa proyek, papan terisi bulan berikutnya).
 - **Hasil simulator** (40 × 30 tahun): tahun bebas finansial S1 hemat 12,6 → selalu 1 proyek 10,5 → selalu 2 proyek 9,6; SMA 18,4 → 14,7 → 13,4. Dua proyek sekaligus menguras kesehatan (±75) & kebahagiaan (±81) dan menurunkan kinerja kantor. Versi awal (bayaran 2× lebih besar dan keahlian lebih banyak) membuat S1 bebas finansial di tahun 7,6, jadi angka di data sudah diturunkan.
 - **Menambah proyek:** salin satu baris di `projects` (`id`, `track` = id bidang di `jobs.json` atau `general`, `tier`, `months` [min, max], `weight`), lalu tambahkan nama & deskripsinya di CSV.
+
+## Komoditas & Emas (v2a langkah 1)
+
+- **4 aset baru kelas `commodity`** (`data/assets.json`): Emas Batangan per gram (tahap 3, fee beli & jual 1% = selisih harga ±2%), Minyak Mentah per barel, Minyak Sawit (CPO) per ton, Kopi Robusta per kg (tahap 4, fee 0,3%). Field baru: `unit_key` (satuan 1 unit, tampil di detail), `seasonal` (12 angka), `stream`.
+- **Aliran angka acak kedua** (`Market.rng_ext`, seed + `ext_seed_offset`): semua yang baru (aset, faktor `commodity` & `gold`, berita `stream: 1`) memakai RNG ini, sehingga urutan angka acak pasar lama tidak bergeser dan harga saham/kripto/reksa dana, inflasi, serta suku bunga **sama persis** dengan versi sebelumnya. Analogi web: menambah tabel baru dengan sequence ID sendiri, bukan menyisipkan baris di tengah tabel lama sehingga semua ID bergeser.
+- **Faktor terikat** (`market.json` → `factors.<f>.link`): faktor baru boleh ikut faktor lama dengan korelasi tertentu tanpa angka acak tambahan. Emas `rho -0,3` terhadap saham (cenderung naik saat saham turun), komoditas `+0,3`. Faktor `regimes: false` = tanpa siklus naik/turun (emas).
+- **Pola musiman** (`seasonal`): tambahan drift tahunan per bulan kalender, dijumlah 0 sehingga drift setahun tetap. Bulan yang dipakai = bulan saat Lanjut ditekan. CPO cenderung menguat Nov-Mar & melemah Jun-Sep, kopi menguat Jan-Mar & melemah Mei-Jul, minyak menguat Feb-Mei & melemah Sep-Des. Teks di detail aset dibuat otomatis dari data (`UiText.season_text`, ambang ±0,10).
+- **Dampak ikutan berita** (`news.json` → `cross`): guncangan berita x pengali tetap ke aset/faktor lain, tanpa angka acak. Bursa global anjlok → emas naik & komoditas turun; BBM naik → minyak naik; BI menaikkan suku bunga → emas tertekan; batu bara melonjak → komoditas ikut naik. Plus **13 berita komoditas** (OPEC+, El Niño, embun beku Brasil, biodiesel, larangan ekspor sawit, bank sentral memborong emas, ekonomi Tiongkok).
+- **Kalibrasi** (uji 10 pasar x 60 tahun): imbal hasil per tahun emas ±5,6%, minyak ±3,2%, CPO ±3,3%, kopi ±2,9% (komoditas kira-kira mengikuti inflasi; gejolak tinggi menurunkan pertumbuhan geometrik, jadi drift dasarnya lebih tinggi). Korelasi bulanan dengan RD saham: emas -0,23, CPO +0,10, minyak +0,14.
+- **Save lama:** aset yang belum ada di save mendapat riwayat isian 12 bulan (`Market._backfill`, harga awal x indeks harga sekarang); siklus komoditas dimulai saat dimuat.
+- **Menambah komoditas:** satu baris di `assets.json` dengan `"stream": 1` dan `factor` `commodity`/`gold`, teks `ASSET_<ID>`, `DESC_ASSET_<ID>` (penjelasan khusus), dan satuan `UNIT_*`. Berita yang menyasar `asset:ID` wajib memuat `%s`.
+- **Golden runner v7** (`scratchpad/v2a/golden7.gd` + `cmp_golden9.py`) membandingkan juga berita pasar lama setiap bulan.
 
 ## Penutup v1.5: Performa, Playtest & Legal
 

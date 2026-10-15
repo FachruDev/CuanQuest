@@ -5,7 +5,7 @@ extends RefCounted
 ## Warna kotak ikon per kelas aset (nama file ikon = id kelas di data/assets.json).
 const CLASS_TILES := {
 	"savings": &"IconTileBlue", "deposit": &"IconTileMint", "mutual_fund": &"IconTileGold",
-	"stock": &"IconTileCoral", "crypto": &"IconTilePurple", "commodity": &"IconTileTeal",
+	"stock": &"IconTileCoral", "crypto": &"IconTilePurple", "commodity": &"IconTileGold",
 }
 const CLASS_ICON := "res://assets/icons/classes/%s.svg"
 ## Kelas aset baru (v2a) memakai ikon lain sampai ikonnya dibuat (lihat docs/KEBUTUHAN_ASET.md).

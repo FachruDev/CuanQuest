@@ -56,25 +56,25 @@
 		{
 			"_comment": "v2a: komoditas (stream 1 = aliran acak kedua). seasonal = tambahan drift TAHUNAN per bulan kalender Jan..Des (jumlahnya 0, jadi drift setahun tetap). unit_key = satuan 1 unit.",
 			"id": "EMAS", "name_key": "ASSET_EMAS", "class": "commodity", "factor": "gold", "stream": 1, "unit_key": "UNIT_GRAM",
-			"start_price": 1250000, "drift": 0.03, "volatility": 0.15, "beta": 1.0, "rho": 1.0,
+			"start_price": 1250000, "drift": 0.04, "volatility": 0.15, "beta": 1.0, "rho": 1.0,
 			"buy_fee": 0.01, "sell_fee": 0.01, "stage": 3, "risk": 3
 		},
 		{
 			"id": "MINYAK", "name_key": "ASSET_MINYAK", "class": "commodity", "factor": "commodity", "stream": 1, "unit_key": "UNIT_BARREL",
-			"start_price": 1200000, "drift": 0.05, "volatility": 0.35, "beta": 1.2, "rho": 0.6,
+			"start_price": 1200000, "drift": 0.10, "volatility": 0.35, "beta": 1.2, "rho": 0.6,
 			"seasonal": [0.0, 0.10, 0.15, 0.15, 0.10, 0.05, 0.0, -0.05, -0.15, -0.15, -0.10, -0.10],
 			"buy_fee": 0.003, "sell_fee": 0.003, "stage": 4, "risk": 4
 		},
 		{
 			"id": "CPO", "name_key": "ASSET_CPO", "class": "commodity", "factor": "commodity", "stream": 1, "unit_key": "UNIT_TON",
-			"start_price": 14000000, "drift": 0.035, "volatility": 0.28, "beta": 0.9, "rho": 0.4,
-			"seasonal": [0.25, 0.30, 0.20, 0.0, -0.10, -0.15, -0.25, -0.30, -0.25, -0.05, 0.15, 0.20],
+			"start_price": 14000000, "drift": 0.045, "volatility": 0.28, "beta": 0.9, "rho": 0.4,
+			"seasonal": [0.15, 0.20, 0.15, 0.0, -0.05, -0.10, -0.15, -0.20, -0.15, -0.05, 0.10, 0.10],
 			"buy_fee": 0.003, "sell_fee": 0.003, "stage": 4, "risk": 4
 		},
 		{
 			"id": "KOPI", "name_key": "ASSET_KOPI", "class": "commodity", "factor": "commodity", "stream": 1, "unit_key": "UNIT_KG",
-			"start_price": 60000, "drift": 0.045, "volatility": 0.32, "beta": 0.8, "rho": 0.4,
-			"seasonal": [0.10, 0.20, 0.20, 0.0, -0.20, -0.25, -0.20, -0.05, 0.05, 0.05, 0.0, 0.10],
+			"start_price": 60000, "drift": 0.095, "volatility": 0.32, "beta": 0.8, "rho": 0.4,
+			"seasonal": [0.10, 0.15, 0.15, 0.0, -0.15, -0.20, -0.15, -0.05, 0.05, 0.05, 0.0, 0.05],
 			"buy_fee": 0.003, "sell_fee": 0.003, "stage": 4, "risk": 4
 		}
 	]

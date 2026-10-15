@@ -10,7 +10,7 @@ extends RefCounted
 
 const ACHIEVEMENTS_PATH := "res://data/achievements.json"
 const ICON_PATH := "res://assets/icons/achievements/%s.svg"
-const STOCK_CLASSES := ["mutual_fund", "stock", "crypto"]
+const INVEST_CLASSES := ["mutual_fund", "stock", "crypto", "commodity"]  # termasuk emas & komoditas (v2a)
 
 var gs: GameStore
 var data: Dictionary = {}  # isi data/achievements.json
@@ -80,7 +80,7 @@ func value(d: Dictionary) -> float:
 		"invested":
 			var total := 0.0
 			for id: String in gs.portfolio.holdings:
-				if gs.market.get_asset(id).asset_class in STOCK_CLASSES:
+				if gs.market.get_asset(id).asset_class in INVEST_CLASSES:
 					total += gs.portfolio.holding_value(id)
 			return total
 		"emergency_months":  # dibulatkan: autodebet berhenti tepat di target, inflasi membuatnya 5,99
