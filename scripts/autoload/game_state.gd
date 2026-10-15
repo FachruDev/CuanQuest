@@ -3,10 +3,10 @@ extends Node
 ## State global permainan (Autoload bernama "GameState"; tipe skripnya GameStore).
 ##
 ## Analogi web: ini root "store" (Redux/Pinia). Logika tiap domain ada di modul terpisah di
-## scripts/game/ (seperti slice/store per fitur): career, education, insurance, debt, portfolio,
-## budget, dreams, vehicles, properties, targets, events, activities, progress. File ini hanya memegang data bersama
-## (profil, bulan, kas, kondisi, statistik, pasar, RNG), mengatur alur tiap bulan, menjalankan
-## efek event, menyimpan/memuat, dan memeriksa akhir permainan.
+## scripts/game/ (seperti slice/store per fitur): career, characters, education, insurance, debt,
+## portfolio, research, budget, dreams, vehicles, properties, targets, events, activities, progress.
+## File ini hanya memegang data bersama (profil, bulan, kas, kondisi, statistik, pasar, RNG), mengatur
+## alur tiap bulan, menjalankan efek event, menyimpan/memuat, dan memeriksa akhir permainan.
 ##
 ## UI tidak mengubah data langsung: panggil fungsi di sini atau di modul
 ## (mis. GameState.career.apply_job(i)), lalu dengarkan signal `changed` untuk re-render.
@@ -86,6 +86,7 @@ var insurance := Insurance.new(self)
 var debt := Debt.new(self)
 var events := LifeEvents.new(self)
 var portfolio := Portfolio.new(self)
+var research := Research.new(self)
 var budget := Budget.new(self)
 var dreams := Dreams.new(self)
 var vehicles := Vehicles.new(self)
@@ -94,9 +95,10 @@ var targets := Targets.new(self)
 var activities := Activities.new(self)
 ## Urutan dipakai untuk reset, simpan/muat, dan efek event. Karier sebelum rencana gaji
 ## (rencana awal memakai gaji); pendidikan sebelum aktivitas (energi memakai beban kuliah);
-## impian sebelum kendaraan (save lama: impian kendaraan yang terwujud menjadi kendaraan).
+## impian sebelum kendaraan (save lama: impian kendaraan yang terwujud menjadi kendaraan). Riset (rumor
+## pasar) memakai RNG sendiri, jadi urutannya tidak memengaruhi undian modul lain.
 var modules: Array[GameModule] = [progress, career, characters, education, insurance, debt, events, portfolio,
-	budget, dreams, vehicles, properties, targets, activities]
+	research, budget, dreams, vehicles, properties, targets, activities]
 
 var fast_forwarding := false
 ## Naik setiap game baru / dimuat (tidak disimpan). SaveManager memakainya untuk tahu apakah
@@ -185,10 +187,11 @@ func advance_month() -> void:
 	var level_before := price_level()
 	var idle_money := maxf(cash, 0.0) + portfolio.units_of(budget.emergency_asset_id()) + dreams.funds()
 	var interest := portfolio.pay_interest() + dreams.pay_interest()
-	var news := market.step(month + 1)
+	var news := market.step(month + 1, research.market_input(month + 1))  # rumor ikut menggerakkan harga
 	var month_inflation := price_level() / level_before - 1.0
 	var trade := portfolio.turn_trade_result(start_prices)  # transaksi manual, sebelum pesanan otomatis
 	var executed := portfolio.execute_orders()
+	var rumor_result := research.after_market()
 	var sold_value := 0.0
 	for sale: Dictionary in executed:
 		sold_value += float(sale["units"]) * float(sale["price"])
@@ -235,6 +238,8 @@ func advance_month() -> void:
 		"vehicle_depreciation": vehicles.depreciation_since(from_month, level_before),
 		"erosion": idle_money * month_inflation,
 	})
+	if not rumor_result.is_empty():
+		last_report["rumors"] = [rumor_result]
 	dreams.queue_overdue()
 	portfolio.snapshot_turn()
 	portfolio.month_costs = portfolio.new_month_costs()  # pajak & biaya sudah masuk laporan ini
@@ -796,7 +801,7 @@ func _merge_reports(reports: Array[Dictionary]) -> Dictionary:
 		forced.append_array(r.get("forced_sales", []))
 		executed_orders.append_array(r.get("orders", []))
 	for key: String in ["loan_missed", "loan_closed", "loan_defaults", "loan_rate_changes", "property_sold",
-			"property_notes"]:
+			"property_notes", "rumors"]:
 		var items: Array = []
 		for r: Dictionary in reports:
 			items.append_array(r.get(key, []))

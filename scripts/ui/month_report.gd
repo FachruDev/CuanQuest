@@ -107,6 +107,8 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 		for item: Dictionary in news:
 			_add_bullet(box, "- " + news_text(item))
 
+	_add_rumors(box, r)
+
 	var targets: Array = r.get("targets", [])
 	if not targets.is_empty():
 		_add_header(box, "REPORT_TARGETS")
@@ -227,6 +229,33 @@ static func _add_costs(box: VBoxContainer, r: Dictionary) -> void:
 		_add_row(box, "REPORT_INTEREST_TAX", Fmt.signed_rupiah(-interest_tax), Palette.LOSS)
 	var total := trade_fee + trade_tax + interest_tax + float(r.get("income_tax", 0))
 	_add_text(box, TranslationServer.translate("REPORT_COSTS_TOTAL") % Fmt.rupiah(total), Palette.MUTED)
+
+
+## Rumor yang terjawab bulan ini (v1.5d langkah 2): terbukti atau hoaks, gerak harga sejak rumor,
+## ketepatan riset pemain, apa yang pemain lakukan, dan pelajarannya.
+static func _add_rumors(box: VBoxContainer, r: Dictionary) -> void:
+	var rumors: Array = r.get("rumors", [])
+	if rumors.is_empty():
+		return
+	_add_header(box, "REPORT_RUMOR")
+	for item: Dictionary in rumors:
+		var ticker: String = item["asset"]
+		var proven: bool = item["is_true"]
+		_add_row_text(box, TranslationServer.translate("REPORT_RUMOR_RESULT") % ticker,
+			TranslationServer.translate("RUMOR_PROVEN" if proven else "RUMOR_HOAX"), Palette.INK)
+		var change: float = item["change"]
+		_add_row_text(box, TranslationServer.translate("REPORT_RUMOR_CHANGE") % ticker, Fmt.percent(change), signed_color(change))
+		for research: Dictionary in item["research"]:
+			_add_row_text(box, TranslationServer.translate("REPORT_RESEARCH") % [
+				TranslationServer.translate("RESEARCH_" + str(research["level"]).to_upper()),
+				TranslationServer.translate("RESEARCH_SAYS_TRUE" if research["verdict"] else "RESEARCH_SAYS_FALSE")],
+				TranslationServer.translate("RESEARCH_CORRECT" if research["correct"] else "RESEARCH_WRONG"),
+				Palette.GAIN if research["correct"] else Palette.LOSS)
+		if item["research"].is_empty():
+			_add_text(box, TranslationServer.translate("REPORT_RUMOR_NO_RESEARCH"), Palette.MUTED)
+		if item["position"] != "none":
+			_add_text(box, TranslationServer.translate("REPORT_RUMOR_" + str(item["position"]).to_upper()) % ticker, Palette.MUTED)
+		_add_text(box, TranslationServer.translate("RUMOR_LESSON_TRUE" if proven else "RUMOR_LESSON_FALSE"), Palette.MUTED)
 
 
 ## "+Rp1.250.000 (+3,10%)"

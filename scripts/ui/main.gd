@@ -50,6 +50,8 @@ func _ready() -> void:
 	GameState.changed.connect(_refresh_top_bar)
 	GameState.month_advanced.connect(func(report: Dictionary) -> void:
 		_enqueue(%SummaryPopup.show_report.bind(report))
+		if GameState.research.has_rumor():  # rumor pertama (v1.5d): jelaskan riset di tab Pasar
+			_hint("HINT_RUMOR")
 		_enqueue_plan_review())
 	%HomeScreen.plan_requested.connect(func() -> void: _enqueue(%PlanPopup.open))
 	GameState.job_offers_received.connect(func(_offers: Array) -> void:

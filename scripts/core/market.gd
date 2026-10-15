@@ -12,6 +12,7 @@ extends RefCounted
 ##   tabungan & deposito serta imbal hasil RD pasar uang; keputusannya menggoyang harga saham.
 ## - Berita: guncangan harga sekali untuk satu aset atau satu faktor, atau mengubah inflasi,
 ##   pada satu tanggal acak di bulan itu (terlihat sebagai lonjakan di grafik harian).
+## - Rumor (v1.5d): guncangan & berita tambahan dari GameState.research lewat parameter `extra`.
 
 const WARMUP_MONTHS := 12  # riwayat harga palsu agar grafik tidak kosong di awal
 
@@ -51,8 +52,10 @@ func setup(asset_defs: Array, market_config: Dictionary, news: Array, seed_value
 
 
 ## Gerakkan pasar satu bulan. `month` = bulan game tempat berita ditampilkan.
+## `extra` = guncangan & berita dari luar pasar (rumor, v1.5d): {"shocks": {asset_id: {tanggal: guncangan}},
+## "news": [berita]}. Tidak memakai RNG pasar, jadi urutan acak pasar tetap sama.
 ## Mengembalikan daftar berita bulan ini.
-func step(month: int) -> Array[Dictionary]:
+func step(month: int, extra: Dictionary = {}) -> Array[Dictionary]:
 	var news: Array[Dictionary] = []
 	var shocks: Dictionary = {}  # asset_id -> {tanggal: guncangan harga}
 
@@ -61,6 +64,11 @@ func step(month: int) -> Array[Dictionary]:
 		_step_macro(month, news, shocks)
 	if rng.randf() < config["news_chance"]:
 		_roll_news(month, rng.randi_range(1, MarketAsset.DAYS_IN_MONTH), news, shocks)
+	for asset_id: String in extra.get("shocks", {}):
+		for day: int in extra["shocks"][asset_id]:
+			_add_shock(shocks, asset_id, day, extra["shocks"][asset_id][day])
+	for item: Dictionary in extra.get("news", []):
+		news.append(item)
 
 	# Angka acak bersama per hari untuk tiap faktor (sumber korelasi harian).
 	# Urutan loop HARUS tetap (ikut file data), bukan urutan Dictionary `regimes`:

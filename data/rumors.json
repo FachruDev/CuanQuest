@@ -1,0 +1,28 @@
+{
+	"_comment": "Rumor pasar & riset (v1.5d langkah 2). Rumor muncul di kabar pasar untuk saham/kripto yang sudah terbuka, menggerakkan harga saat beredar (pump), lalu bulan berikutnya terbukti benar (true_move) atau ternyata jebakan/hoaks (trap_move). Semua angka adalah perubahan harga sekali (0.1 = +10%), sudah bertanda sesuai arah rumor, lalu dikali class_scale. Teks: RUMOR_<ID>, RUMOR_<ID>_TRUE, RUMOR_<ID>_FALSE (%s = nama aset). target: asset:ID | random_stock | random_crypto. Riset hanya menilai rumor yang sedang beredar; penilaiannya tepat dengan peluang = accuracy (diundi terhadap hasil sebenarnya saat rumor muncul). cost riset dalam Rupiah awal permainan (ikut inflasi). chance = peluang rumor baru tiap bulan; cooldown_months = jeda setelah rumor terjawab (1 = bulan berikutnya sudah boleh ada rumor baru). pump_days/resolve_days = rentang tanggal guncangan.",
+	"chance": 0.5,
+	"cooldown_months": 1,
+	"pump_days": [4, 26],
+	"resolve_days": [3, 22],
+	"class_scale": { "stock": 1.0, "crypto": 1.8 },
+	"directions": {
+		"up": { "true_chance": 0.45, "pump": [0.03, 0.08], "true_move": [0.07, 0.16], "trap_move": [-0.20, -0.09] },
+		"down": { "true_chance": 0.5, "pump": [-0.06, -0.02], "true_move": [-0.10, -0.04], "trap_move": [0.04, 0.11] }
+	},
+	"research": {
+		"basic": { "energy": 1, "cost": 0, "accuracy": 0.55 },
+		"deep": { "energy": 2, "cost": 750000, "accuracy": 0.75 }
+	},
+	"rumors": [
+		{ "id": "gov_contract", "target": "asset:NUSA", "direction": "up", "weight": 2 },
+		{ "id": "takeover", "target": "random_stock", "direction": "up", "weight": 2 },
+		{ "id": "jumbo_dividend", "target": "random_stock", "direction": "up", "weight": 2 },
+		{ "id": "new_reserve", "target": "asset:BARA", "direction": "up", "weight": 1.5 },
+		{ "id": "exchange_listing", "target": "random_crypto", "direction": "up", "weight": 2.5 },
+		{ "id": "tech_partner", "target": "random_crypto", "direction": "up", "weight": 1.5 },
+		{ "id": "bank_run", "target": "asset:BSNT", "direction": "down", "weight": 1.5 },
+		{ "id": "product_recall", "target": "asset:MPGN", "direction": "down", "weight": 1.5 },
+		{ "id": "audit_issue", "target": "random_stock", "direction": "down", "weight": 1.5 },
+		{ "id": "wallet_hack", "target": "random_crypto", "direction": "down", "weight": 2.5 }
+	]
+}

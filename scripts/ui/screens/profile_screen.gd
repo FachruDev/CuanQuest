@@ -1,6 +1,7 @@
 extends ScrollContainer
 ## Tab Profil (GDD 5.12, tema "Senja Cuan"): kartu pemain, profil risiko, target kemenangan,
-## daya beli (inflasi), statistik, perjalanan karier, riwayat permainan, simpan/muat, pengaturan, menu.
+## daya beli (inflasi), statistik, perjalanan karier, orang terdekat, rekam jejak riset, riwayat permainan,
+## simpan/muat, pengaturan, menu.
 
 signal glossary_requested
 signal text_requested(title: String, body: String)
@@ -16,6 +17,8 @@ var _confirm_reset := false
 var _reset_label: Label
 var _career_log_box: VBoxContainer  # perjalanan karier (v1.5b langkah 4)
 var _people_box: VBoxContainer  # orang terdekat (v1.5d)
+var _research_title: Label  # rekam jejak riset rumor (v1.5d langkah 2)
+var _research_box: VBoxContainer
 
 
 func _ready() -> void:
@@ -25,6 +28,7 @@ func _ready() -> void:
 	_build_history()
 	_build_career_log()
 	_build_people()
+	_build_research()
 	_build_menu()
 	GameState.changed.connect(_refresh)
 	visibility_changed.connect(_refresh)
@@ -71,6 +75,7 @@ func _refresh() -> void:
 	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_UNEMPLOYED", str(int(s["months_unemployed"]))))
 	UiText.fill_career_log(_career_log_box, 8)
 	_refresh_people()
+	_refresh_research()
 
 	for slot: String in _slot_labels:
 		_slot_labels[slot].text = SaveManager.slot_summary(slot)
@@ -405,6 +410,58 @@ func _refresh_people() -> void:
 	_people_box.add_child(_label(tr("PROFILE_PEOPLE_NOTE"), &"SmallMutedLabel"))
 	_people_box.get_child(-1).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_people_box.get_child(-1).custom_minimum_size.x = 1
+
+
+## Judul + kartu "Rekam Jejak Riset" setelah Orang Terdekat; tampil setelah rumor pertama beredar.
+func _build_research() -> void:
+	var page: VBoxContainer = $VBox
+	var index := _people_box.get_parent().get_index() + 1
+	_research_title = _label(tr("PROFILE_RESEARCH_TITLE"), &"SubSectionLabel")
+	var card := PanelContainer.new()
+	card.theme_type_variation = &"HomeCard"
+	_research_box = VBoxContainer.new()
+	_research_box.add_theme_constant_override("separation", 6)
+	card.add_child(_research_box)
+	page.add_child(_research_title)
+	page.move_child(_research_title, index)
+	page.add_child(card)
+	page.move_child(card, index + 1)
+
+
+## Jumlah rumor & yang terbukti, lalu akurasi nyata tiap tingkat riset dibanding tingkat keyakinannya.
+func _refresh_research() -> void:
+	var research := GameState.research
+	var record := research.record
+	var shown := int(record["rumors"]) > 0 or research.has_rumor()
+	_research_title.visible = shown
+	_research_box.get_parent().visible = shown
+	if not shown:
+		return
+	_clear(_research_box)
+	_research_box.add_child(_value_row(tr("PROFILE_RESEARCH_RUMORS"),
+		tr("PROFILE_RESEARCH_RUMORS_VALUE") % [int(record["rumors"]), int(record["true"])]))
+	for level: String in Research.LEVELS:
+		var done: Array = record[level]
+		var value := "-"
+		if int(done[0]) > 0:
+			value = tr("PROFILE_RESEARCH_VALUE") % [int(done[1]), int(done[0]), roundi(100.0 * done[1] / done[0])]
+		_research_box.add_child(_value_row(tr("RESEARCH_" + level.to_upper()) + " · "
+			+ tr("RESEARCH_ACCURACY") % roundi(research.accuracy(level) * 100.0), value))
+	if int(record["costs"]) > 0:
+		_research_box.add_child(_value_row(tr("PROFILE_RESEARCH_COSTS"), Fmt.rupiah(record["costs"])))
+	var note := _label(tr("PROFILE_RESEARCH_NOTE"), &"SmallMutedLabel")
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	note.custom_minimum_size.x = 1
+	_research_box.add_child(note)
+
+
+func _value_row(name: String, value: String) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	var name_label := _label(name, &"RowLabel")
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(name_label)
+	row.add_child(_label(value, &"RowValueLabel"))
+	return row
 
 
 func _stat_tile(key: String, value: String) -> PanelContainer:

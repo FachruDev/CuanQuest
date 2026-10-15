@@ -6,7 +6,7 @@ extends Node
 ## Jalankan (data asli aman karena --save-root):
 ##   Godot --headless --path . res://tools/balance/balance_sim.tscn -- --save-root=user://_sim/
 ##       [--games=40] [--years=30] [--persona=all|hemat|penabung|boros|spekulan|acak|pelajar|pengutang|pengendara|
-##       pembeli_rumah|pembeli_rumah_kota|pembeli_rumah_nekat]
+##       pembeli_rumah|pembeli_rumah_kota|pembeli_rumah_nekat|pemburu_rumor|periset]
 ##       [--difficulty=normal]
 ##       [--background=s1|d3|sma]
 ## Folder tools/ tidak ikut ke APK (exclude_filter di export_presets.cfg).
@@ -43,10 +43,18 @@ const PERSONAS := {
 	"pembeli_rumah_nekat": {"desc": "KPR Rumah Tipe 45 DP 10% tanpa cadangan, pilihan acak", "food": "standard",
 		"housing": "kos", "lifestyle": 0.1, "emergency": 0.0, "invest": 0.1, "insurance": {}, "choice": "random",
 		"quiz": false, "lump_invest": true, "homes": [["house45", "kpr", 0.1]], "home_buffer": 0.0},
+	"pemburu_rumor": {"desc": "Hemat + membeli setiap rumor naik tanpa riset", "food": "standard", "housing": "kos",
+		"lifestyle": 0.05, "emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"}, "choice": "prudent",
+		"quiz": true, "lump_invest": true, "activities": true, "rumors": "follow"},
+	"periset": {"desc": "Hemat + riset mendalam, membeli hanya jika riset mendukung", "food": "standard", "housing": "kos",
+		"lifestyle": 0.05, "emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"}, "choice": "prudent",
+		"quiz": true, "lump_invest": true, "activities": true, "rumors": "research"},
 }
 const CHECKPOINTS := [5, 10, 20, 30]
 
 var _rng := RandomNumberGenerator.new()
+var _rumor_position: Dictionary = {}  # aset yang dibeli karena rumor (v1.5d), dijual setelah rumor terjawab
+var _rumor_trades: Array[float] = []  # imbal hasil tiap transaksi rumor (0.05 = +5%)
 
 
 func _ready() -> void:
@@ -93,6 +101,8 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 		GameState.set_housing(p["housing"])
 	GameState.insurance.set_policies(p["insurance"])
 	_update_plan(p)
+	_rumor_position = {}
+	_rumor_trades.clear()
 	var snapshots := {}
 	var freedom_month := -1
 	var millionaire_month := -1
@@ -134,7 +144,9 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 		"reason": GameState.end_result.get("reason", "") if GameState.is_over else "",
 		"lost_month": GameState.month if GameState.is_over else -1,
 		"freedom_month": freedom_month, "millionaire_month": millionaire_month, "first_job_month": first_job_month,
-		"home_month": home_month, "default_month": default_month, "recovered_month": recovered_month}
+		"home_month": home_month, "default_month": default_month, "recovered_month": recovered_month,
+		"rumors": int(GameState.research.record["rumors"]), "rumor_trades": _rumor_trades.duplicate(),
+		"research": GameState.research.record.duplicate(true)}
 
 
 func _snapshot(start_salary: int) -> Dictionary:
@@ -339,6 +351,8 @@ func _monthly_actions(p: Dictionary) -> void:
 		_vehicle_actions(expenses)
 	if p.has("homes"):
 		_home_actions(p["homes"], expenses, float(p.get("home_buffer", 3.0)))
+	if p.has("rumors"):  # sebelum aktivitas: riset memakai energi
+		_rumor_actions(p["rumors"], expenses)
 	if p.get("courses", false) and GameState.career.skill < 80.0 and GameState.cash > expenses * 2:
 		GameState.activities.perform("course")
 	if p["quiz"]:
@@ -372,6 +386,38 @@ func _monthly_actions(p: Dictionary) -> void:
 			var held: Array = GameState.portfolio.holdings.keys()
 			var id: String = held[_rng.randi() % held.size()]
 			GameState.portfolio.sell(id, int(GameState.portfolio.holding_value(id) * 0.5))
+
+
+## Tipe pemain rumor (v1.5d langkah 2): "follow" membeli setiap rumor naik tanpa riset; "research" memakai
+## riset mendalam dan membeli hanya jika hasilnya mendukung (rumor naik "benar" atau rumor turun "hoaks").
+## Posisi dijual sebulan kemudian, setelah rumor terjawab.
+func _rumor_actions(style: String, expenses: float) -> void:
+	var research := GameState.research
+	if not _rumor_position.is_empty() and not (research.has_rumor()
+			and int(research.rumor["month"]) == int(_rumor_position["month"])):
+		var id: String = _rumor_position["asset"]
+		var value := minf(float(_rumor_position["units"]) * GameState.market.get_asset(id).price,
+			GameState.portfolio.holding_value(id))
+		var sold := GameState.portfolio.sell(id, ceili(value)) if value > 0.0 else {"ok": false}
+		if sold["ok"]:
+			_rumor_trades.append(float(sold["proceeds"]) / float(_rumor_position["paid"]) - 1.0)
+		_rumor_position = {}
+	if not research.has_rumor() or not _rumor_position.is_empty():
+		return
+	var rumor := research.rumor
+	var buy: bool = rumor["direction"] == "up"
+	if style == "research":
+		if research.block_reason("deep") == "":
+			research.research("deep")
+		if not research.is_researched("deep"):
+			return
+		buy = research.verdict("deep") == (rumor["direction"] == "up")
+	var amount := int(minf(GameState.cash - expenses * 2.0, GameState.net_worth() * 0.2))
+	if not buy or amount < 1_000_000:
+		return
+	var result := GameState.portfolio.buy(rumor["asset"], amount)
+	if result["ok"]:
+		_rumor_position = {"asset": rumor["asset"], "month": rumor["month"], "paid": amount, "units": result["units"]}
 
 
 ## Pemain yang rajin kuis: soal dasar terjawab di bulan 2, soal risiko di bulan 8
@@ -556,6 +602,7 @@ func _print_summary(persona: String, results: Array[Dictionary], years: int) -> 
 			return roundi(100.0 * finals.filter(func(f: Dictionary) -> bool: return f[key] > 0).size() / finals.size())
 		print("  tahun %d: terima tawaran kredit %d%% | restrukturisasi %d%% | take over KPR %d%%" % [
 			last, share.call("offer_loans"), share.call("restructures"), share.call("refinances")])
+	_print_rumors(results)
 	var defaults: Array = results.filter(func(r: Dictionary) -> bool: return r["default_month"] >= 0)
 	if not defaults.is_empty():
 		var recovered: Array = defaults.filter(func(r: Dictionary) -> bool: return r["recovered_month"] >= 0)
@@ -565,6 +612,34 @@ func _print_summary(persona: String, results: Array[Dictionary], years: int) -> 
 			defaults.size(), roundi(100.0 * recovered.size() / defaults.size()),
 			Fmt.number(_pct(waits, 0.5), 0) if not waits.is_empty() else "-",
 			defaults.filter(func(r: Dictionary) -> bool: return r["over"]).size()])
+
+
+## Rumor & riset (v1.5d langkah 2): jumlah rumor per permainan; untuk tipe pemain rumor juga hasil transaksinya.
+func _print_rumors(results: Array[Dictionary]) -> void:
+	var counts: Array = results.map(func(r: Dictionary) -> float: return float(r["rumors"]))
+	counts.sort()
+	var trades: Array[float] = []
+	var deep := [0, 0]
+	var costs: Array = []
+	for r: Dictionary in results:
+		trades.append_array(r["rumor_trades"])
+		deep[0] += int(r["research"]["deep"][0])
+		deep[1] += int(r["research"]["deep"][1])
+		costs.append(float(r["research"]["costs"]))
+	var line := "  rumor: %s per permainan (median)" % Fmt.number(_pct(counts, 0.5), 0)
+	if not trades.is_empty():
+		var total := 0.0
+		var wins := 0
+		for t: float in trades:
+			total += t
+			wins += 1 if t > 0.0 else 0
+		costs.sort()
+		line += " | transaksi rumor %d (%s/permainan) | imbal hasil rata-rata %s | untung %d%%" % [trades.size(),
+			Fmt.number(float(trades.size()) / results.size(), 1), Fmt.percent(total / trades.size()), roundi(100.0 * wins / trades.size())]
+		if deep[0] > 0:
+			line += " | riset mendalam tepat %d%% (%d) | biaya riset median %s" % [roundi(100.0 * deep[1] / deep[0]), deep[0],
+				Fmt.rupiah_short(_pct(costs, 0.5))]
+	print(line)
 
 
 ## "median Rp... (p10 ... p90 ...)"

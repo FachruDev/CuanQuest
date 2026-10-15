@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 15 Oktober 2026 (v1.5d langkah 1 tokoh berulang selesai)
+- **Terakhir diperbarui:** 15 Oktober 2026 (v1.5d langkah 2 riset pasar & rumor selesai)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -17,7 +17,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v1.5a** | Realisme ekonomi | ✅ 5/5 langkah |
 | **v1.5b** | Pekerjaan & karier (melamar kerja, keahlian, jenjang) | ✅ 5/5 langkah |
 | **v1.5c** | Utang, properti, hunian yang tumbuh | ✅ 5/5 langkah (aset final menyusul setelah v2) |
-| **v1.5d** | Tokoh, riset, kontrak, konten | 🔄 1/5 langkah |
+| **v1.5d** | Tokoh, riset, kontrak, konten | 🔄 2/5 langkah |
 | **v2a-v2d** | Instrumen lanjut, hidup penuh, dana investor, mini-game | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
 
@@ -367,7 +367,7 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.4 (ditulis 15 Oktober 202
 | Langkah | Isi | Status |
 |:--|:--|:--|
 | 1 | Tokoh berulang & rantai event: `data/characters.json`, kedekatan, 10 rantai, tokoh di popup event, kartu Orang Terdekat | ✅ |
-| 2 | Riset pasar & rumor: rumor benar/jebakan, riset dasar 55% & mendalam 75%, rekam jejak analis | ⬜ |
+| 2 | Riset pasar & rumor: rumor benar/jebakan, riset dasar 55% & mendalam 75%, rekam jejak analis | ✅ |
 | 3 | Kontrak & proyek sampingan: papan proyek, 3 strategi, tenggat 1-3 bulan | ⬜ |
 | 4 | Pencapaian (≥15), kosmetik (bingkai avatar & gelar), laporan tahunan | ⬜ |
 | 5 | Perluasan konten (±150 soal kuis, event pelengkap) & penyeimbangan | ⬜ |
@@ -382,9 +382,17 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.4 (ditulis 15 Oktober 202
 - ✅ Golden runner identik saat event baru dibuang; 57 uji tokoh + uji lama lulus
 - 🔁 Potret tokoh sementara lingkaran berwarna + inisial (lihat `docs/KEBUTUHAN_ASET.md`)
 
+**Langkah 2: Riset pasar & rumor** ✅
+- ✅ 10 jenis rumor di `data/rumors.json` (naik & turun, saham & kripto), hanya untuk aset yang sudah terbuka, ±4 kali setahun
+- ✅ Rumor menggerakkan harga saat beredar, lalu terbukti atau ternyata hoaks bulan berikutnya; rata-rata netral bagi harga jangka panjang
+- ✅ Kartu **Kabar Burung** di tab Pasar (daftar & detail aset): riset dasar (1 energi, 55%) dan riset mendalam (2 energi + biaya, 75%)
+- ✅ Bagian **Rumor & Riset** di laporan bulanan: terbukti/hoaks, harga sejak rumor, riset tepat/meleset, posisi pemain, pelajaran
+- ✅ Kartu **Rekam Jejak Riset** di Profil (akurasi nyata vs tingkat keyakinan), petunjuk pertama kali, 4 istilah glosarium baru
+- ✅ Simulator: tipe pemain `pemburu_rumor` & `periset`; golden runner identik saat rumor dimatikan; 108 uji riset + 621 uji lama lulus
+
 **Daftar fitur v1.5d**
 - ✅ 4-6 tokoh berulang di event dan rantai event
-- ⬜ Riset pasar (laporan analis dengan tingkat keyakinan)
+- ✅ Riset pasar (laporan analis dengan tingkat keyakinan)
 - ⬜ Kontrak dengan tenggat 1-3 bulan
 - ⬜ Minimal 15 pencapaian; tema & avatar dibuka lewat pencapaian
 - ⬜ Laporan tahunan
@@ -392,7 +400,7 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.4 (ditulis 15 Oktober 202
 
 **Kriteria selesai**
 - ✅ Minimal 10 rantai event dengan tokoh berulang
-- ⬜ Laporan analis benar/salah sesuai akurasi
+- ✅ Laporan analis benar/salah sesuai akurasi
 - ⬜ Event, soal, dan impian baru bisa ditambah lewat file data saja
 
 ## Penutup v1.5 ⬜

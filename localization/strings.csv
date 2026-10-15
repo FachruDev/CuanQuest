@@ -1082,3 +1082,71 @@ ADVICE_INVEST,"Mulailah investasi rutin tiap gajian, misalnya di reksa dana yang
 ADVICE_DIVERSIFY,%d%% investasimu ada di satu aset. Sebarkan ke beberapa instrumen untuk mengurangi risiko.,%d%% of your investments sit in one asset. Spread them across several instruments to reduce risk.
 ADVICE_HEALTHY,Keuanganmu sudah sehat! Pertahankan kebiasaan baik ini dan tinjau tujuan jangka panjangmu setiap tahun.,Your finances are healthy! Keep these habits and review your long-term goals every year.
 ADVICE_NO_EMERGENCY,Kamu belum punya dana darurat. Mulailah menyisihkan gaji sampai terkumpul 3-6 kali pengeluaran bulanan.,You have no emergency fund yet. Start setting aside part of your salary until you have 3-6x your monthly spending.
+RUMOR_GOV_CONTRACT,Kabarnya %s akan mendapat kontrak proyek pemerintah bernilai triliunan.,Word is %s will win a trillion-rupiah government project.
+RUMOR_GOV_CONTRACT_TRUE,Terbukti: %s resmi meneken kontrak proyek pemerintah.,Confirmed: %s officially signs the government contract.
+RUMOR_GOV_CONTRACT_FALSE,"Hoaks: %s membantah kabar kontrak pemerintah. Harga yang sudah ""digoreng"" berbalik anjlok.",Hoax: %s denies the government contract rumor. The pumped-up price collapses.
+RUMOR_TAKEOVER,Beredar kabar %s akan diakuisisi investor asing dengan harga premium.,Rumor has it %s will be acquired by a foreign investor at a premium.
+RUMOR_TAKEOVER_TRUE,Terbukti: akuisisi %s oleh investor asing resmi diumumkan.,Confirmed: the foreign takeover of %s is officially announced.
+RUMOR_TAKEOVER_FALSE,Hoaks: tidak ada rencana akuisisi %s. Investor yang ikut-ikutan membeli merugi.,Hoax: there is no takeover plan for %s. Investors who jumped in lose money.
+RUMOR_JUMBO_DIVIDEND,Bocoran di grup saham: %s akan membagi dividen jumbo.,Tip from a stock chat group: %s will pay a jumbo dividend.
+RUMOR_JUMBO_DIVIDEND_TRUE,Terbukti: %s mengumumkan dividen jumbo.,Confirmed: %s announces a jumbo dividend.
+RUMOR_JUMBO_DIVIDEND_FALSE,Hoaks: %s tidak membagi dividen jumbo. Harga berbalik turun.,Hoax: %s pays no jumbo dividend. The price turns down.
+RUMOR_NEW_RESERVE,Katanya %s menemukan cadangan batu bara baru yang sangat besar.,Supposedly %s has found a huge new coal reserve.
+RUMOR_NEW_RESERVE_TRUE,Terbukti: %s mengumumkan cadangan batu bara baru lewat keterbukaan informasi.,Confirmed: %s discloses a new coal reserve.
+RUMOR_NEW_RESERVE_FALSE,Hoaks: %s menyatakan tidak ada temuan cadangan baru. Harga anjlok.,Hoax: %s says there is no new reserve. The price slumps.
+RUMOR_EXCHANGE_LISTING,Kabarnya %s akan segera listing di bursa kripto terbesar dunia.,Word is %s will soon list on the world's largest crypto exchange.
+RUMOR_EXCHANGE_LISTING_TRUE,Terbukti: %s resmi listing di bursa kripto global.,Confirmed: %s officially lists on a global crypto exchange.
+RUMOR_EXCHANGE_LISTING_FALSE,Hoaks: bursa kripto global membantah akan listing %s. Harga terjun bebas.,Hoax: the global exchange denies listing %s. The price free-falls.
+RUMOR_TECH_PARTNER,Isu %s bermitra dengan raksasa teknologi ramai di media sosial.,Social media buzzes that %s is partnering with a tech giant.
+RUMOR_TECH_PARTNER_TRUE,Terbukti: kemitraan %s dengan raksasa teknologi diumumkan resmi.,Confirmed: %s officially announces the tech partnership.
+RUMOR_TECH_PARTNER_FALSE,Hoaks: raksasa teknologi itu tidak pernah bekerja sama dengan %s. Harga anjlok.,Hoax: the tech giant never partnered with %s. The price plunges.
+RUMOR_BANK_RUN,Isu %s kesulitan likuiditas beredar di grup chat keluarga.,Family chat groups spread rumors that %s is short of cash.
+RUMOR_BANK_RUN_TRUE,Terbukti: OJK memeriksa %s dan nasabah ramai menarik dana.,Confirmed: the regulator inspects %s as customers pull their money.
+RUMOR_BANK_RUN_FALSE,Hoaks: OJK memastikan likuiditas %s aman. Harga pulih.,Hoax: the regulator confirms %s is liquid. The price recovers.
+RUMOR_PRODUCT_RECALL,Kabarnya produk %s akan ditarik dari pasaran karena tidak aman.,Word is %s products will be recalled as unsafe.
+RUMOR_PRODUCT_RECALL_TRUE,Terbukti: BPOM meminta %s menarik produknya dari pasaran.,Confirmed: the food and drug agency orders %s to recall its products.
+RUMOR_PRODUCT_RECALL_FALSE,Hoaks: BPOM menyatakan produk %s aman dikonsumsi. Harga pulih.,Hoax: the food and drug agency says %s products are safe. The price recovers.
+RUMOR_AUDIT_ISSUE,Beredar isu laporan keuangan %s bermasalah.,Rumors say the financial statements of %s have problems.
+RUMOR_AUDIT_ISSUE_TRUE,Terbukti: auditor menemukan kejanggalan di laporan keuangan %s.,Confirmed: auditors find irregularities in the accounts of %s.
+RUMOR_AUDIT_ISSUE_FALSE,Hoaks: auditor menyatakan laporan keuangan %s wajar. Harga pulih.,Hoax: auditors give %s a clean opinion. The price recovers.
+RUMOR_WALLET_HACK,Isu dompet pengembang %s diretas beredar di media sosial.,Social media claims the developer wallet of %s was hacked.
+RUMOR_WALLET_HACK_TRUE,Terbukti: dompet pengembang %s memang diretas.,Confirmed: the developer wallet of %s was indeed hacked.
+RUMOR_WALLET_HACK_FALSE,Hoaks: pengembang %s memastikan dana aman. Harga pulih.,Hoax: the developers of %s confirm funds are safe. The price recovers.
+RUMOR_TAG,KABAR BURUNG,RUMOR
+RUMOR_PUMP_UP,Harga %s sempat naik %s saat kabar ini beredar. Benar atau hoaks akan ketahuan bulan depan.,%s jumped %s when this rumor spread. Whether it is true will be known next month.
+RUMOR_PUMP_DOWN,Harga %s sempat turun %s saat kabar ini beredar. Benar atau hoaks akan ketahuan bulan depan.,%s fell %s when this rumor spread. Whether it is true will be known next month.
+RUMOR_SEE_ASSET,Lihat %s,View %s
+RUMOR_NOTE,Riset dasar membaca laporan keuangan & keterbukaan informasi (tepat ±%d%%). Riset mendalam memakai laporan analis independen (tepat ±%d%%). Tidak ada riset yang pasti benar.,Basic research reads financial statements and public disclosures (right about %d%% of the time). Deep research uses independent analyst reports (right about %d%%). No research is ever certain.
+RUMOR_PROVEN,Terbukti benar,Proven true
+RUMOR_HOAX,Ternyata hoaks,Turned out a hoax
+RUMOR_LESSON_TRUE,"Rumor kadang benar, tetapi tidak bisa dipastikan sebelumnya. Riset membantu menimbang peluang, bukan menjamin hasil.","Rumors are sometimes true, but you cannot know in advance. Research helps you weigh the odds; it does not guarantee results."
+RUMOR_LESSON_FALSE,Harga yang bergerak karena rumor bisa berbalik tajam saat kabar dibantah. Cek keterbukaan informasi resmi sebelum ikut-ikutan.,Prices moved by rumors can reverse sharply once the news is denied. Check official disclosures before following the crowd.
+RESEARCH_BASIC,Riset dasar,Basic research
+RESEARCH_DEEP,Riset mendalam,Deep research
+RESEARCH_ACCURACY,keyakinan %d%%,%d%% confidence
+RESEARCH_ENERGY,%d energi,%d energy
+RESEARCH_SAYS_TRUE,Kemungkinan benar,Likely true
+RESEARCH_SAYS_FALSE,Kemungkinan hoaks,Likely a hoax
+RESEARCH_CORRECT,Tepat,Correct
+RESEARCH_WRONG,Meleset,Wrong
+ERR_NO_RUMOR,Tidak ada rumor yang sedang beredar.,No rumor is going around right now.
+ERR_RESEARCH_DONE,Riset ini sudah dilakukan.,You already did this research.
+REPORT_RUMOR,RUMOR & RISET,RUMORS & RESEARCH
+REPORT_RUMOR_RESULT,Rumor %s,%s rumor
+REPORT_RUMOR_CHANGE,Harga %s sejak rumor,%s since the rumor
+REPORT_RESEARCH,%s: %s,%s: %s
+REPORT_RUMOR_NO_RESEARCH,Kamu tidak meriset rumor ini.,You did not research this rumor.
+REPORT_RUMOR_BOUGHT,Kamu membeli %s saat rumor beredar.,You bought %s while the rumor was spreading.
+REPORT_RUMOR_SOLD,Kamu menjual %s saat rumor beredar.,You sold %s while the rumor was spreading.
+REPORT_RUMOR_HELD,Kamu menahan %s tanpa transaksi.,You held %s without trading.
+HINT_RUMOR,"Ada kabar burung di tab Pasar! Rumor bisa benar, bisa juga jebakan saham ""gorengan"": harganya dinaikkan duluan, lalu anjlok saat kabarnya dibantah.
+
+Sebelum ikut membeli atau panik menjual, kamu bisa meriset: riset dasar (1 energi, tepat ±55%) atau riset mendalam (2 energi + biaya, tepat ±75%). Benar atau tidaknya ketahuan bulan depan.","There is a rumor in the Market tab! Rumors may be true, or a pump-and-dump trap: the price is pushed up first, then collapses when the news is denied.
+
+Before buying in or panic selling, you can research it: basic research (1 energy, right about 55%) or deep research (2 energy + a fee, right about 75%). You will know next month whether it was true."
+PROFILE_RESEARCH_TITLE,Rekam Jejak Riset,Research Track Record
+PROFILE_RESEARCH_RUMORS,Rumor beredar,Rumors
+PROFILE_RESEARCH_RUMORS_VALUE,%d (%d terbukti),%d (%d true)
+PROFILE_RESEARCH_VALUE,%d/%d tepat (%d%%),%d/%d correct (%d%%)
+PROFILE_RESEARCH_COSTS,Biaya riset,Research costs
+PROFILE_RESEARCH_NOTE,"Akurasi nyata baru mendekati tingkat keyakinan setelah banyak riset. Dari beberapa riset saja, hasilnya bisa jauh lebih baik atau lebih buruk karena kebetulan.","Real accuracy only approaches the confidence level after many studies. With just a few, results can be much better or worse by chance."

@@ -28,6 +28,7 @@ data/
   economy.json                Gaji, modal awal, pilihan makan & tempat tinggal (untuk balancing)
   market.json                 Siklus pasar, suku bunga acuan, peluang berita
   news.json                   Template berita pasar & dampaknya ke harga
+  rumors.json                 Rumor pasar (v1.5d): peluang, gerak harga benar/jebakan, riset dasar & mendalam
   events/<kategori>.json      90 event hidup per kategori (finance, work, education, health, social,
                               market, scam, property, debt): syarat, pilihan, efek, tokoh. Cara menambah:
                               docs/PANDUAN_EVENT.md
@@ -39,7 +40,7 @@ data/
   jobs.json                   Pekerjaan (bidang, jenjang, syarat, gaji, beban kerja) & aturan lowongan
   education.json              Program kuliah (syarat, lama, biaya, hasil) & beban kuliah
   quiz.json                   39 soal kuis (4 topik)
-  glossary.json               67 istilah glosarium
+  glossary.json               71 istilah glosarium
   legal.json                  Kebijakan privasi & syarat penggunaan (tampil di game)
   activities.json             6 aktivitas bulanan & aturan energi
   risk_profile.json           Kuesioner & 3 profil risiko
@@ -64,6 +65,7 @@ scripts/
     vehicles.gd               Kendaraan: nilai menyusut, biaya rutin, beli tunai/kredit, jual, ditarik
     properties.gd             Properti: harga, beli tunai/KPR, dihuni/disewakan, jual, dilelang
     characters.gd             Tokoh berulang: kedekatan, nama atasan/rekan per perusahaan, saran Kak Wulan
+    research.gd               Rumor pasar & riset: rumor benar/jebakan, penilaian riset, rekam jejak
     insurance.gd, dreams.gd, targets.gd, activities.gd, progress.gd
     life_events.gd            Event Director: jadwal event, antrean, keputusan, efek tertunda
   core/                       Logika murni tanpa UI (mudah dites)
@@ -114,6 +116,11 @@ scenes/
 | `targets` | `Targets` | Target bulanan |
 | `activities` | `Activities` | Energi & aktivitas bulanan |
 | `progress` | `Progress` | XP, level, tahap unlock, hadiah kuis |
+| `debt` | `Debt` | Pinjaman, cicilan, tunggakan, macet, skor kredit (v1.5c) |
+| `vehicles` | `Vehicles` | Kendaraan: nilai menyusut, biaya rutin, kredit, ditarik (v1.5c) |
+| `properties` | `Properties` | Properti, KPR, sewa, jual, lelang (v1.5c) |
+| `characters` | `Characters` | Tokoh berulang & kedekatan (v1.5d) |
+| `research` | `Research` | Rumor pasar, riset dasar & mendalam, rekam jejak riset (v1.5d) |
 
 **Yang tetap di GameState:** profil, `month`, `cash`, `health`, `happiness`, `stats`, `market`, `rng`, signal, `new_game()`, `advance_month()` (orkestrasi bulanan), `apply_effects()`, `to_dict()`/`load_from_dict()`, harga & pajak (`nominal()`, `income_tax()`), dan kondisi menang/kalah.
 
@@ -197,7 +204,7 @@ scenes/
   - [x] (5) Penyeimbangan (tawaran KTA, rumah subsidi, skor setelah macet)
 - [ ] **v1.5d "Tokoh, Riset, Kontrak, Konten"**:
   - [x] (1) Tokoh berulang & 10 rantai event
-  - [ ] (2) Riset pasar & rumor
+  - [x] (2) Riset pasar & rumor
   - [ ] (3) Kontrak & proyek sampingan
   - [ ] (4) Pencapaian, kosmetik & laporan tahunan
   - [ ] (5) Perluasan konten & penyeimbangan
@@ -288,6 +295,18 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Save:** kunci baru `relationships`, `people_met`, `work_company` (save lama: kedekatan awal).
 - **Golden runner:** dengan 32 event baru dibuang, permainan identik dengan v1.5c.
 - **Simulator:** pilihan event kini juga menilai kedekatan (`rel` x 0,15). Event Evaluasi Kinerja diperkecil (kenaikan 3%, peluang 60%, jeda 36 bulan, maksimal 4 kali) setelah simulator menemukan gaji riil S1 hemat x5,6 dalam 30 tahun; kini x4,7 (target x4-5). Tahun bebas finansial praktis tidak berubah: S1 hemat 12,5, S1 pelajar 10,6, SMA hemat 18,4.
+
+## Rumor Pasar & Riset (v1.5d langkah 2)
+
+- **Data:** `data/rumors.json`: peluang rumor per bulan (`chance` 0,5), jeda setelah rumor terjawab (`cooldown_months`), gerak harga per arah (`directions.up/down`: peluang benar, `pump` saat beredar, `true_move` jika benar, `trap_move` jika jebakan), pengali kripto (`class_scale`), biaya & akurasi riset (`research.basic/deep`), dan 10 jenis rumor (`target`: `asset:ID`, `random_stock`, `random_crypto`). Teks: `RUMOR_<ID>`, `RUMOR_<ID>_TRUE`, `RUMOR_<ID>_FALSE` di CSV.
+- **Modul** `GameState.research` (`scripts/game/research.gd`, kelas `Research`), RNG sendiri. Setiap `advance_month()`: `market_input(bulan)` menjawab rumor yang beredar (guncangan `outcome` + berita Terbukti/Hoaks) atau mungkin memunculkan rumor baru (guncangan `pump` + berita), lalu hasilnya diteruskan ke `Market.step(bulan, extra)`. `after_market()` mencatat posisi awal pemain dan hasil rumor untuk laporan (`report.rumors`). Analogi web: layanan terpisah yang menyuntikkan data ke pipeline harga tanpa mengubah pipeline-nya.
+- **Riset:** `research("basic" | "deep")` memakai energi bulanan (dan biaya untuk riset mendalam). Penilaian "kemungkinan benar / hoaks" sudah diundi saat rumor muncul (`verdicts`), tepat dengan peluang 55% / 75%, sehingga tidak bisa diundi ulang. Rekam jejak (`record`) dihitung saat rumor terjawab.
+- **UI:** kartu **Kabar Burung** di atas berita tab Pasar dan di detail aset yang dirumorkan (teks rumor, gerak harga, tombol riset, hasil riset), bagian **Rumor & Riset** di laporan bulanan, kartu **Rekam Jejak Riset** di Profil (muncul setelah rumor pertama), petunjuk `HINT_RUMOR` saat rumor pertama muncul.
+- **Save:** kunci baru `rumor`, `research_record`, `rumor_last`, `research_rng` (save lama: tanpa rumor).
+- **Golden runner:** dengan `chance` 0 permainan identik dengan langkah 1, karena pasar tidak memakai RNG riset.
+- **Simulator:** tipe pemain `pemburu_rumor` (hemat + membeli setiap rumor naik tanpa riset) dan `periset` (hemat + riset mendalam, membeli jika hasilnya mendukung); ringkasan mencetak jumlah rumor, transaksi rumor, imbal hasil rata-rata, dan akurasi riset.
+- **Hasil simulator** (S1, 40 permainan × 30 tahun): ±114 rumor per permainan. Pemburu rumor rata-rata -2,0% per transaksi (43% untung); periset +6,3% (62% untung, akurasi nyata 75%, biaya riset Rp155 jt); pemain hemat tidak terpengaruh (bebas finansial tahun 12,6). Riset membantu, tetapi tidak mengubah tempo permainan.
+- **Menambah rumor:** salin satu baris di `rumors` (`id`, `target`, `direction`, `weight`), lalu tambahkan tiga teksnya di CSV.
 
 ## Penyeimbangan Utang, Properti & Hunian (v1.5c langkah 5)
 

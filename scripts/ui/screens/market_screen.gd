@@ -1,7 +1,7 @@
 extends MarginContainer
 ## Tab Pasar (tema "Senja Cuan"). Dua "view" dalam satu scene (mirip route /market dan /market/:id):
-## - ListView  : berita terbaru, kondisi pasar, daftar aset per kelas
-## - DetailView: grafik/info bunga + beli/jual untuk satu aset
+## - ListView  : rumor yang beredar, berita terbaru, kondisi pasar, daftar aset per kelas
+## - DetailView: grafik/info bunga + beli/jual untuk satu aset (+ rumor jika aset ini dirumorkan)
 ## Node yang diawali "%" adalah "unique name" di scene (mirip document.getElementById).
 
 const QUICK_PERCENTS := [0.25, 0.5, 1.0]
@@ -21,6 +21,8 @@ signal order_requested(asset_id: String)
 var mode := Mode.BUY
 var _selected_id := ""
 var _rows: Dictionary = {}  # asset_id -> { "button": Button, "risk": Label, "price": Label, "change": Label }
+var _rumor_cards: Dictionary = {}  # "list" / "detail" -> kartu rumor yang sedang tampil (v1.5d)
+var _rumor_error := ""  # pesan riset gagal terakhir (mis. energi habis)
 
 
 func _ready() -> void:
@@ -140,6 +142,7 @@ func _refresh_list() -> void:
 
 	_refresh_mood(market)
 	_refresh_news(market)
+	_refresh_rumor("list")
 
 
 ## Chip kondisi pasar: tren saham, tren kripto, suku bunga acuan, inflasi.
@@ -179,10 +182,100 @@ func _refresh_news(market: Market) -> void:
 		%NewsList.add_child(row)
 
 
+# --- Rumor & riset (v1.5d langkah 2) -----------------------------------------------
+
+## Kartu rumor di atas berita (daftar) atau di bawah judul aset yang dirumorkan (detail).
+func _refresh_rumor(where: String) -> void:
+	if _rumor_cards.has(where):
+		var old: Control = _rumor_cards[where]
+		old.get_parent().remove_child(old)
+		old.queue_free()
+		_rumor_cards.erase(where)
+	var research := GameState.research
+	if not research.has_rumor() or (where == "detail" and research.rumor["asset"] != _selected_id):
+		return
+	var card := _rumor_card(where == "list")
+	var page: VBoxContainer = %ListView.get_node("VBox") if where == "list" else %DetailView.get_node("VBox")
+	page.add_child(card)
+	page.move_child(card, 0 if where == "list" else 1)  # detail: setelah baris judul
+	_rumor_cards[where] = card
+
+
+## Teks rumor, gerak harga saat rumor beredar, hasil riset yang sudah dilakukan, tombol riset.
+func _rumor_card(with_link: bool) -> PanelContainer:
+	var research := GameState.research
+	var rumor := research.rumor
+	var asset := GameState.market.get_asset(rumor["asset"])
+	var card := PanelContainer.new()
+	card.theme_type_variation = &"HomeCard"
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 8)
+	card.add_child(box)
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 10)
+	head.add_child(_make_chip(tr("RUMOR_TAG"), &"MoodGold"))
+	var date := _make_label(Fmt.game_date(int(rumor["month"])), &"SmallMutedLabel")
+	date.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	head.add_child(date)
+	box.add_child(head)
+	box.add_child(_wrap_label(tr("RUMOR_" + str(rumor["id"]).to_upper()) % tr(asset.name_key), &"AssetNameLabel"))
+	var pump := float(rumor["pump"])
+	box.add_child(_wrap_label(tr("RUMOR_PUMP_UP" if pump >= 0.0 else "RUMOR_PUMP_DOWN") % [asset.id,
+		Fmt.percent_plain(absf(pump))], &"SmallMutedLabel"))
+
+	var buttons := HBoxContainer.new()
+	buttons.add_theme_constant_override("separation", 10)
+	for level: String in Research.LEVELS:
+		var accuracy := roundi(research.accuracy(level) * 100.0)
+		if research.is_researched(level):
+			var row := HBoxContainer.new()
+			var name_label := _make_label(tr("RESEARCH_" + level.to_upper()) + " · " + tr("RESEARCH_ACCURACY") % accuracy, &"RowLabel")
+			name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			row.add_child(name_label)
+			var verdict := _make_label(tr("RESEARCH_SAYS_TRUE" if research.verdict(level) else "RESEARCH_SAYS_FALSE"), &"RowValueLabel")
+			row.add_child(verdict)
+			box.add_child(row)
+			continue
+		var cost := research.cost(level)
+		var price_text := tr("RESEARCH_ENERGY") % int(research.level_def(level)["energy"])
+		if cost > 0:
+			price_text += " · " + UiText.amount_short(cost)
+		var deep := level == "deep"
+		var button := UiText.chunky_button("%s\n%s" % [tr("RESEARCH_" + level.to_upper()), price_text],
+			&"PrimaryButton" if deep else &"NeutralButton", &"PrimaryButtonLabel" if deep else &"NeutralButtonLabel", 76.0, 18)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.pressed.connect(_on_research.bind(level))
+		buttons.add_child(button)
+	if buttons.get_child_count() > 0:
+		box.add_child(buttons)
+	if _rumor_error != "":
+		var error := _wrap_label(_rumor_error, &"SmallMutedLabel")
+		error.add_theme_color_override("font_color", Palette.LOSS)
+		box.add_child(error)
+	if with_link:
+		var link := UiText.chunky_button(tr("RUMOR_SEE_ASSET") % asset.id, &"NeutralButton", &"NeutralButtonLabel", 60.0, 18)
+		link.pressed.connect(_show_detail.bind(asset.id))
+		box.add_child(link)
+	box.add_child(_wrap_label(tr("RUMOR_NOTE") % [roundi(research.accuracy("basic") * 100.0),
+		roundi(research.accuracy("deep") * 100.0)], &"SmallMutedLabel"))
+	return card
+
+
+func _on_research(level: String) -> void:
+	var result := GameState.research.research(level)
+	_rumor_error = "" if result["ok"] else tr(result["error"])
+	if result["ok"]:
+		Sfx.play("success")
+	else:
+		Sfx.play("fail")
+		_refresh()  # sukses sudah memicu GameState.changed
+
+
 # --- Detail view --------------------------------------------------------------
 
 func _show_detail(asset_id: String) -> void:
 	_selected_id = asset_id
+	_rumor_error = ""
 	%ListView.hide()
 	%DetailView.show()
 	%DetailView.scroll_vertical = 0
@@ -231,6 +324,7 @@ func _refresh_detail() -> void:
 			info += "\n" + tr("INFO_TAX") % [Fmt.percent_plain(asset.buy_tax), Fmt.percent_plain(asset.sell_tax)]
 		%InfoLabel.text = info
 
+	_refresh_rumor("detail")
 	var unlocked := GameState.progress.is_asset_unlocked(_selected_id)
 	%TradeBox.visible = unlocked
 	%LockedBox.visible = not unlocked
@@ -333,6 +427,13 @@ func _make_label(text: String, variation: StringName) -> Label:
 	label.text = text
 	label.theme_type_variation = variation
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return label
+
+
+func _wrap_label(text: String, variation: StringName) -> Label:
+	var label := _make_label(text, variation)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.custom_minimum_size.x = 1  # biarkan kartu menentukan lebar, teks yang membungkus
 	return label
 
 
