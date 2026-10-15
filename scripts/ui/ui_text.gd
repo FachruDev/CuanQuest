@@ -5,9 +5,12 @@ extends RefCounted
 ## Warna kotak ikon per kelas aset (nama file ikon = id kelas di data/assets.json).
 const CLASS_TILES := {
 	"savings": &"IconTileBlue", "deposit": &"IconTileMint", "mutual_fund": &"IconTileGold",
-	"stock": &"IconTileCoral", "crypto": &"IconTilePurple",
+	"stock": &"IconTileCoral", "crypto": &"IconTilePurple", "commodity": &"IconTileTeal",
 }
 const CLASS_ICON := "res://assets/icons/classes/%s.svg"
+## Kelas aset baru (v2a) memakai ikon lain sampai ikonnya dibuat (lihat docs/KEBUTUHAN_ASET.md).
+const CLASS_ICON_FALLBACKS := {"commodity": "res://assets/icons/trend_line.svg"}
+const SEASON_THRESHOLD := 0.10  # tambahan drift tahunan minimal agar satu bulan disebut "menguat"/"melemah"
 ## Ikon bidang pekerjaan: assets/icons/tracks/<bidang>.svg. Sebelum aset itu dibuat, tiap bidang
 ## memakai ikon lain yang berbeda agar tetap mudah dibedakan (lihat docs/KEBUTUHAN_ASET.md).
 const TRACK_ICON := "res://assets/icons/tracks/%s.svg"
@@ -403,7 +406,51 @@ static func build_period_buttons(row: HBoxContainer, chart: PriceChart, default_
 
 ## Kotak ikon berwarna untuk satu kelas aset (tabungan, deposito, reksa dana, saham, kripto).
 static func class_tile(asset_class: String, tile_size := 48.0) -> PanelContainer:
-	return icon_tile(CLASS_ICON % asset_class, CLASS_TILES.get(asset_class, &"IconTileGold"), tile_size)
+	var path := CLASS_ICON % asset_class
+	if not ResourceLoader.exists(path):
+		path = CLASS_ICON_FALLBACKS.get(asset_class, path)
+	return icon_tile(path, CLASS_TILES.get(asset_class, &"IconTileGold"), tile_size)
+
+
+## Teks pola musiman aset (v2a), mis. "cenderung menguat Nov-Mar, cenderung melemah Mei-Sep".
+## Kosong jika aset tidak punya pola musiman.
+static func season_text(asset: MarketAsset) -> String:
+	if asset.seasonal.size() != 12:
+		return ""
+	return _t("INFO_SEASON") % [_month_ranges(asset.seasonal, 1.0), _month_ranges(asset.seasonal, -1.0)]
+
+
+## Bulan berurutan (melingkar Des -> Jan) yang drift musimannya searah `sign` dan cukup besar,
+## digabung menjadi rentang "Nov-Mar". Beberapa rentang dipisah koma.
+static func _month_ranges(seasonal: Array[float], sign: float) -> String:
+	var hit: Array[bool] = []
+	for value in seasonal:
+		hit.append(value * sign >= SEASON_THRESHOLD)
+	if not hit.has(true):
+		return "-"
+	if not hit.has(false):
+		return "%s-%s" % [_month_short(0), _month_short(11)]
+	var start := 0
+	while hit[posmod(start - 1, 12)]:  # mulai tepat setelah bulan yang tidak termasuk, agar rentang tidak terpotong
+		start += 1
+	var parts: PackedStringArray = []
+	var i := 0
+	while i < 12:
+		var m := (start + i) % 12
+		if not hit[m]:
+			i += 1
+			continue
+		var first := m
+		while i + 1 < 12 and hit[(start + i + 1) % 12]:
+			i += 1
+		var last := (start + i) % 12
+		parts.append(_month_short(first) if first == last else "%s-%s" % [_month_short(first), _month_short(last)])
+		i += 1
+	return ", ".join(parts)
+
+
+static func _month_short(month_of_year: int) -> String:
+	return _t("MONTH_%d" % (month_of_year + 1)).substr(0, 3)
 
 
 ## Kotak berwarna (variasi tema `variation`) berisi ikon SVG di tengah. Ikon dilewati jika filenya belum ada.

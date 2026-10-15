@@ -186,7 +186,7 @@ func context_flags() -> Dictionary:
 	var crypto := false
 	for asset_id: String in gs.portfolio.holdings:
 		var asset_class := gs.market.get_asset(asset_id).asset_class
-		risky = risky or asset_class in ["stock", "crypto"]
+		risky = risky or asset_class in ["stock", "crypto", "commodity"]
 		crypto = crypto or asset_class == "crypto"
 	return {
 		"cash_rich": gs.cash >= expenses * float(cfg["cash_rich_months"]),

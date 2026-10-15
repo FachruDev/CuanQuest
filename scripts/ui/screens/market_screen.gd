@@ -5,7 +5,7 @@ extends MarginContainer
 ## Node yang diawali "%" adalah "unique name" di scene (mirip document.getElementById).
 
 const QUICK_PERCENTS := [0.25, 0.5, 1.0]
-const CLASS_ORDER := ["savings", "deposit", "mutual_fund", "stock", "crypto"]
+const CLASS_ORDER := ["savings", "deposit", "mutual_fund", "stock", "crypto", "commodity"]
 ## Warna teks risiko 1-5 (cukup gelap agar terbaca di kartu putih).
 const RISK_COLORS := [Color("#1e7f5c"), Color("#1e7f5c"), Color("#a86a12"), Color("#c25a1e"), Color("#c2452d")]
 const REGIME_CHIPS := {"bull": &"MoodGreen", "sideways": &"MoodNeutral", "bear": &"MoodRed"}
@@ -148,12 +148,15 @@ func _refresh_list() -> void:
 	_refresh_rumor("list")
 
 
-## Chip kondisi pasar: tren saham, tren kripto, suku bunga acuan, inflasi.
+## Chip kondisi pasar: tren saham, tren kripto, tren komoditas (setelah tahap 4 terbuka), suku bunga acuan, inflasi.
 func _refresh_mood(market: Market) -> void:
 	for child in %MoodRow.get_children():
 		%MoodRow.remove_child(child)
 		child.queue_free()
-	for kind: String in ["stock", "crypto"]:
+	var kinds := ["stock", "crypto"]
+	if GameState.progress.is_stage_unlocked(4):
+		kinds.append("commodity")
+	for kind: String in kinds:
 		var regime := market.regime_of(kind)
 		var text := tr("MARKET_MOOD_" + kind.to_upper()) % tr("REGIME_" + regime.to_upper())
 		%MoodRow.add_child(_make_chip(text, REGIME_CHIPS.get(regime, &"MoodNeutral")))
@@ -294,6 +297,9 @@ func _refresh_detail() -> void:
 	%ClassLabel.text = "%s · %s" % [tr("CLASS_" + asset.asset_class.to_upper()), tr("RISK_%d" % asset.risk)]
 	%ClassLabel.add_theme_color_override("font_color", RISK_COLORS[asset.risk - 1])
 	%DescLabel.text = tr("DESC_" + asset.asset_class.to_upper())
+	var asset_desc := "DESC_" + asset.name_key  # penjelasan khusus aset (komoditas, v2a)
+	if tr(asset_desc) != asset_desc:
+		%DescLabel.text += "\n\n" + tr(asset_desc)
 	%RiskWarning.visible = GameState.portfolio.exceeds_risk_profile(asset)
 	%RiskWarningLabel.text = tr("MARKET_RISK_WARNING") % tr(GameState.portfolio.risk_profile()["name"])
 
@@ -325,6 +331,11 @@ func _refresh_detail() -> void:
 			Fmt.percent_plain(asset.sell_fee)]
 		if asset.buy_tax > 0.0 or asset.sell_tax > 0.0:
 			info += "\n" + tr("INFO_TAX") % [Fmt.percent_plain(asset.buy_tax), Fmt.percent_plain(asset.sell_tax)]
+		if asset.unit_key != "":
+			info += "\n" + tr("INFO_UNIT") % tr(asset.unit_key)
+		var season := UiText.season_text(asset)
+		if season != "":
+			info += "\n" + season
 		%InfoLabel.text = info
 
 	_refresh_rumor("detail")

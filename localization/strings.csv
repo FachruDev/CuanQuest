@@ -149,8 +149,8 @@ MSG_WITHDRAW_OK,"Berhasil cairkan, uang masuk %s (biaya %s).","Withdrawn, receiv
 ERR_LOCKED,Instrumen ini belum terbuka.,This instrument is still locked.
 STAGE_1,Tahap 1: Dasar,Stage 1: Basics
 STAGE_2,Tahap 2: Reksa Dana Saham,Stage 2: Equity Funds
-STAGE_3,Tahap 3: Saham,Stage 3: Stocks
-STAGE_4,Tahap 4: Kripto,Stage 4: Crypto
+STAGE_3,Tahap 3: Saham & Emas,Stage 3: Stocks & Gold
+STAGE_4,Tahap 4: Kripto & Komoditas,Stage 4: Crypto & Commodities
 REQ_DONE,[OK],[OK]
 REQ_TODO,[  ],[  ]
 REQ_EMERGENCY,Dana darurat %d bulan: %s / %s,Emergency fund %d months: %s / %s
@@ -1341,3 +1341,36 @@ PROFILE_SESSIONS_AVERAGE,Rata-rata %d sesi terakhir,Average of the last %d sessi
 PROFILE_SESSIONS_MONTHS,%s bulan,%s months
 PROFILE_SESSION_ROW,%s · %d menit,%s · %d min
 PROFILE_SESSIONS_NOTE,Sesi baru dimulai jika kamu kembali bermain setelah jeda 15 menit. Data ini hanya disimpan di perangkatmu.,A new session starts when you come back after a 15-minute break. This data stays on your device.
+ASSET_EMAS,Emas Batangan,Gold Bar
+ASSET_MINYAK,Minyak Mentah,Crude Oil
+ASSET_CPO,Minyak Sawit (CPO),Palm Oil (CPO)
+ASSET_KOPI,Kopi Robusta,Robusta Coffee
+CLASS_COMMODITY,KOMODITAS,COMMODITIES
+DESC_COMMODITY,"Barang mentah yang diperdagangkan di pasar dunia. Harganya mengikuti siklus komoditas, cuaca, musim, dan berita global. Di game ini dibeli tunai (disederhanakan).","Raw goods traded on world markets. Prices follow the commodity cycle, weather, seasons, and global news. Bought with cash in this game (simplified)."
+DESC_ASSET_EMAS,"Sering dianggap tempat berlindung: cenderung naik saat bursa panik atau inflasi naik, tertekan saat suku bunga naik. Selisih harga beli dan jual sekitar 2%, jadi lebih cocok untuk jangka panjang.","Often seen as a safe haven: tends to rise when stocks panic or inflation climbs, and weakens when interest rates rise. The buy-sell spread is about 2%, so it suits the long term."
+DESC_ASSET_MINYAK,"Bergerak mengikuti siklus komoditas dunia, keputusan OPEC+, dan konflik. Gejolaknya tinggi; kenaikan harga BBM sering ikut mengangkatnya.","Follows the global commodity cycle, OPEC+ decisions, and conflicts. Very volatile; fuel price hikes often lift it too."
+DESC_ASSET_CPO,"Indonesia adalah produsen sawit terbesar dunia. Harganya dipengaruhi musim produksi, cuaca (El Niño), program biodiesel, dan kebijakan ekspor.","Indonesia is the world's largest palm oil producer. Prices depend on the production season, weather (El Niño), biodiesel programs, and export policy."
+DESC_ASSET_KOPI,"Harganya dipengaruhi musim panen di Indonesia, Vietnam, dan Brasil, serta cuaca. Bisa melonjak tajam saat panen gagal.","Prices depend on harvest seasons in Indonesia, Vietnam, and Brazil, plus the weather. Can spike when harvests fail."
+UNIT_GRAM,gram,gram
+UNIT_BARREL,barel,barrel
+UNIT_TON,ton,ton
+UNIT_KG,kg,kg
+INFO_UNIT,1 unit = 1 %s,1 unit = 1 %s
+INFO_SEASON,"Pola musiman: cenderung menguat %s, cenderung melemah %s. Hanya kecenderungan, bukan kepastian.","Seasonal pattern: tends to strengthen %s and weaken %s. Only a tendency, not a certainty."
+MARKET_MOOD_COMMODITY,Komoditas: %s,Commodities: %s
+NEWS_REGIME_COMMODITY_BULL,Harga komoditas dunia memasuki siklus naik.,Global commodity prices enter an upcycle.
+NEWS_REGIME_COMMODITY_SIDEWAYS,Harga komoditas dunia bergerak datar.,Global commodity prices move sideways.
+NEWS_REGIME_COMMODITY_BEAR,Harga komoditas dunia memasuki siklus turun.,Global commodity prices enter a downcycle.
+NEWS_CMD_OPEC_CUT,OPEC+ sepakat memangkas produksi. Harga %s melonjak.,OPEC+ agrees to cut output. %s jumps.
+NEWS_CMD_OIL_GLUT,Pasokan minyak dunia berlimpah. Harga %s merosot.,Global oil supply is plentiful. %s slides.
+NEWS_CMD_CONFLICT,"Konflik di Timur Tengah memanas. Harga %s melonjak, emas ikut diburu.",Middle East tensions flare. %s jumps and gold is in demand.
+NEWS_CMD_EL_NINO,El Niño membawa kemarau panjang. Harga %s dan sawit naik karena panen terancam.,El Niño brings a long drought. %s and palm oil rise as harvests are at risk.
+NEWS_CMD_BRAZIL_FROST,Embun beku merusak kebun kopi di Brasil. Harga %s melonjak.,Frost damages coffee farms in Brazil. %s soars.
+NEWS_CMD_COFFEE_BUMPER,Panen kopi melimpah di Vietnam dan Lampung. Harga %s turun.,Bumper coffee harvests in Vietnam and Lampung. %s falls.
+NEWS_CMD_BIODIESEL,Program biodiesel diperluas sehingga lebih banyak sawit terserap. Harga %s naik.,The biodiesel program expands and absorbs more palm oil. %s rises.
+NEWS_CMD_EXPORT_LIMIT,Pemerintah membatasi ekspor minyak sawit. Harga %s dunia melonjak.,The government limits palm oil exports. World %s prices jump.
+NEWS_CMD_CPO_DEMAND_WEAK,Permintaan minyak sawit dari India dan Tiongkok melemah. %s tertekan.,Palm oil demand from India and China weakens. %s under pressure.
+NEWS_CMD_GOLD_BUYING,Bank-bank sentral dunia memborong emas. Harga %s naik.,Central banks around the world buy gold. %s rises.
+NEWS_CMD_GOLD_PROFIT,%s terkoreksi setelah reli panjang; banyak yang mengambil untung.,%s pulls back after a long rally as investors take profit.
+NEWS_CMD_CHINA_SLOWDOWN,Ekonomi Tiongkok melambat. Harga komoditas dunia turun.,China's economy slows. Global commodity prices fall.
+NEWS_CMD_CHINA_STIMULUS,Tiongkok menggelontorkan stimulus ekonomi. Harga komoditas dunia naik.,China launches an economic stimulus. Global commodity prices rise.

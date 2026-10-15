@@ -10,8 +10,11 @@ const DAILY_KEEP_MONTHS := 24    # riwayat harian yang disimpan; sisanya cukup p
 
 var id: String
 var name_key: String
-var asset_class: String   # savings | deposit | mutual_fund | stock | crypto
-var factor: String        # faktor pasar yang diikuti: none | stock | crypto
+var asset_class: String   # savings | deposit | mutual_fund | stock | crypto | commodity
+var factor: String        # faktor pasar yang diikuti: none | stock | crypto | commodity | gold
+var stream: int           # aliran angka acak: 0 = pasar lama, 1 = aset v2a (lihat Market)
+var unit_key: String      # satuan 1 unit, mis. UNIT_GRAM (kosong = tidak ditampilkan)
+var seasonal: Array[float] = []  # tambahan drift TAHUNAN per bulan kalender (Jan..Des), kosong = tanpa musim
 var drift: float          # imbal hasil rata-rata per TAHUN (0.10 = 10%)
 var volatility: float     # kegoncangan per TAHUN (0.25 = 25%)
 var beta: float           # seberapa kuat ikut siklus & berita pasar (1.0 = sama dengan pasar)
@@ -41,6 +44,9 @@ static func from_def(def: Dictionary) -> MarketAsset:
 	a.name_key = def["name_key"]
 	a.asset_class = def["class"]
 	a.factor = def.get("factor", "none")
+	a.stream = int(def.get("stream", 0))
+	a.unit_key = def.get("unit_key", "")
+	a.seasonal.assign(def.get("seasonal", []))
 	a.drift = def.get("drift", 0.0)
 	a.volatility = def.get("volatility", 0.0)
 	a.beta = def.get("beta", 0.0)
@@ -79,8 +85,9 @@ func days_per_month() -> int:
 ## regime_drift  : tambahan drift tahunan dari siklus pasar (bull +, bear -)
 ## vol_mult      : pengali volatilitas dari siklus pasar
 ## day_shocks    : guncangan sekali dari berita per tanggal, {tanggal 1-30: 0.1 (= +10%)}
+## season_drift  : tambahan drift tahunan dari pola musiman bulan ini (lihat season_drift())
 func step_month(rng: RandomNumberGenerator, factor_z: Array[float], regime_drift: float,
-		vol_mult: float, day_shocks: Dictionary = {}) -> void:
+		vol_mult: float, day_shocks: Dictionary = {}, season_drift := 0.0) -> void:
 	var steps := days_per_month()
 	if is_interest():
 		for i in steps:
@@ -89,7 +96,7 @@ func step_month(rng: RandomNumberGenerator, factor_z: Array[float], regime_drift
 		return
 	var dt := 1.0 / (12.0 * steps)
 	var sigma := volatility * vol_mult
-	var mu := (drift + beta * regime_drift - 0.5 * sigma * sigma) * dt
+	var mu := (drift + beta * regime_drift + season_drift - 0.5 * sigma * sigma) * dt
 	var step_shocks := {}  # langkah ke-i -> pengali harga (dua berita bisa jatuh di langkah yang sama)
 	for day: int in day_shocks:
 		var i := floori((day - 1) * steps / float(DAYS_IN_MONTH))
@@ -101,6 +108,11 @@ func step_month(rng: RandomNumberGenerator, factor_z: Array[float], regime_drift
 			price = maxf(price * step_shocks[i], 1.0)
 		history.append(price)
 	_close_month()
+
+
+## Pola musiman (v2a): tambahan drift tahunan untuk bulan kalender `month_of_year` (0 = Januari).
+func season_drift(month_of_year: int) -> float:
+	return seasonal[month_of_year] if seasonal.size() == 12 else 0.0
 
 
 ## Harga pada tanggal `day` (1-30) di bulan yang baru disimulasikan.
