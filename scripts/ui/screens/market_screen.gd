@@ -5,7 +5,7 @@ extends MarginContainer
 ## Node yang diawali "%" adalah "unique name" di scene (mirip document.getElementById).
 
 const QUICK_PERCENTS := [0.25, 0.5, 1.0]
-const CLASS_ORDER := ["savings", "deposit", "mutual_fund", "stock", "crypto", "commodity"]
+const CLASS_ORDER := ["savings", "deposit", "mutual_fund", "stock", "crypto", "commodity", "forex"]
 ## Warna teks risiko 1-5 (cukup gelap agar terbaca di kartu putih).
 const RISK_COLORS := [Color("#1e7f5c"), Color("#1e7f5c"), Color("#a86a12"), Color("#c25a1e"), Color("#c2452d")]
 const REGIME_CHIPS := {"bull": &"MoodGreen", "sideways": &"MoodNeutral", "bear": &"MoodRed"}
@@ -148,7 +148,8 @@ func _refresh_list() -> void:
 	_refresh_rumor("list")
 
 
-## Chip kondisi pasar: tren saham, tren kripto, tren komoditas (setelah tahap 4 terbuka), suku bunga acuan, inflasi.
+## Chip kondisi pasar: tren saham, tren kripto, tren komoditas (setelah tahap 4 terbuka), suku bunga acuan,
+## inflasi, kurs dolar (v2a).
 func _refresh_mood(market: Market) -> void:
 	for child in %MoodRow.get_children():
 		%MoodRow.remove_child(child)
@@ -162,6 +163,9 @@ func _refresh_mood(market: Market) -> void:
 		%MoodRow.add_child(_make_chip(text, REGIME_CHIPS.get(regime, &"MoodNeutral")))
 	%MoodRow.add_child(_make_chip(tr("MARKET_MOOD_RATE") % Fmt.percent_plain(market.policy_rate), &"MoodGold"))
 	%MoodRow.add_child(_make_chip(tr("MARKET_MOOD_INFLATION") % Fmt.percent_plain(market.inflation), &"MoodNeutral"))
+	var usd := market.get_asset("USDIDR")
+	if usd != null:
+		%MoodRow.add_child(_make_chip(tr("MARKET_MOOD_FX") % usd.price_text(), &"MoodNeutral"))
 
 
 func _refresh_news(market: Market) -> void:

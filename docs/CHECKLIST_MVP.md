@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 15 Oktober 2026 (v2a langkah 1: komoditas & emas)
+- **Terakhir diperbarui:** 15 Oktober 2026 (v2a langkah 2: valas)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -19,7 +19,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v1.5c** | Utang, properti, hunian yang tumbuh | ✅ 5/5 langkah (aset final menyusul setelah v2) |
 | **v1.5d** | Tokoh, riset, kontrak, konten | ✅ 5/5 langkah (aset final menyusul setelah v2) |
 | **Penutup v1.5** | Performa & baterai, playtest, legal | ✅ legal & performa (APK dicoba di HP); playtest berjalan terus lewat Profil > Sesi Bermain |
-| **v2a** | Instrumen lanjut: komoditas, valas, leverage & margin | 🔄 1/5 langkah |
+| **v2a** | Instrumen lanjut: komoditas, valas, leverage & margin | 🔄 2/5 langkah |
 | **v2b-v2d** | Hidup penuh, dana investor, mini-game | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
 
@@ -468,16 +468,23 @@ Panduan uji di HP: `docs/UJI_AKHIR_V15.md` (tabel performa, baterai, dan pertany
   - ✅ Save lama tetap bisa dimuat (riwayat harga isian); emas bisa diautodebet & dihitung sebagai investasi di pencapaian
   - ✅ 6 istilah glosarium baru (87); 88 uji komoditas + 1007 uji lama lulus
   - 🔁 Ikon kelas komoditas sementara `trend_line.svg` (lihat `docs/KEBUTUHAN_ASET.md`)
-- ⬜ Langkah 2: Valas (4 kurs, suku bunga & sentimen, tahap 5, kuis Valas & Leverage)
+- ✅ **Langkah 2: Valas**
+  - ✅ 4 kurs kelas baru Valas: Dolar AS, Euro, Dolar Singapura, Yen Jepang (per 100 yen); kurs naik = rupiah melemah
+  - ✅ Suku bunga BI tinggi menahan pelemahan rupiah (`rate_drift`); keputusan BI menggeser kurs; bursa panik → rupiah melemah, yen diburu; modal asing masuk → rupiah menguat
+  - ✅ 9 berita valas (bank sentral AS, intervensi BI, neraca dagang, arus modal, Eropa, Jepang); berita dibagi per kelompok (komoditas 40%, valas 30% bulan)
+  - ✅ Tahap 5: kekayaan bersih ≥ Rp500 jt + kuis topik baru **Valas & Leverage** 5 benar (20 soal, termasuk dasar leverage untuk tahap 6)
+  - ✅ Tampilan: kelas Valas di Pasar & alokasi, chip kurs dolar, satuan per mata uang; valas bisa diautodebet
+  - ✅ 5 istilah glosarium baru + Depresiasi diperluas (92); 71 uji valas + 1098 uji lama lulus; golden runner identik
+  - 🔁 Ikon kelas valas sementara `arrow_badge.svg` (lihat `docs/KEBUTUHAN_ASET.md`)
 - ⬜ Langkah 3: Leverage & margin (posisi, cek harian, margin call, likuidasi, biaya inap, tahap 6)
 - ⬜ Langkah 4: Tampilan, peringatan & cerita
 - ⬜ Langkah 5: Penyeimbangan & uji celah
 
 *Daftar fitur*
 - ✅ Komoditas (3-4) dengan siklus musiman
-- ⬜ Forex (3-4 pasangan), kurs dipengaruhi suku bunga & event makro, spread & biaya
+- ✅ Forex (4 kurs terhadap rupiah), kurs dipengaruhi suku bunga & event makro, selisih kurs 0,5%
 - ⬜ Leverage & margin (dicek harian), peringatan jelas sebelum likuidasi
-- 🔄 Syarat pembukaan sesuai draft (emas tahap 3, komoditas tahap 4 ✅; valas tahap 5 & leverage tahap 6 ⬜)
+- 🔄 Syarat pembukaan sesuai draft (emas tahap 3, komoditas tahap 4, valas tahap 5 ✅; leverage tahap 6 ⬜)
 
 *Kriteria selesai*
 - ⬜ Margin call dan likuidasi tidak bisa dieksploitasi

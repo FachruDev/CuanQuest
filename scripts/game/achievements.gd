@@ -10,7 +10,7 @@ extends RefCounted
 
 const ACHIEVEMENTS_PATH := "res://data/achievements.json"
 const ICON_PATH := "res://assets/icons/achievements/%s.svg"
-const INVEST_CLASSES := ["mutual_fund", "stock", "crypto", "commodity"]  # termasuk emas & komoditas (v2a)
+const INVEST_CLASSES := ["mutual_fund", "stock", "crypto", "commodity", "forex"]  # termasuk emas, komoditas, valas (v2a)
 
 var gs: GameStore
 var data: Dictionary = {}  # isi data/achievements.json

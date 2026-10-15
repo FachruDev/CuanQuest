@@ -18,6 +18,8 @@ extends RefCounted
 ##   Faktor aliran kedua bisa "terikat" ke faktor lama (`link`), dan berita lama bisa ikut
 ##   menggerakkan aset baru lewat pengali tetap (`cross`), keduanya tanpa angka acak tambahan.
 ## - Pola musiman (v2a): drift tambahan per bulan kalender dari field `seasonal` aset.
+## - Valas (v2a): kurs (faktor "fx" = pelemahan rupiah) ikut suku bunga acuan lewat `rate_drift` aset,
+##   guncangan keputusan suku bunga & kepanikan bursa (`cross`), dan berita valas sendiri.
 
 const WARMUP_MONTHS := 12  # riwayat harga palsu agar grafik tidak kosong di awal
 const EXT_STREAM := 1  # nomor aliran acak kedua (field "stream" di assets.json, market.json, news.json)
@@ -79,10 +81,12 @@ func step(month: int, extra: Dictionary = {}) -> Array[Dictionary]:
 			_add_shock(shocks, asset_id, day, extra["shocks"][asset_id][day])
 	for item: Dictionary in extra.get("news", []):
 		news.append(item)
-	# Aliran kedua (v2a): siklus & berita komoditas/valas.
+	# Aliran kedua (v2a): siklus komoditas, lalu satu peluang berita per kelompok (komoditas, valas).
 	_update_regimes(month, news, EXT_STREAM)
-	if rng_ext.randf() < float(config.get("ext_news_chance", 0.0)):
-		_roll_news(month, rng_ext.randi_range(1, MarketAsset.DAYS_IN_MONTH), news, shocks, EXT_STREAM)
+	var groups: Dictionary = config.get("ext_news", {})
+	for group: String in groups:
+		if rng_ext.randf() < float(groups[group]):
+			_roll_news(month, rng_ext.randi_range(1, MarketAsset.DAYS_IN_MONTH), news, shocks, EXT_STREAM, group)
 
 	# Angka acak bersama per hari untuk tiap faktor (sumber korelasi harian).
 	# Urutan loop HARUS tetap (ikut file data), bukan urutan Dictionary `regimes`:
@@ -108,6 +112,7 @@ func step(month: int, extra: Dictionary = {}) -> Array[Dictionary]:
 		factor_z[factor] = daily
 
 	var season := posmod(month - 1, 12)  # bulan kalender yang sedang berjalan saat Lanjut ditekan
+	var rate_gap := policy_rate - float(config["start_policy_rate"])
 	for asset: MarketAsset in assets.values():
 		if asset.rate_linked:
 			asset.drift = maxf(0.0, policy_rate + asset.rate_spread)
@@ -119,7 +124,7 @@ func step(month: int, extra: Dictionary = {}) -> Array[Dictionary]:
 			vol_mult = regime["vol_mult"]
 		var z: Array[float] = factor_z.get(asset.factor, no_factor)
 		asset.step_month(_rng_of(asset.stream), z, regime_drift, vol_mult, shocks.get(asset.id, {}),
-			asset.season_drift(season))
+			asset.extra_drift(season, rate_gap))
 
 	for item in news:
 		news_log.push_front(item)
@@ -291,14 +296,17 @@ func _news_def(id: String) -> Dictionary:
 	return {}
 
 
-## Satu berita acak dari aliran `stream` (berita lama 0, berita komoditas/valas 1).
-func _roll_news(month: int, day: int, news: Array[Dictionary], shocks: Dictionary, stream: int) -> void:
+## Satu berita acak dari aliran `stream` (berita lama 0, berita komoditas/valas 1), dibatasi ke
+## kelompok `group` jika diisi (field "group" di news.json).
+func _roll_news(month: int, day: int, news: Array[Dictionary], shocks: Dictionary, stream: int,
+		group := "") -> void:
 	var r := _rng_of(stream)
 	var candidates: Array[Dictionary] = []
 	var weights := PackedFloat32Array()
 	for def: Dictionary in news_defs:
 		# Keputusan suku bunga hanya dari _step_macro.
-		if not def.get("scheduled", false) and int(def.get("stream", 0)) == stream:
+		if not def.get("scheduled", false) and int(def.get("stream", 0)) == stream \
+				and (group == "" or def.get("group", "") == group):
 			candidates.append(def)
 			weights.append(def["weight"])
 	if candidates.is_empty():

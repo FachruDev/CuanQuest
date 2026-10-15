@@ -3,9 +3,9 @@
 	"min_policy_rate": 0.03,
 	"max_policy_rate": 0.10,
 	"news_chance": 0.5,
-	"_comment_ext": "v2a: aset, faktor & berita dengan stream 1 memakai aliran acak kedua (seed + ext_seed_offset), agar harga aset lama tidak berubah. ext_news_chance = peluang satu berita komoditas/valas per bulan. Faktor: regimes false = tanpa siklus naik/turun; link = ikut faktor lama dengan korelasi rho (emas berlawanan dengan saham).",
+	"_comment_ext": "v2a: aset, faktor & berita dengan stream 1 memakai aliran acak kedua (seed + ext_seed_offset), agar harga aset lama tidak berubah. ext_news = peluang satu berita per bulan untuk tiap kelompok berita (field group di news.json). Faktor: regimes false = tanpa siklus naik/turun; link = ikut faktor lama dengan korelasi rho (emas berlawanan dengan saham; faktor fx = pelemahan rupiah, berlawanan dengan saham).",
 	"ext_seed_offset": 4,
-	"ext_news_chance": 0.4,
+	"ext_news": { "commodity": 0.4, "fx": 0.3 },
 	"macro": {
 		"_comment": [
 			"Inflasi & suku bunga acuan (v1.5a langkah 1). Inflasi tahunan bergerak pelan di sekitar inflation_mean (AR(1) bulanan: persistence & noise); indeks harga naik inflasi/12 tiap bulan.",
@@ -28,7 +28,8 @@
 		"stock": { "drift_scale": 1.0 },
 		"crypto": { "drift_scale": 3.0 },
 		"commodity": { "drift_scale": 0.5, "stream": 1, "link": { "factor": "stock", "rho": 0.3 } },
-		"gold": { "stream": 1, "regimes": false, "link": { "factor": "stock", "rho": -0.3 } }
+		"gold": { "stream": 1, "regimes": false, "link": { "factor": "stock", "rho": -0.3 } },
+		"fx": { "stream": 1, "regimes": false, "link": { "factor": "stock", "rho": -0.4 } }
 	},
 	"regimes": {
 		"bull": { "drift": 0.12, "vol_mult": 0.9, "min_months": 8, "max_months": 24, "next": { "sideways": 0.6, "bear": 0.4 } },

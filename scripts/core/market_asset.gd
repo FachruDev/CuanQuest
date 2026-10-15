@@ -10,11 +10,14 @@ const DAILY_KEEP_MONTHS := 24    # riwayat harian yang disimpan; sisanya cukup p
 
 var id: String
 var name_key: String
-var asset_class: String   # savings | deposit | mutual_fund | stock | crypto | commodity
-var factor: String        # faktor pasar yang diikuti: none | stock | crypto | commodity | gold
+var asset_class: String   # savings | deposit | mutual_fund | stock | crypto | commodity | forex
+var factor: String        # faktor pasar yang diikuti: none | stock | crypto | commodity | gold | fx
 var stream: int           # aliran angka acak: 0 = pasar lama, 1 = aset v2a (lihat Market)
 var unit_key: String      # satuan 1 unit, mis. UNIT_GRAM (kosong = tidak ditampilkan)
 var seasonal: Array[float] = []  # tambahan drift TAHUNAN per bulan kalender (Jan..Des), kosong = tanpa musim
+## Valas (v2a): perubahan drift tahunan per selisih suku bunga acuan dari awal permainan.
+## -0.8 = suku bunga BI 1% lebih tinggi -> kurs valas naik 0,8%/tahun lebih lambat (rupiah lebih kuat).
+var rate_drift: float
 var drift: float          # imbal hasil rata-rata per TAHUN (0.10 = 10%)
 var volatility: float     # kegoncangan per TAHUN (0.25 = 25%)
 var beta: float           # seberapa kuat ikut siklus & berita pasar (1.0 = sama dengan pasar)
@@ -47,6 +50,7 @@ static func from_def(def: Dictionary) -> MarketAsset:
 	a.stream = int(def.get("stream", 0))
 	a.unit_key = def.get("unit_key", "")
 	a.seasonal.assign(def.get("seasonal", []))
+	a.rate_drift = def.get("rate_drift", 0.0)
 	a.drift = def.get("drift", 0.0)
 	a.volatility = def.get("volatility", 0.0)
 	a.beta = def.get("beta", 0.0)
@@ -113,6 +117,12 @@ func step_month(rng: RandomNumberGenerator, factor_z: Array[float], regime_drift
 ## Pola musiman (v2a): tambahan drift tahunan untuk bulan kalender `month_of_year` (0 = Januari).
 func season_drift(month_of_year: int) -> float:
 	return seasonal[month_of_year] if seasonal.size() == 12 else 0.0
+
+
+## Tambahan drift tahunan bulan ini (v2a): pola musiman + pengaruh suku bunga acuan.
+## `rate_gap` = suku bunga acuan sekarang - suku bunga di awal permainan. Aset lama: selalu 0.
+func extra_drift(month_of_year: int, rate_gap: float) -> float:
+	return season_drift(month_of_year) + rate_drift * rate_gap
 
 
 ## Harga pada tanggal `day` (1-30) di bulan yang baru disimulasikan.

@@ -6,10 +6,13 @@ extends RefCounted
 const CLASS_TILES := {
 	"savings": &"IconTileBlue", "deposit": &"IconTileMint", "mutual_fund": &"IconTileGold",
 	"stock": &"IconTileCoral", "crypto": &"IconTilePurple", "commodity": &"IconTileGold",
+	"forex": &"IconTileBlue",
 }
 const CLASS_ICON := "res://assets/icons/classes/%s.svg"
 ## Kelas aset baru (v2a) memakai ikon lain sampai ikonnya dibuat (lihat docs/KEBUTUHAN_ASET.md).
-const CLASS_ICON_FALLBACKS := {"commodity": "res://assets/icons/trend_line.svg"}
+const CLASS_ICON_FALLBACKS := {
+	"commodity": "res://assets/icons/trend_line.svg", "forex": "res://assets/icons/arrow_badge.svg",
+}
 const SEASON_THRESHOLD := 0.10  # tambahan drift tahunan minimal agar satu bulan disebut "menguat"/"melemah"
 ## Ikon bidang pekerjaan: assets/icons/tracks/<bidang>.svg. Sebelum aset itu dibuat, tiap bidang
 ## memakai ikon lain yang berbeda agar tetap mudah dibedakan (lihat docs/KEBUTUHAN_ASET.md).

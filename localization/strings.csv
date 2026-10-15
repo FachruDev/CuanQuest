@@ -1351,11 +1351,11 @@ DESC_ASSET_EMAS,"Sering dianggap tempat berlindung: cenderung naik saat bursa pa
 DESC_ASSET_MINYAK,"Bergerak mengikuti siklus komoditas dunia, keputusan OPEC+, dan konflik. Gejolaknya tinggi; kenaikan harga BBM sering ikut mengangkatnya.","Follows the global commodity cycle, OPEC+ decisions, and conflicts. Very volatile; fuel price hikes often lift it too."
 DESC_ASSET_CPO,"Indonesia adalah produsen sawit terbesar dunia. Harganya dipengaruhi musim produksi, cuaca (El Niño), program biodiesel, dan kebijakan ekspor.","Indonesia is the world's largest palm oil producer. Prices depend on the production season, weather (El Niño), biodiesel programs, and export policy."
 DESC_ASSET_KOPI,"Harganya dipengaruhi musim panen di Indonesia, Vietnam, dan Brasil, serta cuaca. Bisa melonjak tajam saat panen gagal.","Prices depend on harvest seasons in Indonesia, Vietnam, and Brazil, plus the weather. Can spike when harvests fail."
-UNIT_GRAM,gram,gram
-UNIT_BARREL,barel,barrel
-UNIT_TON,ton,ton
-UNIT_KG,kg,kg
-INFO_UNIT,1 unit = 1 %s,1 unit = 1 %s
+UNIT_GRAM,1 gram,1 gram
+UNIT_BARREL,1 barel,1 barrel
+UNIT_TON,1 ton,1 ton
+UNIT_KG,1 kg,1 kg
+INFO_UNIT,1 unit = %s,1 unit = %s
 INFO_SEASON,"Pola musiman: cenderung menguat %s, cenderung melemah %s. Hanya kecenderungan, bukan kepastian.","Seasonal pattern: tends to strengthen %s and weaken %s. Only a tendency, not a certainty."
 MARKET_MOOD_COMMODITY,Komoditas: %s,Commodities: %s
 NEWS_REGIME_COMMODITY_BULL,Harga komoditas dunia memasuki siklus naik.,Global commodity prices enter an upcycle.
@@ -1374,3 +1374,29 @@ NEWS_CMD_GOLD_BUYING,Bank-bank sentral dunia memborong emas. Harga %s naik.,Cent
 NEWS_CMD_GOLD_PROFIT,%s terkoreksi setelah reli panjang; banyak yang mengambil untung.,%s pulls back after a long rally as investors take profit.
 NEWS_CMD_CHINA_SLOWDOWN,Ekonomi Tiongkok melambat. Harga komoditas dunia turun.,China's economy slows. Global commodity prices fall.
 NEWS_CMD_CHINA_STIMULUS,Tiongkok menggelontorkan stimulus ekonomi. Harga komoditas dunia naik.,China launches an economic stimulus. Global commodity prices rise.
+STAGE_5,Tahap 5: Valas,Stage 5: Forex
+TOPIC_FOREX,Valas & Leverage,Forex & Leverage
+ASSET_USDIDR,Dolar AS (USD/IDR),US Dollar (USD/IDR)
+ASSET_EURIDR,Euro (EUR/IDR),Euro (EUR/IDR)
+ASSET_SGDIDR,Dolar Singapura (SGD/IDR),Singapore Dollar (SGD/IDR)
+ASSET_JPYIDR,Yen Jepang (JPY/IDR),Japanese Yen (JPY/IDR)
+CLASS_FOREX,VALAS,FOREX
+DESC_FOREX,"Mata uang asing. Harganya adalah kurs dalam rupiah: kurs naik berarti rupiah melemah. Dipengaruhi suku bunga BI dan bank sentral lain, arus modal asing, dan kepanikan global. Tanpa bunga; cocok untuk kebutuhan dalam mata uang asing atau melindungi sebagian kekayaan dari pelemahan rupiah.","Foreign currency. The price is the exchange rate in rupiah: a higher rate means a weaker rupiah. Driven by Bank Indonesia and other central banks, foreign capital flows, and global panic. Pays no interest; useful for foreign-currency needs or to protect part of your wealth from a weaker rupiah."
+DESC_ASSET_USDIDR,Mata uang yang paling banyak dipakai di dunia. Rupiah biasanya melemah terhadap dolar saat bursa global panik atau bank sentral AS menaikkan suku bunga.,The world's most used currency. The rupiah usually weakens against the dollar when global markets panic or the US central bank raises rates.
+DESC_ASSET_EURIDR,"Mata uang 20 negara Eropa. Selain ikut arah dolar, bergerak karena berita ekonomi dan bank sentral Eropa.","The currency of 20 European countries. Besides following the dollar, it moves on European economic news and the European central bank."
+DESC_ASSET_SGDIDR,"Dijaga stabil oleh bank sentral Singapura, sehingga paling tenang di antara valas di game ini.","Kept stable by Singapore's central bank, so it is the calmest currency in this game."
+DESC_ASSET_JPYIDR,"Harga per 100 yen. Yen sering dicari saat pasar panik (safe haven), tetapi bisa melemah lama karena suku bunga Jepang sangat rendah.","Price per 100 yen. The yen is often sought when markets panic (a safe haven), but it can weaken for long periods because Japanese interest rates are very low."
+UNIT_USD,1 dolar AS,1 US dollar
+UNIT_EUR,1 euro,1 euro
+UNIT_SGD,1 dolar Singapura,1 Singapore dollar
+UNIT_JPY100,100 yen,100 yen
+MARKET_MOOD_FX,Kurs dolar %s,USD rate %s
+NEWS_FX_FED_HIKE,"Bank sentral AS menaikkan suku bunga. Dolar menguat, rupiah tertekan.",The US central bank raises rates. The dollar strengthens and the rupiah weakens.
+NEWS_FX_FED_CUT,"Bank sentral AS memangkas suku bunga. Dana asing kembali masuk, rupiah menguat.",The US central bank cuts rates. Foreign money returns and the rupiah strengthens.
+NEWS_FX_BI_INTERVENTION,Bank Indonesia melakukan intervensi di pasar valas. Rupiah kembali menguat.,Bank Indonesia intervenes in the currency market. The rupiah recovers.
+NEWS_FX_TRADE_SURPLUS,Neraca perdagangan Indonesia surplus besar. Rupiah menguat.,Indonesia posts a large trade surplus. The rupiah strengthens.
+NEWS_FX_CAPITAL_OUTFLOW,Investor asing menarik dana dari obligasi Indonesia. Rupiah melemah.,Foreign investors pull money out of Indonesian bonds. The rupiah weakens.
+NEWS_FX_EURO_CRISIS,Krisis utang di Eropa kembali mencuat. %s melemah.,Europe's debt crisis resurfaces. %s weakens.
+NEWS_FX_ECB_HIKE,Bank sentral Eropa menaikkan suku bunga. %s menguat.,The European central bank raises rates. %s strengthens.
+NEWS_FX_BOJ_SHIFT,Bank sentral Jepang mengubah kebijakan suku bunganya. %s melonjak.,Japan's central bank shifts its rate policy. %s jumps.
+NEWS_FX_YEN_SLIDE,Yen terus melemah karena suku bunga Jepang sangat rendah. %s turun.,The yen keeps sliding as Japanese rates stay very low. %s falls.

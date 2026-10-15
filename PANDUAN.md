@@ -26,7 +26,7 @@
 data/
   assets.json                 Parameter aset (drift, volatilitas, fee, satuan, pola musiman, aliran acak)
   economy.json                Gaji, modal awal, pilihan makan & tempat tinggal (untuk balancing)
-  market.json                 Siklus pasar, faktor (saham, kripto, komoditas, emas), suku bunga, peluang berita
+  market.json                 Siklus pasar, faktor (saham, kripto, komoditas, emas, valas), suku bunga, peluang berita
   news.json                   Template berita pasar & dampaknya ke harga (+ dampak ikutan "cross", berita komoditas)
   rumors.json                 Rumor pasar (v1.5d): peluang, gerak harga benar/jebakan, riset dasar & mendalam
   contracts.json              Proyek sampingan (v1.5d): 17 proyek, tier & reputasi, 3 strategi, peluang, bayaran
@@ -41,8 +41,8 @@ data/
   properties.json             Properti (v1.5c): harga, sewa, kenaikan harga, biaya beli/jual/rutin, KPR
   jobs.json                   Pekerjaan (bidang, jenjang, syarat, gaji, beban kerja) & aturan lowongan
   education.json              Program kuliah (syarat, lama, biaya, hasil) & beban kuliah
-  quiz.json                   150 soal kuis (8 topik, urutan topik di "topics")
-  glossary.json               81 istilah glosarium
+  quiz.json                   170 soal kuis (9 topik, urutan topik di "topics")
+  glossary.json               92 istilah glosarium
   legal.json                  Kebijakan privasi, syarat penggunaan & lisensi pihak ketiga (tampil di game)
   activities.json             6 aktivitas bulanan & aturan energi
   risk_profile.json           Kuesioner & 3 profil risiko
@@ -220,7 +220,7 @@ scenes/
 - [x] **Penutup v1.5**: legal & lisensi, performa & baterai, alat playtest (APK dicoba di HP; panduan `docs/UJI_AKHIR_V15.md`)
 - [ ] **v2a "Instrumen Lanjut"**:
   - [x] (1) Komoditas & emas
-  - [ ] (2) Valas
+  - [x] (2) Valas
   - [ ] (3) Leverage & margin
   - [ ] (4) Tampilan, peringatan & cerita
   - [ ] (5) Penyeimbangan & uji celah
@@ -332,6 +332,17 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Save:** kunci baru `contract_board`, `contracts`, `contract_reputation`, `contract_energy`, `contract_seq`, `contract_rng`; statistik `projects_*` & `project_income` (save lama: tanpa proyek, papan terisi bulan berikutnya).
 - **Hasil simulator** (40 × 30 tahun): tahun bebas finansial S1 hemat 12,6 → selalu 1 proyek 10,5 → selalu 2 proyek 9,6; SMA 18,4 → 14,7 → 13,4. Dua proyek sekaligus menguras kesehatan (±75) & kebahagiaan (±81) dan menurunkan kinerja kantor. Versi awal (bayaran 2× lebih besar dan keahlian lebih banyak) membuat S1 bebas finansial di tahun 7,6, jadi angka di data sudah diturunkan.
 - **Menambah proyek:** salin satu baris di `projects` (`id`, `track` = id bidang di `jobs.json` atau `general`, `tier`, `months` [min, max], `weight`), lalu tambahkan nama & deskripsinya di CSV.
+
+## Valas (v2a langkah 2)
+
+- **4 kurs kelas `forex`** (`data/assets.json`, tahap 5): Dolar AS (USD/IDR), Euro, Dolar Singapura, Yen Jepang (harga per 100 yen). Harga = rupiah per 1 unit; **kurs naik = rupiah melemah**. Fee beli & jual 0,25% (selisih kurs 0,5%), tanpa bunga.
+- **Faktor `fx`** = pelemahan rupiah, terikat ke faktor saham dengan `rho -0,4` (saham turun → rupiah melemah). Tiap kurs ikut faktor ini dengan `rho` berbeda (USD 0,9, SGD 0,8, EUR 0,6, JPY 0,5).
+- **Suku bunga** (`rate_drift` di aset, `MarketAsset.extra_drift`): drift tahunan berubah sebesar `rate_drift x (suku bunga BI sekarang - suku bunga awal)`. `-0,8` = BI 1% lebih tinggi → kurs naik 0,8%/tahun lebih lambat. Ditambah guncangan saat BI mengumumkan keputusan (`cross` di berita `rate_up`/`rate_down`). Aset lama tidak terpengaruh (nilainya tepat 0).
+- **Sentimen:** bursa global anjlok → rupiah melemah dan yen paling diburu; modal asing masuk ke bursa → rupiah menguat. Plus 9 berita valas sendiri.
+- **Kelompok berita** (`market.json` → `ext_news`): setiap kelompok punya satu peluang per bulan (komoditas 0,4, valas 0,3), sehingga menambah berita valas tidak mengurangi berita komoditas. Field `group` di `news.json`.
+- **Tahap 5** (`unlocks.json`): kekayaan bersih ≥ Rp500 jt + 5 soal topik baru **Valas & Leverage** (`forex`, 20 soal, juga dasar leverage untuk tahap 6 nanti). Setelah tahap 4 terbuka, kuis otomatis fokus ke topik ini.
+- **Hasil uji** (10 pasar x 60 tahun): USD/IDR naik ±2,3%/tahun (gejolak ±8%), EUR ±1,3%, SGD ±2,2% (paling tenang), JPY ±0,4% (paling liar); korelasi bulanan dengan RD saham USD -0,30, JPY -0,19.
+- **Satuan** kini memuat jumlahnya (`UNIT_GRAM` = "1 gram", `UNIT_JPY100` = "100 yen") karena teksnya "1 unit = %s".
 
 ## Komoditas & Emas (v2a langkah 1)
 

@@ -76,6 +76,27 @@
 			"start_price": 60000, "drift": 0.095, "volatility": 0.32, "beta": 0.8, "rho": 0.4,
 			"seasonal": [0.10, 0.15, 0.15, 0.0, -0.15, -0.20, -0.15, -0.05, 0.05, 0.05, 0.0, 0.05],
 			"buy_fee": 0.003, "sell_fee": 0.003, "stage": 4, "risk": 4
+		},
+		{
+			"_comment": "v2a langkah 2: valas. Harga = rupiah per 1 unit mata uang asing (yen per 100); harga naik = rupiah melemah. Faktor fx = pelemahan rupiah. rate_drift = perubahan drift tahunan per selisih suku bunga acuan dari awal permainan (negatif: suku bunga BI tinggi menahan pelemahan rupiah). Fee beli + jual = selisih kurs 0,5%.",
+			"id": "USDIDR", "name_key": "ASSET_USDIDR", "class": "forex", "factor": "fx", "stream": 1, "unit_key": "UNIT_USD",
+			"start_price": 16000, "drift": 0.025, "volatility": 0.07, "beta": 1.0, "rho": 0.9, "rate_drift": -0.8,
+			"buy_fee": 0.0025, "sell_fee": 0.0025, "stage": 5, "risk": 3
+		},
+		{
+			"id": "EURIDR", "name_key": "ASSET_EURIDR", "class": "forex", "factor": "fx", "stream": 1, "unit_key": "UNIT_EUR",
+			"start_price": 17500, "drift": 0.02, "volatility": 0.08, "beta": 0.8, "rho": 0.6, "rate_drift": -0.8,
+			"buy_fee": 0.0025, "sell_fee": 0.0025, "stage": 5, "risk": 3
+		},
+		{
+			"id": "SGDIDR", "name_key": "ASSET_SGDIDR", "class": "forex", "factor": "fx", "stream": 1, "unit_key": "UNIT_SGD",
+			"start_price": 12000, "drift": 0.025, "volatility": 0.055, "beta": 0.7, "rho": 0.8, "rate_drift": -0.8,
+			"buy_fee": 0.0025, "sell_fee": 0.0025, "stage": 5, "risk": 2
+		},
+		{
+			"id": "JPYIDR", "name_key": "ASSET_JPYIDR", "class": "forex", "factor": "fx", "stream": 1, "unit_key": "UNIT_JPY100",
+			"start_price": 10500, "drift": 0.0, "volatility": 0.10, "beta": 1.0, "rho": 0.5, "rate_drift": -0.8,
+			"buy_fee": 0.0025, "sell_fee": 0.0025, "stage": 5, "risk": 3
 		}
 	]
 }

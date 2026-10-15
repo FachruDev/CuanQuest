@@ -7,7 +7,7 @@ const TX_SHOWN := 30
 const CLASS_COLORS := {
 	"cash": Color("#b5a089"), "savings": Color("#4a6fb0"), "deposit": Color("#23877b"),
 	"mutual_fund": Color("#f6b93b"), "stock": Color("#f07a5f"), "crypto": Color("#7a4fb0"),
-	"commodity": Color("#9c6b30"),
+	"commodity": Color("#9c6b30"), "forex": Color("#2f9fb5"),
 }
 ## Chip jenis transaksi: beli hijau, jual emas, jual paksa/panik merah.
 const TX_CHIPS := {"buy": &"MoodGreen", "auto": &"MoodGreen", "sell": &"MoodGold", "forced": &"MoodRed", "panic": &"MoodRed",
