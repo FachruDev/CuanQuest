@@ -1,7 +1,7 @@
 extends ScrollContainer
-## Tab Karier (dulu Aktivitas, tema "Senja Cuan"): pekerjaan & lowongan (v1.5b), pendidikan &
-## keahlian, aktivitas bulanan (energi), level & XP, kuis (jatah mingguan, tanpa iklan), dan
-## progres unlock instrumen.
+## Tab Karier (dulu Aktivitas, tema "Senja Cuan"): pekerjaan & lowongan (v1.5b), proyek sampingan
+## (v1.5d), pendidikan & keahlian, aktivitas bulanan (energi), level & XP, kuis (jatah mingguan,
+## tanpa iklan), dan progres unlock instrumen.
 
 ## Main yang menampilkan popup kuis (lewat antrean popup), screen ini hanya meminta.
 signal quiz_requested(question: Dictionary)
@@ -10,6 +10,8 @@ signal resign_requested
 ## Tombol "Daftar" program kuliah / "Berhenti kuliah" ditekan; main menampilkan konfirmasi.
 signal enroll_requested(program_id: String)
 signal quit_study_requested
+## Proyek sampingan diterima (main menampilkan petunjuk pertama kali).
+signal contract_accepted
 
 const TOPICS := ["basics", "risk", "scam", "instruments"]
 const BOLT_ICON := preload("res://assets/icons/bolt.svg")
@@ -26,6 +28,7 @@ const EDUCATION_ICON := "res://assets/icons/education/%s.svg"
 
 var _job_box: VBoxContainer    # isi kartu Pekerjaan (dibangun ulang saat data berubah)
 var _board_box: VBoxContainer  # daftar lowongan bulan ini
+var _contract_box: VBoxContainer  # proyek sampingan: yang dikerjakan & tawaran bulan ini (v1.5d)
 var _education_box: VBoxContainer  # isi kartu Pendidikan & Keahlian
 
 ## activity_id -> { button, faded: Array[Control], cost: Label, used: Label, reason: Label }
@@ -46,6 +49,7 @@ func _refresh() -> void:
 		return
 	_refresh_job()
 	_refresh_board()
+	_refresh_contracts()
 	_refresh_education()
 	_refresh_energy()
 	_refresh_activities()
@@ -78,6 +82,8 @@ func _refresh() -> void:
 func _refresh_energy() -> void:
 	%EnergyTitle.text = "%s · %s" % [tr("ACT_ENERGY_TITLE"),
 		tr("ACT_ENERGY_COUNT") % [GameState.activities.energy, GameState.activities.energy_capacity]]
+	if GameState.contracts.month_energy > 0:  # energi yang dipakai proyek sampingan bulan ini
+		%EnergyTitle.text += " · " + tr("ACT_ENERGY_PROJECTS") % GameState.contracts.month_energy
 	while %EnergyIcons.get_child_count() < GameState.activities.energy_capacity:
 		var bolt := TextureRect.new()
 		bolt.texture = BOLT_ICON
@@ -147,8 +153,8 @@ func _on_start_quiz() -> void:
 
 # --- Pekerjaan & lowongan (v1.5b) --------------------------------------------
 
-## Judul + kartu Pekerjaan di paling atas; judul + daftar Lowongan dan kartu Pendidikan &
-## Keahlian setelah kartu energi; lalu judul untuk daftar aktivitas yang sudah ada.
+## Judul + kartu Pekerjaan di paling atas; judul + daftar Lowongan, Proyek Sampingan, dan kartu
+## Pendidikan & Keahlian setelah kartu energi; lalu judul untuk daftar aktivitas yang sudah ada.
 func _build_career_sections() -> void:
 	var page: VBoxContainer = $VBox
 	var job_card := PanelContainer.new()
@@ -164,6 +170,8 @@ func _build_career_sections() -> void:
 
 	_board_box = VBoxContainer.new()
 	_board_box.add_theme_constant_override("separation", 12)
+	_contract_box = VBoxContainer.new()
+	_contract_box.add_theme_constant_override("separation", 12)
 	var education_card := PanelContainer.new()
 	education_card.theme_type_variation = &"HomeCard"
 	_education_box = VBoxContainer.new()
@@ -171,6 +179,7 @@ func _build_career_sections() -> void:
 	education_card.add_child(_education_box)
 	var index := %FeedbackBox.get_index() + 1
 	for node: Control in [_section_title(tr("CAREER_BOARD_TITLE")), _board_box,
+			_section_title(tr("CONTRACT_TITLE")), _contract_box,
 			_section_title(tr("EDU_TITLE")), education_card, _section_title(tr("ACT_LIST_TITLE"))]:
 		page.add_child(node)
 		page.move_child(node, index)
@@ -253,6 +262,8 @@ func _add_performance() -> void:
 		roundi(factors["wellbeing"]), ", ".join(merit)]
 	if float(factors["team"]) > 0.0:  # rekan kerja yang dekat (v1.5d)
 		info += " " + tr("CAREER_TEAM_BONUS") % [GameState.characters.name_of("coworker"), roundi(factors["team"])]
+	if float(factors["side"]) > 0.0:  # terlalu banyak proyek sampingan (v1.5d)
+		info += " " + tr("CAREER_SIDE_PENALTY") % roundi(factors["side"])
 	_job_box.add_child(_wrap(info, &"SmallMutedLabel"))
 
 
@@ -379,6 +390,124 @@ func _on_apply(index: int) -> void:
 		%ActivityFeedback.text = tr("CAREER_APPLIED") % tr(GameState.career.job_def(opening["job_id"])["title"])
 		%FeedbackBox.theme_type_variation = &"FeedbackGood"
 		%ActivityFeedback.add_theme_color_override("font_color", Color("#1e5e45"))
+	else:
+		%ActivityFeedback.text = tr(result["error"])
+		%FeedbackBox.theme_type_variation = &"FeedbackBad"
+		%ActivityFeedback.add_theme_color_override("font_color", Palette.LOSS)
+
+
+# --- Proyek sampingan (v1.5d langkah 3) ---------------------------------------
+
+## Ringkasan reputasi & aturan, kartu proyek yang sedang dikerjakan, lalu tawaran bulan ini
+## dengan satu tombol per strategi (energi & peluang berhasil).
+func _refresh_contracts() -> void:
+	_clear(_contract_box)
+	var contracts := GameState.contracts
+	_contract_box.add_child(_wrap(tr("CONTRACT_HINT") % [contracts.reputation, roundi(contracts.reputation_bonus() * 100.0),
+		contracts.active.size(), int(contracts.data["max_active"])], &"SmallMutedLabel"))
+	for c: Dictionary in contracts.active:
+		_contract_box.add_child(_active_contract_card(c))
+	if contracts.board.is_empty():
+		_contract_box.add_child(_wrap(tr("CONTRACT_NONE"), &"InfoLabel"))
+	for i in contracts.board.size():
+		_contract_box.add_child(_offer_card(i))
+	_contract_box.add_child(_wrap(tr("CONTRACT_STRATEGY_NOTE") % roundi(
+		float(contracts.strategy_def("team")["pay_share"]) * 100.0), &"SmallMutedLabel"))
+
+
+func _contract_head(entry: Dictionary, sub: String, pay: int) -> HBoxContainer:
+	return _head(UiText.track_icon(entry["track"]), UiText.track_tile(entry["track"]),
+		tr("CONTRACT_" + str(entry["id"]).to_upper()), sub, Fmt.rupiah(pay))
+
+
+## Proyek yang sedang dikerjakan: klien & strategi, sisa bulan, peluang berhasil, energi per bulan.
+func _active_contract_card(c: Dictionary) -> PanelContainer:
+	var contracts := GameState.contracts
+	var card := PanelContainer.new()
+	card.theme_type_variation = &"UnlockOpenCard"
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 6)
+	card.add_child(box)
+	box.add_child(_contract_head(c, "%s · %s" % [c["client"], tr("CONTRACT_STRATEGY_" + str(c["strategy"]).to_upper())],
+		contracts.pay_for(c, c["strategy"])))
+	var cfg: Dictionary = contracts.data["chance"]
+	var chance := float(c["chance"])
+	if c["revision"]:
+		chance += float(cfg["revision_bonus"])
+	if c["short"]:
+		chance += float(cfg["short_energy"])
+	chance = clampf(chance, float(cfg["min"]), float(cfg["max"]))
+	var info := tr("CONTRACT_ACTIVE_INFO") % [int(c["months_left"]), Fmt.game_date(GameState.month + int(c["months_left"])),
+		roundi(chance * 100.0), int(contracts.strategy_def(c["strategy"])["energy"])]
+	if c["revision"]:
+		info += "\n" + tr("CONTRACT_REVISING")
+	if c["short"]:
+		info += "\n" + tr("CONTRACT_SHORT")
+	var label := _wrap(info, &"SmallMutedLabel")
+	box.add_child(label)
+	return card
+
+
+## Tawaran: nama, klien & tenggat, bayaran, deskripsi, catatan pasar, lalu tombol per strategi.
+func _offer_card(index: int) -> PanelContainer:
+	var contracts := GameState.contracts
+	var offer: Dictionary = contracts.board[index]
+	var def := contracts.project_def(offer["id"])
+	var card := PanelContainer.new()
+	card.theme_type_variation = &"HomeCard"
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 8)
+	card.add_child(box)
+	box.add_child(_contract_head(offer, tr("CONTRACT_OFFER_SUB") % [offer["client"], int(offer["months"])], offer["pay"]))
+	box.add_child(_wrap(tr("CONTRACT_%s_DESC" % str(offer["id"]).to_upper()), &"SmallMutedLabel"))
+	var notes: Array[String] = []
+	var need := int(contracts.tier_def(int(offer["tier"]))["skill"])
+	notes.append(tr("CONTRACT_SKILL") % [need, floori(GameState.career.skill)])
+	if float(offer.get("regime_mult", 1.0)) > 1.0:
+		notes.append(tr("CONTRACT_MARKET_UP") % roundi((float(offer["regime_mult"]) - 1.0) * 100.0))
+	elif float(offer.get("regime_mult", 1.0)) < 1.0:
+		notes.append(tr("CONTRACT_MARKET_DOWN") % roundi((1.0 - float(offer["regime_mult"])) * 100.0))
+	if def.has("pay_asset"):
+		notes.append(tr("CONTRACT_TOKEN") % def["pay_asset"])
+	var notes_label := _wrap(" · ".join(notes), &"ReqLabel")
+	notes_label.add_theme_color_override("font_color", Palette.GAIN if GameState.career.skill >= need else Palette.LOSS)
+	box.add_child(notes_label)
+
+	var buttons := HBoxContainer.new()
+	buttons.add_theme_constant_override("separation", 8)
+	var reasons: Array[String] = []
+	for strategy: Dictionary in contracts.strategies():
+		var id: String = strategy["id"]
+		var reason := contracts.accept_block_reason(index, id)
+		if reason != "" and not tr(reason) in reasons:
+			reasons.append(tr(reason))
+		var text := "%s\n%s · %d%%" % [tr("CONTRACT_STRATEGY_" + id.to_upper()),
+			tr("RESEARCH_ENERGY") % int(strategy["energy"]), roundi(contracts.chance_for(offer, id) * 100.0)]
+		var careful := id == "careful"
+		var button := UiText.chunky_button(text, &"PrimaryButton" if careful and reason == "" else &"NeutralButton",
+			&"PrimaryButtonLabel" if careful and reason == "" else &"NeutralButtonLabel", 72.0, 17)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.disabled = reason != ""
+		button.pressed.connect(_on_accept_contract.bind(index, id))
+		buttons.add_child(button)
+	box.add_child(buttons)
+	if not reasons.is_empty():
+		var reason_label := _wrap(", ".join(reasons), &"ReasonLabel")
+		box.add_child(reason_label)
+	return card
+
+
+func _on_accept_contract(index: int, strategy_id: String) -> void:
+	var offer: Dictionary = GameState.contracts.board[index].duplicate()
+	var result := GameState.contracts.accept(index, strategy_id)
+	%FeedbackBox.show()
+	if result["ok"]:
+		Sfx.play("success")
+		%ActivityFeedback.text = tr("CONTRACT_ACCEPTED") % [tr("CONTRACT_" + str(offer["id"]).to_upper()),
+			Fmt.game_date(GameState.month + int(offer["months"]))]
+		%FeedbackBox.theme_type_variation = &"FeedbackGood"
+		%ActivityFeedback.add_theme_color_override("font_color", Color("#1e5e45"))
+		contract_accepted.emit()
 	else:
 		%ActivityFeedback.text = tr(result["error"])
 		%FeedbackBox.theme_type_variation = &"FeedbackBad"

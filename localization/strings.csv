@@ -1150,3 +1150,76 @@ PROFILE_RESEARCH_RUMORS_VALUE,%d (%d terbukti),%d (%d true)
 PROFILE_RESEARCH_VALUE,%d/%d tepat (%d%%),%d/%d correct (%d%%)
 PROFILE_RESEARCH_COSTS,Biaya riset,Research costs
 PROFILE_RESEARCH_NOTE,"Akurasi nyata baru mendekati tingkat keyakinan setelah banyak riset. Dari beberapa riset saja, hasilnya bisa jauh lebih baik atau lebih buruk karena kebetulan.","Real accuracy only approaches the confidence level after many studies. With just a few, results can be much better or worse by chance."
+CONTRACT_UMKM_LOGO,Desain Logo UMKM,Small Business Logo
+CONTRACT_UMKM_LOGO_DESC,Logo dan kemasan sederhana untuk usaha kecil yang baru buka.,A logo and simple packaging for a newly opened small business.
+CONTRACT_SOCIAL_CAMPAIGN,Kampanye Media Sosial,Social Media Campaign
+CONTRACT_SOCIAL_CAMPAIGN_DESC,"Konten dan iklan selama dua bulan. Saat ekonomi lesu, anggaran promosi klien dipangkas.","Two months of content and ads. When the economy slows, clients cut their promotion budget."
+CONTRACT_AD_VIDEO,Video Iklan Brand,Brand Ad Video
+CONTRACT_AD_VIDEO_DESC,"Naskah, syuting, dan penyuntingan video iklan untuk perusahaan menengah.","Script, shoot, and edit an ad video for a mid-sized company."
+CONTRACT_SHOP_WEBSITE,Website Toko Online,Online Shop Website
+CONTRACT_SHOP_WEBSITE_DESC,Toko online sederhana dengan katalog dan tombol pesan lewat WhatsApp.,A simple online shop with a catalog and a WhatsApp order button.
+CONTRACT_POS_APP,Aplikasi Kasir,Point-of-Sale App
+CONTRACT_POS_APP_DESC,Aplikasi kasir dan stok untuk toko dengan beberapa karyawan.,A cashier and stock app for a shop with several staff.
+CONTRACT_TOKEN_CONTRACT,Smart Contract Token Kripto,Crypto Token Smart Contract
+CONTRACT_TOKEN_CONTRACT_DESC,"Kode token untuk startup kripto. Dibayar dengan token, jadi nilainya bisa naik atau anjlok sebelum kamu terima.","Token code for a crypto startup. Paid in tokens, so its value can rise or crash before you receive it."
+CONTRACT_WARUNG_BOOKS,Pembukuan Warung,Corner Shop Bookkeeping
+CONTRACT_WARUNG_BOOKS_DESC,Merapikan catatan kas dan stok warung agar untung-ruginya jelas.,Tidy up a corner shop's cash and stock records so its profit is clear.
+CONTRACT_UMKM_TAX,Laporan Pajak UMKM,Small Business Tax Report
+CONTRACT_UMKM_TAX_DESC,"Menghitung dan melaporkan pajak usaha kecil (PPh final 0,5% dari omzet).",Calculate and file a small business's tax (0.5% final tax on turnover).
+CONTRACT_COOP_AUDIT,Audit Laporan Koperasi,Cooperative Audit
+CONTRACT_COOP_AUDIT_DESC,Memeriksa laporan keuangan koperasi menjelang rapat anggota tahunan.,Review a cooperative's financial statements before its annual members' meeting.
+CONTRACT_ARCHIVE_SOP,Arsip & SOP Usaha,Records & Procedures
+CONTRACT_ARCHIVE_SOP_DESC,Menyusun arsip dan prosedur kerja untuk usaha keluarga.,Organize records and work procedures for a family business.
+CONTRACT_STOCK_AUDIT,Audit Stok Gudang,Warehouse Stock Audit
+CONTRACT_STOCK_AUDIT_DESC,Menghitung ulang stok gudang dan mencari selisih pencatatan.,Recount warehouse stock and track down record discrepancies.
+CONTRACT_CLINIC_SYSTEM,Sistem Administrasi Klinik,Clinic Admin System
+CONTRACT_CLINIC_SYSTEM_DESC,"Menata pendaftaran pasien, jadwal dokter, dan tagihan klinik.","Set up patient registration, doctor schedules, and billing for a clinic."
+CONTRACT_STORE_DISPLAY,Penataan Etalase Toko,Store Display Makeover
+CONTRACT_STORE_DISPLAY_DESC,Menata ulang etalase dan rak agar pembeli betah dan belanja lebih banyak.,Rearrange displays and shelves so shoppers stay longer and buy more.
+CONTRACT_SALES_TRAINING,Pelatihan Pramuniaga,Sales Staff Training
+CONTRACT_SALES_TRAINING_DESC,Melatih karyawan toko melayani pelanggan dan menawarkan produk.,Train shop staff to serve customers and recommend products.
+CONTRACT_BRANCH_CONSULT,Konsultasi Buka Cabang,New Branch Consulting
+CONTRACT_BRANCH_CONSULT_DESC,"Studi lokasi dan rencana buka cabang. Saat ekonomi lesu, klien menahan anggaran.","Location study and plan for a new branch. When the economy slows, clients hold back budgets."
+CONTRACT_PRIVATE_TUTOR,Les Privat,Private Tutoring
+CONTRACT_PRIVATE_TUTOR_DESC,"Mengajar siswa SMA menjelang ujian, dua kali seminggu.","Tutor a high school student before exams, twice a week."
+CONTRACT_TRANSLATION,Penerjemahan Dokumen,Document Translation
+CONTRACT_TRANSLATION_DESC,Menerjemahkan dokumen bisnis dari bahasa Inggris.,Translate business documents from English.
+CONTRACT_TITLE,Proyek Sampingan,Side Projects
+CONTRACT_HINT,Reputasi %d (bayaran +%d%%) · proyek aktif %d/%d. Proyek memakai energi setiap bulan sampai tenggat; dua proyek sekaligus melelahkan dan menurunkan kinerja di kantor.,Reputation %d (pay +%d%%) · active projects %d/%d. Projects use energy every month until the deadline; two at once wears you out and lowers your performance at work.
+CONTRACT_NONE,Tawaran proyek baru muncul setiap awal bulan.,New project offers appear at the start of each month.
+CONTRACT_STRATEGY_NOTE,"Teliti: peluang berhasil tinggi dan lebih sering memuaskan klien. Cepat: hemat energi, tapi rawan revisi. Bersama rekan: ringan, tapi bayaran dibagi (kamu %d%%). Gagal pertama kali berarti revisi 1 bulan.","Careful: high success chance and more often an excellent result. Fast: saves energy but often needs revisions. With a partner: light, but the pay is shared (you get %d%%). A first failure means a 1-month revision."
+CONTRACT_STRATEGY_CAREFUL,Teliti,Careful
+CONTRACT_STRATEGY_FAST,Cepat,Fast
+CONTRACT_STRATEGY_TEAM,Bersama rekan,With a partner
+CONTRACT_OFFER_SUB,%s · tenggat %d bulan,%s · %d-month deadline
+CONTRACT_SKILL,Keahlian disarankan %d (kamu %d),Suggested skill %d (you %d)
+CONTRACT_MARKET_UP,Ekonomi ramai: bayaran +%d%%,Booming economy: pay +%d%%
+CONTRACT_MARKET_DOWN,Ekonomi lesu: bayaran -%d%%,Slow economy: pay -%d%%
+CONTRACT_TOKEN,Dibayar token %s: nilainya ikut harga,Paid in %s tokens: value follows the price
+CONTRACT_ACTIVE_INFO,Sisa %d bulan (dinilai awal %s) · peluang berhasil %d%% · %d energi/bulan,%d months left (judged early %s) · success chance %d%% · %d energy/month
+CONTRACT_REVISING,Sedang revisi: klien meminta perbaikan.,In revision: the client asked for fixes.
+CONTRACT_SHORT,Energi kurang bulan ini: peluang berhasil turun.,Not enough energy this month: success chance drops.
+CONTRACT_ACCEPTED,Proyek diterima: %s. Hasilnya dinilai awal %s.,Project accepted: %s. It will be judged early %s.
+CONTRACT_RESULT_EXCELLENT,Memuaskan,Excellent
+CONTRACT_RESULT_SUCCESS,Selesai,Done
+CONTRACT_RESULT_REVISION,Revisi +1 bulan,Revision +1 month
+CONTRACT_RESULT_FAILED,Gagal,Failed
+ERR_CONTRACT_GONE,Tawaran ini sudah tidak tersedia.,This offer is no longer available.
+ERR_CONTRACT_MAX,Proyek aktif sudah maksimal.,You already have the maximum active projects.
+REPORT_CONTRACTS,PROYEK SAMPINGAN,SIDE PROJECTS
+REPORT_CONTRACT_ROW,%s: %s,%s: %s
+REPORT_CONTRACT_TOKEN,Dibayar token: nilainya %s sejak proyek diterima.,Paid in tokens: value changed %s since you accepted.
+REPORT_CONTRACT_SHORT,"Proyek sempat kekurangan energi, peluang berhasil turun.","The project ran short of energy, lowering its success chance."
+REPORT_CONTRACT_REPUTATION,Reputasi proyek: %d menjadi %d,Project reputation: %d to %d
+CAREER_SIDE_PENALTY,Proyek sampingan berlebih: -%d.,Too many side projects: -%d.
+ACT_ENERGY_PROJECTS,%d untuk proyek,%d for projects
+HOME_PROJECTS,Proyek sampingan: %s,Side projects: %s
+HOME_PROJECT_ITEM,%s (sisa %d bln),%s (%d mo left)
+HINT_CONTRACT,"Proyek sampingan memberi bayaran, pengalaman bidang, keahlian, dan reputasi. Reputasi tinggi membuka proyek yang lebih besar dengan bayaran lebih tinggi.
+
+Proyek memakai energi setiap bulan sampai tenggat dan sedikit menguras kesehatan atau kebahagiaan. Setelah tenggat hasilnya dinilai: memuaskan (bonus), selesai, revisi, atau gagal. Jangan berlebihan: dua proyek sekaligus menguras kesehatan & kebahagiaan dan menurunkan kinerja di kantor.","Side projects pay money and build field experience, skill, and reputation. Higher reputation unlocks bigger, better-paid projects.
+
+Projects use energy every month until the deadline and wear on your health or happiness a little. After the deadline the result is judged: excellent (bonus), done, revision, or failed. Do not overdo it: two projects at once drains your health and happiness and lowers your performance at work."
+PROFILE_STAT_PROJECTS,Proyek sampingan,Side projects
+PROFILE_STAT_PROJECTS_VALUE,%d selesai · %d gagal,%d done · %d failed
+PROFILE_STAT_PROJECT_INCOME,Penghasilan proyek,Project income

@@ -6,7 +6,7 @@ extends Node
 ## Jalankan (data asli aman karena --save-root):
 ##   Godot --headless --path . res://tools/balance/balance_sim.tscn -- --save-root=user://_sim/
 ##       [--games=40] [--years=30] [--persona=all|hemat|penabung|boros|spekulan|acak|pelajar|pengutang|pengendara|
-##       pembeli_rumah|pembeli_rumah_kota|pembeli_rumah_nekat|pemburu_rumor|periset]
+##       pembeli_rumah|pembeli_rumah_kota|pembeli_rumah_nekat|pemburu_rumor|periset|pekerja_lepas|gila_kerja]
 ##       [--difficulty=normal]
 ##       [--background=s1|d3|sma]
 ## Folder tools/ tidak ikut ke APK (exclude_filter di export_presets.cfg).
@@ -49,6 +49,12 @@ const PERSONAS := {
 	"periset": {"desc": "Hemat + riset mendalam, membeli hanya jika riset mendukung", "food": "standard", "housing": "kos",
 		"lifestyle": 0.05, "emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"}, "choice": "prudent",
 		"quiz": true, "lump_invest": true, "activities": true, "rumors": "research"},
+	"pekerja_lepas": {"desc": "Hemat + 1 proyek sampingan sekaligus (teliti)", "food": "standard", "housing": "kos",
+		"lifestyle": 0.05, "emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"}, "choice": "prudent",
+		"quiz": true, "lump_invest": true, "activities": true, "projects": 1},
+	"gila_kerja": {"desc": "Hemat + selalu 2 proyek sampingan sekaligus", "food": "standard", "housing": "kos",
+		"lifestyle": 0.05, "emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"}, "choice": "prudent",
+		"quiz": true, "lump_invest": true, "activities": true, "projects": 2},
 }
 const CHECKPOINTS := [5, 10, 20, 30]
 
@@ -195,6 +201,11 @@ func _snapshot(start_salary: int) -> Dictionary:
 		"properties_seized": int(GameState.stats["properties_seized"]),
 		"property_value": GameState.properties.total_value(),
 		"property_costs": float(GameState.stats["property_costs"]),
+		"projects_done": int(GameState.stats["projects_done"]),
+		"projects_failed": int(GameState.stats["projects_failed"]),
+		"projects_revised": int(GameState.stats["projects_revised"]),
+		"project_income": float(GameState.stats["project_income"]),
+		"reputation": GameState.contracts.reputation,
 	}
 
 
@@ -353,6 +364,8 @@ func _monthly_actions(p: Dictionary) -> void:
 		_home_actions(p["homes"], expenses, float(p.get("home_buffer", 3.0)))
 	if p.has("rumors"):  # sebelum aktivitas: riset memakai energi
 		_rumor_actions(p["rumors"], expenses)
+	if p.has("projects"):  # sebelum aktivitas: proyek memakai energi
+		_project_actions(int(p["projects"]))
 	if p.get("courses", false) and GameState.career.skill < 80.0 and GameState.cash > expenses * 2:
 		GameState.activities.perform("course")
 	if p["quiz"]:
@@ -418,6 +431,22 @@ func _rumor_actions(style: String, expenses: float) -> void:
 	var result := GameState.portfolio.buy(rumor["asset"], amount)
 	if result["ok"]:
 		_rumor_position = {"asset": rumor["asset"], "month": rumor["month"], "paid": amount, "units": result["units"]}
+
+
+## Tipe pemain proyek sampingan (v1.5d langkah 3): ambil tawaran dengan nilai harapan terbesar
+## (bayaran x peluang berhasil) sampai `limit` proyek aktif; teliti jika energi cukup, selain itu cepat.
+func _project_actions(limit: int) -> void:
+	var contracts := GameState.contracts
+	while contracts.active.size() < limit and not contracts.board.is_empty():
+		var best := 0
+		for i in contracts.board.size():
+			var offer: Dictionary = contracts.board[i]
+			var top: Dictionary = contracts.board[best]
+			if float(offer["pay"]) * contracts.chance_for(offer, "careful") > float(top["pay"]) * contracts.chance_for(top, "careful"):
+				best = i
+		var strategy := "careful" if contracts.accept_block_reason(best, "careful") == "" else "fast"
+		if not contracts.accept(best, strategy)["ok"]:
+			return
 
 
 ## Pemain yang rajin kuis: soal dasar terjawab di bulan 2, soal risiko di bulan 8
@@ -603,6 +632,12 @@ func _print_summary(persona: String, results: Array[Dictionary], years: int) -> 
 		print("  tahun %d: terima tawaran kredit %d%% | restrukturisasi %d%% | take over KPR %d%%" % [
 			last, share.call("offer_loans"), share.call("restructures"), share.call("refinances")])
 	_print_rumors(results)
+	var freelancers := finals.filter(func(f: Dictionary) -> bool: return f["projects_done"] + f["projects_failed"] > 0)
+	if not freelancers.is_empty():
+		print("  tahun %d: proyek selesai median %d | gagal median %d | revisi median %d | penghasilan proyek median %s (nominal) | reputasi median %d" % [
+			last, int(_median(freelancers, "projects_done")), int(_median(freelancers, "projects_failed")),
+			int(_median(freelancers, "projects_revised")), Fmt.rupiah_short(_median(freelancers, "project_income")),
+			int(_median(freelancers, "reputation"))])
 	var defaults: Array = results.filter(func(r: Dictionary) -> bool: return r["default_month"] >= 0)
 	if not defaults.is_empty():
 		var recovered: Array = defaults.filter(func(r: Dictionary) -> bool: return r["recovered_month"] >= 0)

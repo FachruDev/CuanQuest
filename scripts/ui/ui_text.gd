@@ -15,10 +15,11 @@ const TRACK_ICON_FALLBACKS := {
 	"retail": "res://assets/icons/wallet.svg", "admin": "res://assets/icons/folder.svg",
 	"finance": "res://assets/icons/classes/deposit.svg", "tech": "res://assets/icons/search.svg",
 	"creative": "res://assets/icons/lightbulb.svg", "gig": "res://assets/icons/activities/side_job.svg",
+	"general": "res://assets/icons/book.svg",  # proyek sampingan umum: les privat, terjemahan (v1.5d)
 }
 const TRACK_TILES := {
 	"retail": &"IconTileCoral", "admin": &"IconTileBlue", "finance": &"IconTileGold",
-	"tech": &"IconTilePurple", "creative": &"IconTileMint", "gig": &"IconTileCoral",
+	"tech": &"IconTilePurple", "creative": &"IconTileMint", "gig": &"IconTileCoral", "general": &"IconTileTeal",
 }
 
 static var _money_token: RegEx

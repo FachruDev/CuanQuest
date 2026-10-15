@@ -29,6 +29,7 @@ data/
   market.json                 Siklus pasar, suku bunga acuan, peluang berita
   news.json                   Template berita pasar & dampaknya ke harga
   rumors.json                 Rumor pasar (v1.5d): peluang, gerak harga benar/jebakan, riset dasar & mendalam
+  contracts.json              Proyek sampingan (v1.5d): 17 proyek, tier & reputasi, 3 strategi, peluang, bayaran
   events/<kategori>.json      90 event hidup per kategori (finance, work, education, health, social,
                               market, scam, property, debt): syarat, pilihan, efek, tokoh. Cara menambah:
                               docs/PANDUAN_EVENT.md
@@ -40,7 +41,7 @@ data/
   jobs.json                   Pekerjaan (bidang, jenjang, syarat, gaji, beban kerja) & aturan lowongan
   education.json              Program kuliah (syarat, lama, biaya, hasil) & beban kuliah
   quiz.json                   39 soal kuis (4 topik)
-  glossary.json               71 istilah glosarium
+  glossary.json               72 istilah glosarium
   legal.json                  Kebijakan privasi & syarat penggunaan (tampil di game)
   activities.json             6 aktivitas bulanan & aturan energi
   risk_profile.json           Kuesioner & 3 profil risiko
@@ -66,6 +67,7 @@ scripts/
     properties.gd             Properti: harga, beli tunai/KPR, dihuni/disewakan, jual, dilelang
     characters.gd             Tokoh berulang: kedekatan, nama atasan/rekan per perusahaan, saran Kak Wulan
     research.gd               Rumor pasar & riset: rumor benar/jebakan, penilaian riset, rekam jejak
+    contracts.gd              Proyek sampingan: papan tawaran, strategi, energi bulanan, hasil, reputasi
     insurance.gd, dreams.gd, targets.gd, activities.gd, progress.gd
     life_events.gd            Event Director: jadwal event, antrean, keputusan, efek tertunda
   core/                       Logika murni tanpa UI (mudah dites)
@@ -121,6 +123,7 @@ scenes/
 | `properties` | `Properties` | Properti, KPR, sewa, jual, lelang (v1.5c) |
 | `characters` | `Characters` | Tokoh berulang & kedekatan (v1.5d) |
 | `research` | `Research` | Rumor pasar, riset dasar & mendalam, rekam jejak riset (v1.5d) |
+| `contracts` | `Contracts` | Proyek sampingan: papan tawaran, strategi, hasil, reputasi (v1.5d) |
 
 **Yang tetap di GameState:** profil, `month`, `cash`, `health`, `happiness`, `stats`, `market`, `rng`, signal, `new_game()`, `advance_month()` (orkestrasi bulanan), `apply_effects()`, `to_dict()`/`load_from_dict()`, harga & pajak (`nominal()`, `income_tax()`), dan kondisi menang/kalah.
 
@@ -205,7 +208,7 @@ scenes/
 - [ ] **v1.5d "Tokoh, Riset, Kontrak, Konten"**:
   - [x] (1) Tokoh berulang & 10 rantai event
   - [x] (2) Riset pasar & rumor
-  - [ ] (3) Kontrak & proyek sampingan
+  - [x] (3) Kontrak & proyek sampingan
   - [ ] (4) Pencapaian, kosmetik & laporan tahunan
   - [ ] (5) Perluasan konten & penyeimbangan
 - [ ] **v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
@@ -307,6 +310,15 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Simulator:** tipe pemain `pemburu_rumor` (hemat + membeli setiap rumor naik tanpa riset) dan `periset` (hemat + riset mendalam, membeli jika hasilnya mendukung); ringkasan mencetak jumlah rumor, transaksi rumor, imbal hasil rata-rata, dan akurasi riset.
 - **Hasil simulator** (S1, 40 permainan × 30 tahun): ±114 rumor per permainan. Pemburu rumor rata-rata -2,0% per transaksi (43% untung); periset +6,3% (62% untung, akurasi nyata 75%, biaya riset Rp155 jt); pemain hemat tidak terpengaruh (bebas finansial tahun 12,6). Riset membantu, tetapi tidak mengubah tempo permainan.
 - **Menambah rumor:** salin satu baris di `rumors` (`id`, `target`, `direction`, `weight`), lalu tambahkan tiga teksnya di CSV.
+
+## Proyek Sampingan (v1.5d langkah 3)
+
+- **Data:** `data/contracts.json`: jumlah tawaran per bulan (`offers`), proyek aktif maksimal (`max_active`), reputasi (`reputation`: perubahan per hasil & tambahan bayaran per poin), rumus peluang (`chance`), 3 tier (syarat reputasi & keahlian, bayaran per bulan, tambahan keahlian & XP), 3 strategi (`strategies`: energi, bonus peluang, bagian bayaran, peluang memuaskan, efek kondisi), kelelahan (`overload`), penalti kinerja, daftar klien per tier, dan 17 proyek (`track`, `tier`, `months`, opsional `regime` & `pay_asset`). Teks: `CONTRACT_<ID>` & `CONTRACT_<ID>_DESC` di CSV.
+- **Modul** `GameState.contracts` (`scripts/game/contracts.gd`, kelas `Contracts`), RNG sendiri. `accept(index, strategi)` memakai energi bulan ini; `month_step()` (dipanggil `_start_month()` setelah energi diisi ulang) menerapkan kelelahan, menilai proyek yang tenggatnya tiba (`_resolve`), memakai energi untuk proyek yang berlanjut, lalu membuat papan tawaran baru (`refresh_board`). Hasil masuk laporan (`report.contracts_done`). `performance_penalty()` dipakai `Career.performance_factors()` (faktor `side`). Analogi web: marketplace freelance kecil dengan antrean job milik user.
+- **UI:** bagian **Proyek Sampingan** di tab Karier (reputasi & aturan, kartu proyek aktif, kartu tawaran dengan tombol per strategi berisi energi & peluang), baris proyek di kartu Karier Beranda, bagian **Proyek Sampingan** di laporan bulanan, statistik proyek di Profil, energi "untuk proyek" di kartu energi, petunjuk `HINT_CONTRACT` saat proyek pertama diterima.
+- **Save:** kunci baru `contract_board`, `contracts`, `contract_reputation`, `contract_energy`, `contract_seq`, `contract_rng`; statistik `projects_*` & `project_income` (save lama: tanpa proyek, papan terisi bulan berikutnya).
+- **Hasil simulator** (40 × 30 tahun): tahun bebas finansial S1 hemat 12,6 → selalu 1 proyek 10,5 → selalu 2 proyek 9,6; SMA 18,4 → 14,7 → 13,4. Dua proyek sekaligus menguras kesehatan (±75) & kebahagiaan (±81) dan menurunkan kinerja kantor. Versi awal (bayaran 2× lebih besar dan keahlian lebih banyak) membuat S1 bebas finansial di tahun 7,6, jadi angka di data sudah diturunkan.
+- **Menambah proyek:** salin satu baris di `projects` (`id`, `track` = id bidang di `jobs.json` atau `general`, `tier`, `months` [min, max], `weight`), lalu tambahkan nama & deskripsinya di CSV.
 
 ## Penyeimbangan Utang, Properti & Hunian (v1.5c langkah 5)
 

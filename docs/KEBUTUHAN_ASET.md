@@ -2,7 +2,7 @@
 
 Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang **dibutuhkan**, dan **di file mana** aset itu dipakai. Diperbarui setiap kali sebuah langkah membutuhkan aset baru.
 
-- **Terakhir diperbarui:** 15 Oktober 2026 (v1.5d langkah 2: rumor & riset tanpa aset baru; potret tokoh langkah 1 masih lingkaran berwarna + inisial)
+- **Terakhir diperbarui:** 15 Oktober 2026 (v1.5d langkah 3: ikon bidang "Umum" untuk proyek sampingan; langkah 2 tanpa aset baru; potret tokoh langkah 1 masih lingkaran berwarna + inisial)
 - **Rencana pembuatan:** pengembang membuat aset setelah **v2 selesai**. Sampai saat itu game memakai aset sementara (🔁), dan daftar di bawah terus diperbarui setiap langkah.
 - **Tanda:** ✅ sudah ada · ⬜ dibutuhkan · 🔁 sementara memakai aset lain atau gambar pengganti sederhana (game tetap jalan)
 - Tabel aset yang sudah ada dibuat otomatis dengan memindai `scenes/`, `scripts/`, `theme/`, dan `data/`.
@@ -16,7 +16,7 @@ Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang
 | **v1.5a** Realisme ekonomi | Tidak ada; memakai ulang `shield.svg`, `wallet.svg`, `trend_line.svg`, `warning_small.svg` | ✅ |
 | **v1.5b** Pekerjaan & karier | 13 ikon (3 latar pendidikan, 6 bidang kerja, 1 navigasi Karier, 3 program kuliah) + 2 opsional | ⬜ 🔁 |
 | **v1.5c** Utang, properti, hunian | 3 ikon (lencana popup Pinjaman, Kendaraan, Properti) + 11 ilustrasi Hunian & Kendaraan (latar, 7 tempat tinggal, 3 kendaraan) yang sekarang berupa gambar pengganti sederhana | ⬜ 🔁 |
-| **v1.5d** Tokoh & konten | 6 potret tokoh (dipakai sekarang, sementara inisial berwarna); lencana pencapaian & kosmetik menyusul | ⬜ 🔁 |
+| **v1.5d** Tokoh & konten | 6 potret tokoh (dipakai sekarang, sementara inisial berwarna) + 1 ikon bidang "Umum" (proyek sampingan); lencana pencapaian & kosmetik menyusul | ⬜ 🔁 |
 | **v2** | Ikon instrumen lanjut, ilustrasi bab kehidupan | ⬜ (rencana) |
 | **M7** Rilis Play Store | Ikon aplikasi adaptif, grafis & screenshot Play Store | ⬜ (rencana) |
 
@@ -111,6 +111,14 @@ Dipakai `scripts/ui/character_portrait.gd` di popup event (baris tokoh di bawah 
 | `assets/illustrations/characters/ratna.svg` | Bu Ratna, tetangga | Ibu-ibu ramah berdaster, suka bercerita | 🔁 lingkaran ungu "R" |
 | `assets/illustrations/characters/boss.svg` | Atasan (nama berganti per perusahaan, pria/wanita) | Netral gender, kemeja kantor & kacamata | 🔁 lingkaran tinta + inisial nama |
 | `assets/illustrations/characters/coworker.svg` | Rekan kerja (nama berganti per perusahaan) | Netral gender, kartu identitas karyawan | 🔁 lingkaran emas + inisial nama |
+
+**Langkah 3 (proyek sampingan), sementara memakai ikon lain:**
+
+Kartu proyek di tab Karier memakai ikon bidang kerja yang sama dengan lowongan (`assets/icons/tracks/<bidang>.svg`, lihat v1.5b). Proyek bidang **Umum** (les privat, penerjemahan) butuh satu ikon baru:
+
+| File | Isi | Dipakai di | Sementara | Cara memasang |
+|:--|:--|:--|:--|:--|
+| `assets/icons/tracks/general.svg` | Bidang Umum (buku + pena) | `scripts/ui/ui_text.gd` (`track_icon`): kartu Proyek Sampingan di tab Karier | 🔁 `book.svg` | Otomatis |
 
 **Langkah 2 (rumor & riset):** tidak butuh aset baru. Kartu **Kabar Burung** di tab Pasar, bagian Rumor & Riset di laporan bulanan, dan kartu Rekam Jejak Riset di Profil memakai gaya kartu, chip, dan tombol yang sudah ada.
 

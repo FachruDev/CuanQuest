@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 15 Oktober 2026 (v1.5d langkah 2 riset pasar & rumor selesai)
+- **Terakhir diperbarui:** 15 Oktober 2026 (v1.5d langkah 3 proyek sampingan selesai)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -17,7 +17,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v1.5a** | Realisme ekonomi | ✅ 5/5 langkah |
 | **v1.5b** | Pekerjaan & karier (melamar kerja, keahlian, jenjang) | ✅ 5/5 langkah |
 | **v1.5c** | Utang, properti, hunian yang tumbuh | ✅ 5/5 langkah (aset final menyusul setelah v2) |
-| **v1.5d** | Tokoh, riset, kontrak, konten | 🔄 2/5 langkah |
+| **v1.5d** | Tokoh, riset, kontrak, konten | 🔄 3/5 langkah |
 | **v2a-v2d** | Instrumen lanjut, hidup penuh, dana investor, mini-game | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
 
@@ -368,7 +368,7 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.4 (ditulis 15 Oktober 202
 |:--|:--|:--|
 | 1 | Tokoh berulang & rantai event: `data/characters.json`, kedekatan, 10 rantai, tokoh di popup event, kartu Orang Terdekat | ✅ |
 | 2 | Riset pasar & rumor: rumor benar/jebakan, riset dasar 55% & mendalam 75%, rekam jejak analis | ✅ |
-| 3 | Kontrak & proyek sampingan: papan proyek, 3 strategi, tenggat 1-3 bulan | ⬜ |
+| 3 | Kontrak & proyek sampingan: papan proyek, 3 strategi, tenggat 1-3 bulan | ✅ |
 | 4 | Pencapaian (≥15), kosmetik (bingkai avatar & gelar), laporan tahunan | ⬜ |
 | 5 | Perluasan konten (±150 soal kuis, event pelengkap) & penyeimbangan | ⬜ |
 
@@ -390,10 +390,19 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.4 (ditulis 15 Oktober 202
 - ✅ Kartu **Rekam Jejak Riset** di Profil (akurasi nyata vs tingkat keyakinan), petunjuk pertama kali, 4 istilah glosarium baru
 - ✅ Simulator: tipe pemain `pemburu_rumor` & `periset`; golden runner identik saat rumor dimatikan; 108 uji riset + 621 uji lama lulus
 
+**Langkah 3: Kontrak & proyek sampingan** ✅
+- ✅ 17 proyek di `data/contracts.json` (5 bidang kerja + Umum, 3 tier), papan 0-2 tawaran per bulan di tab Karier, maksimal 2 proyek sekaligus
+- ✅ 3 strategi (teliti, cepat, bersama rekan) dengan energi bulanan, peluang berhasil, dan bagi hasil berbeda; tenggat 1-3 bulan
+- ✅ Hasil memuaskan/selesai/revisi/gagal; bayaran, pengalaman bidang, keahlian, XP, dan reputasi (membuka proyek lebih besar)
+- ✅ Dipengaruhi pasar (kampanye & konsultasi saat pasar lesu, proyek dibayar token kripto); dua proyek sekaligus melelahkan dan menurunkan kinerja kantor
+- ✅ Kartu proyek aktif & tawaran di tab Karier, baris di Beranda, bagian Proyek Sampingan di laporan bulanan, statistik di Profil, petunjuk pertama kali
+- ✅ Simulator: tipe pemain `pekerja_lepas` & `gila_kerja`; golden runner identik; 86 uji proyek + 729 uji lama lulus
+- 🔁 Ikon bidang Umum sementara `book.svg` (lihat `docs/KEBUTUHAN_ASET.md`)
+
 **Daftar fitur v1.5d**
 - ✅ 4-6 tokoh berulang di event dan rantai event
 - ✅ Riset pasar (laporan analis dengan tingkat keyakinan)
-- ⬜ Kontrak dengan tenggat 1-3 bulan
+- ✅ Kontrak dengan tenggat 1-3 bulan
 - ⬜ Minimal 15 pencapaian; tema & avatar dibuka lewat pencapaian
 - ⬜ Laporan tahunan
 - ⬜ Sekitar 80 event dan 150 soal kuis

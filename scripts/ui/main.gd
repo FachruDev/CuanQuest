@@ -71,6 +71,7 @@ func _ready() -> void:
 			GameState.career.resign()
 			_show_toast(tr("TOAST_RESIGNED")), tr("BTN_CANCEL"))))
 	%ActivityScreen.enroll_requested.connect(_confirm_enroll)
+	%ActivityScreen.contract_accepted.connect(_hint.bind("HINT_CONTRACT"))  # proyek sampingan pertama (v1.5d)
 	%ActivityScreen.quit_study_requested.connect(func() -> void:
 		_enqueue(%InfoPopup.open.bind(tr("EDU_QUIT_TITLE"), tr("EDU_QUIT_BODY"), tr("EDU_QUIT_CONFIRM"),
 			GameState.education.quit_study, tr("BTN_CANCEL"))))

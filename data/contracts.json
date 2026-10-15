@@ -1,0 +1,61 @@
+{
+	"_comment": [
+		"Proyek sampingan (v1.5d langkah 3). Tiap awal bulan papan proyek berisi `offers` [min, max] tawaran; pemain boleh mengerjakan paling banyak `max_active` proyek sekaligus.",
+		"Proyek dikerjakan selama `months` bulan (tenggat) dan memakai energi strategi setiap bulan (termasuk bulan diterima). Hasilnya diundi di awal bulan setelah tenggat.",
+		"Peluang berhasil = chance.base + (keahlian - syarat keahlian tier) x per_skill + bonus pengalaman bidang (>= experience_months bulan) + bonus strategi, dibatasi min..max. Energi kurang di suatu bulan = short_energy; revisi menambah revision_bonus.",
+		"Gagal pertama kali = revisi (+1 bulan kerja); gagal lagi = gagal (dibayar failed_pay). Berhasil: bayaran x pay_share strategi; memuaskan (peluang = peluang berhasil x excellent strategi) dapat bonus excellent_bonus.",
+		"tiers: syarat reputasi untuk muncul, syarat keahlian, bayaran per bulan proyek (Rupiah awal permainan, ikut inflasi & gaji tingkat kesulitan), tambahan keahlian & XP saat berhasil.",
+		"Reputasi 0-100 menaikkan bayaran pay_per_point per poin. Pengalaman bidang bertambah experience_ratio x lama proyek (dibulatkan ke bawah) saat berhasil. Proyek aktif di atas 1 menurunkan target kinerja kantor performance_penalty per proyek dan menguras kondisi (overload) setiap bulan.",
+		"Proyek dengan regime: bayaran dikali regime_pay sesuai kondisi pasar saham saat ditawarkan. Proyek dengan pay_asset: nilai bayaran ikut harga aset itu dari saat diterima sampai dibayar (dibayar token).",
+		"Teks: CONTRACT_<ID> (nama) & CONTRACT_<ID>_DESC. Bidang `general` tidak menambah pengalaman bidang."
+	],
+	"offers": [0, 2],
+	"max_active": 2,
+	"reputation": { "start": 0, "excellent": 6, "success": 3, "revision": -2, "failed": -8, "pay_per_point": 0.002 },
+	"chance": {
+		"base": 0.6, "per_skill": 0.01, "min": 0.1, "max": 0.95,
+		"experience_months": 12, "experience_bonus": 0.08, "short_energy": -0.2, "revision_bonus": 0.15
+	},
+	"tiers": [
+		{ "tier": 1, "reputation": 0, "skill": 15, "pay": 700000, "skill_gain": 0.15, "xp": 5 },
+		{ "tier": 2, "reputation": 20, "skill": 35, "pay": 1300000, "skill_gain": 0.25, "xp": 8 },
+		{ "tier": 3, "reputation": 50, "skill": 55, "pay": 2000000, "skill_gain": 0.35, "xp": 10 }
+	],
+	"strategies": [
+		{ "id": "careful", "energy": 2, "chance": 0.15, "pay_share": 1.0, "excellent": 0.5, "health": -1, "happiness": -1 },
+		{ "id": "fast", "energy": 1, "chance": -0.15, "pay_share": 1.0, "excellent": 0.15, "health": -1, "happiness": 0 },
+		{ "id": "team", "energy": 1, "chance": 0.05, "pay_share": 0.6, "excellent": 0.3, "health": 0, "happiness": 0, "coworker_rel": 2 }
+	],
+	"excellent_bonus": 0.25,
+	"failed_pay": 0.25,
+	"failed_happiness": -3,
+	"experience_ratio": 0.34,
+	"performance_penalty": 10,
+	"overload": { "health": -3, "happiness": -3 },
+	"pay_spread": [0.9, 1.1],
+	"regime_pay": { "bull": 1.15, "sideways": 1.0, "bear": 0.8 },
+	"clients": {
+		"1": ["Warung Bu Siti", "Kopi Senja", "Laundry Kilat", "Bengkel Pak Darto", "Toko Kue Mawar", "Katering Bunda"],
+		"2": ["Koperasi Sejahtera", "Klinik Pratama Sehat", "Distro Anak Bangsa", "Resto Padang Sederhana", "Toko Bangunan Jaya"],
+		"3": ["PT Sumber Rezeki", "Yayasan Pendidikan Cerdas", "Startup Panen Raya", "Jaringan Apotek Sehat", "PT Kopi Nusantara"]
+	},
+	"projects": [
+		{ "id": "umkm_logo", "track": "creative", "tier": 1, "months": [1, 1], "weight": 1 },
+		{ "id": "social_campaign", "track": "creative", "tier": 2, "months": [2, 2], "weight": 1, "regime": true },
+		{ "id": "ad_video", "track": "creative", "tier": 3, "months": [2, 3], "weight": 1 },
+		{ "id": "shop_website", "track": "tech", "tier": 1, "months": [1, 1], "weight": 1 },
+		{ "id": "pos_app", "track": "tech", "tier": 2, "months": [2, 2], "weight": 1 },
+		{ "id": "token_contract", "track": "tech", "tier": 3, "months": [2, 2], "weight": 1, "pay_asset": "GRD" },
+		{ "id": "warung_books", "track": "finance", "tier": 1, "months": [1, 1], "weight": 1 },
+		{ "id": "umkm_tax", "track": "finance", "tier": 2, "months": [1, 2], "weight": 1 },
+		{ "id": "coop_audit", "track": "finance", "tier": 3, "months": [3, 3], "weight": 1 },
+		{ "id": "archive_sop", "track": "admin", "tier": 1, "months": [1, 1], "weight": 1 },
+		{ "id": "stock_audit", "track": "admin", "tier": 2, "months": [2, 2], "weight": 1 },
+		{ "id": "clinic_system", "track": "admin", "tier": 3, "months": [3, 3], "weight": 1 },
+		{ "id": "store_display", "track": "retail", "tier": 1, "months": [1, 1], "weight": 1 },
+		{ "id": "sales_training", "track": "retail", "tier": 2, "months": [2, 2], "weight": 1 },
+		{ "id": "branch_consult", "track": "retail", "tier": 3, "months": [3, 3], "weight": 1, "regime": true },
+		{ "id": "private_tutor", "track": "general", "tier": 1, "months": [1, 2], "weight": 1.5 },
+		{ "id": "translation", "track": "general", "tier": 1, "months": [1, 1], "weight": 1 }
+	]
+}

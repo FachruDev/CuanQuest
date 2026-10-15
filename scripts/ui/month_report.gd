@@ -108,6 +108,7 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 			_add_bullet(box, "- " + news_text(item))
 
 	_add_rumors(box, r)
+	_add_contracts(box, r)
 
 	var targets: Array = r.get("targets", [])
 	if not targets.is_empty():
@@ -229,6 +230,28 @@ static func _add_costs(box: VBoxContainer, r: Dictionary) -> void:
 		_add_row(box, "REPORT_INTEREST_TAX", Fmt.signed_rupiah(-interest_tax), Palette.LOSS)
 	var total := trade_fee + trade_tax + interest_tax + float(r.get("income_tax", 0))
 	_add_text(box, TranslationServer.translate("REPORT_COSTS_TOTAL") % Fmt.rupiah(total), Palette.MUTED)
+
+
+## Proyek sampingan yang tenggatnya tiba bulan ini (v1.5d langkah 3): hasil & bayaran, reputasi.
+static func _add_contracts(box: VBoxContainer, r: Dictionary) -> void:
+	var done: Array = r.get("contracts_done", [])
+	if done.is_empty():
+		return
+	_add_header(box, "REPORT_CONTRACTS")
+	for item: Dictionary in done:
+		var result: String = item["result"]
+		var name := TranslationServer.translate("CONTRACT_" + str(item["id"]).to_upper())
+		var label := TranslationServer.translate("REPORT_CONTRACT_ROW") % [name,
+			TranslationServer.translate("CONTRACT_RESULT_" + result.to_upper())]
+		var pay := int(item["pay"])
+		var color := Palette.GAIN if result in ["excellent", "success"] else (Palette.MUTED if result == "revision" else Palette.LOSS)
+		_add_row_text(box, label, Fmt.signed_rupiah(pay) if pay > 0 else "-", color)
+		if item.has("asset_change") and result != "revision":
+			_add_text(box, TranslationServer.translate("REPORT_CONTRACT_TOKEN") % Fmt.percent(item["asset_change"]), Palette.MUTED)
+		if item.get("short", false):
+			_add_text(box, TranslationServer.translate("REPORT_CONTRACT_SHORT"), Palette.MUTED)
+	_add_text(box, TranslationServer.translate("REPORT_CONTRACT_REPUTATION") % [int(r.get("reputation_before", 0)),
+		int(r.get("reputation_after", 0))], Palette.MUTED)
 
 
 ## Rumor yang terjawab bulan ini (v1.5d langkah 2): terbukti atau hoaks, gerak harga sejak rumor,

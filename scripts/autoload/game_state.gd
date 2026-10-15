@@ -4,7 +4,8 @@ extends Node
 ##
 ## Analogi web: ini root "store" (Redux/Pinia). Logika tiap domain ada di modul terpisah di
 ## scripts/game/ (seperti slice/store per fitur): career, characters, education, insurance, debt,
-## portfolio, research, budget, dreams, vehicles, properties, targets, events, activities, progress.
+## portfolio, research, contracts, budget, dreams, vehicles, properties, targets, events, activities,
+## progress.
 ## File ini hanya memegang data bersama (profil, bulan, kas, kondisi, statistik, pasar, RNG), mengatur
 ## alur tiap bulan, menjalankan efek event, menyimpan/memuat, dan memeriksa akhir permainan.
 ##
@@ -87,6 +88,7 @@ var debt := Debt.new(self)
 var events := LifeEvents.new(self)
 var portfolio := Portfolio.new(self)
 var research := Research.new(self)
+var contracts := Contracts.new(self)
 var budget := Budget.new(self)
 var dreams := Dreams.new(self)
 var vehicles := Vehicles.new(self)
@@ -96,9 +98,9 @@ var activities := Activities.new(self)
 ## Urutan dipakai untuk reset, simpan/muat, dan efek event. Karier sebelum rencana gaji
 ## (rencana awal memakai gaji); pendidikan sebelum aktivitas (energi memakai beban kuliah);
 ## impian sebelum kendaraan (save lama: impian kendaraan yang terwujud menjadi kendaraan). Riset (rumor
-## pasar) memakai RNG sendiri, jadi urutannya tidak memengaruhi undian modul lain.
+## pasar) dan proyek sampingan memakai RNG sendiri, jadi urutannya tidak memengaruhi undian modul lain.
 var modules: Array[GameModule] = [progress, career, characters, education, insurance, debt, events, portfolio,
-	research, budget, dreams, vehicles, properties, targets, activities]
+	research, contracts, budget, dreams, vehicles, properties, targets, activities]
 
 var fast_forwarding := false
 ## Naik setiap game baru / dimuat (tidak disimpan). SaveManager memakainya untuk tahu apakah
@@ -260,7 +262,8 @@ func advance_month() -> void:
 
 ## Awal bulan: properti diproses (harga, sewa, biaya, penjualan), hasil lamaran diumumkan, gaji masuk
 ## (kecuali menganggur/cuti), biaya hidup & biaya kendaraan terpotong, kesehatan & kebahagiaan berubah, cicilan utang lalu premi & uang kuliah dibayar,
-## rencana gaji dijalankan, target & lowongan baru muncul. Januari: penyesuaian inflasi + kenaikan prestasi.
+## proyek sampingan diproses (hasil & energi bulan ini), rencana gaji dijalankan, target, lowongan & tawaran proyek
+## baru muncul. Januari: penyesuaian inflasi + kenaikan prestasi.
 func _start_month() -> Dictionary:
 	var property_report := properties.month_step()  # sebelum biaya hidup: rumah yang laku = kembali menyewa
 	var food := food_option()
@@ -297,6 +300,7 @@ func _start_month() -> Dictionary:
 	activities.energy_capacity = activities.energy_max()  # setelah kuliah bulan ini diketahui (beban energi)
 	activities.energy = activities.energy_capacity
 	activities.counts.clear()
+	var contract_report := contracts.month_step()  # proyek sampingan: hasil, lalu energi bulan ini
 	# Rencana gaji baru berjalan setelah pemain menyimpannya pertama kali (lihat Budget.set_plan).
 	var budget_report := budget.apply(budget.month_income) if budget.plan.get("confirmed", false) else {}
 	dreams.check()
@@ -318,7 +322,8 @@ func _start_month() -> Dictionary:
 		"salary_raise": salary_raise,
 		"performance": roundi(career.performance) if working and career.is_career() else -1,
 		"performance_delta": roundi(career.performance) - roundi(performance_before),
-	}.merged(merit).merged(property_report).merged(debt_report).merged(premiums).merged(study_report).merged(budget_report)
+	}.merged(merit).merged(property_report).merged(debt_report).merged(premiums).merged(study_report) \
+		.merged(budget_report).merged(contract_report)
 
 
 ## Perubahan kesehatan & kebahagiaan per bulan dari pekerjaan: beban kerja jabatan (jobs.json
@@ -649,6 +654,7 @@ func _new_stats() -> Dictionary:
 		"vehicles_bought": 0, "vehicles_sold": 0, "vehicles_seized": 0, "vehicle_costs": 0,
 		"properties_bought": 0, "properties_sold": 0, "properties_seized": 0, "property_costs": 0,
 		"rent_income": 0, "property_gains": 0, "offer_loans": 0, "restructures": 0, "refinances": 0,
+		"projects_done": 0, "projects_excellent": 0, "projects_revised": 0, "projects_failed": 0, "project_income": 0,
 		"best_trade": {}, "worst_trade": {}, "best_event": {}, "worst_event": {},
 	}
 
@@ -801,7 +807,7 @@ func _merge_reports(reports: Array[Dictionary]) -> Dictionary:
 		forced.append_array(r.get("forced_sales", []))
 		executed_orders.append_array(r.get("orders", []))
 	for key: String in ["loan_missed", "loan_closed", "loan_defaults", "loan_rate_changes", "property_sold",
-			"property_notes", "rumors"]:
+			"property_notes", "rumors", "contracts_done"]:
 		var items: Array = []
 		for r: Dictionary in reports:
 			items.append_array(r.get(key, []))

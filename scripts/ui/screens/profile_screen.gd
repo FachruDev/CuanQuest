@@ -73,6 +73,9 @@ func _refresh() -> void:
 		("%s %s" % [tr(best["asset_key"]), Fmt.signed_rupiah(best["value"])]) if not best.is_empty() else "-"))
 	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_PROMOTIONS", str(int(s["promotions"]))))
 	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_UNEMPLOYED", str(int(s["months_unemployed"]))))
+	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_PROJECTS", tr("PROFILE_STAT_PROJECTS_VALUE") % [
+		int(s.get("projects_done", 0)), int(s.get("projects_failed", 0))]))
+	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_PROJECT_INCOME", Fmt.rupiah(float(s.get("project_income", 0)))))
 	UiText.fill_career_log(_career_log_box, 8)
 	_refresh_people()
 	_refresh_research()

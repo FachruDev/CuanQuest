@@ -372,8 +372,8 @@ func months_at_company() -> int:
 	return gs.month - int(job.get("hired", job.get("since", gs.month)))
 
 
-## Target kinerja & penyusunnya (ditampilkan di kartu Pekerjaan):
-## dasar + kecocokan keahlian dengan syarat jabatan + rata-rata kesehatan & kebahagiaan.
+## Target kinerja & penyusunnya (ditampilkan di kartu Pekerjaan): dasar + kecocokan keahlian dengan
+## syarat jabatan + rata-rata kesehatan & kebahagiaan + rekan kerja akrab - proyek sampingan berlebih.
 func performance_factors() -> Dictionary:
 	var cfg: Dictionary = data["performance"]
 	var skill_fit := clampf((skill - skill_requirement(current_job_def())) * float(cfg["per_skill"]),
@@ -381,8 +381,9 @@ func performance_factors() -> Dictionary:
 	var wellbeing := clampf(((gs.health + gs.happiness) / 2.0 - float(cfg["wellbeing_from"])) * float(cfg["wellbeing_rate"]),
 		float(cfg["wellbeing_min"]), float(cfg["wellbeing_max"]))
 	var team := gs.characters.performance_bonus()  # rekan kerja yang dekat (v1.5d)
-	return {"skill": skill_fit, "wellbeing": wellbeing, "team": team,
-		"target": clampf(float(cfg["base"]) + skill_fit + wellbeing + team, 0.0, 100.0)}
+	var side := gs.contracts.performance_penalty()  # terlalu banyak proyek sampingan (v1.5d)
+	return {"skill": skill_fit, "wellbeing": wellbeing, "team": team, "side": side,
+		"target": clampf(float(cfg["base"]) + skill_fit + wellbeing + team - side, 0.0, 100.0)}
 
 
 ## Key teks predikat kinerja ("PERF_GOOD", ...).

@@ -273,6 +273,11 @@ func _refresh_career() -> void:
 		var text := tr("HOME_STUDY_STARTS") % program if GameState.month < int(study["since"]) \
 			else tr("HOME_STUDYING") % [program, total - int(study["months_left"]), total]
 		_career_box.add_child(_wrap_label(text, &"SmallMutedLabel"))
+	var projects: Array[String] = []  # proyek sampingan yang sedang dikerjakan (v1.5d)
+	for c: Dictionary in GameState.contracts.active:
+		projects.append(tr("HOME_PROJECT_ITEM") % [tr("CONTRACT_" + str(c["id"]).to_upper()), int(c["months_left"])])
+	if not projects.is_empty():
+		_career_box.add_child(_wrap_label(tr("HOME_PROJECTS") % ", ".join(projects), &"SmallMutedLabel"))
 	var employed := GameState.career.is_employed()
 	var button := UiText.chunky_button(tr("HOME_OPEN_CAREER") if employed else tr("HOME_SEE_OPENINGS"),
 		&"NeutralButton" if employed else &"PrimaryButton",
