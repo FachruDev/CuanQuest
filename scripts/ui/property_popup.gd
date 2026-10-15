@@ -8,6 +8,8 @@ extends ModalPopup
 
 signal property_bought(name: String)
 signal property_listed(name: String)
+## Pemain mulai menghuni properti miliknya sendiri (cerita rumah pertama di main.gd).
+signal moved_in
 
 const MAX_ROWS_HEIGHT := 560.0
 const USES := ["live", "rent", "empty"]
@@ -245,7 +247,9 @@ func open_detail(uid: int) -> void:
 		%Rows.add_child(_label(tr("PROPERTY_USE"), &"ReportHeaderLabel"))
 		%Rows.add_child(_use_row(entry["use"], func(use: String) -> void:
 			if properties.set_use(_uid, use):
-				open_detail(_uid)))
+				open_detail(_uid)
+				if use == "live":
+					moved_in.emit()))
 		%Rows.add_child(_label(tr("PROPERTY_USE_NOTE"), &"SmallMutedLabel"))
 	var loan := properties.loan_of(entry)
 	if not loan.is_empty():

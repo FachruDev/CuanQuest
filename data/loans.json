@@ -7,12 +7,16 @@
 		"Kredit beragunan (collateral: vehicle / property) tidak muncul di tombol Ajukan pinjaman; diajukan dari layar beli kendaraan / properti. min_dp = uang muka minimal, dp_steps = pilihan uang muka.",
 		"KPR: bunga tetap (rate_spread di atas suku bunga BI) selama fixed_months bulan, lalu mengambang = suku bunga BI + float_spread, disesuaikan tiap bulan. fixed_rate = bunga tetap sepanjang tenor (KPR subsidi). max_salary = gaji bruto maksimal (harga awal, ikut inflasi); first_home = belum punya properti lain.",
 		"amounts = pilihan jumlah pinjaman (dibatasi max_salary_mult x gaji bruto). prepay_penalty = penalti pelunasan dipercepat (persen sisa pokok).",
+		"Produk hidden (paylater) tidak muncul di tombol Ajukan pinjaman; hanya ditawarkan lewat event. offer = tawaran lewat event (data/events/debt.json): amount & tenor tetap, atau salary_mult = jumlah terbesar yang lolos syarat sampai x gaji bruto.",
+		"restructure_months = tambahan tenor saat restrukturisasi (event penagih utang): tunggakan digabung ke sisa pokok.",
+		"KPR refinance (take over ke bank lain, event masa bunga tetap berakhir): bunga tetap baru = suku bunga BI + spread (+ penyesuaian skor) selama fixed_months, biaya fee x sisa pokok (penalti + provisi + notaris); syarat pegawai, skor >= min_score, tanpa tunggakan, sisa tenor >= min_months_left. prepay_part = porsi sisa pokok untuk pelunasan sebagian.",
 		"Teks ditulis langsung dalam bahasa Indonesia dan ditampilkan lewat tr(), seperti event, impian, dan asuransi."
 	],
 	"dsr_limit": 0.35,
 	"late_fee": 0.05,
 	"default_after": 3,
 	"seize_value_ratio": 0.7,
+	"restructure_months": 12,
 	"credit": {
 		"_comment": "Skor kredit 0-100 (mirip SLIK OJK / BI checking). grades: dari skor tertinggi; rate = tambahan bunga per tahun; tingkat dengan min di bawah min_score ditolak bank.",
 		"start": 60,
@@ -37,7 +41,15 @@
 			"requires": "career", "min_months": 6, "max_active": 1,
 			"rate_spread": 0.12, "tenors": [12, 24, 36],
 			"amounts": [5000000, 10000000, 15000000, 20000000, 30000000, 40000000, 50000000, 75000000, 100000000, 150000000, 200000000, 300000000],
-			"max_salary_mult": 5, "prepay_penalty": 0.03
+			"max_salary_mult": 5, "prepay_penalty": 0.03,
+			"offer": { "tenor": 36, "salary_mult": 3 }
+		},
+		{
+			"id": "paylater", "name": "Paylater", "short": "Paylater", "hidden": true,
+			"desc": "Fasilitas \"beli sekarang, bayar nanti\" dari aplikasi belanja. Terasa ringan karena dicicil, tapi bunganya sekitar 4% per bulan dan tercatat di SLIK OJK seperti utang bank.",
+			"requires": "employed", "min_months": 1, "max_active": 1,
+			"rate_spread": 0.42, "tenors": [3, 6, 12], "prepay_penalty": 0.0,
+			"offer": { "amount": 6000000, "tenor": 12 }
 		},
 		{
 			"id": "motor_loan", "name": "Kredit Motor", "short": "Kredit motor", "collateral": "vehicle",
@@ -58,7 +70,9 @@
 			"desc": "Kredit Pemilikan Rumah dari bank. Bunga tetap 3 tahun pertama, lalu mengambang mengikuti suku bunga BI, jadi cicilan bisa naik. Rumah menjadi jaminan dan dilelang jika kamu menunggak 3 bulan.",
 			"requires": "career", "min_months": 12, "max_active": 2,
 			"rate_spread": -0.0075, "fixed_months": 36, "float_spread": 0.055, "tenors": [60, 120, 180, 240],
-			"min_dp": 0.1, "dp_steps": [0.1, 0.2, 0.3, 0.4, 0.5], "prepay_penalty": 0.02
+			"min_dp": 0.1, "dp_steps": [0.1, 0.2, 0.3, 0.4, 0.5], "prepay_penalty": 0.02,
+			"refinance": { "spread": 0.01, "fixed_months": 24, "fee": 0.03, "min_score": 60, "min_months_left": 24 },
+			"prepay_part": 0.1
 		},
 		{
 			"id": "kpr_subsidi", "name": "KPR Subsidi (FLPP)", "short": "KPR subsidi", "collateral": "property",

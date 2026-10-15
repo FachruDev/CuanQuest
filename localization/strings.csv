@@ -294,9 +294,9 @@ When you're done, tap ""Next Month"". The market moves and your monthly report a
 TUT_3_TITLE,Beranda: jaga hidupmu,Home: take care of yourself
 TUT_3_BODY,"Pilih makan dan tempat tinggal. Yang murah membuat tabungan cepat bertambah, tapi bisa menurunkan kesehatan dan kebahagiaan.
 
-Siapkan dana darurat (3-6 kali pengeluaran bulanan) untuk menghadapi sakit, PHK, atau kerusakan.","Choose food and housing. Cheap options grow savings faster but can lower health and happiness.
+Siapkan dana darurat (3-6 kali pengeluaran bulanan) untuk menghadapi sakit, PHK, atau kerusakan. Kendaraan, rumah, dan pinjaman juga diatur di Beranda; cicilan dan biayanya terpotong otomatis setiap bulan.","Choose food and housing. Cheap options grow savings faster but can lower health and happiness.
 
-Build an emergency fund (3-6x monthly spending) for sickness, layoffs, or repairs."
+Build an emergency fund (3-6x monthly spending) for sickness, layoffs, or repairs. Vehicles, homes, and loans are managed on Home too; their installments and costs are deducted every month."
 TUT_4_TITLE,Pasar: mulai dari yang aman,Market: start safe
 TUT_4_BODY,"Awalnya hanya tabungan, deposito, dan reksa dana pasar uang yang terbuka. Reksa dana saham, saham, lalu kripto terbuka bertahap saat kamu memenuhi syaratnya.
 
@@ -1017,3 +1017,46 @@ DREAM_ACHIEVED_FUNDS,Dana %s sudah masuk ke kas. Pakai sebagai uang muka di kart
 INSIGHT_PROPERTY_SEIZED,Propertimu dilelang %d kali karena KPR macet. Pilih cicilan yang tetap aman walau bunga mengambang naik atau penghasilan turun.,Your property was auctioned %d times after mortgage defaults. Choose installments that stay safe even if floating rates rise or income drops.
 INSIGHT_RENT,"Properti sewaanmu menghasilkan sewa bersih %s. Properti bisa menjadi sumber pendapatan pasif, asal biaya dan masa kosongnya diperhitungkan.","Your rental properties earned %s in net rent. Property can be passive income, as long as you account for costs and vacancies."
 INSIGHT_OWN_HOME,"Kamu menutup permainan di rumah sendiri (%s). Tanpa sewa bulanan, pengeluaran rutinmu jauh lebih ringan di masa tua.","You finished the game in your own home (%s). Without monthly rent, your regular spending is much lighter in old age."
+EVENT_CAT_PROPERTY,PROPERTI,PROPERTY
+EVENT_CAT_DEBT,KREDIT,CREDIT
+CHANGE_DEBT,Utang,Debt
+SHEET_TITLE,Neraca,Balance Sheet
+SHEET_END_TITLE,Neraca Akhir,Final Balance Sheet
+SHEET_ASSETS,Aset,Assets
+SHEET_EMERGENCY,Tabungan dana darurat,Emergency savings
+SHEET_INVESTMENTS,Investasi,Investments
+SHEET_DREAMS,Dana impian,Dream funds
+SHEET_VEHICLES,Kendaraan,Vehicles
+SHEET_PROPERTIES,Properti,Property
+SHEET_TOTAL_ASSETS,Total aset,Total assets
+SHEET_DEBTS,Utang,Debts
+SHEET_NO_DEBT,Belum ada utang.,No debt.
+SHEET_TOTAL_DEBT,Total utang,Total debt
+SHEET_NET_WORTH,Kekayaan bersih,Net worth
+SHEET_RATIO,"Utang = %d%% dari aset. Makin kecil makin aman; di awal KPR biasanya tinggi, lalu turun seiring cicilan.",Debt = %d%% of assets. Lower is safer; it is usually high early in a mortgage and falls as you pay it down.
+HOME_SCENE_TITLE,Hunian & Kendaraan,Home & Vehicle
+HOME_SCENE_WALK,Jalan kaki & angkutan umum,Walking & public transport
+HINT_LOAN,"Pinjaman memberi uang sekarang, tapi dibayar kembali dengan bunga. Perhatikan cicilan per bulan, total bunga, dan rasio cicilan (DSR, maksimal 35% gaji).
+
+Cicilan ditarik otomatis setiap awal bulan. Telat bayar menurunkan skor kredit, dan menunggak 3 bulan berturut-turut membuat pinjaman macet.","A loan gives you money now, but you pay it back with interest. Check the monthly installment, total interest, and debt service ratio (DSR, at most 35% of salary).
+
+Installments are charged automatically at the start of each month. Late payments lower your credit score, and 3 missed months in a row put the loan in default."
+HINT_VEHICLE,"Kendaraan menambah kebahagiaan, tapi nilainya menyusut setiap tahun dan ada biaya rutin: bensin, servis, dan pajak.
+
+Membeli tunai (misalnya lewat Impian) lebih murah daripada kredit, karena kredit menambah bunga di atas nilai yang terus turun.","A vehicle adds happiness, but it loses value every year and has running costs: fuel, servicing, and tax.
+
+Buying with cash (for example through a Dream) is cheaper than credit, because credit adds interest on top of a shrinking value."
+HINT_PROPERTY,"Membeli rumah butuh lebih dari harganya: BPHTB + notaris 6% dibayar tunai, lalu PBB & perawatan setiap bulan. Bunga KPR biasanya hanya tetap 3 tahun, setelah itu mengambang.
+
+Menyewa bukan berarti buang uang: bandingkan sewa dengan cicilan, biaya kepemilikan, dan hasil investasi dari uang mukanya.","Buying a home costs more than its price: 6% transfer tax + notary paid in cash, then property tax & upkeep every month. Mortgage rates are usually fixed for only 3 years, then float.
+
+Renting isn't throwing money away: compare rent with installments, ownership costs, and what the down payment could earn if invested."
+STORY_HOME_TITLE,Rumah Sendiri!,A Home of Your Own!
+STORY_HOME_BODY,"Selamat datang di %s, rumahmu sendiri!
+
+Tidak ada lagi uang sewa, tapi kini ada cicilan, PBB, dan biaya perawatan setiap bulan. Sisihkan dana untuk perbaikan, karena atap bocor dan keran rusak kini jadi urusanmu.","Welcome to %s, your own home!
+
+No more rent, but now there are installments, property tax, and upkeep every month. Set aside money for repairs: leaky roofs and broken taps are now your problem."
+INSIGHT_RESTRUCTURE,"Kamu merestrukturisasi utang %d kali. Restrukturisasi menyelamatkanmu dari kredit macet, tapi tenornya lebih panjang dan total bunganya bertambah.","You restructured a loan %d time(s). Restructuring saved you from default, but it lengthened the term and added interest."
+INSIGHT_OFFER_LOANS,"Kamu menerima %d tawaran kredit (paylater/KTA). Tawaran yang ""langsung disetujui"" tetap utang berbunga tinggi; tanyakan dulu apakah itu kebutuhan atau keinginan.","You accepted %d credit offer(s) (paylater/personal loan). ""Instantly approved"" offers are still high-interest debt; ask whether it's a need or a want."
+INSIGHT_REFINANCE,Kamu memindahkan KPR ke bank lain (take over) %d kali untuk menghindari bunga mengambang yang tinggi. Selalu bandingkan biaya pindah dengan bunga yang dihemat.,You moved your mortgage to another bank (refinanced) %d time(s) to avoid high floating rates. Always compare the switching cost with the interest saved.

@@ -1,5 +1,5 @@
 extends ScrollContainer
-## Tab Beranda (tema "Senja Cuan"): ringkasan karier, kondisi karakter, impian, target,
+## Tab Beranda (tema "Senja Cuan"): ringkasan karier, ilustrasi hunian & kendaraan, kondisi karakter, impian, target,
 ## perlindungan, kendaraan, properti, utang & kredit, arus kas bulanan (sesuai rencana gaji), dan
 ## pilihan biaya hidup.
 
@@ -30,6 +30,8 @@ var _debt_box: VBoxContainer           # isi kartu Utang & Kredit (v1.5c)
 var _vehicle_box: VBoxContainer        # isi kartu Kendaraan (v1.5c langkah 2)
 var _property_box: VBoxContainer       # isi kartu Properti (v1.5c langkah 3)
 var _workload_label: Label             # catatan beban kerja di kartu Kondisi
+var _scene: HomeScene                  # ilustrasi hunian & kendaraan (v1.5c langkah 4)
+var _scene_caption: Label
 
 
 func _ready() -> void:
@@ -38,6 +40,7 @@ func _ready() -> void:
 	_build_plan_rows()
 	_build_goal_cards()
 	_build_career_card()
+	_build_scene_card()
 	_workload_label = _wrap_label("", &"SmallMutedLabel")  # kenapa kondisi berubah tiap bulan
 	$VBox/WellbeingCard/VBox.add_child(_workload_label)
 	GameState.changed.connect(_refresh)
@@ -96,6 +99,8 @@ func _refresh() -> void:
 	%SurplusBox.theme_type_variation = &"SurplusPositive" if surplus >= 0 else &"SurplusNegative"
 
 	_refresh_career()
+	_scene.refresh()
+	_scene_caption.text = HomeScene.caption()
 	_refresh_workload()
 	_refresh_dreams()
 	_refresh_targets()
@@ -196,6 +201,28 @@ func _build_career_card() -> void:
 	page.move_child(title, 0)
 	page.add_child(card)
 	page.move_child(card, 1)
+
+
+## Judul + kartu Hunian & Kendaraan tepat di bawah kartu Karier: ilustrasi + keterangan singkat.
+func _build_scene_card() -> void:
+	var page: VBoxContainer = $VBox
+	var title := Label.new()
+	title.text = tr("HOME_SCENE_TITLE")
+	title.theme_type_variation = &"SubSectionLabel"
+	var card := PanelContainer.new()
+	card.theme_type_variation = &"HomeCard"
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 8)
+	_scene = HomeScene.new()
+	box.add_child(_scene)
+	_scene_caption = _wrap_label("", &"SmallMutedLabel")
+	_scene_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(_scene_caption)
+	card.add_child(box)
+	page.add_child(title)
+	page.move_child(title, 2)  # setelah judul & kartu Karier
+	page.add_child(card)
+	page.move_child(card, 3)
 
 
 ## Menganggur: peringatan, sisa modal dalam bulan, lamaran terkirim, tombol Lihat Lowongan.

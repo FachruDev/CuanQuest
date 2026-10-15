@@ -1,0 +1,64 @@
+{
+	"_comment": "Utang & kredit (v1.5c langkah 4): tawaran paylater/KTA, penagih utang, masa bunga tetap KPR berakhir. Angka (jumlah, cicilan, tunggakan, biaya) dihitung modul Debt (event_vars) dan dipakai lewat isian teks & cost_var. Event chain_only dijadwalkan Debt.scheduled_events(). Format & cara menambah event: docs/PANDUAN_EVENT.md",
+	"events": [
+		{
+			"id": "paylater_offer", "category": "debt", "weight": 1, "min_month": 3, "cooldown": 12, "max_times": 3, "requires": "paylater_offer", "context": { "low_happiness": 2 },
+			"title": "Beli Sekarang, Bayar Nanti", "text": "HP-mu mulai lemot. Aplikasi belanja menawarkan HP baru seharga {amount} lewat paylater: \"Langsung disetujui, cicilan {months}x cuma {installment}!\"",
+			"choices": [
+				{ "label": "Beli pakai paylater", "effects": { "take_loan": "spend", "happiness": 6 }, "result": "HP baru sudah di tangan. Total bunganya {interest}, dan cicilannya tercatat di SLIK OJK seperti utang bank: telat bayar akan menurunkan skor kreditmu." },
+				{ "label": "Beli tunai", "cost_var": "amount", "effects": { "happiness": 6 }, "result": "HP baru tanpa bunga dan tanpa cicilan bulanan." },
+				{ "label": "HP lama masih cukup", "effects": { "xp": 10 }, "result": "Keputusan bijak. Paylater terasa ringan karena dicicil, padahal bunganya sekitar 4% per bulan." }
+			]
+		},
+		{
+			"id": "kta_offer", "category": "debt", "weight": 1, "min_month": 12, "cooldown": 24, "max_times": 2, "requires": "kta_offer", "context": { "cash_poor": 2 },
+			"title": "Telepon dari Bank", "text": "\"Selamat, Anda mendapat KTA pre-approved {amount}! Cair hari ini, cicilannya {installment} per bulan selama {months} bulan.\" Petugas bank menunggu jawabanmu.",
+			"choices": [
+				{ "label": "Ambil untuk liburan & belanja", "effects": { "take_loan": "spend", "happiness": 10 }, "result": "Liburannya menyenangkan, tapi cicilan {installment} akan menemanimu {months} bulan. Total bunganya {interest}." },
+				{ "label": "Ambil, simpan sebagai cadangan", "effects": { "take_loan": "keep" }, "result": "Uang {amount} masuk ke kas, tapi bunganya berjalan terus dan jauh di atas bunga tabungan. Utang bukan dana darurat; pertimbangkan melunasinya lebih cepat." },
+				{ "label": "Tolak dengan sopan", "effects": { "xp": 10 }, "result": "Tepat. Utang tanpa tujuan yang jelas hanya menambah cicilan bulanan." }
+			]
+		},
+		{
+			"id": "debt_collector", "chain_only": true, "bad": true, "category": "debt", "weight": 1,
+			"title": "Penagih Utang Datang", "text": "Tunggakan {loan}-mu sudah {arrears}. Petugas penagihan dari bank datang ke rumah. Jika bulan depan masih menunggak, seluruh sisa utang akan ditagih sekaligus.\n\nKamu juga bisa menjual investasi bulan ini agar tunggakan tertagih otomatis awal bulan depan.",
+			"choices": [
+				{ "label": "Bayar tunggakannya", "cost_var": "arrears", "effects": { "pay_arrears": true }, "result": "Tunggakan lunas dan status kreditmu kembali lancar. Riwayat telat bayarnya tetap tercatat di SLIK OJK." },
+				{ "label": "Ajukan restrukturisasi", "outcomes": [
+					{ "chance": 0.75, "effects": { "restructure": true, "credit_score": -5 }, "result": "Bank setuju: tunggakan digabung ke sisa utang dan tenornya diperpanjang 12 bulan. Cicilan jadi lebih ringan, tapi total bunganya bertambah." },
+					{ "chance": 0.25, "effects": { "happiness": -3 }, "result": "Bank menolak restrukturisasi. Segera cari cara membayar tunggakan sebelum bulan depan, misalnya dengan menjual investasi." }
+				] },
+				{ "label": "Hindari penagihnya", "effects": { "happiness": -6, "health": -2 }, "result": "Masalah tidak hilang dengan menghindar. Ingat: penagih resmi wajib sopan, menagih pukul 08.00-20.00, dan tidak boleh mengancam. Pelanggaran bisa dilaporkan ke OJK (157)." }
+			]
+		},
+		{
+			"id": "collateral_warning", "chain_only": true, "bad": true, "category": "debt", "weight": 1,
+			"title": "Surat Peringatan Terakhir", "text": "Cicilan {loan}-mu menunggak {arrears}. Surat peringatan datang: jika bulan depan masih menunggak, {collateral} akan ditarik dan dilelang.\n\nKamu juga bisa menjual investasi bulan ini agar tunggakan tertagih otomatis awal bulan depan.",
+			"choices": [
+				{ "label": "Bayar tunggakannya", "cost_var": "arrears", "effects": { "pay_arrears": true }, "result": "Tunggakan lunas dan status kreditmu kembali lancar. Riwayat telat bayarnya tetap tercatat di SLIK OJK." },
+				{ "label": "Ajukan restrukturisasi", "outcomes": [
+					{ "chance": 0.75, "effects": { "restructure": true, "credit_score": -5 }, "result": "Pengajuanmu disetujui: tunggakan digabung ke sisa utang dan tenornya diperpanjang 12 bulan. Cicilan jadi lebih ringan, tapi total bunganya bertambah." },
+					{ "chance": 0.25, "effects": { "happiness": -3 }, "result": "Pengajuan restrukturisasi ditolak. Segera cari cara membayar tunggakan sebelum bulan depan, misalnya dengan menjual investasi." }
+				] },
+				{ "label": "Abaikan suratnya", "effects": { "happiness": -5 }, "result": "Jika agunan dilelang, harganya jauh di bawah harga pasar, dan catatan kredit macet tersimpan bertahun-tahun di SLIK OJK." }
+			]
+		},
+		{
+			"id": "kpr_rate_reset", "chain_only": true, "category": "debt", "weight": 1,
+			"title": "Masa Bunga Tetap KPR Berakhir", "text": "Mulai bulan depan bunga {loan}-mu mengambang mengikuti suku bunga BI: dari {rate_from} menjadi sekitar {rate_to}. Cicilannya naik dari {pay_from} menjadi sekitar {pay_to} per bulan.\n\nBank lain menawarkan take over KPR dengan bunga tetap {refi_rate} selama 2 tahun (cicilan sekitar {pay_refi}). Penalti, provisi, dan biaya notarisnya dibayar di muka.",
+			"choices": [
+				{ "label": "Take over ke bank lain", "cost_var": "fee", "effects": { "refinance": true }, "result": "KPR-mu pindah ke bank baru dengan bunga tetap {refi_rate} selama 2 tahun. Setelah itu bunganya kembali mengambang." },
+				{ "label": "Lunasi sebagian pokok", "cost_var": "prepay", "effects": { "prepay_part": true }, "result": "Sisa pokok berkurang {prepay_amount}, sehingga cicilan mengambang turun menjadi sekitar {pay_prepaid} per bulan." },
+				{ "label": "Terima bunga mengambang", "effects": {}, "result": "Cicilanmu kini naik-turun mengikuti suku bunga BI. Pastikan dana daruratmu cukup untuk beberapa bulan cicilan." }
+			]
+		},
+		{
+			"id": "kpr_rate_reset_basic", "chain_only": true, "category": "debt", "weight": 1,
+			"title": "Masa Bunga Tetap KPR Berakhir", "text": "Mulai bulan depan bunga {loan}-mu mengambang mengikuti suku bunga BI: dari {rate_from} menjadi sekitar {rate_to}. Cicilannya naik dari {pay_from} menjadi sekitar {pay_to} per bulan.\n\nTake over ke bank lain belum bisa: syaratnya pegawai tetap, skor kredit minimal 60, tanpa tunggakan, dan sisa tenor minimal 2 tahun.",
+			"choices": [
+				{ "label": "Lunasi sebagian pokok", "cost_var": "prepay", "effects": { "prepay_part": true }, "result": "Sisa pokok berkurang {prepay_amount}, sehingga cicilan mengambang turun menjadi sekitar {pay_prepaid} per bulan." },
+				{ "label": "Terima bunga mengambang", "effects": {}, "result": "Cicilanmu kini naik-turun mengikuti suku bunga BI. Pastikan dana daruratmu cukup untuk beberapa bulan cicilan." }
+			]
+		}
+	]
+}

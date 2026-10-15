@@ -2,9 +2,9 @@
 
 Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang **dibutuhkan**, dan **di file mana** aset itu dipakai. Diperbarui setiap kali sebuah langkah membutuhkan aset baru.
 
-- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5c langkah 3: popup Properti memakai ikon rumah navigasi sementara)
+- **Terakhir diperbarui:** 15 Oktober 2026 (v1.5c langkah 4: ilustrasi Hunian & Kendaraan di Beranda memakai gambar pengganti sederhana)
 - **Rencana pembuatan:** pengembang membuat aset setelah **v2 selesai**. Sampai saat itu game memakai aset sementara (🔁), dan daftar di bawah terus diperbarui setiap langkah.
-- **Tanda:** ✅ sudah ada · ⬜ dibutuhkan · 🔁 sementara memakai aset lain (game tetap jalan)
+- **Tanda:** ✅ sudah ada · ⬜ dibutuhkan · 🔁 sementara memakai aset lain atau gambar pengganti sederhana (game tetap jalan)
 - Tabel aset yang sudah ada dibuat otomatis dengan memindai `scenes/`, `scripts/`, `theme/`, dan `data/`.
 
 ## Ringkasan per Versi
@@ -15,7 +15,7 @@ Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang
 | **v1.5-0** Giliran bulanan yang hidup | Tidak ada; memakai ulang lencana & ikon (confetti digambar lewat kode) | ✅ |
 | **v1.5a** Realisme ekonomi | Tidak ada; memakai ulang `shield.svg`, `wallet.svg`, `trend_line.svg`, `warning_small.svg` | ✅ |
 | **v1.5b** Pekerjaan & karier | 13 ikon (3 latar pendidikan, 6 bidang kerja, 1 navigasi Karier, 3 program kuliah) + 2 opsional | ⬜ 🔁 |
-| **v1.5c** Utang, properti, hunian | 3 ikon dipakai sekarang (lencana popup Pinjaman, Kendaraan, Properti); ilustrasi hunian & kendaraan menyusul | ⬜ 🔁 |
+| **v1.5c** Utang, properti, hunian | 3 ikon (lencana popup Pinjaman, Kendaraan, Properti) + 11 ilustrasi Hunian & Kendaraan (latar, 7 tempat tinggal, 3 kendaraan) yang sekarang berupa gambar pengganti sederhana | ⬜ 🔁 |
 | **v1.5d** Tokoh & konten | Potret tokoh berulang, lencana pencapaian, kosmetik | ⬜ (rencana) |
 | **v2** | Ikon instrumen lanjut, ilustrasi bab kehidupan | ⬜ (rencana) |
 | **M7** Rilis Play Store | Ikon aplikasi adaptif, grafis & screenshot Play Store | ⬜ (rencana) |
@@ -70,13 +70,32 @@ Game sudah jalan memakai aset sementara (🔁). Begitu file baru ditaruh di path
 | `assets/icons/vehicle.svg` | Lencana popup Kendaraan (motor/mobil + kunci) | `scenes/ui/vehicle_popup.tscn` (popup beli kendaraan & rincian/jual, dari kartu Kendaraan di Beranda) | 🔁 `activities/side_job.svg` | Ganti path `activities/side_job.svg` di `scenes/ui/vehicle_popup.tscn` (atau minta saya) |
 | `assets/icons/property.svg` | Lencana popup Properti (rumah + kunci/papan "dijual") | `scenes/ui/property_popup.tscn` (daftar properti, beli tunai/KPR, rincian/jual, dari kartu Properti di Beranda) | 🔁 `nav_home.svg` | Ganti path `nav_home.svg` di `scenes/ui/property_popup.tscn` (atau minta saya) |
 
-**Rencana (langkah berikutnya):**
+**Ilustrasi Hunian & Kendaraan (langkah 4), sekarang gambar pengganti sederhana:**
+
+Dipakai kartu **Hunian & Kendaraan** di Beranda (`scripts/ui/home_scene.gd`, dipasang oleh `scripts/ui/screens/home_screen.gd`). Tiga lapis ditumpuk: latar → tempat tinggal → kendaraan. **Aturan kanvas:** semua file **624 x 260** (rasio 2,4 : 1), latar penuh dengan sudut membulat 18, lapisan lain **transparan**; tempat tinggal di sisi kiri-tengah (x 40-410) berdiri di garis tanah y ±218; kendaraan di sisi kanan (x 400-610) dengan roda di y ±246. Gaya "Senja Cuan": garis tinta `#2B2147` tebal 4, bayangan tinta bergeser 6-8 px ke bawah. **Cara memasang: timpa file dengan nama yang sama** (impor SVG skala 2.0 seperti ilustrasi lain), tanpa mengubah kode.
+
+| File | Isi | Kapan tampil | Status |
+|:--|:--|:--|:--|
+| `assets/illustrations/home/bg.svg` | Latar: langit senja, matahari, awan, bukit, rumput, trotoar | Selalu | 🔁 pengganti |
+| `assets/illustrations/home/family.svg` | Rumah keluarga (menumpang) | Tempat tinggal Menumpang | 🔁 pengganti |
+| `assets/illustrations/home/kos.svg` | Bangunan kos 2 lantai, deretan pintu kamar, toren air | Kos | 🔁 pengganti |
+| `assets/illustrations/home/kontrakan.svg` | Rumah petak 3 unit berderet, unit tengah milik pemain | Kontrakan | 🔁 pengganti |
+| `assets/illustrations/home/apartment.svg` | Menara apartemen | Apartemen sewa; juga Apartemen Studio milik sendiri | 🔁 pengganti |
+| `assets/illustrations/home/subsidi.svg` | Rumah tipe 36 kecil berpagar | Menghuni Rumah Subsidi | 🔁 pengganti |
+| `assets/illustrations/home/house45.svg` | Rumah tipe 45 dengan carport | Menghuni Rumah Tipe 45 | 🔁 pengganti |
+| `assets/illustrations/home/house90.svg` | Rumah besar 2 lantai dengan balkon & pohon | Menghuni Rumah Besar | 🔁 pengganti |
+| `assets/illustrations/home/studio.svg` (opsional) | Apartemen studio milik sendiri (beda dari apartemen sewa) | Menghuni Apartemen Studio | ⬜ (sementara memakai `apartment.svg`) |
+| `assets/illustrations/vehicle/walk.svg` | Halte bus + bangku (jalan kaki & angkutan umum) | Belum punya kendaraan | 🔁 pengganti |
+| `assets/illustrations/vehicle/motor.svg` | Motor matic | Kendaraan utama motor | 🔁 pengganti |
+| `assets/illustrations/vehicle/car.svg` | Mobil keluarga | Kendaraan utama mobil (punya mobil & motor = mobil) | 🔁 pengganti |
+
+Nama file = id di data: tempat tinggal sewa memakai id `housing` di `data/economy.json`, rumah sendiri memakai id properti di `data/properties.json`, kendaraan memakai id di `data/vehicles.json`. Properti baru tanpa gambar memakai gambar pengganti di `HOME_FALLBACK` (`scripts/ui/home_scene.gd`).
+
+**Rencana (opsional):**
 
 | File | Isi | Akan dipakai di |
 |:--|:--|:--|
-| `assets/illustrations/home/family.svg`, `kos.svg`, `kontrakan.svg`, `rumah.svg`, `apartemen.svg` | Ilustrasi tempat tinggal (berubah sesuai kepemilikan) | Kartu hunian baru di Beranda (`scenes/screens/home_screen.tscn`) |
-| `assets/illustrations/vehicle/walk.svg`, `motor.svg`, `car.svg` | Ilustrasi kendaraan | Kartu hunian/kendaraan di Beranda |
-| `assets/icons/credit_score.svg` | Ikon skor kredit | Kartu Utang & Kredit, ringkasan neraca di tab Portofolio (langkah 4) |
+| `assets/icons/credit_score.svg` | Ikon skor kredit | Kartu Utang & Kredit di Beranda, kartu Neraca di tab Portofolio |
 
 ## v1.5d: Tokoh, Riset, Kontrak, Konten ⬜ (rencana)
 

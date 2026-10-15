@@ -48,9 +48,16 @@ static func event_text(text: String, vars: Dictionary) -> String:
 		result = result.replace("{job}", _t(GameState.career.job_def(vars["job_id"]).get("title", "")))
 	if vars.has("company"):
 		result = result.replace("{company}", vars["company"])
-	for key: String in ["salary", "severance"]:
+	for key: String in ["salary", "severance", "rent2", "arrears", "amount", "installment", "interest", "pay_from",
+			"pay_to", "pay_refi", "pay_prepaid", "fee", "prepay", "prepay_amount"]:
 		if vars.has(key):
 			result = result.replace("{%s}" % key, Fmt.rupiah(vars[key]))
+	for key: String in ["rate_from", "rate_to", "refi_rate"]:  # bunga per tahun (utang, v1.5c)
+		if vars.has(key):
+			result = result.replace("{%s}" % key, Fmt.percent_plain(vars[key]))
+	for key: String in ["property", "loan", "collateral"]:  # nama dari file data
+		if vars.has(key):
+			result = result.replace("{%s}" % key, _t(vars[key]))
 	if vars.has("months"):
 		result = result.replace("{months}", str(int(vars["months"])))
 	if vars.has("raise"):
@@ -127,6 +134,8 @@ static func changes_text(changes: Dictionary) -> String:
 		parts.append("%s %s" % [_t("LBL_CASH"), Fmt.signed_rupiah(changes["cash"])])
 	if changes.has("investments"):
 		parts.append("%s %s" % [_t("PORT_INVESTED"), Fmt.signed_rupiah(changes["investments"])])
+	if changes.has("debt"):
+		parts.append("%s %s" % [_t("CHANGE_DEBT"), Fmt.signed_rupiah(changes["debt"])])
 	if changes.has("salary"):
 		parts.append("%s %s" % [_t("REPORT_SALARY"), Fmt.signed_rupiah(changes["salary"])])
 	if changes.has("health"):
@@ -137,6 +146,8 @@ static func changes_text(changes: Dictionary) -> String:
 		parts.append("%s %+d" % [_t("STAT_SKILL"), int(changes["skill"])])
 	if changes.has("performance"):
 		parts.append("%s %+d" % [_t("STAT_PERFORMANCE"), int(changes["performance"])])
+	if changes.has("credit"):
+		parts.append("%s %+d" % [_t("CREDIT_SCORE"), int(changes["credit"])])
 	if changes.has("xp"):
 		parts.append("XP %+d" % int(changes["xp"]))
 	return " | ".join(parts)

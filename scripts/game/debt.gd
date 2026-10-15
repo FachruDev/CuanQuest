@@ -9,6 +9,10 @@ extends GameModule
 ## ditarik menumpuk menjadi tunggakan, dan setelah beberapa kali gagal seluruh sisa ditagih.
 
 const LOANS_PATH := "res://data/loans.json"
+## Event yang dijadwalkan modul ini (bukan undian), lihat scheduled_events(): penagih utang & surat
+## peringatan sebulan sebelum macet, dan masa bunga tetap KPR yang akan berakhir (dengan / tanpa
+## pilihan take over).
+const SCHEDULED_EVENTS := ["debt_collector", "collateral_warning", "kpr_rate_reset", "kpr_rate_reset_basic"]
 
 var data: Dictionary = {}  # isi data/loans.json
 ## Pinjaman aktif: [{id, product, principal, balance, rate, months_total, months_left, start_month,
@@ -53,9 +57,149 @@ func load_from(d: Dictionary) -> void:
 	loan_seq = int(d.get("loan_seq", 0))
 
 
+## Efek event (v1.5c langkah 4). Pinjaman yang dituju & angkanya diambil dari isian event yang sedang
+## tampil (event_vars), jadi teks, biaya pilihan, dan efeknya selalu cocok.
 func apply_effects(e: Dictionary) -> void:
 	if e.has("credit_score"):
 		_add_score(int(e["credit_score"]))
+	var vars: Dictionary = gs.events.pending_vars
+	if e.has("take_loan"):  # tawaran paylater / KTA: "spend" = langsung dibelanjakan, "keep" = masuk kas
+		var offer: Dictionary = vars.get("loan_offer", {})
+		if not offer.is_empty() and not _open(offer["product"], int(offer["amount"]), int(offer["tenor"])).is_empty():
+			gs.stats["offer_loans"] += 1
+			if e["take_loan"] == "spend":
+				gs.cash -= int(offer["amount"])
+	var loan := find(int(vars.get("loan_id", -1)))
+	if loan.is_empty():
+		return
+	if e.get("pay_arrears", false):  # tunggakan sudah dibayar lewat biaya pilihan (cost_var "arrears")
+		loan["arrears"] = 0
+		loan["missed"] = 0
+	if e.get("restructure", false):  # tunggakan digabung ke pokok, tenor diperpanjang
+		loan["balance"] += int(loan["arrears"])
+		loan["arrears"] = 0
+		loan["missed"] = 0
+		loan["months_left"] += int(data["restructure_months"])
+		loan["months_total"] += int(data["restructure_months"])
+		gs.stats["restructures"] += 1
+	if e.get("refinance", false):  # take over KPR: biaya sudah dibayar (cost_var "fee")
+		var refi: Dictionary = product(loan["product"])["refinance"]
+		loan["rate"] = float(vars["refi_rate"])
+		loan["fixed_until"] = gs.month + int(refi["fixed_months"]) + 1
+		gs.stats["refinances"] += 1
+		gs.stats["debt_fees"] += int(vars["fee"])
+	if e.get("prepay_part", false):  # pelunasan sebagian: pokok + penalti sudah dibayar (cost_var "prepay")
+		loan["balance"] = maxf(0.0, loan["balance"] - int(vars["prepay_amount"]))
+		gs.stats["debt_fees"] += int(vars["prepay_penalty"])
+
+
+# --- Event terjadwal & tawaran kredit (v1.5c langkah 4) ---------------------------------
+
+## Event bulan ini dari kondisi pinjaman (tanpa undian, jadi tidak mengubah urutan acak permainan):
+## penagih utang / surat peringatan saat tunggakan tinggal sebulan lagi sebelum macet, dan
+## pemberitahuan masa bunga tetap KPR yang berakhir bulan depan.
+func scheduled_events() -> Array[Dictionary]:
+	var picked: Array[Dictionary] = []
+	for id: String in SCHEDULED_EVENTS:
+		if not event_loan(id).is_empty():
+			var def := gs.events.catalog.find(id)
+			if not def.is_empty():
+				picked.append(def)
+	return picked
+
+
+func scheduled_event_valid(id: String) -> bool:
+	return not event_loan(id).is_empty()
+
+
+## Pinjaman yang dituju event terjadwal `id` ({} jika tidak ada): yang pertama memenuhi kondisinya.
+func event_loan(id: String) -> Dictionary:
+	for loan: Dictionary in loans:
+		match id:
+			"debt_collector", "collateral_warning":
+				var secured := not (loan["collateral"] as Dictionary).is_empty()
+				if int(loan["missed"]) == int(data["default_after"]) - 1 and secured == (id == "collateral_warning"):
+					return loan
+			"kpr_rate_reset", "kpr_rate_reset_basic":
+				if int(loan["fixed_until"]) == gs.month + 1 and can_refinance(loan) == (id == "kpr_rate_reset"):
+					return loan
+	return {}
+
+
+## Take over KPR ke bank lain: pegawai, skor kredit cukup baik, tanpa tunggakan, sisa tenor cukup panjang.
+func can_refinance(loan: Dictionary) -> bool:
+	var refi: Dictionary = product(loan["product"]).get("refinance", {})
+	return not refi.is_empty() and gs.career.is_career() and credit_score >= int(refi["min_score"]) \
+		and not has_arrears() and int(loan["months_left"]) >= int(refi["min_months_left"])
+
+
+## Tawaran kredit lewat event: {product, amount, tenor} yang lolos semua syarat, atau {} jika tidak ada.
+## Jumlah tetap (offer.amount, paylater) atau jumlah terbesar sampai offer.salary_mult x gaji (KTA).
+func offer(product_id: String) -> Dictionary:
+	var prod := product(product_id)
+	var cfg: Dictionary = prod.get("offer", {})
+	if cfg.is_empty():
+		return {}
+	var tenor := int(cfg["tenor"])
+	if not tenor in tenor_options(prod):
+		return {}
+	var amounts: Array[int] = []
+	if cfg.has("amount"):
+		amounts.append(gs.nominal(cfg["amount"], 100_000))
+	else:
+		amounts = amount_options(prod)
+	var cap := gs.career.salary * float(cfg["salary_mult"]) if cfg.has("salary_mult") else INF
+	for i in range(amounts.size() - 1, -1, -1):  # dari jumlah terbesar
+		if amounts[i] <= cap and quote(product_id, amounts[i], tenor)["ok"]:
+			return {"product": product_id, "amount": amounts[i], "tenor": tenor}
+	return {}
+
+
+## Isian teks event utang: angka yang sama dipakai untuk teks, biaya pilihan (cost_var), dan efek.
+func event_vars(id: String) -> Dictionary:
+	match id:
+		"paylater_offer", "kta_offer":
+			var o := offer("paylater" if id == "paylater_offer" else "kta")
+			if o.is_empty():
+				return {}
+			var q := quote(o["product"], o["amount"], o["tenor"])
+			return {"loan_offer": o, "amount": o["amount"], "installment": q["payment"], "interest": q["interest"],
+				"months": o["tenor"]}
+		"debt_collector", "collateral_warning":
+			var loan := event_loan(id)
+			if loan.is_empty():
+				return {}
+			var vars := {"loan_id": loan["id"], "loan": product(loan["product"])["short"], "arrears": loan["arrears"]}
+			var collateral: Dictionary = loan["collateral"]
+			match collateral.get("type", ""):
+				"vehicle":
+					vars["collateral"] = gs.vehicles.def(collateral["id"]).get("name", "")
+				"property":
+					vars["collateral"] = gs.properties.def(gs.properties.find(int(collateral["id"])).get("id", "")).get("name", "")
+			return vars
+		"kpr_rate_reset", "kpr_rate_reset_basic":
+			var loan := event_loan(id)
+			if loan.is_empty():
+				return {}
+			var prod := product(loan["product"])
+			var balance: float = loan["balance"]
+			var months := int(loan["months_left"])
+			var rate_to := snappedf(maxf(0.0, gs.market.policy_rate + float(loan["float_spread"])), 0.0001)
+			var prepay_amount := roundi(balance * float(prod.get("prepay_part", 0.1)) / 100_000.0) * 100_000
+			var prepay_penalty := roundi(prepay_amount * float(prod.get("prepay_penalty", 0.0)) / 1000.0) * 1000
+			var vars := {"loan_id": loan["id"], "loan": prod["short"], "rate_from": loan["rate"], "rate_to": rate_to,
+				"pay_from": installment(loan), "pay_to": payment_for(balance, rate_to, months),
+				"prepay_amount": prepay_amount, "prepay_penalty": prepay_penalty, "prepay": prepay_amount + prepay_penalty,
+				"pay_prepaid": payment_for(balance - prepay_amount, rate_to, months)}
+			if id == "kpr_rate_reset":
+				var refi: Dictionary = prod["refinance"]
+				var refi_rate := snappedf(gs.market.policy_rate + float(refi["spread"]) + float(grade()["rate"]), 0.0001)
+				var pay_refi := payment_for(balance, refi_rate, months)
+				var fee := roundi(balance * float(refi["fee"]) / 1000.0) * 1000
+				vars.merge({"refi_rate": refi_rate, "pay_refi": pay_refi, "fee": fee,
+					"saving": (int(vars["pay_to"]) - pay_refi) * int(refi["fixed_months"]) - fee})
+			return vars
+	return {}
 
 
 # --- Produk & skor kredit -------------------------------------------------------------
@@ -280,12 +424,23 @@ func quote(product_id: String, amount: int, tenor: int) -> Dictionary:
 ## pertama ditagih awal bulan depan. `collateral`: agunan untuk kredit beragunan (lihat `loans`);
 ## pemanggilnya (mis. Vehicles.buy) langsung membayarkan uangnya ke penjual.
 func take(product_id: String, amount: int, tenor: int, collateral: Dictionary = {}) -> Dictionary:
+	var loan := _open(product_id, amount, tenor, collateral)
+	if loan.is_empty():
+		return {"ok": false}
+	gs.changed.emit()
+	gs.state_committed.emit()
+	return {"ok": true, "loan": loan}
+
+
+## Mencairkan pinjaman tanpa memancarkan signal ({} jika ditolak). Dipakai take() dan efek event
+## take_loan (yang menyimpan permainan sendiri setelah pilihan event selesai dijalankan).
+func _open(product_id: String, amount: int, tenor: int, collateral: Dictionary = {}) -> Dictionary:
 	var prod := product(product_id)
 	if prod.is_empty() or not tenor in tenor_options(prod):
-		return {"ok": false}
+		return {}
 	var q := quote(product_id, amount, tenor)
 	if not q["ok"]:
-		return {"ok": false}
+		return {}
 	loan_seq += 1
 	var fixed_months := int(q["fixed_months"])
 	var loan := {"id": loan_seq, "product": product_id, "principal": amount, "balance": float(amount),
@@ -298,9 +453,7 @@ func take(product_id: String, amount: int, tenor: int, collateral: Dictionary = 
 	gs.cash += amount
 	gs.stats["loans_taken"] += 1
 	gs.stats["borrowed_total"] += amount
-	gs.changed.emit()
-	gs.state_committed.emit()
-	return {"ok": true, "loan": loan}
+	return loan
 
 
 # --- Pembayaran bulanan, gagal bayar, pelunasan ---------------------------------------

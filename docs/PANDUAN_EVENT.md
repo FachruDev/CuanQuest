@@ -15,6 +15,8 @@ Analogi web: event adalah *content entry* di CMS; efek adalah *action handler*; 
 | `data/events/social.json` | Sosial & keluarga |
 | `data/events/market.json` | Pasar & investasi |
 | `data/events/scam.json` | Waspada penipuan (beserta rantai lanjutannya) |
+| `data/events/property.json` | Properti: atap bocor, renovasi, penyewa telat bayar (v1.5c) |
+| `data/events/debt.json` | Utang & kredit: tawaran paylater/KTA, penagih utang, masa bunga tetap KPR berakhir (v1.5c) |
 
 Semua file dimuat oleh `EventManager.load_defs()` (`scripts/core/event_manager.gd`) sesuai urutan `CATEGORIES`. Nilai `"category"` sebuah event **harus sama** dengan nama filenya; jika berbeda, Godot menampilkan peringatan. Kategori baru = tambah file, tambah nama di `CATEGORIES`, dan tambah teks `EVENT_CAT_<KATEGORI>` di `localization/strings.csv`.
 
@@ -60,7 +62,7 @@ Semua file dimuat oleh `EventManager.load_defs()` (`scripts/core/event_manager.g
 | `chain_only` | - | Tidak pernah acak: hanya lewat efek `chain` atau dijadwalkan sistem (wawancara, promosi, PHK) |
 | `critical` | - | Penyakit kritis: asuransi jiwa membayar uang pertanggungan |
 
-**Pilihan (`choices`):** `label`, `result`, lalu salah satu dari `effects` atau `outcomes` (`[{chance, effects, result}]`, peluangnya dijumlah 1). Opsional: `cost` (dibayar di muka; pilihan nonaktif jika kas kurang), `cost_vehicle` (persen nilai pasar kendaraan utama, mis. biaya perbaikan), `claim` (`medical` / `vehicle`, biaya ditanggung asuransi aktif).
+**Pilihan (`choices`):** `label`, `result`, lalu salah satu dari `effects` atau `outcomes` (`[{chance, effects, result}]`, peluangnya dijumlah 1). Opsional: `cost` (dibayar di muka; pilihan nonaktif jika kas kurang), `cost_vehicle` (persen nilai pasar kendaraan utama, mis. biaya perbaikan), `cost_property` (persen nilai pasar properti yang dituju event, mis. `0.004` = 0,4%), `cost_var` (biaya = angka dari isian event, mis. `"arrears"` untuk tunggakan atau `"fee"` untuk biaya take over KPR), `claim` (`medical` / `vehicle`, biaya ditanggung asuransi aktif).
 
 ## Efek (`effects`) dan modul yang menjalankannya
 
@@ -78,6 +80,11 @@ Semua file dimuat oleh `EventManager.load_defs()` (`scripts/core/event_manager.g
 | `chain` `{event, months: [min, max]}` | LifeEvents | Jadwalkan event lanjutan (`chain_only`) |
 | `sell_all` | Portfolio | Jual semua investasi karena panik |
 | `credit_score` | Debt | Skor kredit naik/turun (0-100), mis. `-10` saat telat bayar tagihan (v1.5c) |
+| `take_loan` | Debt | Ambil tawaran kredit di isian `loan_offer`: `"spend"` = langsung dibelanjakan (kas tetap, utang bertambah), `"keep"` = uangnya masuk kas |
+| `pay_arrears`, `restructure` | Debt | Tunggakan pinjaman yang dituju lunas (bayar lewat `cost_var: "arrears"`); restrukturisasi = tunggakan masuk pokok, tenor +12 bulan |
+| `refinance`, `prepay_part` | Debt | Take over KPR (bunga tetap baru 2 tahun, biaya lewat `cost_var: "fee"`); lunasi sebagian pokok (`cost_var: "prepay"`) |
+| `property_repair` | Properties | Bayar perbaikan sebesar persen nilai properti (mis. `0.006`), cocok untuk efek tertunda |
+| `rent_months`, `tenant_leave` | Properties | Sewa hilang/bertambah N bulan sewa bersih (mis. `-2`); penyewa pergi (properti mencari penyewa baru 1-2 bulan) |
 
 **Menambah efek baru:** tentukan modul pemiliknya, tambahkan penanganannya di `apply_effects()` modul itu, lalu catat di tabel ini. Contoh: efek baru untuk asuransi ditulis di `scripts/game/insurance.gd`.
 
@@ -95,6 +102,10 @@ Didefinisikan di `EventManager.requires_met()`. Event yang sudah masuk antrean b
 | `sponsor_ready` | Syarat beasiswa kantor terpenuhi |
 | `has_investments` | Punya investasi |
 | `has_vehicle` | Punya motor/mobil (modul Vehicles) |
+| `owns_house` | Punya rumah tapak (`"kind": "house"` di `properties.json`); apartemen tidak termasuk karena bangunannya dirawat pengelola |
+| `lives_in_own_home` | Menghuni rumah/apartemen sendiri |
+| `has_tenant` | Punya properti yang sedang ditempati penyewa |
+| `paylater_offer`, `kta_offer` | Tawaran kredit lolos semua syarat bank (pekerjaan, skor, tunggakan, rasio cicilan); jumlahnya dari `"offer"` produk di `loans.json` |
 | `low_happiness` | Kebahagiaan di bawah 40 |
 
 **Menambah syarat baru:** tambah satu cabang di `match` dalam `EventManager.requires_met()`.
@@ -110,12 +121,17 @@ Dihitung `GameState.events.context_flags()` (ambang di `economy.json` `event_dir
 | `{rp:N}` | `UiText.money()`: harga awal permainan → nominal hari ini |
 | `{job}`, `{company}`, `{salary}`, `{months}`, `{severance}`, `{raise}` | `Career.event_vars()` (wawancara, promosi, PHK, headhunter) |
 | `{program}`, `{cert}` | `Education.event_vars()` (beasiswa kantor, sertifikasi) |
+| `{property}`, `{rent2}` | `Properties.event_vars()`: nama properti yang dituju & sewa bersih 2 bulan |
+| `{loan}`, `{collateral}`, `{arrears}`, `{amount}`, `{installment}`, `{interest}`, `{months}` | `Debt.event_vars()`: pinjaman yang dituju, agunan, tunggakan, tawaran kredit |
+| `{rate_from}`, `{rate_to}`, `{refi_rate}`, `{pay_from}`, `{pay_to}`, `{pay_refi}`, `{fee}`, `{prepay_amount}`, `{pay_prepaid}` | `Debt.event_vars()`: bunga & cicilan KPR sebelum/sesudah mengambang, take over, pelunasan sebagian |
 
 Isian dihitung sekali saat event mulai tampil dan ikut disimpan, sehingga teks dan efeknya selalu cocok. **Menambah isian baru:** kembalikan nilainya dari `event_vars(id)` di modul pemilik event, lalu tambahkan penggantinya di `UiText.event_text()`.
 
 ## Event yang dijadwalkan sistem
 
 Event yang waktunya ditentukan oleh logika game (bukan undian) ditandai `"chain_only": true`, lalu dijadwalkan dari kode. Contohnya `Career.scheduled_events()`: wawancara saat ada tawaran kerja berjenjang, PHK sesuai peluang, dan promosi saat semua syarat terpenuhi. Daftarnya ada di `Career.SCHEDULED_EVENTS`.
+
+`Debt.scheduled_events()` (v1.5c, tanpa undian sehingga tidak mengubah urutan acak permainan): **Penagih Utang Datang** / **Surat Peringatan Terakhir** saat pinjaman tanpa / dengan agunan menunggak 2 bulan (sebulan sebelum macet), dan **Masa Bunga Tetap KPR Berakhir** sebulan sebelum bunga KPR mengambang (varian `kpr_rate_reset` dengan pilihan take over jika syarat bank lain terpenuhi, `kpr_rate_reset_basic` tanpa take over). Daftarnya di `Debt.SCHEDULED_EVENTS`.
 
 ## Sebelum selesai
 

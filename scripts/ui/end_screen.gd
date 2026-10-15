@@ -1,6 +1,6 @@
 extends Control
-## Layar akhir (tema "Senja Cuan"): hasil, kartu pemain & skor, statistik, grafik kekayaan
-## seumur hidup, keputusan terbaik/terburuk, dan analisis (GDD 5.11).
+## Layar akhir (tema "Senja Cuan"): hasil, kartu pemain & skor, statistik, perjalanan karier, neraca
+## akhir, grafik kekayaan seumur hidup, keputusan terbaik/terburuk, dan analisis (GDD 5.11).
 
 const TITLE_SCENE := "res://scenes/title.tscn"
 const NEW_GAME_SCENE := "res://scenes/new_game.tscn"
@@ -54,6 +54,7 @@ func _ready() -> void:
 	_add_stat("END_STAT_PROMOTIONS", str(int(s["promotions"])))
 	_add_stat("END_STAT_UNEMPLOYED", str(int(s["months_unemployed"])))
 	_add_career_log()
+	_add_balance_sheet()
 
 	%LifeChart.set_data(GameState.net_worth_history)
 
@@ -81,6 +82,23 @@ func _add_career_log() -> void:
 	box.add_theme_constant_override("separation", 6)
 	card.add_child(box)
 	UiText.fill_career_log(box, 12)
+	content.add_child(title)
+	content.move_child(title, index)
+	content.add_child(card)
+	content.move_child(card, index + 1)
+
+
+## Judul + kartu "Neraca Akhir" (aset - utang) setelah Perjalanan Karier.
+func _add_balance_sheet() -> void:
+	var content: VBoxContainer = %StatsGrid.get_parent()
+	var index := content.get_node("HighlightTitle").get_index()
+	var title := _label(tr("SHEET_END_TITLE"), &"SubSectionLabel")
+	var card := PanelContainer.new()
+	card.theme_type_variation = &"HomeCard"
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 8)
+	card.add_child(box)
+	BalanceSheet.fill(box, GameState.balance_sheet())
 	content.add_child(title)
 	content.move_child(title, index)
 	content.add_child(card)

@@ -85,17 +85,26 @@ func _vars_for(def: Dictionary) -> Dictionary:
 	return {}
 
 
-## Event di antrean masih relevan saat gilirannya tiba? (mis. event kerja batal setelah PHK)
+## Event di antrean masih relevan saat gilirannya tiba? (mis. event kerja batal setelah PHK,
+## penagih utang batal setelah tunggakan dilunasi event sebelumnya)
 func _still_valid(def: Dictionary) -> bool:
 	if def.get("id", "") in Career.SCHEDULED_EVENTS:
 		return gs.career.scheduled_event_valid(def["id"])
+	if def.get("id", "") in Debt.SCHEDULED_EVENTS:
+		return gs.debt.scheduled_event_valid(def["id"])
 	return catalog.requires_met(def, gs)
 
 
-## Biaya pilihan event (harga hari ini). "cost_vehicle" = persen dari nilai pasar kendaraan utama.
+## Biaya pilihan event (harga hari ini). "cost_vehicle" = persen dari nilai pasar kendaraan utama;
+## "cost_property" = persen dari nilai pasar properti yang dituju event; "cost_var" = angka dari
+## isian event (mis. tunggakan atau biaya take over KPR yang dihitung modul Debt).
 func choice_cost(choice: Dictionary) -> int:
 	if choice.has("cost_vehicle"):
 		return roundi(gs.vehicles.repair_base() * float(choice["cost_vehicle"]) / 1000.0) * 1000
+	if choice.has("cost_property"):
+		return gs.properties.event_cost(float(choice["cost_property"]))
+	if choice.has("cost_var"):
+		return int(pending_vars.get(choice["cost_var"], 0))
 	return gs.nominal(choice.get("cost", 0))
 
 
@@ -121,6 +130,7 @@ func roll() -> void:
 		if not def.is_empty():
 			queue.append(def)
 	queue.append_array(gs.career.scheduled_events())  # wawancara / PHK / promosi, juga di luar jatah
+	queue.append_array(gs.debt.scheduled_events())  # penagih utang / bunga KPR mengambang, juga di luar jatah
 
 	var context := context_flags()
 	var picked := 0

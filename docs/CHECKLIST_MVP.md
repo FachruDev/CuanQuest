@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 14 Oktober 2026 (v1.5c langkah 3 properti & KPR selesai)
+- **Terakhir diperbarui:** 15 Oktober 2026 (v1.5c langkah 4 tampilan & cerita selesai)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -16,7 +16,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v1.5-0** | Giliran Bulanan yang Hidup | 🔄 5/5 langkah; tinggal playtest |
 | **v1.5a** | Realisme ekonomi | ✅ 5/5 langkah |
 | **v1.5b** | Pekerjaan & karier (melamar kerja, keahlian, jenjang) | ✅ 5/5 langkah |
-| **v1.5c** | Utang, properti, hunian yang tumbuh | 🔄 3/5 langkah |
+| **v1.5c** | Utang, properti, hunian yang tumbuh | 🔄 4/5 langkah |
 | **v1.5d** | Tokoh, riset, kontrak, konten | ⬜ |
 | **v2a-v2d** | Instrumen lanjut, hidup penuh, dana investor, mini-game | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
@@ -289,7 +289,7 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.3 (ditulis 14 Oktober 202
 | 1 | Utang & skor kredit: KTA, cicilan anuitas, tunggakan & denda, macet, pelunasan dipercepat, kartu Beranda, popup pinjaman | ✅ |
 | 2 | Kendaraan: aset menyusut + biaya rutin, kredit motor/mobil + DP, impian motor/mobil terhubung | ✅ |
 | 3 | Properti & KPR: beli/sewakan/jual, BPHTB & PBB, KPR tetap → mengambang, kontrakan, DP rumah | ✅ |
-| 4 | Tampilan & cerita: ilustrasi hunian & kendaraan, neraca di Portofolio, event utang & properti | ⬜ |
+| 4 | Tampilan & cerita: ilustrasi hunian & kendaraan, neraca di Portofolio, event utang & properti | ✅ |
 | 5 | Penyeimbangan dengan simulator (pemain berutang & pembeli rumah) | ⬜ |
 
 ### Rincian fitur
@@ -333,11 +333,21 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.3 (ditulis 14 Oktober 202
 - ✅ Perapian: baris Premi asuransi di Beranda tidak lagi menampilkan "+Rp0" merah saat belum berasuransi
 - 🔁 Lencana popup Properti memakai ikon rumah navigasi (lihat `docs/KEBUTUHAN_ASET.md`)
 
+**Langkah 4: Tampilan & cerita** ✅
+- ✅ Kartu **Hunian & Kendaraan** di Beranda: ilustrasi 3 lapis (latar, tempat tinggal, kendaraan) yang berubah sesuai kondisi: menumpang → kos → kontrakan → apartemen/rumah sendiri (subsidi, tipe 45, rumah besar); jalan kaki → motor → mobil
+- ✅ Kartu **Neraca** di Portofolio (kas, dana darurat, investasi, dana impian, kendaraan, properti − utang = kekayaan bersih, bar rasio utang terhadap aset) dan **Neraca Akhir** di layar akhir
+- ✅ 9 event baru (58 total) dalam 2 kategori baru: **Properti** (Atap Bocor, Ingin Renovasi, Penyewa Telat Bayar) dan **Kredit** (tawaran Paylater & KTA pre-approved, Penagih Utang Datang / Surat Peringatan Terakhir sebulan sebelum macet, Masa Bunga Tetap KPR Berakhir)
+- ✅ Pilihan baru di event: **restrukturisasi** utang (tunggakan masuk pokok + tenor 12 bulan), **take over KPR** ke bank lain (bunga tetap baru 2 tahun, biaya 3%), **pelunasan sebagian** KPR; produk tersembunyi **paylater** (±48% per tahun)
+- ✅ Petunjuk pertama kali (pinjaman, kendaraan, properti), cerita **Rumah Sendiri!**, tutorial Beranda menyebut rumah/kendaraan/pinjaman, rincian KPR "tetap sampai ... / mengambang" di popup pinjaman
+- ✅ Analisis akhir: restrukturisasi, tawaran kredit yang diterima, take over KPR; 5 istilah glosarium baru (67 total)
+- ✅ Golden runner identik dengan langkah 3 saat event baru dibuang; 96 uji langkah 4 + 443 uji lama lulus
+- 🔁 Ilustrasi hunian & kendaraan masih gambar pengganti sederhana (11 file, lihat `docs/KEBUTUHAN_ASET.md`; tinggal ditimpa dengan nama yang sama)
+
 **Kriteria selesai**
 - ⬜ Utang bisa diambil, dibayar, dilunasi; skor kredit berubah
 - ⬜ KPR terasa sebagai beban cicilan; properti sewa menghasilkan pendapatan pasif
 - ⬜ Gagal bayar berkonsekuensi nyata; bangkrut menghitung utang dengan benar
-- ⬜ Ilustrasi hunian dan kendaraan berubah sesuai kepemilikan
+- ✅ Ilustrasi hunian dan kendaraan berubah sesuai kepemilikan (gambar pengganti sampai aset final)
 
 ## v1.5d: Konten dan Cerita ⬜
 

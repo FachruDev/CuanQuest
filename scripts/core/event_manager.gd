@@ -6,7 +6,7 @@ extends RefCounted
 ## Cara menambah event: docs/PANDUAN_EVENT.md.
 
 ## Urutan kategori = urutan file dimuat. Kategori baru: tambah di sini + teks EVENT_CAT_<KATEGORI>.
-const CATEGORIES := ["finance", "work", "education", "health", "social", "market", "scam"]
+const CATEGORIES := ["finance", "work", "education", "health", "social", "market", "scam", "property", "debt"]
 const DATA_PATH := "res://data/events/%s.json"
 
 var defs: Array = []
@@ -126,4 +126,14 @@ func requires_met(def: Dictionary, state: Node) -> bool:
 			return state.happiness < 40
 		"has_vehicle":
 			return state.vehicles.has_any()
+		"owns_house":  # punya rumah tapak (v1.5c langkah 4)
+			return not state.properties.event_house().is_empty()
+		"lives_in_own_home":
+			return not state.properties.home().is_empty()
+		"has_tenant":
+			return not state.properties.tenant_entry().is_empty()
+		"paylater_offer":  # tawaran kredit yang lolos semua syarat (skor, tunggakan, rasio cicilan)
+			return not state.debt.offer("paylater").is_empty()
+		"kta_offer":
+			return not state.debt.offer("kta").is_empty()
 	return true

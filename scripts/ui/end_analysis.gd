@@ -56,6 +56,12 @@ static func insights(state: Node) -> Array[String]:
 		out.append(_t("INSIGHT_LOAN_DEFAULT") % int(s["loan_defaults"]))
 	elif int(s.get("missed_payments", 0)) > 0:
 		out.append(_t("INSIGHT_LOAN_LATE") % [int(s["missed_payments"]), Fmt.rupiah(s["debt_fees"])])
+	if int(s.get("restructures", 0)) > 0:
+		out.append(_t("INSIGHT_RESTRUCTURE") % int(s["restructures"]))
+	if int(s.get("offer_loans", 0)) > 0:
+		out.append(_t("INSIGHT_OFFER_LOANS") % int(s["offer_loans"]))
+	if int(s.get("refinances", 0)) > 0:
+		out.append(_t("INSIGHT_REFINANCE") % int(s["refinances"]))
 	if int(s.get("vehicles_seized", 0)) > 0:
 		out.append(_t("INSIGHT_VEHICLE_SEIZED") % int(s["vehicles_seized"]))
 	elif int(s.get("vehicle_costs", 0)) >= 20_000_000:

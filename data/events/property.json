@@ -1,0 +1,37 @@
+{
+	"_comment": "Properti (v1.5c langkah 4): kerusakan rumah, renovasi, penyewa bermasalah. Properti yang dituju dipilih modul Properties (event_vars: {property}, {rent2}); cost_property = persen nilai pasar properti itu. Format & cara menambah event: docs/PANDUAN_EVENT.md",
+	"events": [
+		{
+			"id": "roof_leak", "bad": true, "category": "property", "weight": 2, "min_month": 3, "cooldown": 18, "requires": "owns_house",
+			"title": "Atap Bocor", "text": "Hujan deras semalaman membuat atap {property} bocor. Plafon basah dan air menetes ke lantai.",
+			"choices": [
+				{ "label": "Panggil tukang, perbaiki tuntas", "cost_property": 0.004, "effects": { "happiness": 1 }, "result": "Genteng diganti dan plafon diperbaiki. Pemilik rumah perlu menyisihkan dana perawatan, karena kerusakan seperti ini pasti datang." },
+				{ "label": "Tambal seadanya dulu", "cost_property": 0.001, "outcomes": [
+					{ "chance": 0.6, "effects": {}, "result": "Tambalannya bertahan. Untuk sementara aman." },
+					{ "chance": 0.4, "effects": { "happiness": -2, "delayed": { "months": 2, "effects": { "property_repair": 0.006 }, "text": "Atap yang hanya ditambal bocor lagi dan merusak plafon. Biaya perbaikannya jadi lebih besar." } }, "result": "Tambalannya hanya bertahan beberapa minggu, lalu bocor lagi..." }
+				] },
+				{ "label": "Biarkan, pakai ember dulu", "effects": { "happiness": -4, "delayed": { "months": 2, "chance": 0.7, "effects": { "property_repair": 0.008, "happiness": -3 }, "text": "Bocor yang dibiarkan merusak plafon dan dinding. Perbaikannya jadi jauh lebih mahal.", "fail_text": "Musim hujan berlalu dan bocornya berhenti sendiri. Kali ini kamu beruntung." } }, "result": "Ember berjejer di lantai. Kerusakan kecil yang dibiarkan biasanya membesar." }
+			]
+		},
+		{
+			"id": "home_renovation", "category": "property", "weight": 1, "min_month": 12, "cooldown": 36, "max_times": 2, "requires": "lives_in_own_home",
+			"title": "Ingin Renovasi", "text": "Sudah cukup lama tinggal di {property}. Dapurnya terasa sempit dan catnya mulai kusam. Seorang kontraktor menawarkan paket renovasi.",
+			"choices": [
+				{ "label": "Renovasi besar", "cost_property": 0.03, "effects": { "happiness": 8 }, "result": "Rumahmu terasa seperti baru! Tapi ingat, renovasi jarang balik modal: nilai jual rumah tetap mengikuti harga pasar." },
+				{ "label": "Cat ulang & perbaikan kecil", "cost_property": 0.005, "effects": { "happiness": 4 }, "result": "Perubahan kecil, tapi rumah terasa lebih segar. Biayanya terkendali." },
+				{ "label": "Tunda, menabung dulu", "effects": { "xp": 5 }, "result": "Menunda keinginan sampai dananya siap adalah keputusan yang sehat." }
+			]
+		},
+		{
+			"id": "tenant_late", "bad": true, "category": "property", "weight": 2, "min_month": 3, "cooldown": 12, "requires": "has_tenant",
+			"title": "Penyewa Telat Bayar", "text": "Penyewa {property} belum membayar sewa dua bulan ({rent2}). Katanya usahanya sedang sepi dan ia minta waktu.",
+			"choices": [
+				{ "label": "Beri waktu, boleh dicicil", "outcomes": [
+					{ "chance": 0.65, "effects": { "happiness": 1 }, "result": "Penyewa menepati janjinya dan melunasi sewa sedikit demi sedikit. Kesabaranmu terbayar." },
+					{ "chance": 0.35, "effects": { "rent_months": -2, "tenant_leave": true, "happiness": -3 }, "result": "Penyewa diam-diam pindah tanpa melunasi sewa. Kamu kehilangan {rent2} dan harus mencari penyewa baru." }
+				] },
+				{ "label": "Minta pindah, cari penyewa baru", "effects": { "rent_months": -2, "tenant_leave": true, "happiness": -1 }, "result": "Sewa dua bulan hilang dan propertimu kosong sampai ada penyewa baru. Lain kali, minta uang jaminan (deposit) di awal kontrak." }
+			]
+		}
+	]
+}

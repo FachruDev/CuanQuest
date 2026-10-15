@@ -78,6 +78,7 @@ func _ready() -> void:
 	%HomeScreen.career_requested.connect(_show_screen.bind(3))
 	%HomeScreen.insurance_requested.connect(func() -> void: _enqueue(%InsurancePopup.open))
 	%HomeScreen.loan_requested.connect(func(product_id: String) -> void:
+		_hint("HINT_LOAN")
 		_enqueue(%LoanPopup.open_apply.bind(product_id)))
 	%HomeScreen.loan_detail_requested.connect(func(loan_id: int) -> void:
 		_enqueue(%LoanPopup.open_detail.bind(loan_id)))
@@ -86,6 +87,7 @@ func _ready() -> void:
 	%LoanPopup.loan_paid_off.connect(func(loan_name: String) -> void:
 		_show_toast(tr("TOAST_LOAN_PAID") % tr(loan_name)))
 	%HomeScreen.vehicle_buy_requested.connect(func(vehicle_id: String) -> void:
+		_hint("HINT_VEHICLE")
 		_enqueue(%VehiclePopup.open_buy.bind(vehicle_id)))
 	%HomeScreen.vehicle_detail_requested.connect(func(vehicle_id: String) -> void:
 		_enqueue(%VehiclePopup.open_detail.bind(vehicle_id)))
@@ -94,12 +96,16 @@ func _ready() -> void:
 		_enqueue_plan_review())
 	%VehiclePopup.vehicle_sold.connect(func(vehicle_name: String, net: int) -> void:
 		_show_toast(tr("TOAST_VEHICLE_SOLD") % [tr(vehicle_name), Fmt.rupiah(net)]))
-	%HomeScreen.property_market_requested.connect(func() -> void: _enqueue(%PropertyPopup.open_market))
+	%HomeScreen.property_market_requested.connect(func() -> void:
+		_hint("HINT_PROPERTY")
+		_enqueue(%PropertyPopup.open_market))
 	%HomeScreen.property_detail_requested.connect(func(uid: int) -> void:
 		_enqueue(%PropertyPopup.open_detail.bind(uid)))
 	%PropertyPopup.property_bought.connect(func(property_name: String) -> void:
 		_show_toast(tr("TOAST_PROPERTY_BOUGHT") % tr(property_name))
+		_check_first_home()
 		_enqueue_plan_review())
+	%PropertyPopup.moved_in.connect(_check_first_home)
 	%PropertyPopup.property_listed.connect(func(property_name: String) -> void:
 		_show_toast(tr("TOAST_PROPERTY_LISTED") % tr(property_name)))
 	%MarketScreen.trade_requested.connect(func(asset_id: String, is_buy: bool, amount: int) -> void:
@@ -217,6 +223,22 @@ func _style_nav(active: bool, button: Button) -> void:
 
 
 ## Membungkus pembuka popup agar confetti ikut tampil (impian, tahap baru, target kemenangan).
+## Petunjuk sekali seumur pemain sebelum sebuah fitur dibuka pertama kali (pinjaman, kendaraan,
+## properti; v1.5c langkah 4). Tampil sebelum popup fiturnya.
+func _hint(key: String) -> void:
+	if GameState.consume_hint(key):
+		_enqueue(%InfoPopup.open.bind(tr("HINT_TITLE"), tr(key)))
+
+
+## Cerita pertama kali menghuni rumah sendiri (sekali per permainan).
+func _check_first_home() -> void:
+	var home := GameState.properties.home()
+	if home.is_empty() or not GameState.mark_story("first_home"):
+		return
+	var name := tr(GameState.properties.def(home["id"])["name"])
+	_enqueue(_celebrating(%InfoPopup.open.bind(tr("STORY_HOME_TITLE"), tr("STORY_HOME_BODY") % name)))
+
+
 func _celebrating(show_popup: Callable) -> Callable:
 	return func() -> void:
 		show_popup.call()

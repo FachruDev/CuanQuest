@@ -422,7 +422,7 @@ func _out_of_pocket(choice: Dictionary) -> float:
 func _choice_score(choice: Dictionary, scam: bool) -> float:
 	var effects := _expected_effects(choice)
 	var expenses := float(maxi(GameState.monthly_expenses(), 1))
-	var money := (float(effects.get("cash", 0.0)) - _out_of_pocket(choice)) / expenses
+	var money := (float(effects.get("cash", 0.0)) + _debt_money(choice) - _out_of_pocket(choice)) / expenses
 	if scam:
 		return -_out_of_pocket(choice) - (1e9 if choice.has("outcomes") or effects.get("cash", 0.0) > 0.0 else 0.0)
 	return money * 6.0 + float(effects.get("health", 0)) + float(effects.get("happiness", 0)) \
@@ -430,7 +430,25 @@ func _choice_score(choice: Dictionary, scam: bool) -> float:
 		+ float(effects.get("performance", 0)) * 0.4 + float(effects.get("skill", 0)) * 2.0 \
 		+ float(effects.get("offer_raise", 0.0)) * 150.0 + float(effects.get("promote", 0)) * 40.0 \
 		+ float(effects.get("scholarship", 0.0)) * 30.0 + float(effects.get("sponsored_study", 0)) * 20.0 \
-		- float(effects.get("study_delay", 0)) * 3.0
+		- float(effects.get("study_delay", 0)) * 3.0 + float(effects.get("credit_score", 0)) * 0.3
+
+
+## Nilai uang efek utang (v1.5c langkah 4), dari isian event yang sedang tampil: bunga tawaran kredit
+## (ditambah harga barang jika langsung dibelanjakan) adalah biaya; membayar tunggakan / pokok bukan
+## kerugian (utang berkurang); take over KPR menghemat bunga selama masa bunga tetap barunya.
+func _debt_money(choice: Dictionary) -> float:
+	var vars: Dictionary = GameState.events.pending_vars
+	var effects: Dictionary = choice.get("effects", {})
+	var money := 0.0
+	if effects.has("take_loan"):
+		money -= float(vars.get("interest", 0)) + (float(vars.get("amount", 0)) if effects["take_loan"] == "spend" else 0.0)
+	if effects.get("pay_arrears", false):
+		money += float(vars.get("arrears", 0))
+	if effects.get("prepay_part", false):
+		money += float(vars.get("prepay_amount", 0))
+	if effects.get("refinance", false):
+		money += float(vars.get("saving", 0)) + float(vars.get("fee", 0))
+	return money
 
 
 ## Efek rata-rata pilihan (outcomes ditimbang peluangnya); cash dalam Rupiah hari ini.
@@ -445,7 +463,7 @@ func _expected_effects(choice: Dictionary) -> Dictionary:
 	for part: Array in parts:
 		var effects: Dictionary = part[1]
 		for key: String in ["health", "happiness", "salary_pct", "unpaid_months", "performance", "skill", "offer_raise", "promote",
-				"scholarship", "sponsored_study", "study_delay"]:
+				"scholarship", "sponsored_study", "study_delay", "credit_score"]:
 			result[key] = float(result.get(key, 0.0)) + part[0] * float(effects.get(key, 0))
 		result["cash"] = float(result.get("cash", 0.0)) + part[0] * GameState.nominal(effects.get("cash", 0))
 	return result

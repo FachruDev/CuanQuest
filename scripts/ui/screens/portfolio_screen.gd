@@ -1,6 +1,6 @@
 extends ScrollContainer
-## Tab Portofolio (tema "Senja Cuan"): ringkasan kekayaan, grafik net worth, alokasi aset,
-## daftar kepemilikan, laporan terakhir, riwayat transaksi.
+## Tab Portofolio (tema "Senja Cuan"): ringkasan kekayaan, grafik net worth, neraca (aset - utang),
+## alokasi aset, daftar kepemilikan, laporan terakhir, riwayat transaksi.
 
 const TX_SHOWN := 30
 ## Warna per kelas aset untuk grafik alokasi (urutan = urutan legenda).
@@ -13,9 +13,12 @@ const TX_CHIPS := {"buy": &"MoodGreen", "auto": &"MoodGreen", "sell": &"MoodGold
 	"stop_loss": &"MoodRed", "take_profit": &"MoodGreen"}
 const BUY_KINDS := ["buy", "auto"]  # transaksi beli tidak punya untung/rugi terealisasi
 
+var _sheet_box: VBoxContainer  # isi kartu Neraca (v1.5c langkah 4)
+
 
 func _ready() -> void:
 	UiText.build_period_buttons(%PeriodRow, %NetWorthChart, 0)
+	_build_sheet_card()
 	GameState.changed.connect(_refresh)
 	visibility_changed.connect(_refresh)
 	_refresh()
@@ -41,10 +44,27 @@ func _refresh() -> void:
 	%PnlTile.theme_type_variation = &"StatTileNegative" if pnl < 0 else (&"StatTilePositive" if pnl > 0 else &"StatTile")
 
 	%NetWorthChart.set_data(GameState.net_worth_history)
+	BalanceSheet.fill(_sheet_box, GameState.balance_sheet())
 	_build_allocation()
 	_build_holdings()
 	MonthReport.fill(%ReportBox, GameState.last_report)
 	_build_transactions()
+
+
+## Judul + kartu Neraca disisipkan setelah grafik kekayaan bersih.
+func _build_sheet_card() -> void:
+	var page: VBoxContainer = $VBox
+	var index := page.get_node("Gap2").get_index()
+	var title := _label(tr("SHEET_TITLE"), &"SubSectionLabel")
+	var card := PanelContainer.new()
+	card.theme_type_variation = &"HomeCard"
+	_sheet_box = VBoxContainer.new()
+	_sheet_box.add_theme_constant_override("separation", 8)
+	card.add_child(_sheet_box)
+	page.add_child(title)
+	page.move_child(title, index)
+	page.add_child(card)
+	page.move_child(card, index + 1)
 
 
 ## Donat alokasi per kelas aset (kas termasuk) + legenda dengan persentase.

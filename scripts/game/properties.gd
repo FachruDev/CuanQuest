@@ -161,6 +161,76 @@ func loan_of(entry: Dictionary) -> Dictionary:
 	return gs.debt.find(int(entry["loan_id"])) if int(entry["loan_id"]) >= 0 else {}
 
 
+# --- Event (v1.5c langkah 4) ----------------------------------------------------------------
+
+## Rumah tapak yang terkena event kerusakan: rumah yang dihuni jika berupa rumah, selain itu rumah
+## termahal yang dimiliki ({} jika tidak punya rumah tapak).
+func event_house() -> Dictionary:
+	var current := home()
+	if not current.is_empty() and def(current["id"]).get("kind", "") == "house":
+		return current
+	var best: Dictionary = {}
+	for entry: Dictionary in owned:
+		if def(entry["id"]).get("kind", "") == "house" and (best.is_empty() or value(entry) > value(best)):
+			best = entry
+	return best
+
+
+## Properti yang sedang ditempati penyewa (yang pertama), untuk event penyewa bermasalah.
+func tenant_entry() -> Dictionary:
+	for entry: Dictionary in owned:
+		if entry["use"] == "rent" and int(entry["vacant_left"]) == 0:
+			return entry
+	return {}
+
+
+## Properti yang dituju event (isian "property_uid"); efek tertunda tanpa isian memakai rumah tapak utama.
+func _event_target() -> Dictionary:
+	var uid := int(gs.events.pending_vars.get("property_uid", -1))
+	return find(uid) if uid >= 0 else event_house()
+
+
+func event_vars(id: String) -> Dictionary:
+	var entry: Dictionary = {}
+	match id:
+		"roof_leak":
+			entry = event_house()
+		"home_renovation":
+			entry = home()
+		"tenant_late":
+			entry = tenant_entry()
+	if entry.is_empty():
+		return {}
+	return {"property_uid": entry["uid"], "property": def(entry["id"])["name"], "rent2": rent_net(entry["id"]) * 2}
+
+
+## Biaya pilihan event "cost_property": persen nilai pasar properti yang dituju (harga hari ini).
+func event_cost(ratio: float) -> int:
+	var entry := _event_target()
+	return 0 if entry.is_empty() else roundi(value(entry) * ratio / 1000.0) * 1000
+
+
+## Efek event: biaya perbaikan (persen nilai properti), sewa yang hilang (x sewa bersih sebulan),
+## dan penyewa pergi (properti mencari penyewa baru 1-2 bulan).
+func apply_effects(e: Dictionary) -> void:
+	if not (e.has("property_repair") or e.has("rent_months") or e.has("tenant_leave")):
+		return
+	var entry := _event_target()
+	if entry.is_empty():
+		return
+	if e.has("property_repair"):
+		var cost := event_cost(float(e["property_repair"]))
+		gs.cash -= cost
+		gs.stats["property_costs"] += cost
+	if e.has("rent_months"):
+		var amount := rent_net(entry["id"]) * int(e["rent_months"])
+		gs.cash += amount
+		gs.stats["rent_income"] += amount
+	if e.get("tenant_leave", false) and entry["use"] == "rent":
+		entry["lease_left"] = 0
+		entry["vacant_left"] = rng.randi_range(int(data["vacancy_months"][0]), int(data["vacancy_months"][1]))
+
+
 # --- Bulanan --------------------------------------------------------------------------------
 
 ## Awal bulan (dipanggil GameState._start_month): harga bergerak, biaya PBB & perawatan dipotong,

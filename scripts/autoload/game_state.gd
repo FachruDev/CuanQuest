@@ -350,7 +350,7 @@ func apply_effects(e: Dictionary) -> void:
 func snapshot() -> Dictionary:
 	return {"cash": cash, "health": health, "happiness": happiness, "xp": progress.xp,
 		"salary": career.salary, "investments": portfolio.investments_value(), "skill": floori(career.skill),
-		"performance": roundi(career.performance)}
+		"performance": roundi(career.performance), "debt": debt.outstanding(), "credit": debt.credit_score}
 
 
 func diff(before: Dictionary) -> Dictionary:
@@ -487,6 +487,28 @@ func net_worth() -> float:
 		- debt.outstanding()
 
 
+## Neraca (v1.5c langkah 4) untuk tab Portofolio & layar akhir: rincian yang sama dengan net_worth().
+## -> {assets: [{key, value}], debts: [{name, value}], total_assets, total_debt, net_worth}
+func balance_sheet() -> Dictionary:
+	var emergency := budget.emergency_balance()
+	var assets: Array[Dictionary] = [
+		{"key": "LBL_CASH", "value": cash},
+		{"key": "SHEET_EMERGENCY", "value": emergency},
+		{"key": "SHEET_INVESTMENTS", "value": portfolio.investments_value() - emergency},
+		{"key": "SHEET_DREAMS", "value": dreams.funds()},
+		{"key": "SHEET_VEHICLES", "value": vehicles.total_value()},
+		{"key": "SHEET_PROPERTIES", "value": properties.total_value()},
+	]
+	var debts: Array[Dictionary] = []
+	for loan: Dictionary in debt.loans:
+		debts.append({"name": debt.product(loan["product"])["name"], "value": float(loan["balance"]) + int(loan["arrears"])})
+	var total_assets := 0.0
+	for item: Dictionary in assets:
+		total_assets += float(item["value"])
+	return {"assets": assets, "debts": debts, "total_assets": total_assets, "total_debt": debt.outstanding(),
+		"net_worth": net_worth()}
+
+
 # --- Data global pemain: tutorial, petunjuk, cerita ----------------------------------
 
 func mark_tutorial_done() -> void:
@@ -611,7 +633,7 @@ func _new_stats() -> Dictionary:
 		"loan_defaults": 0, "loans_paid_off": 0,
 		"vehicles_bought": 0, "vehicles_sold": 0, "vehicles_seized": 0, "vehicle_costs": 0,
 		"properties_bought": 0, "properties_sold": 0, "properties_seized": 0, "property_costs": 0,
-		"rent_income": 0, "property_gains": 0,
+		"rent_income": 0, "property_gains": 0, "offer_loans": 0, "restructures": 0, "refinances": 0,
 		"best_trade": {}, "worst_trade": {}, "best_event": {}, "worst_event": {},
 	}
 

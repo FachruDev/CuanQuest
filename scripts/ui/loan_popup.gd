@@ -108,7 +108,11 @@ func open_detail(loan_id: int) -> void:
 
 	_info_row(tr("LOAN_ROW_PRINCIPAL"), Fmt.rupiah(loan["principal"]))
 	_info_row(tr("LOAN_ROW_BALANCE"), Fmt.rupiah(ceili(loan["balance"])))
-	_info_row(tr("LOAN_ROW_RATE"), tr("LOAN_RATE_VALUE") % Fmt.percent_plain(loan["rate"]))
+	var rate_text := tr("LOAN_RATE_VALUE") % Fmt.percent_plain(loan["rate"])
+	var fixed_until := int(loan["fixed_until"])
+	if fixed_until >= 0:  # KPR: bunga tetap sampai bulan tertentu, lalu mengambang
+		rate_text = tr("PROPERTY_RATE_FIXED_UNTIL") % [Fmt.percent_plain(loan["rate"]), Fmt.game_date(fixed_until)] 			if GameState.month < fixed_until else tr("PROPERTY_RATE_FLOATING") % Fmt.percent_plain(loan["rate"])
+	_info_row(tr("LOAN_ROW_RATE"), rate_text)
 	_info_row(tr("LOAN_ROW_PAYMENT"), Fmt.rupiah(debt.installment(loan)))
 	_info_row(tr("LOAN_ROW_MONTHS_LEFT"), tr("LOAN_MONTHS_OF") % [int(loan["months_left"]), int(loan["months_total"])])
 	_info_row(tr("LOAN_ROW_INTEREST_PAID"), Fmt.rupiah(loan["interest_paid"]))

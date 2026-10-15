@@ -28,8 +28,9 @@ data/
   economy.json                Gaji, modal awal, pilihan makan & tempat tinggal (untuk balancing)
   market.json                 Siklus pasar, suku bunga acuan, peluang berita
   news.json                   Template berita pasar & dampaknya ke harga
-  events/<kategori>.json      49 event hidup per kategori (finance, work, education, health, social,
-                              market, scam): syarat, pilihan, efek. Cara menambah: docs/PANDUAN_EVENT.md
+  events/<kategori>.json      58 event hidup per kategori (finance, work, education, health, social,
+                              market, scam, property, debt): syarat, pilihan, efek. Cara menambah:
+                              docs/PANDUAN_EVENT.md
   insurance.json              Produk asuransi: premi, tanggungan, masa tunggu
   loans.json                  Pinjaman (v1.5c): KTA, kredit motor/mobil, KPR & KPR subsidi, denda, skor kredit
   vehicles.json               Kendaraan (v1.5c): harga, penyusutan, biaya rutin, kebahagiaan, produk kredit
@@ -37,7 +38,7 @@ data/
   jobs.json                   Pekerjaan (bidang, jenjang, syarat, gaji, beban kerja) & aturan lowongan
   education.json              Program kuliah (syarat, lama, biaya, hasil) & beban kuliah
   quiz.json                   39 soal kuis (4 topik)
-  glossary.json               62 istilah glosarium
+  glossary.json               67 istilah glosarium
   legal.json                  Kebijakan privasi & syarat penggunaan (tampil di game)
   activities.json             6 aktivitas bulanan & aturan energi
   risk_profile.json           Kuesioner & 3 profil risiko
@@ -78,6 +79,8 @@ scripts/
     month_summary_popup.gd    Modal laporan bulanan
     event_popup.gd, quiz_popup.gd, info_popup.gd
     ui_text.gd                Helper teks: perubahan efek, syarat unlock
+    home_scene.gd             Ilustrasi Hunian & Kendaraan di Beranda (3 lapis gambar, v1.5c)
+    balance_sheet.gd          Kartu Neraca (aset - utang) di Portofolio & layar akhir (v1.5c)
     screens/                  Satu script per tab
 scenes/
   title.tscn                  Layar judul (main scene saat game dibuka)
@@ -187,7 +190,7 @@ scenes/
   - [x] (1) Utang & skor kredit (KTA, cicilan, tunggakan, macet, pelunasan)
   - [x] (2) Kendaraan (aset menyusut, kredit motor/mobil)
   - [x] (3) Properti & KPR
-  - [ ] (4) Tampilan & cerita (ilustrasi hunian & kendaraan, event)
+  - [x] (4) Tampilan & cerita (ilustrasi hunian & kendaraan, neraca, event utang & properti)
   - [ ] (5) Penyeimbangan
 - [ ] **v1.5d, v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
@@ -263,6 +266,32 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Laporan & UI:** bagian Ekonomi di laporan bulanan (inflasi, daya beli kas + tabungan + pos impian yang tergerus), kartu Daya Beli di Profil, chip inflasi di Pasar.
 - **Simulasi 40 permainan x 10 tahun** (pilihan acak): indeks harga median 1,43; kekayaan nominal median Rp775 jt, kekayaan riil Rp536 jt (tanpa inflasi Rp587 jt); gaji akhir median Rp20,1 jt nominal. Semua permainan bertahan, jadi game masih tergolong mudah. Penyeimbangan dijadwalkan di langkah 5 setelah pajak & asuransi.
 - **Save lama:** slot tanpa data inflasi tetap bisa dimuat; indeks harga dianggap mulai dari 1,0 saat dimuat.
+
+## Tampilan & Cerita: Hunian, Neraca, Event Utang & Properti (v1.5c langkah 4)
+
+- **Kartu Hunian & Kendaraan** (Beranda, di bawah kartu Karier): `HomeScene` (`scripts/ui/home_scene.gd`) menumpuk 3 gambar berukuran sama (624 x 260): latar `home/bg.svg`, tempat tinggal `home/<id>.svg` (id hunian sewa di `economy.json` atau id properti yang dihuni), dan kendaraan `vehicle/<id>.svg` (kendaraan termahal, atau `walk`). Keterangan di bawahnya: "Kos · Jalan kaki & angkutan umum". Gambar sekarang masih **pengganti sederhana**; gambar final cukup menimpa file dengan nama yang sama (`docs/KEBUTUHAN_ASET.md`). Analogi web: komponen `<img>` yang `src`-nya dihitung dari state.
+- **Neraca** (tab Portofolio setelah grafik kekayaan, dan "Neraca Akhir" di layar akhir): `GameState.balance_sheet()` memberi rincian aset (kas, tabungan dana darurat, investasi, dana impian, kendaraan, properti) dan utang per pinjaman; `BalanceSheet.fill()` merendernya beserta bar **rasio utang terhadap aset** (hijau ≤30%, emas ≤50%, merah di atasnya). Totalnya sama persis dengan `net_worth()`.
+- **Event baru** (9, di `data/events/property.json` & `debt.json`, panduan di `docs/PANDUAN_EVENT.md`):
+  - **Properti:** Atap Bocor (rumah tapak; perbaiki tuntas / tambal / biarkan dengan efek tertunda), Ingin Renovasi (rumah yang dihuni; renovasi jarang balik modal), Penyewa Telat Bayar (beri waktu / minta pindah). Biaya = persen nilai pasar properti (`cost_property`).
+  - **Tawaran kredit:** Beli Sekarang, Bayar Nanti (paylater Rp6 jt, 12x, ±48% per tahun; produk tersembunyi `paylater` di `loans.json`) dan Telepon dari Bank (KTA pre-approved sampai 3x gaji, 36 bulan). Hanya muncul jika pengajuannya lolos syarat bank.
+  - **Terjadwal oleh `Debt.scheduled_events()`** (tanpa undian): Penagih Utang Datang / Surat Peringatan Terakhir saat menunggak 2 bulan (bayar tunggakan, **restrukturisasi** 75% disetujui: tunggakan masuk pokok + tenor 12 bulan, atau menghindar), dan Masa Bunga Tetap KPR Berakhir sebulan sebelum mengambang (**take over** ke bank lain: bunga tetap BI + 1% selama 2 tahun dengan biaya 3% sisa pokok, syarat pegawai, skor ≥60, tanpa tunggakan, sisa tenor ≥2 tahun; **lunasi sebagian** 10% pokok + penalti 2%; atau terima bunga mengambang).
+  - Angka di teks, biaya pilihan (`cost_var`), dan efeknya dihitung sekali di `event_vars()` lalu disimpan bersama event, jadi selalu cocok (juga setelah game dimuat ulang). Perubahan utang & skor kredit tampil di hasil event ("Utang +Rp6.000.000").
+- **Petunjuk & cerita:** petunjuk sekali seumur pemain sebelum pertama kali membuka pinjaman, membeli kendaraan, atau melihat properti dijual (`main.gd` `_hint()`); cerita **Rumah Sendiri!** dengan konfeti saat pertama kali menghuni rumah sendiri; tutorial halaman Beranda menyebut kendaraan, rumah, dan pinjaman; rincian KPR di popup pinjaman menampilkan "tetap sampai ..." / "mengambang".
+- **Analisis akhir:** restrukturisasi, tawaran kredit yang diterima, dan take over KPR. 5 istilah glosarium baru (Neraca, Paylater, Rasio utang terhadap aset, Restrukturisasi kredit, Take over KPR).
+- **Statistik baru:** `offer_loans`, `restructures`, `refinances`. Simulator menilai pilihan event utang (`_debt_money()`: bunga tawaran kredit = biaya, take over = bunga yang dihemat).
+- **Golden runner:** dengan 9 event baru dibuang (`--skip-events`), permainan identik dengan langkah 3, jadi perubahan lain (neraca, ilustrasi, kode event) tidak mengubah perilaku.
+- **Simulator** (Normal, 40 permainan x 30 tahun, dibanding langkah 3). Pemain hemat menolak tawaran kredit, jadi hasilnya hanya bergeser karena urutan event acak berubah:
+
+| Tipe pemain | Langkah 3 | Langkah 4 |
+|:--|:--|:--|
+| S1 hemat | bebas finansial tahun 12,6 | tahun 12,7 |
+| S1 pembeli rumah kota (Rumah Tipe 45, KPR) | tahun 23,3; bunga KPR Rp1,52 M; dilelang 10% | tahun 21,3; bunga KPR Rp0,98 M (take over); dilelang 3% |
+| S1 pembeli rumah (subsidi) | tahun 12,4; dilelang 5% | tahun 12,6; dilelang 0% |
+| S1 gaya hidup mewah | bangkrut 1/40, tidak pernah berutang | bangkrut 2/40; 98% menerima tawaran KTA/paylater |
+| SMA gaya hidup mewah | bangkrut 22/40 | bangkrut 30/40 (KTA untuk liburan, 38% macet) |
+| SMA pengutang | bangkrut 20/40 | bangkrut 22/40 |
+
+  Take over & penanganan penagih membuat KPR lebih ringan bagi pemain yang cermat, sedangkan tawaran KTA memperparah gaya hidup boros bergaji kecil. Keduanya dievaluasi di langkah 5 (penyeimbangan).
 
 ## Properti & KPR (v1.5c langkah 3)
 
