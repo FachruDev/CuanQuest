@@ -7,6 +7,7 @@ extends Control
 ## baru tampil setelah popup sebelumnya ditutup (signal `closed` dari ModalPopup).
 
 const END_SCENE := "res://scenes/end_screen.tscn"
+const ANNUAL_POPUP := preload("res://scenes/ui/annual_popup.tscn")
 
 ## Petunjuk kontekstual saat tab dibuka pertama kali (index tab -> key teks).
 const TAB_HINTS := {1: "HINT_MARKET", 2: "HINT_PORTFOLIO", 3: "HINT_ACTIVITY", 4: "HINT_PROFILE"}
@@ -26,6 +27,7 @@ var _last_level := 0
 var _toast: PanelContainer
 var _toast_label: Label
 var _toast_tween: Tween
+var _annual_popup: ModalPopup  # laporan tahunan (v1.5d), dibuat lewat kode
 
 
 func _ready() -> void:
@@ -150,9 +152,16 @@ func _ready() -> void:
 		_enqueue(%TextPopup.open.bind(title, body)))
 	%ActivityScreen.quiz_requested.connect(func(question: Dictionary) -> void:
 		_enqueue(%QuizPopup.open.bind(question)))
+	_annual_popup = ANNUAL_POPUP.instantiate()
+	add_child(_annual_popup)
+	GameState.year_closed.connect(func(report: Dictionary) -> void:
+		_enqueue(_annual_popup.open.bind(report)))
+	%ProfileScreen.annual_requested.connect(func() -> void:
+		_enqueue(_annual_popup.open.bind(GameState.annual.latest())))
+	GameState.achievements_unlocked.connect(_on_achievements_unlocked)
 	for popup: ModalPopup in [%SummaryPopup, %InfoPopup, %EventPopup, %QuizPopup, %GlossaryPopup, %TextPopup,
 			%PlanPopup, %DreamPickerPopup, %DreamPopup, %TradeConfirmPopup, %InsurancePopup, %OrderPopup, %OfferPopup,
-			%LoanPopup, %VehiclePopup, %PropertyPopup]:
+			%LoanPopup, %VehiclePopup, %PropertyPopup, _annual_popup]:
 		popup.closed.connect(_show_next_popup)
 
 	_build_toast()
@@ -175,6 +184,7 @@ func _ready() -> void:
 	_enqueue_plan_review()
 	for dream: Dictionary in GameState.dreams.overdue():  # tenggat terlewat sebelum game ditutup
 		_enqueue(%DreamPopup.open_overdue.bind(GameState.dreams.view_of(dream)))
+	GameState.check_achievements()  # pencapaian yang syaratnya sudah terpenuhi (mis. save lama)
 
 
 func _show_screen(index: int) -> void:
@@ -192,6 +202,7 @@ func _refresh_top_bar() -> void:
 	%DateLabel.text = Fmt.game_date(GameState.month)
 	%AgeLabel.text = tr("TOPBAR_AGE") % GameState.age()
 	%LevelLabel.text = tr("TOPBAR_LEVEL") % GameState.progress.level()
+	UiText.apply_avatar_frame(%PlayerAvatar.get_parent(), GameState.achievements.current_frame())
 	if GameState.progress.level() > _last_level:
 		_show_toast(tr("TOAST_LEVEL") % GameState.progress.level())
 	_last_level = GameState.progress.level()
@@ -199,6 +210,23 @@ func _refresh_top_bar() -> void:
 	var busy := GameState.events.has_pending() or GameState.is_over
 	%NextButton.disabled = busy
 	%NextButton.get_child(0).modulate.a = 0.45 if busy else 1.0
+
+
+## Pencapaian baru: satu popup perayaan berisi semua pencapaian yang terbuka bersamaan + hadiahnya.
+func _on_achievements_unlocked(ids: Array[String]) -> void:
+	var lines: Array[String] = []
+	for id: String in ids:
+		var def := GameState.achievements.def(id)
+		var rewards: Array[String] = []
+		if def.get("title", false):
+			rewards.append(tr("ACH_REWARD_TITLE") % tr("TITLE_" + id.to_upper()))
+		if def.has("frame"):
+			rewards.append(tr("ACH_REWARD_FRAME") % tr("FRAME_" + str(def["frame"]).to_upper()))
+		var line := "• " + tr("ACH_" + id.to_upper())
+		if not rewards.is_empty():
+			line += ": " + ", ".join(rewards)
+		lines.append(line)
+	_enqueue(_celebrating(%InfoPopup.open.bind(tr("ACH_POPUP_TITLE"), "\n".join(lines) + "\n\n" + tr("ACH_POPUP_NOTE"))))
 
 
 ## Satu ikon petir per poin energi bulan ini: kuning = tersisa, ungu redup = terpakai.

@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 15 Oktober 2026 (v1.5d langkah 3 proyek sampingan selesai)
+- **Terakhir diperbarui:** 15 Oktober 2026 (v1.5d langkah 4 pencapaian, kosmetik & laporan tahunan selesai)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -17,7 +17,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v1.5a** | Realisme ekonomi | ✅ 5/5 langkah |
 | **v1.5b** | Pekerjaan & karier (melamar kerja, keahlian, jenjang) | ✅ 5/5 langkah |
 | **v1.5c** | Utang, properti, hunian yang tumbuh | ✅ 5/5 langkah (aset final menyusul setelah v2) |
-| **v1.5d** | Tokoh, riset, kontrak, konten | 🔄 3/5 langkah |
+| **v1.5d** | Tokoh, riset, kontrak, konten | 🔄 4/5 langkah |
 | **v2a-v2d** | Instrumen lanjut, hidup penuh, dana investor, mini-game | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
 
@@ -369,7 +369,7 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.4 (ditulis 15 Oktober 202
 | 1 | Tokoh berulang & rantai event: `data/characters.json`, kedekatan, 10 rantai, tokoh di popup event, kartu Orang Terdekat | ✅ |
 | 2 | Riset pasar & rumor: rumor benar/jebakan, riset dasar 55% & mendalam 75%, rekam jejak analis | ✅ |
 | 3 | Kontrak & proyek sampingan: papan proyek, 3 strategi, tenggat 1-3 bulan | ✅ |
-| 4 | Pencapaian (≥15), kosmetik (bingkai avatar & gelar), laporan tahunan | ⬜ |
+| 4 | Pencapaian (≥15), kosmetik (bingkai avatar & gelar), laporan tahunan | ✅ |
 | 5 | Perluasan konten (±150 soal kuis, event pelengkap) & penyeimbangan | ⬜ |
 
 ### Rincian fitur
@@ -399,12 +399,20 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.4 (ditulis 15 Oktober 202
 - ✅ Simulator: tipe pemain `pekerja_lepas` & `gila_kerja`; golden runner identik; 86 uji proyek + 729 uji lama lulus
 - 🔁 Ikon bidang Umum sementara `book.svg` (lihat `docs/KEBUTUHAN_ASET.md`)
 
+**Langkah 4: Pencapaian, kosmetik & laporan tahunan** ✅
+- ✅ 21 pencapaian lintas permainan di `data/achievements.json` (syarat sebagai data), popup perayaan saat terbuka
+- ✅ Kosmetik tanpa aset baru: 16 gelar & 7 bingkai avatar (dipilih di Profil; tampil di top bar, Profil, layar akhir)
+- ✅ Bagian Tampilan & Pencapaian di Profil (progres tiap pencapaian, hadiahnya)
+- ✅ Laporan tahunan setiap Januari (pemasukan, pengeluaran per pos, investasi vs inflasi, kekayaan nominal & riil, impian & pencapaian), bisa dibuka lagi dari Profil
+- ✅ Simulator mencetak persentase permainan yang membuka tiap pencapaian; golden runner identik; 62 uji pencapaian & laporan tahunan + 815 uji lama lulus
+- 🔁 Lencana pencapaian sementara ikon bintang/gembok; tema & avatar tambahan menyusul bersama aset final setelah v2
+
 **Daftar fitur v1.5d**
 - ✅ 4-6 tokoh berulang di event dan rantai event
 - ✅ Riset pasar (laporan analis dengan tingkat keyakinan)
 - ✅ Kontrak dengan tenggat 1-3 bulan
-- ⬜ Minimal 15 pencapaian; tema & avatar dibuka lewat pencapaian
-- ⬜ Laporan tahunan
+- ✅ Minimal 15 pencapaian (21); kosmetik bingkai avatar & gelar dibuka lewat pencapaian (tema & avatar baru setelah aset v2)
+- ✅ Laporan tahunan
 - ⬜ Sekitar 80 event dan 150 soal kuis
 
 **Kriteria selesai**

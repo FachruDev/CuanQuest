@@ -1,10 +1,12 @@
 extends ScrollContainer
 ## Tab Profil (GDD 5.12, tema "Senja Cuan"): kartu pemain, profil risiko, target kemenangan,
-## daya beli (inflasi), statistik, perjalanan karier, orang terdekat, rekam jejak riset, riwayat permainan,
-## simpan/muat, pengaturan, menu.
+## daya beli (inflasi), statistik, perjalanan karier, orang terdekat, rekam jejak riset, pencapaian &
+## tampilan (bingkai avatar, gelar), riwayat permainan, simpan/muat, pengaturan, menu.
 
 signal glossary_requested
 signal text_requested(title: String, body: String)
+## Menu "Laporan Tahunan Terakhir" ditekan (v1.5d).
+signal annual_requested
 
 const TITLE_SCENE := "res://scenes/title.tscn"
 const TUTORIAL_SCENE := "res://scenes/tutorial.tscn"
@@ -19,6 +21,11 @@ var _career_log_box: VBoxContainer  # perjalanan karier (v1.5b langkah 4)
 var _people_box: VBoxContainer  # orang terdekat (v1.5d)
 var _research_title: Label  # rekam jejak riset rumor (v1.5d langkah 2)
 var _research_box: VBoxContainer
+var _title_label: Label  # gelar di bawah nama (v1.5d langkah 4)
+var _achievement_title: Label
+var _achievement_box: VBoxContainer  # daftar pencapaian
+var _style_box: VBoxContainer  # pilihan bingkai avatar & gelar
+var _annual_row: Button  # menu laporan tahunan terakhir
 
 
 func _ready() -> void:
@@ -29,6 +36,7 @@ func _ready() -> void:
 	_build_career_log()
 	_build_people()
 	_build_research()
+	_build_achievements()
 	_build_menu()
 	GameState.changed.connect(_refresh)
 	visibility_changed.connect(_refresh)
@@ -41,6 +49,9 @@ func _refresh() -> void:
 	%Avatar.avatar_index = GameState.avatar
 	%Avatar.display_name = GameState.player_name
 	%NameLabel.text = GameState.player_name
+	UiText.apply_avatar_frame(%Avatar.get_parent(), GameState.achievements.current_frame())
+	_title_label.text = GameState.achievements.current_title()
+	_title_label.visible = _title_label.text != ""
 	_clear(%InfoChips)
 	var job_title := tr(GameState.career.current_job_def()["title"]) if GameState.career.is_employed() else tr("CAREER_UNEMPLOYED")
 	%InfoChips.add_child(_chip(job_title, &"MoodGold"))
@@ -79,6 +90,8 @@ func _refresh() -> void:
 	UiText.fill_career_log(_career_log_box, 8)
 	_refresh_people()
 	_refresh_research()
+	_refresh_achievements()
+	_annual_row.visible = not GameState.annual.reports.is_empty()
 
 	for slot: String in _slot_labels:
 		_slot_labels[slot].text = SaveManager.slot_summary(slot)
@@ -141,6 +154,8 @@ func _setup_settings() -> void:
 # --- Menu ---------------------------------------------------------------------
 
 func _build_menu() -> void:
+	_annual_row = _add_menu_row("PROFILE_ANNUAL", "res://assets/icons/calendar_badge.svg", &"IconTileGold",
+		func() -> void: annual_requested.emit())
 	_add_menu_row("PROFILE_GLOSSARY", "res://assets/icons/book.svg", &"IconTileTeal",
 		func() -> void: glossary_requested.emit())
 	_add_menu_row("PROFILE_TUTORIAL", "res://assets/icons/lightbulb.svg", &"IconTileGold",
@@ -158,7 +173,7 @@ func _build_menu() -> void:
 
 
 ## Satu baris menu: ikon | judul | panah. Tombol "tebal" bergaya kartu.
-func _add_menu_row(key: String, icon: String, tile: StringName, on_press: Callable) -> void:
+func _add_menu_row(key: String, icon: String, tile: StringName, on_press: Callable) -> Button:
 	var button := ChunkyButton.new()
 	button.theme_type_variation = &"AssetRowButton"
 	button.press_depth = 5.0
@@ -185,6 +200,7 @@ func _add_menu_row(key: String, icon: String, tile: StringName, on_press: Callab
 	button.add_child(row)
 	button.pressed.connect(on_press)
 	%MenuList.add_child(button)
+	return button
 
 
 func _show_legal(key: String) -> void:
@@ -456,6 +472,161 @@ func _refresh_research() -> void:
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	note.custom_minimum_size.x = 1
 	_research_box.add_child(note)
+
+
+# --- Pencapaian & tampilan (v1.5d langkah 4) ---------------------------------------
+
+## Gelar di bawah nama, lalu judul + kartu Tampilan (bingkai & gelar) dan judul + daftar Pencapaian
+## setelah Rekam Jejak Riset.
+func _build_achievements() -> void:
+	_title_label = _label("", &"AssetNameLabel")
+	_title_label.add_theme_color_override("font_color", Palette.TEAL)
+	var texts: VBoxContainer = %NameLabel.get_parent()
+	texts.add_child(_title_label)
+	texts.move_child(_title_label, %NameLabel.get_index() + 1)
+
+	var page: VBoxContainer = $VBox
+	var index := _research_box.get_parent().get_index() + 1
+	var style_title := _label(tr("PROFILE_STYLE_TITLE"), &"SubSectionLabel")
+	var style_card := PanelContainer.new()
+	style_card.theme_type_variation = &"HomeCard"
+	_style_box = VBoxContainer.new()
+	_style_box.add_theme_constant_override("separation", 10)
+	style_card.add_child(_style_box)
+	_achievement_title = _label("", &"SubSectionLabel")
+	var card := PanelContainer.new()
+	card.theme_type_variation = &"HomeCard"
+	_achievement_box = VBoxContainer.new()
+	_achievement_box.add_theme_constant_override("separation", 12)
+	card.add_child(_achievement_box)
+	for node: Control in [style_title, style_card, _achievement_title, card]:
+		page.add_child(node)
+		page.move_child(node, index)
+		index += 1
+
+
+func _refresh_achievements() -> void:
+	var achievements := GameState.achievements
+	_achievement_title.text = tr("PROFILE_ACHIEVEMENTS_TITLE") % [achievements.unlocked.size(), achievements.defs().size()]
+	_refresh_style()
+	_clear(_achievement_box)
+	var ordered: Array = achievements.defs().filter(func(d: Dictionary) -> bool: return achievements.is_unlocked(d["id"]))
+	ordered.append_array(achievements.defs().filter(func(d: Dictionary) -> bool: return not achievements.is_unlocked(d["id"])))
+	for d: Dictionary in ordered:
+		_achievement_box.add_child(_achievement_row(d))
+
+
+## Satu pencapaian: ikon | nama, syarat, hadiah (terbuka) atau progres (terkunci).
+func _achievement_row(d: Dictionary) -> HBoxContainer:
+	var achievements := GameState.achievements
+	var id: String = d["id"]
+	var open := achievements.is_unlocked(id)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	var icon := achievements.icon(id)
+	if icon == "":
+		icon = "res://assets/icons/badge_star.svg" if open else "res://assets/icons/lock.svg"
+	var tile := UiText.icon_tile(icon, &"IconTileGold" if open else &"IconTileInk", 44.0)
+	tile.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	row.add_child(tile)
+	var texts := VBoxContainer.new()
+	texts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	texts.add_theme_constant_override("separation", 0)
+	texts.add_child(_wrap(tr("ACH_" + id.to_upper()), &"AssetNameLabel"))
+	texts.add_child(_wrap(tr("ACH_%s_DESC" % id.to_upper()), &"SmallMutedLabel"))
+	var rewards: Array[String] = []
+	if d.get("title", false):
+		rewards.append(tr("ACH_REWARD_TITLE") % tr("TITLE_" + id.to_upper()))
+	if d.has("frame"):
+		rewards.append(tr("ACH_REWARD_FRAME") % tr("FRAME_" + str(d["frame"]).to_upper()))
+	var status := ""
+	if open:
+		status = tr("ACH_OPEN")
+	else:
+		var target := achievements.target(d)
+		var value := minf(achievements.value(d), target)
+		status = tr("ACH_PROGRESS") % [_progress_text(d, value), _progress_text(d, target)] if target > 1.0 else tr("ACH_LOCKED")
+	if not rewards.is_empty():
+		status += " · " + ", ".join(rewards)
+	var status_label := _wrap(status, &"ReqLabel")
+	status_label.add_theme_color_override("font_color", Palette.GAIN if open else Palette.MUTED)
+	texts.add_child(status_label)
+	row.add_child(texts)
+	if not open:
+		tile.modulate = Color(1, 1, 1, 0.55)
+	return row
+
+
+func _progress_text(d: Dictionary, value: float) -> String:
+	match d["type"]:
+		"net_worth":
+			return Fmt.rupiah_short(value)
+		"emergency_months":
+			return Fmt.number(value, 1)
+	return str(floori(value))
+
+
+## Pilihan bingkai avatar (lingkaran warna; terkunci = redup) dan gelar (tombol per gelar terbuka).
+func _refresh_style() -> void:
+	_clear(_style_box)
+	var achievements := GameState.achievements
+	_style_box.add_child(_label(tr("PROFILE_FRAME"), &"StatNameLabel"))
+	var swatches := HFlowContainer.new()
+	swatches.add_theme_constant_override("h_separation", 10)
+	swatches.add_theme_constant_override("v_separation", 10)
+	var current: String = achievements.current_frame()["id"]
+	for f: Dictionary in achievements.frames():
+		swatches.add_child(_frame_swatch(f, f["id"] == current, achievements.frame_unlocked(f["id"])))
+	_style_box.add_child(swatches)
+	_style_box.add_child(_wrap(tr("FRAME_" + current.to_upper()), &"SmallMutedLabel"))
+
+	_style_box.add_child(_label(tr("PROFILE_TITLE_PICK"), &"StatNameLabel"))
+	var titles := HFlowContainer.new()
+	titles.add_theme_constant_override("h_separation", 8)
+	titles.add_theme_constant_override("v_separation", 8)
+	var options: Array[String] = [""]
+	options.append_array(achievements.titles_unlocked())
+	for id: String in options:
+		var selected := achievements.title == id or (id == "" and achievements.current_title() == "")
+		var text := tr("PROFILE_NO_TITLE") if id == "" else tr("TITLE_" + id.to_upper())
+		var button := UiText.chunky_button(text, &"PrimaryButton" if selected else &"NeutralButton",
+			&"PrimaryButtonLabel" if selected else &"NeutralButtonLabel", 50.0, 17)
+		button.get_child(0).autowrap_mode = TextServer.AUTOWRAP_OFF
+		button.custom_minimum_size.x = 40.0 + text.length() * 10.0  # label menempel penuh, jadi lebar diatur manual
+		button.pressed.connect(achievements.set_title.bind(id))
+		titles.add_child(button)
+	_style_box.add_child(titles)
+	if options.size() == 1:
+		_style_box.add_child(_wrap(tr("PROFILE_STYLE_HINT"), &"SmallMutedLabel"))
+
+
+## Lingkaran contoh bingkai. Terpilih = garis lebih tebal; terkunci = redup & tidak bisa ditekan.
+func _frame_swatch(f: Dictionary, selected: bool, unlocked: bool) -> Button:
+	var button := Button.new()
+	button.custom_minimum_size = Vector2(48, 48)
+	button.focus_mode = Control.FOCUS_NONE
+	button.tooltip_text = tr("FRAME_" + str(f["id"]).to_upper())
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(f["bg"])
+	style.border_color = Color(f["border"])
+	style.set_border_width_all(8 if selected else 4)
+	style.set_corner_radius_all(24)
+	if f.has("glow"):
+		style.shadow_color = Color(Color(f["glow"]), 0.6)
+		style.shadow_size = 4
+	for state: String in ["normal", "hover", "pressed", "disabled", "focus"]:
+		button.add_theme_stylebox_override(state, style)
+	button.disabled = not unlocked
+	button.modulate = Color.WHITE if unlocked else Color(1, 1, 1, 0.35)
+	button.pressed.connect(GameState.achievements.set_frame.bind(f["id"]))
+	return button
+
+
+func _wrap(text: String, variation: StringName) -> Label:
+	var label := _label(text, variation)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.custom_minimum_size.x = 1
+	return label
 
 
 func _value_row(name: String, value: String) -> HBoxContainer:

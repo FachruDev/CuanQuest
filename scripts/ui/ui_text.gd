@@ -226,6 +226,22 @@ static func chunky_button(text: String, variation: StringName, label_variation: 
 	return button
 
 
+## Bingkai avatar (kosmetik v1.5d): warna garis & latar panel AvatarFrame dari data/achievements.json
+## "frames"; bingkai bercahaya diberi bayangan berwarna. Bingkai bawaan = gaya tema apa adanya.
+static func apply_avatar_frame(panel: PanelContainer, frame: Dictionary) -> void:
+	panel.remove_theme_stylebox_override("panel")
+	var base := panel.get_theme_stylebox("panel") as StyleBoxFlat
+	if base == null or frame["id"] == GameState.achievements.frames()[0]["id"]:
+		return
+	var style := base.duplicate() as StyleBoxFlat
+	style.border_color = Color(frame["border"])
+	style.bg_color = Color(frame["bg"])
+	if frame.has("glow"):
+		style.shadow_color = Color(Color(frame["glow"]), 0.6)
+		style.shadow_size = 8
+	panel.add_theme_stylebox_override("panel", style)
+
+
 ## Nominal ringkas untuk tombol: 500000 -> "Rp500 rb", 1000000 -> "Rp1 jt"
 static func amount_short(amount: int) -> String:
 	if amount >= 1_000_000 and amount % 1_000_000 == 0:

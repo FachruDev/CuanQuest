@@ -32,6 +32,9 @@ func _ready() -> void:
 	%Avatar.avatar_index = GameState.avatar
 	%Avatar.display_name = GameState.player_name
 	%NameLabel.text = GameState.player_name
+	UiText.apply_avatar_frame(%Avatar.get_parent(), GameState.achievements.current_frame())  # kosmetik (v1.5d)
+	if GameState.achievements.current_title() != "":  # gelar pilihan pemain
+		%InfoChips.add_child(_chip(GameState.achievements.current_title(), &"MoodGreen"))
 	var months := int(r["month"])
 	var job_title := tr(GameState.career.current_job_def()["title"]) if GameState.career.is_employed() else tr("CAREER_UNEMPLOYED")
 	%InfoChips.add_child(_chip(job_title, &"MoodGold"))

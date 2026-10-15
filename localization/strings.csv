@@ -1223,3 +1223,109 @@ Projects use energy every month until the deadline and wear on your health or ha
 PROFILE_STAT_PROJECTS,Proyek sampingan,Side projects
 PROFILE_STAT_PROJECTS_VALUE,%d selesai · %d gagal,%d done · %d failed
 PROFILE_STAT_PROJECT_INCOME,Penghasilan proyek,Project income
+ACH_FIRST_SALARY,Gaji Pertama,First Paycheck
+ACH_FIRST_SALARY_DESC,Menerima gaji pertama.,Receive your first salary.
+ACH_FIRST_INVEST,Mulai Berinvestasi,Investing Begins
+ACH_FIRST_INVEST_DESC,"Memiliki reksa dana, saham, atau kripto.","Own a mutual fund, stock, or crypto."
+TITLE_FIRST_INVEST,Investor Pemula,Rookie Investor
+ACH_EMERGENCY_6,Dana Darurat Aman,Safety Net
+ACH_EMERGENCY_6_DESC,Dana darurat setara 6 bulan biaya hidup.,Build an emergency fund worth 6 months of expenses.
+TITLE_EMERGENCY_6,Si Hemat,The Saver
+ACH_WORTH_100M,Seratus Juta Pertama,First Hundred Million
+ACH_WORTH_100M_DESC,Kekayaan bersih mencapai Rp100 juta.,Reach a net worth of Rp100 million.
+ACH_MILLIONAIRE,Miliarder,Billionaire
+ACH_MILLIONAIRE_DESC,Kekayaan bersih mencapai Rp1 miliar.,Reach a net worth of Rp1 billion.
+TITLE_MILLIONAIRE,Miliarder,Billionaire
+ACH_FREEDOM,Bebas Finansial,Financially Free
+ACH_FREEDOM_DESC,Pendapatan pasif menutup seluruh pengeluaran bulanan.,Passive income covers all your monthly spending.
+TITLE_FREEDOM,Bebas Finansial,Financially Free
+ACH_FIRST_HOME,Rumah Sendiri,A Home of My Own
+ACH_FIRST_HOME_DESC,Tinggal di rumah milik sendiri.,Live in a home you own.
+TITLE_FIRST_HOME,Tuan Rumah,Homeowner
+ACH_MORTGAGE_PAID,KPR Lunas,Mortgage Paid Off
+ACH_MORTGAGE_PAID_DESC,Melunasi KPR sampai tuntas.,Pay off a mortgage completely.
+TITLE_MORTGAGE_PAID,Bebas KPR,Mortgage-Free
+ACH_DEBT_FREE,Lunas!,Paid Off!
+ACH_DEBT_FREE_DESC,Melunasi satu pinjaman.,Pay off a loan.
+TITLE_DEBT_FREE,Disiplin Cicilan,Disciplined Payer
+ACH_SCAM_PROOF,Kebal Tipu,Scam-Proof
+ACH_SCAM_PROOF_DESC,Menolak 5 tawaran penipuan.,Turn down 5 scam offers.
+TITLE_SCAM_PROOF,Kebal Tipu,Scam-Proof
+ACH_QUIZ_30,Kutu Buku Keuangan,Money Bookworm
+ACH_QUIZ_30_DESC,Menjawab benar 30 soal kuis (dari semua permainan).,Answer 30 quiz questions correctly (across all games).
+TITLE_QUIZ_30,Kutu Buku,Bookworm
+ACH_CAREER_4,Jenjang Manajer,Manager Level
+ACH_CAREER_4_DESC,Mencapai jenjang karier 4.,Reach career level 4.
+TITLE_CAREER_4,Manajer,Manager
+ACH_GRADUATE,Wisuda,Graduation Day
+ACH_GRADUATE_DESC,Lulus kuliah.,Graduate from a study program.
+TITLE_GRADUATE,Wisudawan,Graduate
+ACH_DREAMS_3,Tiga Impian,Three Dreams
+ACH_DREAMS_3_DESC,Mewujudkan 3 impian dalam satu permainan.,Achieve 3 dreams in one game.
+ACH_CREDIT_90,Skor Kredit Prima,Prime Credit
+ACH_CREDIT_90_DESC,Skor kredit mencapai 90.,Reach a credit score of 90.
+TITLE_CREDIT_90,Nasabah Prima,Prime Borrower
+ACH_PATIENT_INVESTOR,Investor Sabar,Patient Investor
+ACH_PATIENT_INVESTOR_DESC,"Menahan investasi saham 6 bulan saat pasar lesu, tanpa pernah panik jual.",Hold stock investments for 6 months of a bear market without ever panic selling.
+TITLE_PATIENT_INVESTOR,Investor Sabar,Patient Investor
+ACH_SHARP_ANALYST,Analis Jeli,Sharp Analyst
+ACH_SHARP_ANALYST_DESC,Riset rumor yang tepat 5 kali.,Get 5 rumor research calls right.
+TITLE_SHARP_ANALYST,Analis Jeli,Sharp Analyst
+ACH_FREELANCER,Freelancer Andal,Reliable Freelancer
+ACH_FREELANCER_DESC,Menyelesaikan 10 proyek sampingan.,Complete 10 side projects.
+TITLE_FREELANCER,Freelancer Andal,Reliable Freelancer
+ACH_LANDLORD,Juragan Kos,Landlord
+ACH_LANDLORD_DESC,Menerima uang sewa dari properti.,Collect rent from a property.
+TITLE_LANDLORD,Juragan Kos,Landlord
+ACH_BEST_FRIEND,Sahabat Sejati,True Friend
+ACH_BEST_FRIEND_DESC,Kedekatan 90 dengan salah satu tokoh.,Reach closeness 90 with someone in your life.
+TITLE_BEST_FRIEND,Sahabat Sejati,True Friend
+ACH_DECADE,Satu Dekade,One Decade
+ACH_DECADE_DESC,Bertahan 10 tahun dalam satu permainan.,Play 10 years in one game.
+TITLE_DECADE,Veteran,Veteran
+FRAME_INK,Tinta (bawaan),Ink (default)
+FRAME_TEAL,Hijau Toska,Teal
+FRAME_CORAL,Koral,Coral
+FRAME_PURPLE,Ungu,Purple
+FRAME_OCEAN,Samudra,Ocean
+FRAME_GOLD,Emas,Gold
+FRAME_SUNSET,Senja,Sunset
+ACH_REWARD_TITLE,"gelar ""%s""","title ""%s"""
+ACH_REWARD_FRAME,bingkai %s,%s frame
+ACH_POPUP_TITLE,Pencapaian Baru!,New Achievement!
+ACH_POPUP_NOTE,Pakai bingkai avatar & gelar barumu di tab Profil. Pencapaian berlaku untuk semua permainan.,Use your new avatar frame and title in the Profile tab. Achievements carry over to every game.
+ACH_OPEN,Terbuka,Unlocked
+ACH_LOCKED,Belum terbuka,Locked
+ACH_PROGRESS,Progres %s / %s,Progress %s / %s
+PROFILE_STYLE_TITLE,Tampilan,Look
+PROFILE_FRAME,Bingkai avatar,Avatar frame
+PROFILE_TITLE_PICK,Gelar,Title
+PROFILE_NO_TITLE,Tanpa gelar,No title
+PROFILE_STYLE_HINT,Buka pencapaian untuk mendapat gelar dan bingkai baru.,Unlock achievements to earn new titles and frames.
+PROFILE_ACHIEVEMENTS_TITLE,Pencapaian (%d/%d),Achievements (%d/%d)
+PROFILE_ANNUAL,Laporan Tahunan Terakhir,Latest Annual Report
+ANNUAL_TITLE,Laporan Tahun %d,Year %d Report
+ANNUAL_PARTIAL,Catatan tahun ini baru dimulai %d bulan lalu (save dari versi sebelumnya).,This year's record only started %d months ago (save from an older version).
+ANNUAL_INCOME,PEMASUKAN,INCOME
+ANNUAL_PROJECTS,Proyek sampingan,Side projects
+ANNUAL_TOTAL,Total,Total
+ANNUAL_EXPENSES,PENGELUARAN,SPENDING
+ANNUAL_TUITION,Uang kuliah,Tuition
+ANNUAL_TRADE_COSTS,Fee & pajak investasi,Investment fees & taxes
+ANNUAL_LEFT,Sisa %s (%d%% dari pemasukan) untuk ditabung dan diinvestasikan.,%s left over (%d%% of income) to save and invest.
+ANNUAL_INVEST,INVESTASI,INVESTMENTS
+ANNUAL_INVEST_GAIN,Hasil investasi (harga & bunga),Investment gains (price & interest)
+ANNUAL_INVEST_RETURN,Imbal hasil (perkiraan),Return (estimate)
+ANNUAL_INFLATION,Inflasi tahun ini,Inflation this year
+ANNUAL_BEAT_INFLATION,Investasimu tumbuh lebih cepat dari inflasi: daya belimu bertambah.,Your investments grew faster than inflation: your purchasing power went up.
+ANNUAL_BELOW_INFLATION,Investasimu kalah dari inflasi tahun ini. Wajar sesekali; yang penting arahnya dalam jangka panjang.,Your investments lagged inflation this year. That happens; the long-term direction matters most.
+ANNUAL_NO_INVEST,Belum banyak yang diinvestasikan. Uang yang hanya disimpan pelan-pelan tergerus inflasi.,Not much was invested yet. Money that just sits slowly loses value to inflation.
+ANNUAL_WORTH,KEKAYAAN BERSIH,NET WORTH
+ANNUAL_WORTH_START,Awal tahun,Start of year
+ANNUAL_WORTH_END,Akhir tahun,End of year
+ANNUAL_WORTH_CHANGE,Perubahan,Change
+ANNUAL_WORTH_REAL,Perubahan riil (setelah inflasi),Real change (after inflation)
+ANNUAL_MILESTONES,CATATAN TAHUN INI,THIS YEAR
+ANNUAL_EVENTS,%d kejadian dihadapi.,%d events faced.
+ANNUAL_DREAMS,Impian terwujud: %s,Dreams achieved: %s
+ANNUAL_ACHIEVEMENTS,Pencapaian baru: %s,New achievements: %s

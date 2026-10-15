@@ -109,6 +109,7 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 	_update_plan(p)
 	_rumor_position = {}
 	_rumor_trades.clear()
+	GameState.achievements.unlocked.clear()  # pencapaian dihitung per permainan di simulasi (v1.5d)
 	var snapshots := {}
 	var freedom_month := -1
 	var millionaire_month := -1
@@ -152,6 +153,7 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 		"freedom_month": freedom_month, "millionaire_month": millionaire_month, "first_job_month": first_job_month,
 		"home_month": home_month, "default_month": default_month, "recovered_month": recovered_month,
 		"rumors": int(GameState.research.record["rumors"]), "rumor_trades": _rumor_trades.duplicate(),
+		"achievements": GameState.achievements.unlocked.keys(), "annual_reports": GameState.annual.reports.size(),
 		"research": GameState.research.record.duplicate(true)}
 
 
@@ -632,6 +634,7 @@ func _print_summary(persona: String, results: Array[Dictionary], years: int) -> 
 		print("  tahun %d: terima tawaran kredit %d%% | restrukturisasi %d%% | take over KPR %d%%" % [
 			last, share.call("offer_loans"), share.call("restructures"), share.call("refinances")])
 	_print_rumors(results)
+	_print_achievements(results)
 	var freelancers := finals.filter(func(f: Dictionary) -> bool: return f["projects_done"] + f["projects_failed"] > 0)
 	if not freelancers.is_empty():
 		print("  tahun %d: proyek selesai median %d | gagal median %d | revisi median %d | penghasilan proyek median %s (nominal) | reputasi median %d" % [
@@ -647,6 +650,22 @@ func _print_summary(persona: String, results: Array[Dictionary], years: int) -> 
 			defaults.size(), roundi(100.0 * recovered.size() / defaults.size()),
 			Fmt.number(_pct(waits, 0.5), 0) if not waits.is_empty() else "-",
 			defaults.filter(func(r: Dictionary) -> bool: return r["over"]).size()])
+
+
+## Pencapaian (v1.5d langkah 4): median jumlah per permainan dan persentase permainan yang membuka
+## tiap pencapaian (untuk menilai apakah syaratnya terlalu mudah atau mustahil).
+func _print_achievements(results: Array[Dictionary]) -> void:
+	var counts: Array = results.map(func(r: Dictionary) -> float: return float(r["achievements"].size()))
+	counts.sort()
+	var share := {}
+	for r: Dictionary in results:
+		for id: String in r["achievements"]:
+			share[id] = int(share.get(id, 0)) + 1
+	var parts: PackedStringArray = []
+	for d: Dictionary in GameState.achievements.defs():
+		parts.append("%s %d%%" % [d["id"], roundi(100.0 * int(share.get(d["id"], 0)) / results.size())])
+	print("  pencapaian: median %d dari %d | laporan tahunan %d | %s" % [roundi(_pct(counts, 0.5)),
+		GameState.achievements.defs().size(), int(results[0]["annual_reports"]), ", ".join(parts)])
 
 
 ## Rumor & riset (v1.5d langkah 2): jumlah rumor per permainan; untuk tipe pemain rumor juga hasil transaksinya.

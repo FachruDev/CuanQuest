@@ -1,0 +1,41 @@
+{
+	"_comment": [
+		"Pencapaian (v1.5d langkah 4). Berlaku lintas permainan: tersimpan di data pemain, bukan di slot save.",
+		"type menentukan nilai yang dibandingkan dengan min (bawaan 1): stat (gs.stats[key]) | invested (nilai reksa dana/saham/kripto) | emergency_months (dana darurat / biaya hidup, dibulatkan 1 desimal) | net_worth (nominal) | freedom (1 jika bebas finansial) | own_home (1 jika tinggal di rumah sendiri) | quiz_correct (soal kuis benar, lintas permainan) | job_level (jenjang karier) | credit_score | research_correct (riset rumor yang tepat) | relationship (kedekatan tertinggi dengan tokoh) | months (lama bermain) | bear_hold (bulan menahan saham saat pasar lesu tanpa pernah panik jual).",
+		"Hadiah kosmetik: title = gelar di bawah nama (teks TITLE_<ID>), frame = id bingkai avatar di daftar frames. Teks pencapaian: ACH_<ID> & ACH_<ID>_DESC. Ikon: assets/icons/achievements/<id>.svg jika ada.",
+		"frames: warna bingkai avatar (border, bg, glow opsional). Bingkai pertama adalah bawaan dan selalu tersedia. Nama: FRAME_<ID>."
+	],
+	"frames": [
+		{ "id": "ink", "border": "#2B2147", "bg": "#FFFFFF" },
+		{ "id": "teal", "border": "#23877B", "bg": "#E3F4F1" },
+		{ "id": "coral", "border": "#E0674A", "bg": "#FDECE7" },
+		{ "id": "purple", "border": "#7A4FB0", "bg": "#F0E8FA" },
+		{ "id": "ocean", "border": "#3B6FB6", "bg": "#E6EEFB", "glow": "#7FB2FF" },
+		{ "id": "gold", "border": "#E9A92B", "bg": "#FFF4D6", "glow": "#F6B93B" },
+		{ "id": "sunset", "border": "#C2452D", "bg": "#FFE9C7", "glow": "#F6B93B" }
+	],
+	"bear_hold_min_value": 5000000,
+	"achievements": [
+		{ "id": "first_salary", "type": "stat", "key": "total_salary", "frame": "teal" },
+		{ "id": "first_invest", "type": "invested", "title": true },
+		{ "id": "emergency_6", "type": "emergency_months", "min": 6, "title": true },
+		{ "id": "worth_100m", "type": "net_worth", "min": 100000000, "frame": "coral" },
+		{ "id": "millionaire", "type": "net_worth", "min": 1000000000, "title": true, "frame": "gold" },
+		{ "id": "freedom", "type": "freedom", "title": true, "frame": "sunset" },
+		{ "id": "first_home", "type": "own_home", "title": true },
+		{ "id": "mortgage_paid", "type": "stat", "key": "mortgages_paid_off", "title": true },
+		{ "id": "debt_free", "type": "stat", "key": "loans_paid_off", "title": true },
+		{ "id": "scam_proof", "type": "stat", "key": "scams_avoided", "min": 5, "title": true },
+		{ "id": "quiz_30", "type": "quiz_correct", "min": 30, "title": true },
+		{ "id": "career_4", "type": "job_level", "min": 4, "title": true },
+		{ "id": "graduate", "type": "stat", "key": "graduations", "title": true },
+		{ "id": "dreams_3", "type": "stat", "key": "dreams_achieved", "min": 3, "frame": "purple" },
+		{ "id": "credit_90", "type": "credit_score", "min": 90, "title": true },
+		{ "id": "patient_investor", "type": "bear_hold", "min": 6, "title": true, "frame": "ocean" },
+		{ "id": "sharp_analyst", "type": "research_correct", "min": 5, "title": true },
+		{ "id": "freelancer", "type": "stat", "key": "projects_done", "min": 10, "title": true },
+		{ "id": "landlord", "type": "stat", "key": "rent_income", "title": true },
+		{ "id": "best_friend", "type": "relationship", "min": 90, "title": true },
+		{ "id": "decade", "type": "months", "min": 120, "title": true }
+	]
+}

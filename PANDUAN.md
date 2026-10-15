@@ -30,6 +30,7 @@ data/
   news.json                   Template berita pasar & dampaknya ke harga
   rumors.json                 Rumor pasar (v1.5d): peluang, gerak harga benar/jebakan, riset dasar & mendalam
   contracts.json              Proyek sampingan (v1.5d): 17 proyek, tier & reputasi, 3 strategi, peluang, bayaran
+  achievements.json           Pencapaian (v1.5d): 21 pencapaian (syarat sebagai data), gelar, 7 bingkai avatar
   events/<kategori>.json      90 event hidup per kategori (finance, work, education, health, social,
                               market, scam, property, debt): syarat, pilihan, efek, tokoh. Cara menambah:
                               docs/PANDUAN_EVENT.md
@@ -68,6 +69,8 @@ scripts/
     characters.gd             Tokoh berulang: kedekatan, nama atasan/rekan per perusahaan, saran Kak Wulan
     research.gd               Rumor pasar & riset: rumor benar/jebakan, penilaian riset, rekam jejak
     contracts.gd              Proyek sampingan: papan tawaran, strategi, energi bulanan, hasil, reputasi
+    annual.gd                 Laporan tahunan: catatan tahun berjalan, ditutup setiap Januari
+    achievements.gd           Pencapaian & kosmetik (data pemain lintas permainan, bukan modul slot save)
     insurance.gd, dreams.gd, targets.gd, activities.gd, progress.gd
     life_events.gd            Event Director: jadwal event, antrean, keputusan, efek tertunda
   core/                       Logika murni tanpa UI (mudah dites)
@@ -124,6 +127,7 @@ scenes/
 | `characters` | `Characters` | Tokoh berulang & kedekatan (v1.5d) |
 | `research` | `Research` | Rumor pasar, riset dasar & mendalam, rekam jejak riset (v1.5d) |
 | `contracts` | `Contracts` | Proyek sampingan: papan tawaran, strategi, hasil, reputasi (v1.5d) |
+| `annual` | `Annual` | Laporan tahunan: catatan tahun berjalan & laporan tahun-tahun lalu (v1.5d) |
 
 **Yang tetap di GameState:** profil, `month`, `cash`, `health`, `happiness`, `stats`, `market`, `rng`, signal, `new_game()`, `advance_month()` (orkestrasi bulanan), `apply_effects()`, `to_dict()`/`load_from_dict()`, harga & pajak (`nominal()`, `income_tax()`), dan kondisi menang/kalah.
 
@@ -209,7 +213,7 @@ scenes/
   - [x] (1) Tokoh berulang & 10 rantai event
   - [x] (2) Riset pasar & rumor
   - [x] (3) Kontrak & proyek sampingan
-  - [ ] (4) Pencapaian, kosmetik & laporan tahunan
+  - [x] (4) Pencapaian, kosmetik & laporan tahunan
   - [ ] (5) Perluasan konten & penyeimbangan
 - [ ] **v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
@@ -319,6 +323,16 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Save:** kunci baru `contract_board`, `contracts`, `contract_reputation`, `contract_energy`, `contract_seq`, `contract_rng`; statistik `projects_*` & `project_income` (save lama: tanpa proyek, papan terisi bulan berikutnya).
 - **Hasil simulator** (40 × 30 tahun): tahun bebas finansial S1 hemat 12,6 → selalu 1 proyek 10,5 → selalu 2 proyek 9,6; SMA 18,4 → 14,7 → 13,4. Dua proyek sekaligus menguras kesehatan (±75) & kebahagiaan (±81) dan menurunkan kinerja kantor. Versi awal (bayaran 2× lebih besar dan keahlian lebih banyak) membuat S1 bebas finansial di tahun 7,6, jadi angka di data sudah diturunkan.
 - **Menambah proyek:** salin satu baris di `projects` (`id`, `track` = id bidang di `jobs.json` atau `general`, `tier`, `months` [min, max], `weight`), lalu tambahkan nama & deskripsinya di CSV.
+
+## Pencapaian, Kosmetik & Laporan Tahunan (v1.5d langkah 4)
+
+- **Pencapaian** (`data/achievements.json`, `GameState.achievements`, kelas `Achievements`): data pemain lintas permainan seperti kuis & petunjuk, disimpan di tabel `player` (kunci `achievements`: `unlocked`, `frame`, `title`), jadi tetap ada saat permainan baru dimulai. Syarat = `type` + `min` (stat, nilai investasi, dana darurat, kekayaan, bebas finansial, rumah, kuis, jenjang, skor kredit, riset tepat, kedekatan, lama bermain, investor sabar). Analogi web: tabel *badges* milik akun, terpisah dari data tiap sesi.
+- **Kapan diperiksa:** setiap kali `GameState.changed` dikirim (aksi pemain) dan sekali di akhir `advance_month()` (`check_achievements()`), sehingga popup perayaan muncul setelah laporan bulanan. Juga saat layar utama dibuka (save lama langsung mendapat pencapaian yang syaratnya sudah terpenuhi). Statistik baru untuk syarat: `scams_avoided` (menolak penipuan), `mortgages_paid_off`, `bear_months_held` (bulan memegang saham ≥ Rp5 jt saat pasar lesu).
+- **Kosmetik:** gelar (`title: true` → teks `TITLE_<ID>`) dan bingkai (`frame` → daftar `frames`: warna garis, latar, cahaya). `UiText.apply_avatar_frame()` mengganti gaya panel AvatarFrame; dipakai di top bar, Profil, dan layar akhir. Bagian **Tampilan** di Profil untuk memilih; bingkai/gelar yang belum terbuka tampil redup.
+- **Laporan tahunan** (`GameState.annual`, kelas `Annual`, modul slot save): setiap laporan bulanan dijumlahkan ke `acc`; setiap Januari `close_year()` membuat laporan tahun lalu (maks. 40 disimpan) dan signal `year_closed` membuka `AnnualPopup` (`scenes/ui/annual_popup.tscn`, isi dari `MonthReport.fill_annual()`). Menu **Laporan Tahunan Terakhir** di Profil membukanya lagi. Save lama: catatan dimulai saat dimuat dan laporan pertamanya ditandai sebagian.
+- **Save:** kunci slot baru `year_acc`, `annual_reports`; data pemain `achievements`.
+- **Hasil simulator** (S1, 40 × 30 tahun): median 12 dari 21 pencapaian untuk pemain hemat, 11 untuk pemain acak; Kebal Tipu 100% / 73% / 0% dan Investor Sabar 100% / 23% / 0% (hemat / acak / boros).
+- **Menambah pencapaian:** tambah satu baris di `achievements` (`id`, `type`, `min`, opsional `key`, `title`, `frame`), lalu teks `ACH_<ID>`, `ACH_<ID>_DESC` (dan `TITLE_<ID>`) di CSV. Ikon `assets/icons/achievements/<id>.svg` otomatis dipakai jika ada.
 
 ## Penyeimbangan Utang, Properti & Hunian (v1.5c langkah 5)
 

@@ -263,6 +263,10 @@ func resolve(choice_index: int) -> Dictionary:
 		gs.stats["unaffordable_choices"] += 1
 	if event["category"] == "scam" and cash_change < 0:
 		gs.stats["scam_loss"] += -cash_change
+	# Menolak penipuan (pencapaian Kebal Tipu, v1.5d): pilihan tanpa biaya, tanpa uang masuk/keluar.
+	if event["category"] == "scam" and not event.get("chain_only", false) and not choice.has("cost") \
+			and not choice.has("outcomes") and float(effects.get("cash", 0)) == 0.0 and cash_change >= 0.0:
+		gs.stats["scams_avoided"] = int(gs.stats.get("scams_avoided", 0)) + 1
 	gs.record_extreme("best_event", "worst_event", cash_change, {"title": event["title"]})
 	gs.changed.emit()
 	gs.progress.check_unlocks(true)

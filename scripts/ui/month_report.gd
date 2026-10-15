@@ -3,6 +3,9 @@ extends RefCounted
 ## Mengisi sebuah VBoxContainer dengan baris-baris laporan bulanan (tema "Senja Cuan").
 ## Dipakai di popup ringkasan dan di tab Portofolio (seperti komponen yang di-reuse).
 
+## Kekayaan awal tahun minimal agar persentase perubahan ditampilkan (laporan tahunan, v1.5d).
+const ANNUAL_PERCENT_FROM := 10_000_000.0
+
 
 ## `with_net_worth`: false jika kekayaan bersih sudah ditampilkan di tempat lain
 ## (popup laporan menampilkannya di bagian sorotan beranimasi).
@@ -230,6 +233,82 @@ static func _add_costs(box: VBoxContainer, r: Dictionary) -> void:
 		_add_row(box, "REPORT_INTEREST_TAX", Fmt.signed_rupiah(-interest_tax), Palette.LOSS)
 	var total := trade_fee + trade_tax + interest_tax + float(r.get("income_tax", 0))
 	_add_text(box, TranslationServer.translate("REPORT_COSTS_TOTAL") % Fmt.rupiah(total), Palette.MUTED)
+
+
+## Laporan tahunan (v1.5d langkah 4): pemasukan, pengeluaran per pos, hasil investasi vs inflasi,
+## kekayaan bersih (nominal & riil), impian & pencapaian tahun itu.
+static func fill_annual(box: VBoxContainer, a: Dictionary) -> void:
+	for child in box.get_children():
+		box.remove_child(child)
+		child.queue_free()
+	if a.get("partial", false):
+		_add_text(box, TranslationServer.translate("ANNUAL_PARTIAL") % int(a["months"]), Palette.MUTED)
+
+	_add_header(box, "ANNUAL_INCOME")
+	var income: Dictionary = a["income"]
+	for row: Array in [["salary", "REPORT_SALARY"], ["rent_income", "REPORT_RENT"]]:
+		if float(income.get(row[0], 0.0)) != 0.0:
+			_add_row(box, row[1], Fmt.rupiah(income[row[0]]), Palette.GAIN)
+	if float(a["projects"]) > 0.0:
+		_add_row(box, "ANNUAL_PROJECTS", Fmt.rupiah(a["projects"]), Palette.GAIN)
+	_add_row(box, "ANNUAL_TOTAL", Fmt.rupiah(a["income_total"]), Palette.INK)
+
+	_add_header(box, "ANNUAL_EXPENSES")
+	var expenses: Dictionary = a["expenses"]
+	for row: Array in [["income_tax", "REPORT_INCOME_TAX"], ["food_cost", "REPORT_FOOD"], ["housing_cost", "REPORT_HOUSING"],
+			["vehicle_cost", "REPORT_VEHICLE"], ["property_cost", "REPORT_PROPERTY"], ["loan_paid", "REPORT_LOAN_PAID"],
+			["insurance_premium", "REPORT_INSURANCE"], ["study_fee", "ANNUAL_TUITION"], ["lifestyle_cost", "REPORT_LIFESTYLE"]]:
+		if float(expenses.get(row[0], 0.0)) > 0.0:
+			_add_row(box, row[1], Fmt.rupiah(expenses[row[0]]), Palette.LOSS)
+	if float(a["costs"]) > 0.0:
+		_add_row(box, "ANNUAL_TRADE_COSTS", Fmt.rupiah(a["costs"]), Palette.LOSS)
+	_add_row(box, "ANNUAL_TOTAL", Fmt.rupiah(a["expense_total"]), Palette.INK)
+	var left := float(a["income_total"]) - float(a["expense_total"])
+	var rate := left / float(a["income_total"]) if float(a["income_total"]) > 0.0 else 0.0
+	_add_text(box, TranslationServer.translate("ANNUAL_LEFT") % [Fmt.signed_rupiah(left), roundi(rate * 100.0)],
+		Palette.GAIN if left >= 0.0 else Palette.LOSS)
+
+	_add_header(box, "ANNUAL_INVEST")
+	var gain: float = a["invest_gain"]
+	_add_row(box, "ANNUAL_INVEST_GAIN", Fmt.signed_rupiah(gain), signed_color(gain))
+	var inflation: float = a["inflation"]
+	if float(a["invest_avg"]) >= 1_000_000.0:
+		var ret: float = a["invest_return"]
+		_add_row(box, "ANNUAL_INVEST_RETURN", Fmt.percent(ret), signed_color(ret))
+		_add_row(box, "ANNUAL_INFLATION", Fmt.percent(inflation), Palette.MUTED)
+		_add_text(box, TranslationServer.translate("ANNUAL_BEAT_INFLATION" if ret > inflation else "ANNUAL_BELOW_INFLATION"),
+			Palette.MUTED)
+	else:
+		_add_row(box, "ANNUAL_INFLATION", Fmt.percent(inflation), Palette.MUTED)
+		_add_text(box, TranslationServer.translate("ANNUAL_NO_INVEST"), Palette.MUTED)
+
+	_add_header(box, "ANNUAL_WORTH")
+	var start: float = a["worth_start"]
+	var end: float = a["worth_end"]
+	_add_row(box, "ANNUAL_WORTH_START", Fmt.rupiah(start), Palette.INK)
+	_add_row(box, "ANNUAL_WORTH_END", Fmt.rupiah(end), Palette.INK)
+	var change_text := Fmt.signed_rupiah(end - start)
+	var meaningful := start >= ANNUAL_PERCENT_FROM  # dari modal sangat kecil, persentase tidak bermakna
+	if meaningful:
+		change_text += " (%s)" % Fmt.percent((end - start) / start)
+	_add_row(box, "ANNUAL_WORTH_CHANGE", change_text, signed_color(end - start))
+	if meaningful:
+		_add_row(box, "ANNUAL_WORTH_REAL", Fmt.percent(a["real_change"]), signed_color(a["real_change"]))
+
+	var dreams: Array = a.get("dreams", [])
+	var unlocked: Array = a.get("achievements", [])
+	_add_header(box, "ANNUAL_MILESTONES")
+	_add_text(box, TranslationServer.translate("ANNUAL_EVENTS") % int(a.get("events", 0)), Palette.MUTED)
+	if not dreams.is_empty():
+		var names: Array[String] = []
+		for name: String in dreams:
+			names.append(TranslationServer.translate(name))
+		_add_text(box, TranslationServer.translate("ANNUAL_DREAMS") % ", ".join(names), Palette.GAIN)
+	if not unlocked.is_empty():
+		var names: Array[String] = []
+		for id: String in unlocked:
+			names.append(TranslationServer.translate("ACH_" + id.to_upper()))
+		_add_text(box, TranslationServer.translate("ANNUAL_ACHIEVEMENTS") % ", ".join(names), Palette.GAIN)
 
 
 ## Proyek sampingan yang tenggatnya tiba bulan ini (v1.5d langkah 3): hasil & bayaran, reputasi.

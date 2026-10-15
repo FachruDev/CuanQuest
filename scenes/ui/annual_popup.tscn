@@ -1,0 +1,109 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/annual_popup.gd" id="1_annual"]
+[ext_resource type="Theme" path="res://theme/senja_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://scripts/ui/chunky_button.gd" id="3_chunky"]
+[ext_resource type="Texture2D" path="res://assets/icons/calendar_badge.svg" id="4_icon"]
+
+[node name="AnnualPopup" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_annual")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.169, 0.129, 0.278, 0.62)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 64
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 64
+
+[node name="Dialog" type="PanelContainer" parent="Margin"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"DialogFullPanel"
+
+[node name="VBox" type="VBoxContainer" parent="Margin/Dialog"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Header" type="HBoxContainer" parent="Margin/Dialog/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Tile" type="PanelContainer" parent="Margin/Dialog/VBox/Header"]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"IconTileInk"
+
+[node name="Icon" type="TextureRect" parent="Margin/Dialog/VBox/Header/Tile"]
+custom_minimum_size = Vector2(28, 30)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("4_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TitleLabel" type="Label" parent="Margin/Dialog/VBox/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"PopupTitleLabel"
+autowrap_mode = 3
+
+[node name="BodyCard" type="PanelContainer" parent="Margin/Dialog/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"InfoCard"
+
+[node name="Scroll" type="ScrollContainer" parent="Margin/Dialog/VBox/BodyCard"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="Rows" type="VBoxContainer" parent="Margin/Dialog/VBox/BodyCard/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="CloseButton" type="Button" parent="Margin/Dialog/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 88)
+layout_mode = 2
+theme_type_variation = &"PrimaryButton"
+script = ExtResource("3_chunky")
+
+[node name="Content" type="Label" parent="Margin/Dialog/VBox/CloseButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"PrimaryButtonLabel"
+text = "BTN_CLOSE"
+horizontal_alignment = 1
+vertical_alignment = 1

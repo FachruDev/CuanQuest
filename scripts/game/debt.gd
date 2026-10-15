@@ -505,7 +505,7 @@ func pay_installments() -> Dictionary:
 					"limit": int(data["default_after"]), "arrears": loan["arrears"]})
 		elif loan["balance"] <= 0.5 or int(loan["months_left"]) <= 0:
 			loans.erase(loan)
-			gs.stats["loans_paid_off"] += 1
+			_count_payoff(loan)
 			report["loan_closed"].append(name)
 	if any_paid and not any_missed:
 		_add_score(int(cfg["on_time"]))
@@ -524,6 +524,13 @@ func update_rate(loan: Dictionary) -> bool:
 		return false
 	loan["rate"] = new_rate
 	return true
+
+
+## Statistik pinjaman lunas (KPR dihitung terpisah untuk pencapaian KPR Lunas, v1.5d).
+func _count_payoff(loan: Dictionary) -> void:
+	gs.stats["loans_paid_off"] += 1
+	if str(loan["product"]).begins_with("kpr"):
+		gs.stats["mortgages_paid_off"] = int(gs.stats.get("mortgages_paid_off", 0)) + 1
 
 
 ## Rincian pelunasan dipercepat: sisa pokok + tunggakan + penalti.
@@ -545,7 +552,7 @@ func pay_off(id: int, force: bool = false) -> bool:
 		return false
 	gs.cash -= int(q["total"])
 	gs.stats["debt_fees"] += int(q["penalty"])
-	gs.stats["loans_paid_off"] += 1
+	_count_payoff(loan)
 	loans.erase(loan)
 	_add_score(int(data["credit"]["payoff"]))
 	gs.changed.emit()

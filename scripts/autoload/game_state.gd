@@ -5,7 +5,7 @@ extends Node
 ## Analogi web: ini root "store" (Redux/Pinia). Logika tiap domain ada di modul terpisah di
 ## scripts/game/ (seperti slice/store per fitur): career, characters, education, insurance, debt,
 ## portfolio, research, contracts, budget, dreams, vehicles, properties, targets, events, activities,
-## progress.
+## progress, annual (laporan tahunan). Pencapaian (`achievements`) adalah data pemain lintas permainan.
 ## File ini hanya memegang data bersama (profil, bulan, kas, kondisi, statistik, pasar, RNG), mengatur
 ## alur tiap bulan, menjalankan efek event, menyimpan/memuat, dan memeriksa akhir permainan.
 ##
@@ -36,6 +36,10 @@ signal graduated(program: String, result: String, skill_gain: int)
 signal dream_overdue(dream: Dictionary)
 ## Target bulanan selesai di tengah bulan (untuk notifikasi singkat).
 signal target_completed(target: Dictionary)
+## Pencapaian baru terbuka (v1.5d langkah 4): id pencapaian, berlaku lintas permainan.
+signal achievements_unlocked(ids: Array[String])
+## Januari: laporan tahun lalu sudah ditutup (v1.5d langkah 4), dikirim setelah laporan bulanan.
+signal year_closed(report: Dictionary)
 
 ## Versi slot save. Naik ke 2 di v1.5 (pasar harian); save lama ditolak, tanpa migrasi.
 const SAVE_VERSION := 3
@@ -89,6 +93,7 @@ var events := LifeEvents.new(self)
 var portfolio := Portfolio.new(self)
 var research := Research.new(self)
 var contracts := Contracts.new(self)
+var annual := Annual.new(self)
 var budget := Budget.new(self)
 var dreams := Dreams.new(self)
 var vehicles := Vehicles.new(self)
@@ -100,9 +105,10 @@ var activities := Activities.new(self)
 ## impian sebelum kendaraan (save lama: impian kendaraan yang terwujud menjadi kendaraan). Riset (rumor
 ## pasar) dan proyek sampingan memakai RNG sendiri, jadi urutannya tidak memengaruhi undian modul lain.
 var modules: Array[GameModule] = [progress, career, characters, education, insurance, debt, events, portfolio,
-	research, contracts, budget, dreams, vehicles, properties, targets, activities]
+	research, contracts, budget, dreams, vehicles, properties, targets, activities, annual]
 
 var fast_forwarding := false
+var _advancing := false  # di tengah advance_month(): pencapaian diperiksa sekali di akhirnya
 ## Naik setiap game baru / dimuat (tidak disimpan). SaveManager memakainya untuk tahu apakah
 ## slot di database masih "permainan yang sama" sehingga cukup ditulis bagian barunya saja.
 var run_id := 0
@@ -112,6 +118,8 @@ var _report_signals: Array[Callable] = []  # impian & kelulusan, dikirim setelah
 # --- Data global pemain (user://player.json), TIDAK di-reset saat game baru ---
 ## Kuis: jatahnya mengikuti minggu nyata, jadi tidak boleh ikut slot save.
 var quiz := QuizManager.new()
+## Pencapaian & kosmetik (bingkai avatar, gelar), berlaku lintas permainan (v1.5d).
+var achievements := Achievements.new(self)
 var tutorial_done := false
 var hints_seen: Array[String] = []
 var history: Array[Dictionary] = []  # ringkasan permainan sebelumnya (maks 10)
@@ -122,6 +130,8 @@ func _ready() -> void:
 	quiz.setup(DataLoader.load_json(QUIZ_PATH).get("questions", []), economy["quiz"])
 	for module: GameModule in modules:
 		module.load_data()
+	achievements.load_data()
+	changed.connect(_on_changed)
 
 
 # --- Alur permainan -------------------------------------------------------------------
@@ -166,6 +176,7 @@ func new_game(profile: Dictionary = {}, seed_value: int = -1) -> void:
 	_start_month()
 	net_worth_history = [net_worth()]
 	stats["peak_net_worth"] = net_worth()
+	annual.begin_year()
 	last_report = {}
 	is_active = true
 	progress.check_unlocks(false)
@@ -182,6 +193,7 @@ func age() -> int:
 func advance_month() -> void:
 	if events.has_pending() or is_over:
 		return  # event bulan ini harus diputuskan dulu
+	_advancing = true
 	var finished_targets := targets.finalize()
 	var net_worth_before := net_worth()
 	var invest_before := portfolio.investments_value()
@@ -242,6 +254,10 @@ func advance_month() -> void:
 	})
 	if not rumor_result.is_empty():
 		last_report["rumors"] = [rumor_result]
+	annual.add_month(last_report)
+	if month % 12 == 0:  # Januari: laporan tahun lalu (v1.5d), tampil setelah laporan bulanan
+		var year_report := annual.close_year(floori(month / 12.0))
+		queue_after_report(func() -> void: year_closed.emit(year_report))
 	dreams.queue_overdue()
 	portfolio.snapshot_turn()
 	portfolio.month_costs = portfolio.new_month_costs()  # pajak & biaya sudah masuk laporan ini
@@ -249,6 +265,8 @@ func advance_month() -> void:
 	if not fast_forwarding:
 		month_advanced.emit(last_report)
 	flush_report_signals()
+	_advancing = false
+	check_achievements()
 	# Tawaran pekerjaan berjenjang didahului event wawancara (lihat Career.scheduled_events).
 	if not career.job_offers.is_empty() and career.interview_offer_index() < 0 and not fast_forwarding:
 		job_offers_received.emit(career.job_offers)
@@ -556,13 +574,30 @@ func mark_story(key: String) -> bool:
 	return true
 
 
+## Periksa pencapaian setelah data berubah (aksi pemain) dan sekali di akhir advance_month().
+## Pencapaian baru dicatat di laporan tahunan, disimpan ke data pemain, lalu diumumkan.
+func check_achievements() -> void:
+	var fresh := achievements.check()
+	if fresh.is_empty():
+		return
+	annual.note_achievements(fresh)
+	player_changed.emit()
+	emit_later(achievements_unlocked, fresh)
+
+
+func _on_changed() -> void:
+	if is_active and not _advancing:
+		check_achievements()
+
+
 func player_to_dict() -> Dictionary:
-	return {"version": PLAYER_VERSION, "quiz": quiz.to_dict(),
+	return {"version": PLAYER_VERSION, "quiz": quiz.to_dict(), "achievements": achievements.to_dict(),
 		"tutorial_done": tutorial_done, "hints_seen": hints_seen, "history": history}
 
 
 func player_from_dict(d: Dictionary) -> void:
 	quiz.from_dict(d.get("quiz", {}))
+	achievements.from_dict(d.get("achievements", {}))
 	tutorial_done = d.get("tutorial_done", false)
 	hints_seen.assign(d.get("hints_seen", []))
 	history.assign(d.get("history", []))
@@ -655,6 +690,7 @@ func _new_stats() -> Dictionary:
 		"properties_bought": 0, "properties_sold": 0, "properties_seized": 0, "property_costs": 0,
 		"rent_income": 0, "property_gains": 0, "offer_loans": 0, "restructures": 0, "refinances": 0,
 		"projects_done": 0, "projects_excellent": 0, "projects_revised": 0, "projects_failed": 0, "project_income": 0,
+		"scams_avoided": 0, "mortgages_paid_off": 0, "bear_months_held": 0,
 		"best_trade": {}, "worst_trade": {}, "best_event": {}, "worst_event": {},
 	}
 
@@ -672,6 +708,14 @@ func _track_monthly_stats(worth: float) -> void:
 	stats["peak_net_worth"] = maxf(stats["peak_net_worth"], worth)
 	if worth > 10_000_000 and cash / worth > 0.7:
 		stats["cash_heavy_months"] += 1
+	# Menahan saham/reksa dana saham saat pasar lesu (pencapaian Investor Sabar, v1.5d).
+	if market.regime_of("stock") == "bear":
+		var held := 0.0
+		for id: String in portfolio.holdings:
+			if market.get_asset(id).factor == "stock":
+				held += portfolio.holding_value(id)
+		if held >= nominal(float(achievements.data.get("bear_hold_min_value", 5_000_000))):
+			stats["bear_months_held"] += 1
 
 
 ## Hitung bulan berturut-turut dalam kondisi bahaya. Mengembalikan teks peringatan untuk laporan.
