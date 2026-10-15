@@ -186,12 +186,12 @@ scenes/
   - [x] (3) Pendidikan & keahlian
   - [x] (4) Tampilan & cerita
   - [x] (5) Penyeimbangan
-- [ ] **v1.5c "Utang, Properti, Hunian"**:
+- [x] **v1.5c "Utang, Properti, Hunian"**:
   - [x] (1) Utang & skor kredit (KTA, cicilan, tunggakan, macet, pelunasan)
   - [x] (2) Kendaraan (aset menyusut, kredit motor/mobil)
   - [x] (3) Properti & KPR
   - [x] (4) Tampilan & cerita (ilustrasi hunian & kendaraan, neraca, event utang & properti)
-  - [ ] (5) Penyeimbangan
+  - [x] (5) Penyeimbangan (tawaran KTA, rumah subsidi, skor setelah macet)
 - [ ] **v1.5d, v2a/b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
 Rangkuman semua checklist MVP (v1, v1.5, v2, M7) ada di [docs/CHECKLIST_MVP.md](docs/CHECKLIST_MVP.md).
@@ -266,6 +266,33 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Laporan & UI:** bagian Ekonomi di laporan bulanan (inflasi, daya beli kas + tabungan + pos impian yang tergerus), kartu Daya Beli di Profil, chip inflasi di Pasar.
 - **Simulasi 40 permainan x 10 tahun** (pilihan acak): indeks harga median 1,43; kekayaan nominal median Rp775 jt, kekayaan riil Rp536 jt (tanpa inflasi Rp587 jt); gaji akhir median Rp20,1 jt nominal. Semua permainan bertahan, jadi game masih tergolong mudah. Penyeimbangan dijadwalkan di langkah 5 setelah pajak & asuransi.
 - **Save lama:** slot tanpa data inflasi tetap bisa dimuat; indeks harga dianggap mulai dari 1,0 saat dimuat.
+
+## Penyeimbangan Utang, Properti & Hunian (v1.5c langkah 5)
+
+- **Target rancangan (MVP 5.3.7):** pemain hemat bergaji tinggi yang membeli rumah tidak bebas finansial sebelum usia ±40, dan gagal bayar terasa berbahaya tetapi bisa dipulihkan.
+- **Penyesuaian dari hasil simulator:**
+  - **Tawaran KTA pre-approved** hanya untuk skor kredit Baik (`offer.min_score` 60 di `loans.json`) dan tidak lagi lebih sering muncul saat kas menipis. Bank menawarkan kredit kepada nasabah dengan riwayat baik, bukan kepada yang sedang kesulitan. Paylater tetap lebih longgar (skor ≥ 40).
+  - **Rumah subsidi:** ongkos perjalanan ke kota Rp400 rb per bulan saat dihuni (`commute_cost`, ditagih sebagai biaya tempat tinggal lewat `Properties.home_option()`) dan baru boleh dijual setelah 5 tahun (`min_hold_months` 60, aturan FLPP; `sell_quote()` mengembalikan `locked`). Lelang karena macet tidak terhalang aturan ini. Sebelumnya rumah subsidi menjadi jalan pintas: SMA bebas finansial 3 tahun lebih cepat daripada menyewa.
+  - **Skor kredit setelah macet** paling tinggi 30 (`credit.default_max`): kategori Buruk, sehingga pengajuan ditolak ±10 bulan dan butuh ±30 bulan untuk kembali Baik. Sebelumnya pemain dengan skor 100 hanya turun ke ±50 dan pulih dalam 9 bulan.
+- **Simulator** (`tools/balance`): tipe pemain baru **pembeli_rumah_nekat** (Rumah Tipe 45 DP 10% begitu syarat terpenuhi, tanpa dana darurat, pilihan event acak; `home_buffer` = cadangan bulan biaya hidup sebelum membeli). Ringkasan kini mencetak tawaran kredit yang diterima, restrukturisasi, take over KPR, dan pemulihan skor kredit setelah macet.
+
+| Tipe pemain (Normal, 40 permainan x 30 tahun) | Bebas finansial | Catatan |
+|:--|:--|:--|
+| S1 hemat (menyewa kos) | 100%, median tahun 12,6 (usia ±34) | tidak berutang |
+| S1 pembeli rumah subsidi (KPR FLPP) | 100%, tahun 13,6 | sebelum penyesuaian 12,4: kini sedikit lebih lambat dari menyewa |
+| S1 pembeli Rumah Tipe 45 (KPR DP 20%) | 100%, tahun 22,4 (usia ±44) | take over KPR 45%, total bunga KPR Rp1,02 M, lelang 0% |
+| S1 pembeli rumah nekat (DP 10%, tanpa cadangan, pilihan acak) | 55%, tahun 19,8 | 8% rumahnya dilelang |
+| S1 pengendara (motor & mobil kredit) | 100%, tahun 20,3 | |
+| S1 gaya hidup mewah / pengutang | 0% | bangkrut 5/40 dan 4/40 |
+| SMA hemat | 95%, tahun 18,8 | |
+| SMA pembeli rumah subsidi | 98%, tahun 17,6 | sebelum penyesuaian 15,5 |
+| SMA gaya hidup mewah | 0% | bangkrut 28/40 (tanpa tawaran kredit 22/40); 83% menerima tawaran kredit |
+| SMA pengutang | 0% | bangkrut 23/40; 40% pernah macet |
+
+Tingkat kesulitan (S1 pembeli Rumah Tipe 45): Santai tahun 19,3, Normal 22,4, Sulit 24,2 (85% tercapai).
+
+- **Kesimpulan:** kedua target tercapai. Membeli rumah di kota menunda kebebasan finansial S1 sampai usia ±44 (rumah subsidi tidak lagi mempercepatnya); pembeli yang nekat 8% kehilangan rumahnya; utang konsumtif tanpa agunan yang macet hampir selalu berakhir bangkrut, sedangkan KPR yang macet bisa dipulihkan (skor kembali Baik ±30 bulan setelah lelang).
+- **Catatan:** pemain yang tetap menyewa kos dan hidup hemat masih bisa bebas finansial di usia ±34. Ini jalan "hidup sederhana" yang sah, dan pilihannya kini punya harga yang jelas (tanpa rumah, tanpa kendaraan). Tinjau lagi saat v2b (siklus hidup penuh & pensiun).
 
 ## Tampilan & Cerita: Hunian, Neraca, Event Utang & Properti (v1.5c langkah 4)
 
@@ -345,7 +372,7 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Bunga & cicilan:** bunga per tahun = suku bunga BI saat cair + `rate_spread` produk + penyesuaian tingkat skor (`credit.grades`). Cicilan anuitas dihitung ulang tiap bulan dari sisa pokok (`Debt.payment_for()`), sehingga nanti KPR berbunga mengambang cukup mengubah `rate`. `Debt.schedule_total()` memakai hitungan yang sama untuk menampilkan total bunga sebelum mengajukan.
 - **Pengajuan:** `debt.quote(product, amount, tenor)` = satu sumber angka untuk popup dan `debt.take()` (seperti endpoint "hitung total checkout"). Syarat (`debt.requirements()`): pekerjaan & lama di perusahaan, skor ≥ 40, tidak menunggak, belum punya produk yang sama, plafon 5x gaji, rasio cicilan ≤ 35% gaji bruto. Disetujui = uang langsung cair; cicilan pertama awal bulan depan.
 - **Alur bulanan:** `debt.pay_installments()` dipanggil di `_start_month()` setelah gaji & biaya hidup, **sebelum** premi, uang kuliah, dan rencana gaji. Tiap pinjaman: tunggakan dulu, lalu cicilan bulan ini (kas, lalu tabungan dana darurat lewat `budget.draw_emergency()`). Gagal bayar → tunggakan + denda 5%, skor -8. Tiga bulan berturut-turut → **macet**: KTA ditagih sekaligus (`debt._default()`), kas boleh minus sehingga aset dijual paksa dan aturan bangkrut yang lama berlaku.
-- **Skor kredit:** +1 per bulan saat semua cicilan lancar, -8 per cicilan menunggak, -25 saat macet, +2 saat pelunasan dipercepat; tanpa tunggakan dan di bawah 60 pulih +1 per bulan. Efek event baru `credit_score`. Status pinjaman memakai kolektibilitas OJK (`Debt.collectibility()`: Kol 1-5).
+- **Skor kredit:** +1 per bulan saat semua cicilan lancar, -8 per cicilan menunggak, -25 saat macet (sejak langkah 5 paling tinggi 30 setelah macet), +2 saat pelunasan dipercepat; tanpa tunggakan dan di bawah 60 pulih +1 per bulan. Efek event baru `credit_score`. Status pinjaman memakai kolektibilitas OJK (`Debt.collectibility()`: Kol 1-5).
 - **Kekayaan & kebebasan finansial:** `net_worth()` dikurangi `debt.outstanding()` (sisa pokok + tunggakan). `monthly_spending()`, `runway_months()`, dan `budget.preview_for()` (baris `debt`) ikut menghitung cicilan. Syarat unlock dana darurat memakai aset likuid dikurangi utang, jadi dana darurat hasil pinjaman tidak dihitung.
 - **UI:** kartu **Utang & Kredit** di Beranda (skor, daftar pinjaman, tombol Ajukan pinjaman), popup **Pinjaman** (`scenes/ui/loan_popup.tscn`: `open_apply()` jumlah/tenor/rincian/syarat, `open_detail()` rincian + pelunasan dipercepat), baris Cicilan utang di Rencana Gaji & Beranda, bagian UTANG di laporan bulanan, 9 istilah glosarium baru, dan analisis akhir tentang utang.
 - **Save:** kunci baru `loans`, `credit_score`, `loan_seq` memakai nilai bawaan saat tidak ada, jadi save v1.5b tetap bisa dimuat (`SAVE_VERSION` tetap 3).

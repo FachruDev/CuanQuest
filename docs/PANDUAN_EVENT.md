@@ -105,7 +105,7 @@ Didefinisikan di `EventManager.requires_met()`. Event yang sudah masuk antrean b
 | `owns_house` | Punya rumah tapak (`"kind": "house"` di `properties.json`); apartemen tidak termasuk karena bangunannya dirawat pengelola |
 | `lives_in_own_home` | Menghuni rumah/apartemen sendiri |
 | `has_tenant` | Punya properti yang sedang ditempati penyewa |
-| `paylater_offer`, `kta_offer` | Tawaran kredit lolos semua syarat bank (pekerjaan, skor, tunggakan, rasio cicilan); jumlahnya dari `"offer"` produk di `loans.json` |
+| `paylater_offer`, `kta_offer` | Tawaran kredit lolos semua syarat bank (pekerjaan, skor, tunggakan, rasio cicilan) dan skor minimal `offer.min_score` (KTA: 60); jumlahnya dari `"offer"` produk di `loans.json` |
 | `low_happiness` | Kebahagiaan di bawah 40 |
 
 **Menambah syarat baru:** tambah satu cabang di `match` dalam `EventManager.requires_met()`.

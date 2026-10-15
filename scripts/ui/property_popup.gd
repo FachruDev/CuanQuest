@@ -126,7 +126,12 @@ func _build_buy() -> void:
 		_info_row(tr("PROPERTY_RENT_NET"), tr("VEHICLE_PER_MONTH") % Fmt.rupiah(properties.rent_net(_id)), Palette.GAIN)
 	if d.get("livable", false):
 		_info_row(tr("PROPERTY_HAPPINESS"), "%+d" % int(d["happiness"]), Palette.GAIN)
+	if int(d.get("commute_cost", 0)) > 0:  # rumah di pinggir kota
+		_info_row(tr("PROPERTY_COMMUTE"), tr("VEHICLE_PER_MONTH") % Fmt.rupiah(GameState.option_cost({"cost": d["commute_cost"]})),
+			Palette.LOSS)
 	%Rows.add_child(_label(tr("PROPERTY_COSTS_NOTE"), &"SmallMutedLabel"))
+	if int(d.get("min_hold_months", 0)) > 0:
+		%Rows.add_child(_label(tr("PROPERTY_HOLD_NOTE") % (int(d["min_hold_months"]) / 12), &"SmallMutedLabel"))
 
 	if d.get("livable", false):
 		%Rows.add_child(_label(tr("PROPERTY_USE"), &"ReportHeaderLabel"))
@@ -279,7 +284,8 @@ func open_detail(uid: int) -> void:
 		else tr("PROPERTY_SELL_NOTE") % [int(properties.data["sell_months"][0]), int(properties.data["sell_months"][1])],
 		&"SmallMutedLabel"))
 	if not q["ok"] and not selling:
-		var short := _label(tr("VEHICLE_SELL_NO_CASH") % Fmt.rupiah(GameState.cash), &"SmallMutedLabel")
+		var short := _label(tr("PROPERTY_SELL_LOCKED") % Fmt.game_date(properties.sellable_from(entry)) if q["locked"]
+			else tr("VEHICLE_SELL_NO_CASH") % Fmt.rupiah(GameState.cash), &"SmallMutedLabel")
 		short.add_theme_color_override("font_color", Palette.LOSS)
 		%Rows.add_child(short)
 

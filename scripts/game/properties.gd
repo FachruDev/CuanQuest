@@ -151,10 +151,17 @@ func rent_income() -> int:
 
 
 ## Pilihan "tempat tinggal" saat menghuni rumah sendiri (format sama dengan economy.json housing).
+## Tanpa sewa; rumah di pinggir kota (commute_cost) membawa ongkos perjalanan sebagai biaya tinggal.
 func home_option(entry: Dictionary) -> Dictionary:
 	var d := def(entry["id"])
-	return {"id": "own", "name_key": tr("HOUSING_OWN") % tr(d["name"]), "cost": 0, "health": 0,
-		"happiness": int(d["happiness"])}
+	return {"id": "own", "name_key": tr("HOUSING_OWN") % tr(d["name"]), "cost": int(d.get("commute_cost", 0)),
+		"health": 0, "happiness": int(d["happiness"])}
+
+
+## Bulan pertama properti boleh dijual (-1 jika bebas dijual), mis. rumah subsidi setelah 5 tahun.
+func sellable_from(entry: Dictionary) -> int:
+	var hold := int(def(entry["id"]).get("min_hold_months", 0))
+	return int(entry["since"]) + hold if hold > 0 else -1
 
 
 func loan_of(entry: Dictionary) -> Dictionary:
@@ -398,7 +405,7 @@ func move_out() -> void:
 
 
 ## Rincian penjualan dengan harga hari ini: harga - PPh final - komisi agen - pelunasan KPR.
-## -> {price, tax, fee, proceeds, payoff, net, gain, ok}
+## -> {price, tax, fee, proceeds, payoff, net, gain, locked, ok} (locked = belum boleh dijual)
 func sell_quote(entry: Dictionary) -> Dictionary:
 	var sale_price := value(entry)
 	var tax := roundi(sale_price * float(data["sell_tax"]) / 1000.0) * 1000
@@ -406,8 +413,10 @@ func sell_quote(entry: Dictionary) -> Dictionary:
 	var loan := loan_of(entry)
 	var payoff := 0 if loan.is_empty() else int(gs.debt.payoff_quote(loan)["total"])
 	var proceeds := sale_price - tax - fee
+	var locked := gs.month < sellable_from(entry)
 	return {"price": sale_price, "tax": tax, "fee": fee, "proceeds": proceeds, "payoff": payoff,
-		"net": proceeds - payoff, "gain": sale_price - int(entry["paid"]), "ok": gs.cash + proceeds >= payoff}
+		"net": proceeds - payoff, "gain": sale_price - int(entry["paid"]), "locked": locked,
+		"ok": not locked and gs.cash + proceeds >= payoff}
 
 
 ## Memasang properti untuk dijual: laku setelah 1-3 bulan dengan harga saat itu.

@@ -1060,3 +1060,7 @@ No more rent, but now there are installments, property tax, and upkeep every mon
 INSIGHT_RESTRUCTURE,"Kamu merestrukturisasi utang %d kali. Restrukturisasi menyelamatkanmu dari kredit macet, tapi tenornya lebih panjang dan total bunganya bertambah.","You restructured a loan %d time(s). Restructuring saved you from default, but it lengthened the term and added interest."
 INSIGHT_OFFER_LOANS,"Kamu menerima %d tawaran kredit (paylater/KTA). Tawaran yang ""langsung disetujui"" tetap utang berbunga tinggi; tanyakan dulu apakah itu kebutuhan atau keinginan.","You accepted %d credit offer(s) (paylater/personal loan). ""Instantly approved"" offers are still high-interest debt; ask whether it's a need or a want."
 INSIGHT_REFINANCE,Kamu memindahkan KPR ke bank lain (take over) %d kali untuk menghindari bunga mengambang yang tinggi. Selalu bandingkan biaya pindah dengan bunga yang dihemat.,You moved your mortgage to another bank (refinanced) %d time(s) to avoid high floating rates. Always compare the switching cost with the interest saved.
+PROPERTY_COMMUTE,Ongkos ke kota (jika dihuni),Commute to the city (if lived in)
+PROPERTY_HOLD_NOTE,Aturan rumah subsidi: baru boleh dijual setelah %d tahun dimiliki.,Subsidized housing rule: can only be sold after %d years of ownership.
+PROPERTY_SELL_LOCKED,Baru boleh dijual mulai %s (aturan rumah subsidi).,Can only be sold from %s (subsidized housing rule).
+HOME_COMMUTE_NOTE,Ongkos perjalanan ke kota %s per bulan sudah termasuk biaya hidup.,Commuting to the city (%s per month) is included in living costs.

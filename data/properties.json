@@ -6,6 +6,7 @@
 		"Biaya rutin per tahun: pbb_rate + maintenance (per properti) x harga, dibayar bulanan.",
 		"Disewakan: sewa kotor per tahun = rent_yield x harga, dipotong rent_tax (PPh final sewa). Mencari penyewa butuh vacancy_months [min, max] bulan; kontrak lease_months bulan; saat kontrak habis, peluang renew_chance penyewa memperpanjang.",
 		"kind = bentuk properti untuk event & ilustrasi: house (rumah tapak), apartment, land.",
+		"commute_cost = ongkos perjalanan ke kota per bulan saat dihuni (harga awal, dibayar sebagai biaya tempat tinggal); min_hold_months = baru boleh dijual setelah N bulan dimiliki (aturan rumah subsidi FLPP).",
 		"happiness = kebahagiaan per bulan jika dihuni (livable = bisa dihuni; rentable false = wajib dihuni sendiri, seperti aturan rumah subsidi). loans = produk KPR yang bisa dipakai (loans.json).",
 		"Teks ditulis langsung dalam bahasa Indonesia dan ditampilkan lewat tr()."
 	],
@@ -22,8 +23,9 @@
 	"properties": [
 		{
 			"id": "subsidi", "name": "Rumah Subsidi", "kind": "house", "livable": true, "rentable": false, "loans": ["kpr_subsidi", "kpr"],
-			"desc": "Rumah tipe 36 di pinggir kota, program pemerintah untuk pembeli rumah pertama berpenghasilan rendah. Jauh dari pusat kota, tapi cicilannya ringan. Wajib dihuni sendiri, tidak boleh disewakan.",
-			"price": 180000000, "rent_yield": 0.05, "growth": 0.005, "volatility": 0.03, "maintenance": 0.01, "happiness": 1
+			"desc": "Rumah tipe 36 di pinggir kota, program pemerintah untuk pembeli rumah pertama berpenghasilan rendah. Cicilannya ringan, tapi jauh dari pusat kota sehingga ada ongkos perjalanan. Wajib dihuni sendiri, tidak boleh disewakan, dan baru boleh dijual setelah 5 tahun.",
+			"price": 180000000, "rent_yield": 0.05, "growth": 0.005, "volatility": 0.03, "maintenance": 0.01, "happiness": 1,
+			"commute_cost": 400000, "min_hold_months": 60
 		},
 		{
 			"id": "studio", "name": "Apartemen Studio", "kind": "apartment", "livable": true, "loans": ["kpr"],

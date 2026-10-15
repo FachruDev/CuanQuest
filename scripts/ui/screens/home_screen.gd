@@ -118,6 +118,9 @@ func _refresh() -> void:
 	%HousingDesc.text = _effect_text(GameState.housing_option())
 	if own_home:
 		%HousingDesc.text += "\n" + tr("HOME_OWN_HINT")
+		var commute := GameState.option_cost(GameState.housing_option())  # rumah di pinggir kota
+		if commute > 0:
+			%HousingDesc.text += " " + tr("HOME_COMMUTE_NOTE") % Fmt.rupiah(commute)
 
 
 ## Baris rencana gaji (gaya hidup, dana darurat, investasi otomatis) disisipkan sebelum

@@ -11,7 +11,7 @@
 			]
 		},
 		{
-			"id": "kta_offer", "category": "debt", "weight": 1, "min_month": 12, "cooldown": 24, "max_times": 2, "requires": "kta_offer", "context": { "cash_poor": 2 },
+			"id": "kta_offer", "category": "debt", "weight": 1, "min_month": 12, "cooldown": 24, "max_times": 2, "requires": "kta_offer",
 			"title": "Telepon dari Bank", "text": "\"Selamat, Anda mendapat KTA pre-approved {amount}! Cair hari ini, cicilannya {installment} per bulan selama {months} bulan.\" Petugas bank menunggu jawabanmu.",
 			"choices": [
 				{ "label": "Ambil untuk liburan & belanja", "effects": { "take_loan": "spend", "happiness": 10 }, "result": "Liburannya menyenangkan, tapi cicilan {installment} akan menemanimu {months} bulan. Total bunganya {interest}." },

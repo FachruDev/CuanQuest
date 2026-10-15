@@ -6,7 +6,7 @@ extends Node
 ## Jalankan (data asli aman karena --save-root):
 ##   Godot --headless --path . res://tools/balance/balance_sim.tscn -- --save-root=user://_sim/
 ##       [--games=40] [--years=30] [--persona=all|hemat|penabung|boros|spekulan|acak|pelajar|pengutang|pengendara|
-##       pembeli_rumah|pembeli_rumah_kota]
+##       pembeli_rumah|pembeli_rumah_kota|pembeli_rumah_nekat]
 ##       [--difficulty=normal]
 ##       [--background=s1|d3|sma]
 ## Folder tools/ tidak ikut ke APK (exclude_filter di export_presets.cfg).
@@ -40,6 +40,9 @@ const PERSONAS := {
 	"pembeli_rumah_kota": {"desc": "Hemat + KPR Rumah Tipe 45 untuk dihuni", "food": "standard", "housing": "kos",
 		"lifestyle": 0.05, "emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"}, "choice": "prudent",
 		"quiz": true, "lump_invest": true, "activities": true, "homes": [["house45", "kpr", 0.2]]},
+	"pembeli_rumah_nekat": {"desc": "KPR Rumah Tipe 45 DP 10% tanpa cadangan, pilihan acak", "food": "standard",
+		"housing": "kos", "lifestyle": 0.1, "emergency": 0.0, "invest": 0.1, "insurance": {}, "choice": "random",
+		"quiz": false, "lump_invest": true, "homes": [["house45", "kpr", 0.1]], "home_buffer": 0.0},
 }
 const CHECKPOINTS := [5, 10, 20, 30]
 
@@ -96,6 +99,8 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 	var start_salary := 0  # gaji pekerjaan pertama (v1.5b: mulai tanpa kerja)
 	var first_job_month := -1
 	var home_month := -1
+	var default_month := -1  # macet pertama
+	var recovered_month := -1  # skor kredit kembali >= 60 setelah macet pertama
 	for m in years * 12:
 		if GameState.is_over:
 			break
@@ -111,6 +116,10 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 			first_job_month = GameState.month
 		if home_month < 0 and not GameState.properties.owned.is_empty():
 			home_month = GameState.month
+		if default_month < 0 and int(GameState.stats["loan_defaults"]) > 0:
+			default_month = GameState.month
+		elif default_month >= 0 and recovered_month < 0 and GameState.debt.credit_score >= 60:
+			recovered_month = GameState.month
 		if freedom_month < 0 and GameState.is_financially_free():
 			freedom_month = GameState.month
 		if millionaire_month < 0 and GameState.net_worth() >= float(GameState.economy["end"]["win_net_worth"]):
@@ -125,7 +134,7 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 		"reason": GameState.end_result.get("reason", "") if GameState.is_over else "",
 		"lost_month": GameState.month if GameState.is_over else -1,
 		"freedom_month": freedom_month, "millionaire_month": millionaire_month, "first_job_month": first_job_month,
-		"home_month": home_month}
+		"home_month": home_month, "default_month": default_month, "recovered_month": recovered_month}
 
 
 func _snapshot(start_salary: int) -> Dictionary:
@@ -160,6 +169,9 @@ func _snapshot(start_salary: int) -> Dictionary:
 		"loan_defaults": int(GameState.stats["loan_defaults"]),
 		"debt_interest": float(GameState.stats["debt_interest"]),
 		"credit_score": GameState.debt.credit_score,
+		"offer_loans": int(GameState.stats["offer_loans"]),
+		"restructures": int(GameState.stats["restructures"]),
+		"refinances": int(GameState.stats["refinances"]),
 		"motor": GameState.vehicles.owns("motor"),
 		"car": GameState.vehicles.owns("car"),
 		"vehicle_value": GameState.vehicles.total_value(),
@@ -263,9 +275,9 @@ func _vehicle_actions(expenses: float) -> void:
 
 
 ## Tipe pemain pembeli rumah: pilihan pertama di `homes` yang syaratnya terpenuhi ([properti, KPR, DP]),
-## saat kas + investasi cukup untuk DP + biaya beli + 3 bulan biaya hidup. Tenor terpendek yang
+## saat kas + investasi cukup untuk DP + biaya beli + `buffer` bulan biaya hidup. Tenor terpendek yang
 ## cicilannya lolos batas rasio cicilan. Rumahnya langsung dihuni.
-func _home_actions(homes: Array, expenses: float) -> void:
+func _home_actions(homes: Array, expenses: float, buffer: float) -> void:
 	var properties := GameState.properties
 	if not properties.owned.is_empty():
 		return
@@ -275,9 +287,9 @@ func _home_actions(homes: Array, expenses: float) -> void:
 			continue
 		var q := properties.buy_quote(option[0], option[1], option[2], tenor)
 		var upfront := float(q["upfront"])
-		if GameState.portfolio.liquid_assets() + GameState.portfolio.investments_value() < upfront + expenses * 3:
+		if GameState.portfolio.liquid_assets() + GameState.portfolio.investments_value() < upfront + expenses * buffer:
 			continue
-		_raise_cash(upfront + expenses)
+		_raise_cash(upfront + minf(expenses, expenses * buffer))
 		if properties.buy(option[0], option[1], option[2], tenor, "live")["ok"]:
 			return
 
@@ -326,7 +338,7 @@ func _monthly_actions(p: Dictionary) -> void:
 	if p.get("vehicles", false):
 		_vehicle_actions(expenses)
 	if p.has("homes"):
-		_home_actions(p["homes"], expenses)
+		_home_actions(p["homes"], expenses, float(p.get("home_buffer", 3.0)))
 	if p.get("courses", false) and GameState.career.skill < 80.0 and GameState.cash > expenses * 2:
 		GameState.activities.perform("course")
 	if p["quiz"]:
@@ -535,6 +547,19 @@ func _print_summary(persona: String, results: Array[Dictionary], years: int) -> 
 			last, roundi(100.0 * borrowers.size() / finals.size()), int(_median(borrowers, "loans_taken")),
 			int(_median(borrowers, "missed_payments")), roundi(100.0 * defaulted / borrowers.size()),
 			Fmt.rupiah_short(_median(borrowers, "debt_interest")), int(_median(borrowers, "credit_score"))])
+		var share := func(key: String) -> int:
+			return roundi(100.0 * finals.filter(func(f: Dictionary) -> bool: return f[key] > 0).size() / finals.size())
+		print("  tahun %d: terima tawaran kredit %d%% | restrukturisasi %d%% | take over KPR %d%%" % [
+			last, share.call("offer_loans"), share.call("restructures"), share.call("refinances")])
+	var defaults: Array = results.filter(func(r: Dictionary) -> bool: return r["default_month"] >= 0)
+	if not defaults.is_empty():
+		var recovered: Array = defaults.filter(func(r: Dictionary) -> bool: return r["recovered_month"] >= 0)
+		var waits: Array = recovered.map(func(r: Dictionary) -> float: return float(r["recovered_month"] - r["default_month"]))
+		waits.sort()
+		print("  macet: %d permainan | skor kredit pulih ke 60: %d%% (median %s bulan) | bangkrut setelah macet %d" % [
+			defaults.size(), roundi(100.0 * recovered.size() / defaults.size()),
+			Fmt.number(_pct(waits, 0.5), 0) if not waits.is_empty() else "-",
+			defaults.filter(func(r: Dictionary) -> bool: return r["over"]).size()])
 
 
 ## "median Rp... (p10 ... p90 ...)"

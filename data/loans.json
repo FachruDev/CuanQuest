@@ -7,7 +7,7 @@
 		"Kredit beragunan (collateral: vehicle / property) tidak muncul di tombol Ajukan pinjaman; diajukan dari layar beli kendaraan / properti. min_dp = uang muka minimal, dp_steps = pilihan uang muka.",
 		"KPR: bunga tetap (rate_spread di atas suku bunga BI) selama fixed_months bulan, lalu mengambang = suku bunga BI + float_spread, disesuaikan tiap bulan. fixed_rate = bunga tetap sepanjang tenor (KPR subsidi). max_salary = gaji bruto maksimal (harga awal, ikut inflasi); first_home = belum punya properti lain.",
 		"amounts = pilihan jumlah pinjaman (dibatasi max_salary_mult x gaji bruto). prepay_penalty = penalti pelunasan dipercepat (persen sisa pokok).",
-		"Produk hidden (paylater) tidak muncul di tombol Ajukan pinjaman; hanya ditawarkan lewat event. offer = tawaran lewat event (data/events/debt.json): amount & tenor tetap, atau salary_mult = jumlah terbesar yang lolos syarat sampai x gaji bruto.",
+		"Produk hidden (paylater) tidak muncul di tombol Ajukan pinjaman; hanya ditawarkan lewat event. offer = tawaran lewat event (data/events/debt.json): amount & tenor tetap, atau salary_mult = jumlah terbesar yang lolos syarat sampai x gaji bruto; min_score = skor kredit minimal agar bank menawarkan (pre-approved).",
 		"restructure_months = tambahan tenor saat restrukturisasi (event penagih utang): tunggakan digabung ke sisa pokok.",
 		"KPR refinance (take over ke bank lain, event masa bunga tetap berakhir): bunga tetap baru = suku bunga BI + spread (+ penyesuaian skor) selama fixed_months, biaya fee x sisa pokok (penalti + provisi + notaris); syarat pegawai, skor >= min_score, tanpa tunggakan, sisa tenor >= min_months_left. prepay_part = porsi sisa pokok untuk pelunasan sebagian.",
 		"Teks ditulis langsung dalam bahasa Indonesia dan ditampilkan lewat tr(), seperti event, impian, dan asuransi."
@@ -18,12 +18,13 @@
 	"seize_value_ratio": 0.7,
 	"restructure_months": 12,
 	"credit": {
-		"_comment": "Skor kredit 0-100 (mirip SLIK OJK / BI checking). grades: dari skor tertinggi; rate = tambahan bunga per tahun; tingkat dengan min di bawah min_score ditolak bank.",
+		"_comment": "Skor kredit 0-100 (mirip SLIK OJK / BI checking). grades: dari skor tertinggi; rate = tambahan bunga per tahun; tingkat dengan min di bawah min_score ditolak bank. default_max: setelah macet skor paling tinggi segini (catatan macet membuat bank menolak pengajuan beberapa waktu).",
 		"start": 60,
 		"min_score": 40,
 		"on_time": 1,
 		"missed": -8,
 		"default": -25,
+		"default_max": 30,
 		"payoff": 2,
 		"recover_below": 60,
 		"recover": 1,
@@ -42,7 +43,7 @@
 			"rate_spread": 0.12, "tenors": [12, 24, 36],
 			"amounts": [5000000, 10000000, 15000000, 20000000, 30000000, 40000000, 50000000, 75000000, 100000000, 150000000, 200000000, 300000000],
 			"max_salary_mult": 5, "prepay_penalty": 0.03,
-			"offer": { "tenor": 36, "salary_mult": 3 }
+			"offer": { "tenor": 36, "salary_mult": 3, "min_score": 60 }
 		},
 		{
 			"id": "paylater", "name": "Paylater", "short": "Paylater", "hidden": true,

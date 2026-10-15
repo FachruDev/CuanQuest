@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 15 Oktober 2026 (v1.5c langkah 4 tampilan & cerita selesai)
+- **Terakhir diperbarui:** 15 Oktober 2026 (v1.5c selesai: langkah 5 penyeimbangan)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -16,7 +16,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v1.5-0** | Giliran Bulanan yang Hidup | 🔄 5/5 langkah; tinggal playtest |
 | **v1.5a** | Realisme ekonomi | ✅ 5/5 langkah |
 | **v1.5b** | Pekerjaan & karier (melamar kerja, keahlian, jenjang) | ✅ 5/5 langkah |
-| **v1.5c** | Utang, properti, hunian yang tumbuh | 🔄 4/5 langkah |
+| **v1.5c** | Utang, properti, hunian yang tumbuh | ✅ 5/5 langkah (aset final menyusul setelah v2) |
 | **v1.5d** | Tokoh, riset, kontrak, konten | ⬜ |
 | **v2a-v2d** | Instrumen lanjut, hidup penuh, dana investor, mini-game | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
@@ -278,7 +278,7 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.2 (semua keputusan 5.2.10
 - ✅ Promosi, kenaikan gaji berbasis prestasi, PHK, dan pindah kerja berjalan
 - ✅ Pekerjaan & karier baru bisa ditambah lewat file data saja
 
-## v1.5c: Utang, Properti, dan Hunian yang Tumbuh 🔄
+## v1.5c: Utang, Properti, dan Hunian yang Tumbuh ✅
 
 Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.3 (ditulis 14 Oktober 2026; keputusan 5.3.9 masih bisa diubah sebelum langkahnya dikerjakan). Kebutuhan aset: `docs/KEBUTUHAN_ASET.md`.
 
@@ -290,7 +290,7 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.3 (ditulis 14 Oktober 202
 | 2 | Kendaraan: aset menyusut + biaya rutin, kredit motor/mobil + DP, impian motor/mobil terhubung | ✅ |
 | 3 | Properti & KPR: beli/sewakan/jual, BPHTB & PBB, KPR tetap → mengambang, kontrakan, DP rumah | ✅ |
 | 4 | Tampilan & cerita: ilustrasi hunian & kendaraan, neraca di Portofolio, event utang & properti | ✅ |
-| 5 | Penyeimbangan dengan simulator (pemain berutang & pembeli rumah) | ⬜ |
+| 5 | Penyeimbangan dengan simulator (pemain berutang & pembeli rumah) | ✅ |
 
 ### Rincian fitur
 
@@ -343,10 +343,19 @@ Rancangan detail: `MVP_Cuan_Quest_Revisi3.md` bagian 5.3 (ditulis 14 Oktober 202
 - ✅ Golden runner identik dengan langkah 3 saat event baru dibuang; 96 uji langkah 4 + 443 uji lama lulus
 - 🔁 Ilustrasi hunian & kendaraan masih gambar pengganti sederhana (11 file, lihat `docs/KEBUTUHAN_ASET.md`; tinggal ditimpa dengan nama yang sama)
 
+**Langkah 5: Penyeimbangan** ✅
+- ✅ Tawaran KTA pre-approved hanya untuk skor kredit Baik (≥60) dan tidak lagi menyasar saat kas menipis
+- ✅ Rumah subsidi: ongkos ke kota Rp400 rb/bulan saat dihuni + baru boleh dijual setelah 5 tahun (aturan FLPP); tidak lagi jalan pintas menuju bebas finansial
+- ✅ Macet membuat skor kredit paling tinggi 30 (Buruk): pengajuan ditolak ±10 bulan, kembali Baik ±30 bulan
+- ✅ Simulator: tipe **pembeli_rumah_nekat** + statistik tawaran kredit, restrukturisasi, take over, dan pemulihan skor
+- ✅ Target tercapai: S1 pembeli Rumah Tipe 45 bebas finansial tahun 22,4 (usia ±44; Santai 19,3, Sulit 24,2); pembeli nekat 8% dilelang; KTA macet hampir selalu berujung bangkrut, KPR macet bisa dipulihkan
+- ✅ Golden runner identik untuk permainan tanpa event baru; 25 uji langkah 5 + 539 uji lama lulus
+- ✅ Tidak ada aset baru (lihat `docs/KEBUTUHAN_ASET.md`)
+
 **Kriteria selesai**
-- ⬜ Utang bisa diambil, dibayar, dilunasi; skor kredit berubah
-- ⬜ KPR terasa sebagai beban cicilan; properti sewa menghasilkan pendapatan pasif
-- ⬜ Gagal bayar berkonsekuensi nyata; bangkrut menghitung utang dengan benar
+- ✅ Utang bisa diambil, dibayar, dilunasi; skor kredit berubah
+- ✅ KPR terasa sebagai beban cicilan; properti sewa menghasilkan pendapatan pasif
+- ✅ Gagal bayar berkonsekuensi nyata; bangkrut menghitung utang dengan benar
 - ✅ Ilustrasi hunian dan kendaraan berubah sesuai kepemilikan (gambar pengganti sampai aset final)
 
 ## v1.5d: Konten dan Cerita ⬜

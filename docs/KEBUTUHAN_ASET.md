@@ -2,7 +2,7 @@
 
 Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang **dibutuhkan**, dan **di file mana** aset itu dipakai. Diperbarui setiap kali sebuah langkah membutuhkan aset baru.
 
-- **Terakhir diperbarui:** 15 Oktober 2026 (v1.5c langkah 4: ilustrasi Hunian & Kendaraan di Beranda memakai gambar pengganti sederhana)
+- **Terakhir diperbarui:** 15 Oktober 2026 (v1.5c selesai; langkah 5 penyeimbangan tidak menambah aset)
 - **Rencana pembuatan:** pengembang membuat aset setelah **v2 selesai**. Sampai saat itu game memakai aset sementara (🔁), dan daftar di bawah terus diperbarui setiap langkah.
 - **Tanda:** ✅ sudah ada · ⬜ dibutuhkan · 🔁 sementara memakai aset lain atau gambar pengganti sederhana (game tetap jalan)
 - Tabel aset yang sudah ada dibuat otomatis dengan memindai `scenes/`, `scripts/`, `theme/`, dan `data/`.

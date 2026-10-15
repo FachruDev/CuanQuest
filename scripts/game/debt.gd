@@ -135,10 +135,11 @@ func can_refinance(loan: Dictionary) -> bool:
 
 ## Tawaran kredit lewat event: {product, amount, tenor} yang lolos semua syarat, atau {} jika tidak ada.
 ## Jumlah tetap (offer.amount, paylater) atau jumlah terbesar sampai offer.salary_mult x gaji (KTA).
+## offer.min_score: bank hanya menawarkan "pre-approved" ke nasabah dengan riwayat kredit cukup baik.
 func offer(product_id: String) -> Dictionary:
 	var prod := product(product_id)
 	var cfg: Dictionary = prod.get("offer", {})
-	if cfg.is_empty():
+	if cfg.is_empty() or credit_score < int(cfg.get("min_score", 0)):
 		return {}
 	var tenor := int(cfg["tenor"])
 	if not tenor in tenor_options(prod):
@@ -560,6 +561,7 @@ func _default(loan: Dictionary) -> Dictionary:
 	loans.erase(loan)
 	gs.stats["loan_defaults"] += 1
 	_add_score(int(data["credit"]["default"]))
+	credit_score = mini(credit_score, int(data["credit"].get("default_max", 100)))  # catatan macet di SLIK
 	var result := {"name": product(loan["product"])["short"], "amount": total}
 	var collateral: Dictionary = loan.get("collateral", {})
 	if collateral.is_empty():
