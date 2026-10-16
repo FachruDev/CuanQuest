@@ -106,6 +106,41 @@
 				{ "label": "Ikut melapor bersama korban lain", "effects": { "happiness": -4, "xp": 15 }, "result": "Uang korban jarang kembali utuh. Selalu cek legalitas di OJK (157) atau Bappebti sebelum menaruh uang." },
 				{ "label": "Marah kepada {coworker}", "effects": { "happiness": -5, "rel": { "coworker": -15 } }, "result": "{coworker} juga kehilangan banyak uang. Suasana di kantor jadi canggung." }
 			]
+		},
+		{
+			"id": "forex_broker_bonus", "bad": true, "category": "scam", "weight": 1, "min_month": 24, "max_times": 1, "context": { "cash_rich": 2 },
+			"title": "Broker Valas Bonus 100%", "text": "Seorang \"account manager\" menelepon: setor {rp:10000000} ke broker valas luar negeri, langsung dapat bonus 100% dan leverage 1:500. \"Akunmu dikelola tim profesional, profit 20% per bulan!\"",
+			"choices": [
+				{ "label": "Setor {rp:10000000}", "cost": 10000000, "effects": { "chain": { "event": "forex_broker_locked", "months": [1, 2] } }, "result": "Saldo di aplikasinya langsung tampil {rp:20000000}, dan grafiknya naik setiap hari..." },
+				{ "label": "Cek izinnya di situs regulator", "effects": { "xp": 15 }, "result": "Broker itu tidak terdaftar di regulator Indonesia. Bonus deposit dan janji profit tetap adalah umpan klasik broker ilegal." }
+			]
+		},
+		{
+			"id": "forex_broker_locked", "chain_only": true, "bad": true, "category": "scam", "weight": 1,
+			"title": "Dana Tidak Bisa Ditarik", "text": "Saat kamu mencoba menarik dana, aplikasinya menolak: \"Bayar pajak penarikan {rp:3000000} dulu.\" Account manager tidak lagi mengangkat telepon.",
+			"choices": [
+				{ "label": "Bayar \"pajak\" {rp:3000000}", "cost": 3000000, "effects": { "happiness": -6 }, "result": "Setelah membayar, akunmu malah dibekukan. Penipu sering meminta \"biaya\" tambahan sebelum menghilang." },
+				{ "label": "Laporkan ke polisi dan regulator", "effects": { "happiness": -4, "xp": 15 }, "result": "Laporanmu tercatat, tapi uangmu kemungkinan besar tidak kembali. Broker resmi tidak pernah menahan dana dengan alasan \"pajak penarikan\"." }
+			]
+		},
+		{
+			"id": "binary_option_flex", "bad": true, "category": "scam", "weight": 1, "min_month": 12, "max_times": 1, "context": { "cash_rich": 1.5 },
+			"title": "Crazy Rich Opsi Biner", "text": "Seorang influencer pamer mobil sport hasil \"trading\": menebak harga naik atau turun dalam satu menit. Ia menjual kelas {rp:1000000} plus tautan daftar dengan deposit minimal {rp:2000000}.",
+			"choices": [
+				{ "label": "Ikut kelas & deposit", "cost": 3000000, "effects": { "happiness": -4 }, "result": "Saldomu terus berkurang sampai habis. Belakangan terungkap: platformnya untung dari kekalahan member, dan sang influencer dibayar dari kerugian itu." },
+				{ "label": "Tidak ikut: itu judi berkedok trading", "effects": { "xp": 15 }, "result": "Tepat. Opsi biner pada dasarnya menebak arah harga dalam hitungan detik, dan platform seperti ini sudah banyak diblokir di Indonesia." }
+			]
+		},
+		{
+			"id": "vip_signal_group", "bad": true, "category": "scam", "weight": 1, "min_month": 18, "max_times": 1,
+			"title": "Grup Sinyal VIP", "text": "Kamu diundang ke grup \"sinyal trading VIP\" dengan langganan {rp:1500000} per bulan. Admin membagikan tangkapan layar profit besar dan menjanjikan akurasi 90%.",
+			"choices": [
+				{ "label": "Langganan sebulan", "cost": 1500000, "outcomes": [
+					{ "chance": 0.3, "effects": { "happiness": 1 }, "result": "Beberapa sinyal kebetulan benar, tapi hasilnya tidak menutup biaya langganan." },
+					{ "chance": 0.7, "effects": { "happiness": -3 }, "result": "Sinyalnya sering salah. Admin berdalih \"pasar sedang dimanipulasi\" lalu menawarkan paket yang lebih mahal." }
+				] },
+				{ "label": "Tolak: tangkapan layar mudah dipalsukan", "effects": { "xp": 10 }, "result": "Benar. Tidak ada yang bisa menjamin akurasi 90%; kalau bisa, mereka tidak perlu menjual sinyal." }
+			]
 		}
 	]
 }

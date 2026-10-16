@@ -31,7 +31,7 @@ data/
   rumors.json                 Rumor pasar (v1.5d): peluang, gerak harga benar/jebakan, riset dasar & mendalam
   contracts.json              Proyek sampingan (v1.5d): 17 proyek, tier & reputasi, 3 strategi, peluang, bayaran
   achievements.json           Pencapaian (v1.5d): 21 pencapaian (syarat sebagai data), gelar, 7 bingkai avatar
-  events/<kategori>.json      104 event hidup per kategori (finance, work, education, health, social,
+  events/<kategori>.json      111 event hidup per kategori (finance, work, education, health, social,
                               market, scam, property, debt): syarat, pilihan, efek, tokoh. Cara menambah:
                               docs/PANDUAN_EVENT.md
   characters.json             Tokoh berulang (v1.5d): Bima, Ibu, Kak Wulan, Bu Ratna, atasan, rekan kerja
@@ -42,7 +42,7 @@ data/
   jobs.json                   Pekerjaan (bidang, jenjang, syarat, gaji, beban kerja) & aturan lowongan
   education.json              Program kuliah (syarat, lama, biaya, hasil) & beban kuliah
   quiz.json                   170 soal kuis (9 topik, urutan topik di "topics")
-  glossary.json               92 istilah glosarium
+  glossary.json               100 istilah glosarium
   legal.json                  Kebijakan privasi, syarat penggunaan & lisensi pihak ketiga (tampil di game)
   activities.json             6 aktivitas bulanan & aturan energi
   leverage.json               Leverage (v2a): kelas & pilihan leverage, fee, biaya inap, batas margin call & likuidasi
@@ -226,7 +226,7 @@ scenes/
   - [x] (1) Komoditas & emas
   - [x] (2) Valas
   - [x] (3) Leverage & margin
-  - [ ] (4) Tampilan, peringatan & cerita
+  - [x] (4) Peringatan & cerita
   - [ ] (5) Penyeimbangan & uji celah
 - [ ] **v2b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
@@ -336,6 +336,14 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Save:** kunci baru `contract_board`, `contracts`, `contract_reputation`, `contract_energy`, `contract_seq`, `contract_rng`; statistik `projects_*` & `project_income` (save lama: tanpa proyek, papan terisi bulan berikutnya).
 - **Hasil simulator** (40 × 30 tahun): tahun bebas finansial S1 hemat 12,6 → selalu 1 proyek 10,5 → selalu 2 proyek 9,6; SMA 18,4 → 14,7 → 13,4. Dua proyek sekaligus menguras kesehatan (±75) & kebahagiaan (±81) dan menurunkan kinerja kantor. Versi awal (bayaran 2× lebih besar dan keahlian lebih banyak) membuat S1 bebas finansial di tahun 7,6, jadi angka di data sudah diturunkan.
 - **Menambah proyek:** salin satu baris di `projects` (`id`, `track` = id bidang di `jobs.json` atau `general`, `tier`, `months` [min, max], `weight`), lalu tambahkan nama & deskripsinya di CSV.
+
+## Peringatan & Cerita Leverage (v2a langkah 4)
+
+- **Peringatan risiko wajib** sebelum transaksi leverage pertama di tiap permainan: `main._request_leverage()` menampilkan `InfoPopup.open_warning()` (Batal sebagai tombol utama, "Saya Paham Risikonya" sebagai tombol kedua). Persetujuan disimpan di `GameState.leverage.risk_ack` (kunci save `leverage_ack`), dan `Leverage.quote()` menolak (`LEV_ERR_WARNING`) selama belum disetujui, jadi aturan ini tidak bisa dilewati dari kode lain (mis. simulator). Analogi web: centang "Saya setuju" yang juga dicek di server, bukan hanya di form.
+- **Margin call & likuidasi** setelah laporan bulanan: `main._enqueue_leverage_alert(report)` membaca `report["leverage"]` (berisi `asset_id`), menampilkan popup peringatan dengan tombol **Lihat Posisi** (`_show_asset()` → `MarketScreen.show_asset()` membuka detail dan menggulir ke kartu leverage). Beranda menampilkan spanduk merah selama `Leverage.calls()` tidak kosong.
+- **`InfoPopup.open_warning()`**: varian popup informasi dengan lencana "!" merah, judul merah, dan bunyi `alert`; `open()` biasa tetap bergaya perayaan.
+- **Event baru** (7, total 111): `forex_broker_bonus` → `forex_broker_locked` (broker valas ilegal: bonus 100%, lalu dana ditahan dengan alasan "pajak penarikan"), `binary_option_flex` (influencer opsi biner), `vip_signal_group` (grup sinyal berbayar), `bima_leverage` (Bima & leverage 100x), `ibu_gold_lebaran` (perhiasan vs emas batangan, bulan Maret), `leverage_sleepless` (syarat baru `has_margin_call`). Menolak penipuan baru ikut dihitung untuk pencapaian Kebal Tipu.
+- **Lain-lain:** 8 istilah glosarium (leverage, margin, margin call, likuidasi, long, short, biaya inap, ekuitas), analisis layar akhir (`EndAnalysis`: likuidasi, rugi melebihi margin, biaya inap, atau untung tanpa likuidasi), statistik Profil (posisi dibuka/dilikuidasi, untung/rugi leverage), dan konteks event `holds_risky` kini juga aktif saat ada posisi leverage.
 
 ## Leverage & Margin (v2a langkah 3)
 

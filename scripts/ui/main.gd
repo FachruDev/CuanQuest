@@ -54,6 +54,7 @@ func _ready() -> void:
 	GameState.changed.connect(_refresh_top_bar)
 	GameState.month_advanced.connect(func(report: Dictionary) -> void:
 		_enqueue(%SummaryPopup.show_report.bind(report))
+		_enqueue_leverage_alert(report)
 		if GameState.research.has_rumor():  # rumor pertama (v1.5d): jelaskan riset di tab Pasar
 			_hint("HINT_RUMOR")
 		_enqueue_plan_review())
@@ -318,8 +319,8 @@ func _show_toast(text: String) -> void:
 func _setup_leverage() -> void:
 	_leverage_popup = LEVERAGE_POPUP.instantiate()
 	add_child(_leverage_popup)
-	%MarketScreen.leverage_requested.connect(func(asset_id: String) -> void:
-		_enqueue(_leverage_popup.open.bind(asset_id)))
+	%MarketScreen.leverage_requested.connect(_request_leverage)
+	%HomeScreen.leverage_alert_requested.connect(_show_asset)
 	%MarketScreen.margin_requested.connect(func(uid: int) -> void:
 		_enqueue(_leverage_popup.open_margin.bind(uid)))
 	%MarketScreen.close_position_requested.connect(_confirm_close_position)
@@ -328,6 +329,48 @@ func _setup_leverage() -> void:
 			tr(GameState.market.get_asset(result["asset_id"]).name_key)]))
 	_leverage_popup.margin_added.connect(func(_asset_id: String, amount: int) -> void:
 		_show_toast(tr("TOAST_LEV_MARGIN") % Fmt.rupiah(amount)))
+
+
+## Sebelum transaksi leverage pertama di permainan ini, peringatan risiko wajib disetujui (v2a langkah 4).
+func _request_leverage(asset_id: String) -> void:
+	if GameState.leverage.risk_ack:
+		_enqueue(_leverage_popup.open.bind(asset_id))
+		return
+	_enqueue(%InfoPopup.open_warning.bind(tr("LEV_RISK_TITLE"), tr("LEV_RISK_BODY"), tr("LEV_RISK_ACCEPT"), func() -> void:
+		GameState.leverage.acknowledge_risk()
+		_enqueue(_leverage_popup.open.bind(asset_id)), tr("BTN_CANCEL")))
+
+
+## Laporan bulan ini memuat likuidasi atau margin call: peringatan tampil setelah laporan, dengan
+## tombol ke detail aset yang perlu diurus (tambah margin / tutup posisi).
+func _enqueue_leverage_alert(report: Dictionary) -> void:
+	var lev: Dictionary = report.get("leverage", {})
+	if lev.is_empty() or (lev["liquidated"].is_empty() and lev["margin_calls"].is_empty()):
+		return
+	var lines: PackedStringArray = []
+	for item: Dictionary in lev["liquidated"]:
+		lines.append(tr("LEV_ALERT_LIQUIDATED") % [tr(item["asset_key"]), LeverageView.side_text(item["side"]),
+			int(item["leverage"]), int(item["day"]), Fmt.signed_rupiah(item["pnl"])])
+		if float(item["shortfall"]) > 0.0:
+			lines.append(tr("LEV_ALERT_SHORTFALL") % Fmt.rupiah(item["shortfall"]))
+	var target := ""
+	for item: Dictionary in lev["margin_calls"]:
+		var asset := GameState.market.get_asset(item["asset_id"])
+		lines.append(tr("LEV_ALERT_CALL") % [tr(item["asset_key"]), Fmt.percent_plain(float(item["equity"]) / float(item["margin"])),
+			asset.price_text(item["liquidation_price"])])
+		if target == "" and not GameState.leverage.position_of(asset.id).is_empty():
+			target = asset.id
+	var title := tr("LEV_ALERT_TITLE_CALL") if not lev["margin_calls"].is_empty() else tr("LEV_ALERT_TITLE_LIQ")
+	if target != "":
+		_enqueue(%InfoPopup.open_warning.bind(title, "\n".join(lines), tr("LEV_ALERT_SEE"), _show_asset.bind(target), tr("BTN_CLOSE")))
+	else:
+		_enqueue(%InfoPopup.open_warning.bind(title, "\n".join(lines)))
+
+
+## Buka tab Pasar di detail aset (mis. dari peringatan margin call).
+func _show_asset(asset_id: String) -> void:
+	_show_screen(1)
+	%MarketScreen.show_asset(asset_id)
 
 
 ## Konfirmasi tutup posisi: harga sekarang, fee tutup, uang kembali ke kas, untung/rugi.

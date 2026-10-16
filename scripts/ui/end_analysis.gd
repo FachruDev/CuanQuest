@@ -51,6 +51,17 @@ static func insights(state: Node) -> Array[String]:
 	if int(s.get("graduations", 0)) > 0:
 		out.append(_t("INSIGHT_EDUCATION") % [int(s["graduations"]), Fmt.rupiah(s["tuition"])])
 
+	# Leverage (v2a): likuidasi, kerugian di atas margin, biaya inap, atau untung yang disiplin.
+	var lev: Dictionary = state.leverage.record
+	if int(lev["liquidated"]) > 0:
+		out.append(_t("INSIGHT_LEV_LIQUIDATED") % [int(lev["liquidated"]), Fmt.signed_rupiah(lev["pnl"])])
+		if float(lev["shortfall"]) > 0.0:
+			out.append(_t("INSIGHT_LEV_SHORTFALL") % Fmt.rupiah(lev["shortfall"]))
+	elif int(lev["opened"]) >= 3 and float(lev["pnl"]) > 0.0:
+		out.append(_t("INSIGHT_LEV_PROFIT") % [int(lev["opened"]), Fmt.rupiah(lev["pnl"])])
+	if float(lev["financing"]) >= 1_000_000.0:
+		out.append(_t("INSIGHT_LEV_FINANCING") % Fmt.rupiah(lev["financing"]))
+
 	# Utang, kendaraan & properti (v1.5c)
 	if int(s.get("loan_defaults", 0)) > 0:
 		out.append(_t("INSIGHT_LOAN_DEFAULT") % int(s["loan_defaults"]))

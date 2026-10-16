@@ -112,12 +112,13 @@ Didefinisikan di `EventManager.requires_met()`. Event yang sudah masuk antrean b
 | `high_performance`, `low_performance` | Pekerjaan berjenjang dengan kinerja ≥ 70 / < 70 (evaluasi kinerja, v1.5d) |
 | `paylater_offer`, `kta_offer` | Tawaran kredit lolos semua syarat bank (pekerjaan, skor, tunggakan, rasio cicilan) dan skor minimal `offer.min_score` (KTA: 60); jumlahnya dari `"offer"` produk di `loans.json` |
 | `low_happiness` | Kebahagiaan di bawah 40 |
+| `has_margin_call` | Ada posisi leverage yang sedang margin call (v2a) |
 
 **Menambah syarat baru:** tambah satu cabang di `match` dalam `EventManager.requires_met()`.
 
 ## Kondisi `context`
 
-Dihitung `GameState.events.context_flags()` (ambang di `economy.json` `event_director`): `cash_rich`, `cash_poor`, `low_happiness`, `low_health`, `holds_risky`, `holds_crypto`, `unemployed`.
+Dihitung `GameState.events.context_flags()` (ambang di `economy.json` `event_director`): `cash_rich`, `cash_poor`, `low_happiness`, `low_health`, `holds_risky` (saham, kripto, komoditas, atau posisi leverage), `holds_crypto`, `unemployed`.
 
 ## Isian teks
 

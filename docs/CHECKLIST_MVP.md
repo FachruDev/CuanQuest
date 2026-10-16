@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 16 Oktober 2026 (v2a langkah 3: leverage & margin)
+- **Terakhir diperbarui:** 16 Oktober 2026 (v2a langkah 4: peringatan & cerita)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -19,7 +19,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v1.5c** | Utang, properti, hunian yang tumbuh | ✅ 5/5 langkah (aset final menyusul setelah v2) |
 | **v1.5d** | Tokoh, riset, kontrak, konten | ✅ 5/5 langkah (aset final menyusul setelah v2) |
 | **Penutup v1.5** | Performa & baterai, playtest, legal | ✅ legal & performa (APK dicoba di HP); playtest berjalan terus lewat Profil > Sesi Bermain |
-| **v2a** | Instrumen lanjut: komoditas, valas, leverage & margin | 🔄 3/5 langkah |
+| **v2a** | Instrumen lanjut: komoditas, valas, leverage & margin | 🔄 4/5 langkah |
 | **v2b-v2d** | Hidup penuh, dana investor, mini-game | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
 
@@ -484,18 +484,24 @@ Panduan uji di HP: `docs/UJI_AKHIR_V15.md` (tabel performa, baterai, dan pertany
   - ✅ Tampilan dasar: kartu Leverage di detail aset (syarat / buka / tambah margin / tutup), popup buka posisi dengan pratinjau risiko (harga margin call & likuidasi, rugi jika harga bergerak 5% & 10%), popup tambah margin, daftar Posisi Leverage di Portofolio, bagian LEVERAGE di laporan, riwayat transaksi, neraca
   - ✅ Ekuitas posisi masuk kekayaan bersih & grafik harian laporan; kas minus → posisi ikut ditutup paksa setelah aset dijual
   - ✅ 78 uji leverage + 1170 uji lama lulus; golden runner identik; strategi acak leverage maksimal rugi ±12% margin per posisi-bulan
-- ⬜ Langkah 4: Peringatan & cerita (peringatan risiko sebelum transaksi leverage pertama, popup margin call di awal giliran, peringatan di Beranda, event penipuan, glosarium, analisis akhir)
+- ✅ **Langkah 4: Peringatan & cerita**
+  - ✅ Peringatan risiko wajib sebelum transaksi leverage pertama di setiap permainan ("Saya Paham Risikonya"); tanpa itu posisi tidak bisa dibuka (dicek juga di logika, bukan hanya tampilan)
+  - ✅ Popup **Margin Call!** / **Posisi Dilikuidasi** setelah laporan bulanan, dengan tombol Lihat Posisi; spanduk margin call di atas Beranda
+  - ✅ Popup peringatan bergaya peringatan (lencana "!" merah & bunyi peringatan), bukan gaya perayaan
+  - ✅ 7 event baru (111): broker valas bonus 100% + dana tidak bisa ditarik, opsi biner, grup sinyal VIP, Bima & leverage 100x, emas untuk Lebaran (Ibu), Tidak Bisa Tidur saat margin call (syarat baru `has_margin_call`)
+  - ✅ 8 istilah glosarium leverage (100); analisis layar akhir (likuidasi, rugi melebihi margin, biaya inap, untung tanpa likuidasi); statistik leverage di Profil; posisi leverage dihitung aset berisiko untuk event
+  - ✅ 33 uji langkah 4 + 1248 uji lama lulus; golden runner identik (event baru disaring)
 - ⬜ Langkah 5: Penyeimbangan & uji celah
 
 *Daftar fitur*
 - ✅ Komoditas (3-4) dengan siklus musiman
 - ✅ Forex (4 kurs terhadap rupiah), kurs dipengaruhi suku bunga & event makro, selisih kurs 0,5%
-- 🔄 Leverage & margin (dicek harian) ✅; peringatan jelas sebelum likuidasi: margin call di laporan & kartu posisi ✅, popup awal giliran & Beranda ⬜ (langkah 4)
+- ✅ Leverage & margin (dicek harian), peringatan jelas sebelum likuidasi (laporan, kartu posisi, popup setelah laporan, spanduk Beranda)
 - ✅ Syarat pembukaan sesuai draft (emas tahap 3, komoditas tahap 4, valas tahap 5, leverage tahap 6)
 
 *Kriteria selesai*
 - 🔄 Margin call dan likuidasi tidak bisa dieksploitasi (uji celah dasar ✅: satu posisi per aset, kekurangan ditagih ke kas, strategi acak rugi; uji simulator langkah 5 ⬜)
-- ⬜ Peringatan risiko sebelum transaksi leverage pertama
+- ✅ Peringatan risiko sebelum transaksi leverage pertama
 
 **v2b: Siklus hidup penuh**
 - ⬜ Bab kehidupan, penuaan, pensiun usia 60 yang berlanjut

@@ -1474,3 +1474,34 @@ TX_LEV_OPEN,Buka leverage,Open leverage
 TX_LEV_CLOSE,Tutup leverage,Close leverage
 TX_LEV_LIQUIDATED,Likuidasi,Liquidated
 TX_LEV_FORCED,Tutup paksa,Forced close
+LEV_ERR_WARNING,Setujui dulu peringatan risiko leverage.,Accept the leverage risk warning first.
+LEV_RISK_TITLE,Peringatan Risiko Leverage,Leverage Risk Warning
+LEV_RISK_BODY,"Sebelum memakai leverage, pahami dulu:
+
+• Leverage memperbesar untung DAN rugi. Dengan 10x, harga bergerak 6% melawanmu sudah cukup untuk likuidasi.
+• Kerugian bisa melebihi margin. Jika harga melompat karena berita, kekurangannya ditagih dari kas.
+• Biaya inap dihitung setiap hari: leverage 10x memakan sekitar 7% margin per bulan.
+• Di dunia nyata, sebagian besar trader ritel yang memakai leverage merugi.
+• Jangan memakai dana darurat atau uang pinjaman sebagai margin.","Before using leverage, understand this:
+
+• Leverage magnifies gains AND losses. At 10x, a 6% move against you is enough for liquidation.
+• Losses can exceed the margin. If the price gaps on news, the shortfall is charged to your cash.
+• Financing is charged daily: 10x leverage costs about 7% of margin per month.
+• In real life, most retail traders who use leverage lose money.
+• Never use your emergency fund or borrowed money as margin."
+LEV_RISK_ACCEPT,Saya Paham Risikonya,I Understand the Risks
+LEV_ALERT_TITLE_CALL,Margin Call!,Margin Call!
+LEV_ALERT_TITLE_LIQ,Posisi Dilikuidasi,Position Liquidated
+LEV_ALERT_LIQUIDATED,• %s · %s %dx dilikuidasi tanggal %d: %s,• %s · %s %dx liquidated on day %d: %s
+LEV_ALERT_SHORTFALL,  Rugi melebihi margin: %s ditagih dari kas.,  Loss exceeded the margin: %s charged to cash.
+LEV_ALERT_CALL,• %s: ekuitas tinggal %s dari margin. Likuidasi jika harga menyentuh %s. Tambah margin atau tutup posisi.,• %s: equity is down to %s of margin. Liquidation if the price reaches %s. Add margin or close the position.
+LEV_ALERT_SEE,Lihat Posisi,See Position
+HOME_MARGIN_CALL,Margin call: %d posisi leverage mendekati likuidasi.,Margin call: %d leveraged position(s) close to liquidation.
+HOME_MARGIN_CALL_SEE,Lihat,View
+INSIGHT_LEV_LIQUIDATED,"%d posisi leveragemu dilikuidasi (hasil total leverage %s). Dengan leverage tinggi, pergerakan kecil sudah cukup menghabiskan margin.","%d of your leveraged positions were liquidated (total leverage result %s). With high leverage, a small move is enough to wipe out the margin."
+INSIGHT_LEV_SHORTFALL,Harga yang melompat membuat kerugian melebihi margin: %s ditagih dari kas.,Price gaps made losses exceed the margin: %s was charged to cash.
+INSIGHT_LEV_PROFIT,"%d posisi leverage tanpa sekali pun dilikuidasi, untung total %s. Ukuran posisi yang terjaga terbayar.","%d leveraged positions without a single liquidation, total profit %s. Keeping positions small paid off."
+INSIGHT_LEV_FINANCING,Biaya inap leverage menghabiskan %s. Menahan posisi leverage lama itu mahal.,Leverage financing cost %s. Holding leveraged positions for long is expensive.
+PROFILE_STAT_LEVERAGE,Posisi leverage,Leveraged positions
+PROFILE_STAT_LEVERAGE_VALUE,%d dibuka · %d likuidasi,%d opened · %d liquidated
+PROFILE_STAT_LEVERAGE_PNL,Untung/rugi leverage,Leverage profit/loss

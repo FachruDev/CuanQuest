@@ -81,6 +81,14 @@
 					{ "chance": 0.25, "effects": { "health": -12, "happiness": -4, "rel": { "ratna": -2 } }, "result": "Kamu terkena demam berdarah dan harus beristirahat lama." }
 				] }
 			]
+		},
+		{
+			"id": "leverage_sleepless", "bad": true, "category": "health", "weight": 3, "cooldown": 6, "requires": "has_margin_call",
+			"title": "Tidak Bisa Tidur", "text": "Posisi leveragemu kena margin call. Kamu terus mengecek harga sampai larut malam, takut terlikuidasi.",
+			"choices": [
+				{ "label": "Begadang memantau harga", "effects": { "health": -3, "happiness": -3 }, "result": "Harga tidak berubah karena kamu menatapnya. Besok kamu lelah dan tetap harus memutuskan." },
+				{ "label": "Tidur, besok putuskan dengan kepala dingin", "effects": { "happiness": -1 }, "result": "Pagi harinya kamu menimbang: tambah margin, tutup posisi, atau terima kemungkinan rugi. Leverage yang membuatmu tidak bisa tidur biasanya terlalu besar." }
+			]
 		}
 	]
 }

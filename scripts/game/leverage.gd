@@ -25,6 +25,8 @@ var seq := 0  # nomor posisi terakhir
 ## Rekam jejak: posisi dibuka/ditutup/dilikuidasi, bulan margin call, untung/rugi terealisasi, fee,
 ## biaya inap, dan kekurangan yang ditagih ke kas.
 var record: Dictionary = {}
+## Peringatan risiko sudah disetujui di permainan ini (v2a langkah 4). Sebelum itu posisi tidak bisa dibuka.
+var risk_ack := false
 var _daily: Array[float] = []  # sumbangan posisi ke kekayaan per tanggal (1-30) bulan terakhir, untuk grafik laporan
 
 
@@ -36,11 +38,12 @@ func reset() -> void:
 	positions.clear()
 	seq = 0
 	record = new_record()
+	risk_ack = false
 	_daily.clear()
 
 
 func save_to(d: Dictionary) -> void:
-	d.merge({"positions": positions, "position_seq": seq, "leverage_record": record})
+	d.merge({"positions": positions, "position_seq": seq, "leverage_record": record, "leverage_ack": risk_ack})
 
 
 ## Save sebelum v2a langkah 3: belum ada posisi.
@@ -55,6 +58,7 @@ func load_from(d: Dictionary) -> void:
 		p["call"] = bool(p.get("call", false))
 		positions.append(p)
 	seq = int(d.get("position_seq", 0))
+	risk_ack = bool(d.get("leverage_ack", false))
 	var saved_record: Dictionary = d.get("leverage_record", {})
 	for key: String in record:
 		if saved_record.has(key):
@@ -165,6 +169,21 @@ func total_equity() -> float:
 	return total
 
 
+## Ada posisi yang sedang margin call (peringatan Beranda & event "Tidak Bisa Tidur").
+func calls() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for p: Dictionary in positions:
+		if p.get("call", false):
+			out.append(p)
+	return out
+
+
+## Pemain menekan "Saya paham risikonya" di peringatan sebelum transaksi leverage pertama.
+func acknowledge_risk() -> void:
+	risk_ack = true
+	gs.changed.emit()
+
+
 func total_margin() -> float:
 	var total := 0.0
 	for p: Dictionary in positions:
@@ -187,6 +206,8 @@ func quote(asset_id: String, side: int, lev: int, margin: int) -> Dictionary:
 	var rules := rules_for(asset_id)
 	if not is_open():
 		q["error"] = "LEV_ERR_LOCKED"
+	elif not risk_ack:
+		q["error"] = "LEV_ERR_WARNING"
 	elif rules.is_empty():
 		q["error"] = "LEV_ERR_ASSET"
 	elif side == SHORT and not rules["short"]:
@@ -325,7 +346,7 @@ func check_month() -> Dictionary:
 			var closed := close(int(p["uid"]), "lev_liquidated", asset.history[base + hit])
 			proceeds = closed["proceeds"]
 			result["pnl"] += proceeds - equity_before
-			result["liquidated"].append({"asset_key": asset.name_key, "side": side, "leverage": lev,
+			result["liquidated"].append({"asset_id": asset.id, "asset_key": asset.name_key, "side": side, "leverage": lev,
 				"day": floori(hit * MarketAsset.DAYS_IN_MONTH / float(steps)) + 1, "price": closed["price"],
 				"pnl": closed["pnl"], "proceeds": proceeds, "shortfall": closed["shortfall"]})
 		else:
@@ -334,7 +355,7 @@ func check_month() -> Dictionary:
 			p["call"] = after < float(data["margin_call"]) * p["margin"]
 			if p["call"]:
 				record["margin_calls"] += 1
-				result["margin_calls"].append({"asset_key": asset.name_key, "equity": after, "margin": p["margin"],
+				result["margin_calls"].append({"asset_id": asset.id, "asset_key": asset.name_key, "equity": after, "margin": p["margin"],
 					"liquidation_price": liquidation_price(p)})
 		for day in range(1, MarketAsset.DAYS_IN_MONTH + 1):
 			var index := ceili(day * steps / float(MarketAsset.DAYS_IN_MONTH)) - 1

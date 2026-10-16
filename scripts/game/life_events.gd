@@ -188,6 +188,7 @@ func context_flags() -> Dictionary:
 		var asset_class := gs.market.get_asset(asset_id).asset_class
 		risky = risky or asset_class in ["stock", "crypto", "commodity"]
 		crypto = crypto or asset_class == "crypto"
+	risky = risky or not gs.leverage.positions.is_empty()  # posisi leverage (v2a)
 	return {
 		"cash_rich": gs.cash >= expenses * float(cfg["cash_rich_months"]),
 		"cash_poor": gs.cash < expenses * float(cfg["cash_poor_months"]),

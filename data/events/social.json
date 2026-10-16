@@ -209,6 +209,15 @@
 				{ "label": "Bantu separuh", "cost": 1500000, "effects": { "happiness": 1, "rel": { "ibu": 3 } }, "result": "Sisanya Ibu cari dari tabungan keluarga. Bantuanmu tetap berarti." },
 				{ "label": "Belum bisa membantu", "effects": { "happiness": -3, "rel": { "ibu": -4 } }, "result": "Membantu keluarga itu penting, tapi jangan sampai mengorbankan dana darurat sendiri." }
 			]
+		},
+		{
+			"id": "ibu_gold_lebaran", "category": "social", "weight": 1, "month_of_year": 2, "cooldown": 11, "max_times": 3, "min_month": 12, "character": "ibu",
+			"title": "Emas untuk Lebaran", "text": "Ibu ingin membeli perhiasan emas sebelum Lebaran. \"Harga emas lagi naik, mumpung belum makin mahal,\" katanya.",
+			"choices": [
+				{ "label": "Belikan perhiasan {rp:3000000}", "cost": 3000000, "effects": { "happiness": 3, "rel": { "ibu": 5 } }, "result": "Ibu senang sekali. Perlu diingat: harga perhiasan termasuk ongkos pembuatan, jadi nilai jual kembalinya lebih rendah dari emas batangan." },
+				{ "label": "Sarankan emas batangan atau tabungan emas", "effects": { "xp": 10, "rel": { "ibu": 1 } }, "result": "Ibu setuju mulai menabung emas sedikit demi sedikit. Selisih harga beli dan jualnya lebih kecil dibanding perhiasan." },
+				{ "label": "Belum bisa tahun ini", "effects": { "happiness": -1, "rel": { "ibu": -2 } }, "result": "Ibu mengerti, walau sedikit kecewa." }
+			]
 		}
 	]
 }

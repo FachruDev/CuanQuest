@@ -80,7 +80,7 @@ func _refresh() -> void:
 	var s := GameState.stats
 	var best: Dictionary = s["best_trade"]
 	var base := [GameState.run_id, GameState.month, Fmt.compact]
-	if UiText.changed_key(_render, "stats", base + [s, GameState.quiz.correct_ids.size()]):
+	if UiText.changed_key(_render, "stats", base + [s, GameState.quiz.correct_ids.size(), GameState.leverage.record]):
 		_refresh_stats(s, best)
 	if UiText.changed_key(_render, "career", base + [GameState.career.history.size()]):
 		UiText.fill_career_log(_career_log_box, 8)
@@ -119,6 +119,11 @@ func _refresh_stats(s: Dictionary, best: Dictionary) -> void:
 	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_PROJECTS", tr("PROFILE_STAT_PROJECTS_VALUE") % [
 		int(s.get("projects_done", 0)), int(s.get("projects_failed", 0))]))
 	%StatsGrid.add_child(_stat_tile("PROFILE_STAT_PROJECT_INCOME", Fmt.rupiah(float(s.get("project_income", 0)))))
+	var lev := GameState.leverage.record
+	if int(lev["opened"]) > 0:  # leverage (v2a): jumlah posisi & likuidasi, untung/rugi terealisasi
+		%StatsGrid.add_child(_stat_tile("PROFILE_STAT_LEVERAGE", tr("PROFILE_STAT_LEVERAGE_VALUE") % [
+			int(lev["opened"]), int(lev["liquidated"])]))
+		%StatsGrid.add_child(_stat_tile("PROFILE_STAT_LEVERAGE_PNL", Fmt.signed_rupiah(lev["pnl"])))
 
 
 # --- Daya beli (v1.5a langkah 1) ------------------------------------------------

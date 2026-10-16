@@ -64,6 +64,17 @@
 				{ "label": "Tarik semua uang ke rumah", "effects": { "happiness": -2, "delayed": { "months": 1, "chance": 0.3, "effects": { "cash": -1500000 }, "text": "Sebagian uang tunai yang kamu simpan di rumah hilang. Uang di bank jauh lebih aman.", "fail_text": "Berita bank bangkrut terbukti hoaks. Kamu menyetor kembali uangmu ke bank." } }, "result": "Kamu menarik tabunganmu dan menyimpannya di lemari." },
 				{ "label": "Teruskan pesannya ke grup lain", "effects": { "happiness": -1 }, "result": "Kepanikan ikut menyebar. Sebelum meneruskan pesan, cek dulu kebenarannya." }
 			]
+		},
+		{
+			"id": "bima_leverage", "category": "market", "weight": 1, "min_month": 18, "max_times": 1, "context": { "cash_rich": 1.5 }, "character": "bima",
+			"title": "Bima dan Leverage 100x", "text": "Bima pamer: modal {rp:2000000} jadi {rp:8000000} dalam seminggu dengan leverage 100x di aplikasi trading luar negeri. \"Cuma butuh harga naik sedikit!\"",
+			"choices": [
+				{ "label": "Coba {rp:2000000}", "cost": 2000000, "outcomes": [
+					{ "chance": 0.2, "effects": { "cash": 3000000, "rel": { "bima": 5 } }, "result": "Kebetulan harga naik dan kamu untung. Bima bersorak, padahal satu gerakan kecil ke arah sebaliknya bisa menghapus semuanya." },
+					{ "chance": 0.8, "effects": { "happiness": -4, "rel": { "bima": 2 } }, "result": "Harga bergerak 1% melawanmu dan akunmu dilikuidasi dalam hitungan jam. Dengan 100x, 1% saja sudah cukup." }
+				] },
+				{ "label": "Tanya: kalau harga turun 1%?", "effects": { "xp": 10, "rel": { "bima": -2 } }, "result": "Bima terdiam: dengan leverage 100x, turun 1% berarti modal habis. Seminggu kemudian ia mengaku akunnya terlikuidasi." }
+			]
 		}
 	]
 }

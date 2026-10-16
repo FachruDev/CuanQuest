@@ -375,6 +375,15 @@ func _refresh_detail() -> void:
 
 # --- Leverage (v2a langkah 3) --------------------------------------------------------------------
 
+## Dibuka dari luar tab (peringatan margin call di Beranda/laporan): detail aset, gulir ke kartu leverage.
+func show_asset(asset_id: String) -> void:
+	_show_detail(asset_id)
+	await get_tree().process_frame
+	var card := _lev_box.get_parent() as Control
+	if card.visible:
+		%DetailView.scroll_vertical = maxi(int(card.position.y) - 24, 0)
+
+
 ## Kartu leverage disisipkan setelah kotak beli/jual; isinya dibangun ulang di _refresh_leverage().
 func _build_leverage_card() -> void:
 	var page: VBoxContainer = %DetailView.get_node("VBox")

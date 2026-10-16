@@ -9,6 +9,8 @@ signal add_dream_requested
 signal insurance_requested
 ## Tombol di kartu Karier: buka tab Karier (lowongan / pekerjaan).
 signal career_requested
+## Peringatan margin call di atas Beranda ditekan (v2a): buka detail aset posisinya.
+signal leverage_alert_requested(asset_id: String)
 ## Kartu Utang & Kredit (v1.5c): ajukan pinjaman baru / buka rincian pinjaman.
 signal loan_requested(product_id: String)
 signal loan_detail_requested(loan_id: int)
@@ -31,6 +33,8 @@ var _vehicle_box: VBoxContainer        # isi kartu Kendaraan (v1.5c langkah 2)
 var _property_box: VBoxContainer       # isi kartu Properti (v1.5c langkah 3)
 var _workload_label: Label             # catatan beban kerja di kartu Kondisi
 var _scene: HomeScene                  # ilustrasi hunian & kendaraan (v1.5c langkah 4)
+var _lev_alert: PanelContainer         # spanduk margin call (v2a langkah 4)
+var _lev_alert_label: Label
 var _scene_caption: Label
 
 
@@ -41,6 +45,7 @@ func _ready() -> void:
 	_build_goal_cards()
 	_build_career_card()
 	_build_scene_card()
+	_build_leverage_alert()
 	_workload_label = _wrap_label("", &"SmallMutedLabel")  # kenapa kondisi berubah tiap bulan
 	$VBox/WellbeingCard/VBox.add_child(_workload_label)
 	GameState.changed.connect(_refresh)
@@ -51,6 +56,7 @@ func _ready() -> void:
 func _refresh() -> void:
 	if not is_visible_in_tree():
 		return
+	_refresh_leverage_alert()
 	%HealthBar.value = GameState.health
 	%HappinessBar.value = GameState.happiness
 	%HealthValue.text = "%d / 100" % GameState.health
@@ -207,6 +213,42 @@ func _build_career_card() -> void:
 	page.move_child(title, 0)
 	page.add_child(card)
 	page.move_child(card, 1)
+
+
+## Spanduk margin call paling atas (v2a langkah 4), tampil hanya saat ada posisi yang margin call.
+func _build_leverage_alert() -> void:
+	_lev_alert = PanelContainer.new()
+	_lev_alert.theme_type_variation = &"WarningBanner"
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	var icon := TextureRect.new()
+	icon.texture = load("res://assets/icons/warning_small.svg")
+	icon.custom_minimum_size = Vector2(22, 20)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_lev_alert_label = _wrap_label("", &"WarningLabel")
+	_lev_alert_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var see := UiText.chunky_button(tr("HOME_MARGIN_CALL_SEE"), &"NeutralButton", &"NeutralButtonLabel", 52.0, 22)
+	see.custom_minimum_size.x = 150
+	see.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	see.pressed.connect(func() -> void:
+		var calls := GameState.leverage.calls()
+		if not calls.is_empty():
+			leverage_alert_requested.emit(calls[0]["asset"]))
+	row.add_child(icon)
+	row.add_child(_lev_alert_label)
+	row.add_child(see)
+	_lev_alert.add_child(row)
+	$VBox.add_child(_lev_alert)
+	$VBox.move_child(_lev_alert, 0)
+
+
+func _refresh_leverage_alert() -> void:
+	var calls := GameState.leverage.calls()
+	_lev_alert.visible = not calls.is_empty()
+	if not calls.is_empty():
+		_lev_alert_label.text = tr("HOME_MARGIN_CALL") % calls.size()
 
 
 ## Judul + kartu Hunian & Kendaraan tepat di bawah kartu Karier: ilustrasi + keterangan singkat.
