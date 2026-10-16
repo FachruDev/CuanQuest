@@ -40,6 +40,10 @@ signal target_completed(target: Dictionary)
 signal achievements_unlocked(ids: Array[String])
 ## Januari: laporan tahun lalu sudah ditutup (v1.5d langkah 4), dikirim setelah laporan bulanan.
 signal year_closed(report: Dictionary)
+## Bab kehidupan berganti (v2b): {from, to, start, end} keadaan di awal & akhir bab yang selesai.
+signal chapter_changed(summary: Dictionary)
+## Pensiun dimulai (v2b): {month, jht, jp_monthly, jp_lump, years}.
+signal retirement_started(info: Dictionary)
 
 ## Versi slot save. Naik ke 2 di v1.5 (pasar harian); save lama ditolak, tanpa migrasi.
 const SAVE_VERSION := 3
@@ -101,13 +105,14 @@ var vehicles := Vehicles.new(self)
 var properties := Properties.new(self)
 var targets := Targets.new(self)
 var activities := Activities.new(self)
+var life := Life.new(self)
 ## Urutan dipakai untuk reset, simpan/muat, dan efek event. Karier sebelum rencana gaji
 ## (rencana awal memakai gaji); pendidikan sebelum aktivitas (energi memakai beban kuliah);
 ## impian sebelum kendaraan (save lama: impian kendaraan yang terwujud menjadi kendaraan). Riset (rumor
 ## pasar) dan proyek sampingan memakai RNG sendiri, jadi urutannya tidak memengaruhi undian modul lain.
 ## Leverage (v2a) tidak memakai angka acak sama sekali.
 var modules: Array[GameModule] = [progress, career, characters, education, insurance, debt, events, portfolio,
-	research, leverage, contracts, budget, dreams, vehicles, properties, targets, activities, annual]
+	research, leverage, contracts, budget, dreams, vehicles, properties, targets, activities, annual, life]
 
 var fast_forwarding := false
 var _advancing := false  # di tengah advance_month(): pencapaian diperiksa sekali di akhirnya
@@ -182,6 +187,7 @@ func new_game(profile: Dictionary = {}, seed_value: int = -1) -> void:
 	net_worth_history = [net_worth()]
 	stats["peak_net_worth"] = net_worth()
 	annual.begin_year()
+	life.begin()  # bab pertama (v2b)
 	last_report = {}
 	is_active = true
 	progress.check_unlocks(false)
@@ -292,6 +298,7 @@ func advance_month() -> void:
 ## proyek sampingan diproses (hasil & energi bulan ini), rencana gaji dijalankan, target, lowongan & tawaran proyek
 ## baru muncul. Januari: penyesuaian inflasi + kenaikan prestasi.
 func _start_month() -> Dictionary:
+	var life_report := life.month_start()  # v2b: pensiun di usia 60 (sebelum gaji), bab baru
 	var property_report := properties.month_step()  # sebelum biaya hidup: rumah yang laku = kembali menyewa
 	var food := food_option()
 	var housing := housing_option()
@@ -303,6 +310,10 @@ func _start_month() -> Dictionary:
 	var job_news := career.resolve_applications()
 	var working := career.is_employed() and career.unpaid_months == 0  # cuti tanpa gaji = tidak bekerja bulan ini
 	var paid := career.monthly_pay()
+	life.accrue(paid)  # iuran JHT & JP (v2b)
+	var pension := life.pension_payment()  # Jaminan Pensiun bulanan setelah pensiun
+	if pension > 0:
+		stats["total_pension"] = int(stats.get("total_pension", 0)) + pension
 	var performance_before := career.performance
 	career.work_month(working)
 
@@ -310,7 +321,7 @@ func _start_month() -> Dictionary:
 	var housing_cost := option_cost(housing)
 	var vehicle_cost := vehicles.running_cost()
 	var salary_tax := income_tax(paid)
-	cash += paid - salary_tax - food_cost - housing_cost - vehicle_cost
+	cash += paid + pension - salary_tax - food_cost - housing_cost - vehicle_cost
 	budget.month_income = paid - salary_tax  # gaji bersih: dasar rencana gaji
 	stats["total_salary"] += paid
 	stats["total_taxes"] += salary_tax
@@ -337,7 +348,9 @@ func _start_month() -> Dictionary:
 	return {
 		"salary": paid,
 		"income_tax": salary_tax,
-		"unemployed": not career.is_employed(),
+		"unemployed": not career.is_employed() and not life.retired,
+		"retired": life.retired,
+		"pension": pension,
 		"unpaid_leave": career.is_employed() and paid == 0,
 		"applications_accepted": job_news["accepted"],
 		"applications_rejected": job_news["rejected"],
@@ -349,7 +362,7 @@ func _start_month() -> Dictionary:
 		"salary_raise": salary_raise,
 		"performance": roundi(career.performance) if working and career.is_career() else -1,
 		"performance_delta": roundi(career.performance) - roundi(performance_before),
-	}.merged(merit).merged(property_report).merged(debt_report).merged(premiums).merged(study_report) \
+	}.merged(merit).merged(life_report).merged(property_report).merged(debt_report).merged(premiums).merged(study_report) \
 		.merged(budget_report).merged(contract_report)
 
 
@@ -362,8 +375,8 @@ func _drift(stat: String, value: int, working: bool) -> int:
 	var change := 0
 	if working:
 		change = int(career.current_job_def().get("workload", {}).get(stat, 0))
-	elif not career.is_employed():
-		change = int(drift.get("unemployed", {}).get(stat, 0))
+	elif not career.is_employed():  # pensiun (v2b) tanpa stres mencari kerja
+		change = int(drift.get("retired" if life.retired else "unemployed", {}).get(stat, 0))
 	if value < int(drift.get("deep_below", -1)):
 		change += int(drift.get("deep_recover", 0))
 	elif value < int(drift.get("recover_below", 0)):
@@ -678,6 +691,7 @@ func load_from_dict(d: Dictionary) -> bool:
 		DataLoader.load_json(NEWS_PATH).get("news", []),
 		d["market"])
 	events.restore_pending_vars()
+	life.begin()  # save sebelum v2b: bab dimulai sekarang, JHT/JP diperkirakan
 	run_id += 1
 	is_active = true
 	changed.emit()
@@ -754,8 +768,8 @@ func _check_end() -> bool:
 		finish_game("lose", "health")
 	elif zero_happiness_months >= limit:
 		finish_game("lose", "happiness")
-	elif age() >= int(economy["end"]["retirement_age"]):
-		finish_game("retired", "retired")
+	elif age() >= int(life.data["max_age"]):  # v2b: pensiun tidak mengakhiri permainan
+		finish_game("retired", "max_age")
 	return is_over
 
 

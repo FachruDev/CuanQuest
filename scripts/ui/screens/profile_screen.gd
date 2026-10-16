@@ -18,6 +18,7 @@ var _slot_labels: Dictionary = {}  # slot -> Label
 var _confirm_reset := false
 var _reset_label: Label
 var _career_log_box: VBoxContainer  # perjalanan karier (v1.5b langkah 4)
+var _life_box: VBoxContainer  # perjalanan hidup per bab (v2b)
 var _people_box: VBoxContainer  # orang terdekat (v1.5d)
 var _research_title: Label  # rekam jejak riset rumor (v1.5d langkah 2)
 var _research_box: VBoxContainer
@@ -39,6 +40,7 @@ func _ready() -> void:
 	_build_history()
 	_build_sessions()
 	_build_career_log()
+	_build_life()
 	_build_people()
 	_build_research()
 	_build_achievements()
@@ -82,6 +84,9 @@ func _refresh() -> void:
 	var base := [GameState.run_id, GameState.month, Fmt.compact]
 	if UiText.changed_key(_render, "stats", base + [s, GameState.quiz.correct_ids.size(), GameState.leverage.record]):
 		_refresh_stats(s, best)
+	var life := GameState.life
+	if UiText.changed_key(_render, "life", base + [life.chapter_log.size(), life.retired]):
+		_refresh_life()
 	if UiText.changed_key(_render, "career", base + [GameState.career.history.size()]):
 		UiText.fill_career_log(_career_log_box, 8)
 	var characters := GameState.characters
@@ -306,6 +311,28 @@ func _build_slots() -> void:
 		row.add_child(load_button)
 		box.add_child(row)
 		%SlotList.add_child(card)
+	_build_chapter_slot()
+
+
+## Titik simpan bab (v2b): ditulis otomatis setiap bab baru; hanya bisa dimuat.
+func _build_chapter_slot() -> void:
+	var card := PanelContainer.new()
+	card.theme_type_variation = &"HomeCard"
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 12)
+	card.add_child(box)
+	var title := _label(tr("SAVE_CHAPTER_SLOT"), &"CapsLabel")
+	title.uppercase = true
+	var info := _label("", &"SmallMutedLabel")
+	info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(title)
+	box.add_child(info)
+	box.add_child(_wrap(tr("SAVE_CHAPTER_NOTE"), &"SmallMutedLabel"))
+	_slot_labels[SaveManager.CHAPTER_SLOT] = info
+	var load_button := _chunky(&"NeutralButton", tr("LOAD_BUTTON"), &"NeutralButtonLabel", 72.0, 7.0)
+	load_button.pressed.connect(_on_load.bind(SaveManager.CHAPTER_SLOT))
+	box.add_child(load_button)
+	%SlotList.add_child(card)
 
 
 ## Judul + kartu "Sesi Bermain" setelah Riwayat Permainan (tampil setelah sesi pertama).
@@ -456,6 +483,42 @@ func _build_career_log() -> void:
 	page.move_child(title, index)
 	page.add_child(card)
 	page.move_child(card, index + 1)
+
+
+## Judul + kartu "Perjalanan Hidup" (v2b) sebelum Perjalanan Karier: bab yang sudah dilalui.
+func _build_life() -> void:
+	var page: VBoxContainer = $VBox
+	var index := %StatsGrid.get_index() + 1
+	var title := _label(tr("PROFILE_LIFE_TITLE"), &"SubSectionLabel")
+	var card := PanelContainer.new()
+	card.theme_type_variation = &"HomeCard"
+	_life_box = VBoxContainer.new()
+	_life_box.add_theme_constant_override("separation", 6)
+	card.add_child(_life_box)
+	page.add_child(title)
+	page.move_child(title, index)
+	page.add_child(card)
+	page.move_child(card, index + 1)
+
+
+func _refresh_life() -> void:
+	_clear(_life_box)
+	var life := GameState.life
+	for i in life.chapter_log.size():
+		var entry: Dictionary = life.chapter_log[i]
+		var ages := life.chapter_ages(entry["id"])
+		var range_text := "%d-%d" % ages if ages[1] >= 0 else "%d+" % ages[0]
+		var current := i == life.chapter_log.size() - 1
+		var name_text := tr("CHAPTER_" + str(entry["id"]).to_upper())
+		if current:
+			name_text += " " + tr("PROFILE_LIFE_NOW")
+		_life_box.add_child(_value_row(tr("PROFILE_LIFE_ROW") % [name_text, range_text],
+			tr("PROFILE_LIFE_START_WORTH") % Fmt.rupiah(entry["worth"])))
+	if life.retired:
+		_life_box.add_child(_wrap(tr("PROFILE_LIFE_RETIRED") % [Fmt.rupiah(life.retirement_info.get("jht", 0)),
+			Fmt.rupiah(life.pension_payment())], &"SmallMutedLabel"))
+	else:
+		_life_box.add_child(_wrap(tr("PROFILE_LIFE_NOTE"), &"SmallMutedLabel"))
 
 
 ## Judul + kartu "Orang Terdekat" setelah Perjalanan Karier.

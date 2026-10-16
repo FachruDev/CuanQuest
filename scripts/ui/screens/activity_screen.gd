@@ -50,7 +50,7 @@ func _refresh() -> void:
 	var career := GameState.career
 	var busy := [GameState.events.has_pending(), GameState.is_over, GameState.activities.energy]
 	var base := [GameState.run_id, GameState.month, Fmt.compact] + busy
-	if UiText.changed_key(_render, "job", base + [career.job, roundi(career.performance), floori(career.skill),
+	if UiText.changed_key(_render, "job", base + [GameState.life.retired, career.job, roundi(career.performance), floori(career.skill),
 			career.salary, career.unpaid_months, career.applications.size(), GameState.contracts.active.size(),
 			GameState.education.level,
 			GameState.characters.rel_of("coworker")]):
@@ -215,7 +215,16 @@ func _section_title(text: String) -> Label:
 ## Pekerjaan berjenjang juga menampilkan kinerja & syarat promosi (v1.5b langkah 2).
 func _refresh_job() -> void:
 	_clear(_job_box)
-	if GameState.career.is_employed():
+	var life := GameState.life
+	if life.retired:  # v2b: masa pensiun
+		var title := _label(tr("CAREER_RETIRED"), &"AssetNameLabel")
+		title.add_theme_color_override("font_color", Palette.GAIN)
+		_job_box.add_child(title)
+		var info: Dictionary = life.retirement_info
+		_job_box.add_child(_wrap(tr("CAREER_RETIRED_INFO") % [Fmt.game_date(life.retired_month),
+			Fmt.rupiah(life.pension_payment()), Fmt.rupiah(info.get("jht", 0))], &"SmallMutedLabel"))
+		_job_box.add_child(_wrap(tr("CAREER_RETIRED_HINT"), &"SmallMutedLabel"))
+	elif GameState.career.is_employed():
 		var def := GameState.career.current_job_def()
 		var track := GameState.career.track_def(def["track"])
 		var hired := int(GameState.career.job.get("hired", GameState.career.job["since"]))
@@ -232,6 +241,9 @@ func _refresh_job() -> void:
 		if GameState.career.is_career():
 			_add_performance()
 			_add_promotion()
+			_job_box.add_child(_wrap(tr("CAREER_BPJS") % [Fmt.rupiah(roundi(life.jht)), Fmt.rupiah(life.projected_pension())]
+				if life.projected_pension() > 0 else tr("CAREER_BPJS_EARLY") % [Fmt.rupiah(roundi(life.jht)), floori(life.jp_months / 12.0)],
+				&"SmallMutedLabel"))
 		else:
 			_job_box.add_child(_wrap(tr("CAREER_GIG_NOTE"), &"SmallMutedLabel"))
 		var resign := UiText.chunky_button(tr("CAREER_RESIGN"), &"NeutralButton", &"NeutralButtonLabel", 56.0, 20)
@@ -311,6 +323,9 @@ func _add_promotion() -> void:
 ## Kartu per lowongan: nama, bidang & perusahaan, gaji, syarat ✓/✗, peluang, tombol Lamar.
 func _refresh_board() -> void:
 	_clear(_board_box)
+	if GameState.life.retired:  # v2b: tidak melamar kerja lagi
+		_board_box.add_child(_wrap(tr("CAREER_RETIRED_BOARD"), &"SmallMutedLabel"))
+		return
 	_board_box.add_child(_wrap(tr("CAREER_BOARD_HINT") % [int(GameState.career.data["applications_per_month"]),
 		int(GameState.career.data["apply_energy"])], &"SmallMutedLabel"))
 	for i in GameState.career.job_board.size():

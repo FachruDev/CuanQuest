@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 16 Oktober 2026 (v2a selesai: langkah 5 penyeimbangan & uji celah)
+- **Terakhir diperbarui:** 16 Oktober 2026 (v2b langkah 1: bab kehidupan & pensiun berlanjut; pedoman konten sensitif menunggu persetujuan)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -20,7 +20,8 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v1.5d** | Tokoh, riset, kontrak, konten | ✅ 5/5 langkah (aset final menyusul setelah v2) |
 | **Penutup v1.5** | Performa & baterai, playtest, legal | ✅ legal & performa (APK dicoba di HP); playtest berjalan terus lewat Profil > Sesi Bermain |
 | **v2a** | Instrumen lanjut: komoditas, valas, leverage & margin | ✅ 5/5 langkah (ikon kelas menyusul setelah v2) |
-| **v2b-v2d** | Hidup penuh, dana investor, mini-game | ⬜ |
+| **v2b** | Siklus hidup penuh: bab, penuaan, kematian, depresi, warisan | 🔄 1/5 langkah (langkah 3-4 menunggu persetujuan pedoman konten sensitif) |
+| **v2c-v2d** | Dana investor, mini-game | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
 
 ---
@@ -506,12 +507,34 @@ Panduan uji di HP: `docs/UJI_AKHIR_V15.md` (tabel performa, baterai, dan pertany
 - ✅ Margin call dan likuidasi tidak bisa dieksploitasi (satu posisi per aset, kekurangan ditagih ke kas, strategi acak & lindung nilai rugi, simulator 6 tipe pemain)
 - ✅ Peringatan risiko sebelum transaksi leverage pertama
 
-**v2b: Siklus hidup penuh**
-- ⬜ Bab kehidupan, penuaan, pensiun usia 60 yang berlanjut
+**v2b: Siklus hidup penuh** 🔄 (rancangan: `MVP_Cuan_Quest_Revisi3.md` 6.2.1-6.2.9; pedoman: `docs/PEDOMAN_KONTEN_SENSITIF.md`)
+
+*Langkah pengerjaan*
+- 🔄 **Pedoman konten sensitif** ditulis (usulan); menunggu persetujuan pemilik proyek sebelum langkah 3 & 4
+- ✅ **Langkah 1: Bab kehidupan & pensiun berlanjut**
+  - ✅ 4 bab (Awal Karier, Membangun 30, Puncak 45, Pensiun 60) di `data/life.json`; popup ringkasan bab (kekayaan nominal & riil, impian, pekerjaan) + pesan bab berikutnya
+  - ✅ Titik simpan bab otomatis (slot "Awal Bab", bisa dimuat dari Profil); kartu Perjalanan Hidup di Profil
+  - ✅ Pensiun di 60 tanpa mengakhiri permainan: pekerjaan berakhir, lowongan tertutup, tanpa stres mencari kerja; proyek sampingan tetap ada
+  - ✅ JHT (3,7% gaji pekerjaan formal, ±5,5%/tahun) cair sekaligus; Jaminan Pensiun bulanan 1% x tahun iuran x upah riil rata-rata (ikut inflasi), atau sekaligus jika iuran < 15 tahun; kerja lepas tanpa JHT/JP; perkiraan JHT & JP di kartu pekerjaan
+  - ✅ Tombol "+1 Tahun" di masa pensiun; JP masuk laporan bulanan & tahunan; batas usia 100 (sementara, sampai kematian di langkah 3)
+  - ✅ Save lama tetap bisa dimuat (bab dimulai saat dimuat, JHT/JP diperkirakan); 46 uji siklus hidup + 1282 uji lama lulus; golden runner identik
+- ⬜ Langkah 2: Penuaan (energi, kesehatan, biaya kesehatan & premi, peluang kerja, event usia)
+- ⬜ Langkah 3: Kesehatan Kritis & kematian (setelah pedoman disetujui)
+- ⬜ Langkah 4: Depresi (setelah pedoman disetujui)
+- ⬜ Langkah 5: Warisan, layar akhir & penyeimbangan
+
+*Daftar fitur*
+- 🔄 Bab kehidupan ✅, penuaan ⬜, pensiun usia 60 yang berlanjut ✅
 - ⬜ Kesehatan & kematian (tabel peluang meninggal), status Kritis dengan peringatan
 - ⬜ Depresi dengan pedoman konten sensitif
 - ⬜ Warisan & layar akhir lengkap
-- ⬜ Lompat per tahun di masa pensiun
+- ✅ Lompat per tahun di masa pensiun
+
+*Kriteria selesai*
+- ⬜ Pemain dapat menyelesaikan satu hidup penuh
+- ⬜ Pemain yang menjaga kesehatan hampir tidak pernah meninggal sebelum 60; yang mengabaikannya bisa meninggal muda, selalu dengan peringatan
+- ⬜ Konten depresi dan kematian mengikuti pedoman konten sensitif
+- ⬜ Skor warisan konsisten dan bisa dibandingkan antar permainan
 
 **v2c: Mengelola dana investor**
 - ⬜ Investor dengan target & toleransi risiko, fee + bagi hasil, reputasi

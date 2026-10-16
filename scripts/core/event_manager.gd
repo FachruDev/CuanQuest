@@ -138,8 +138,8 @@ func _requirement_ok(def: Dictionary, state: Node) -> bool:
 			return state.education.is_studying() and state.month >= int(state.education.study["since"])
 		"sponsor_ready":  # syarat beasiswa kantor
 			return not state.education.sponsor_program().is_empty()
-		"unemployed":
-			return not state.career.is_employed()
+		"unemployed":  # belum/tidak bekerja dan belum pensiun (v2b)
+			return not state.career.is_employed() and not state.life.retired
 		"has_investments":
 			return not state.portfolio.holdings.is_empty()
 		"low_happiness":

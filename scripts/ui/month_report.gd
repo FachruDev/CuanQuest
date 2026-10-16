@@ -19,7 +19,15 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 		return
 
 	_add_header(box, "REPORT_INCOME")
-	if r.get("unemployed", false):
+	var retirement: Dictionary = r.get("retirement", {})
+	if not retirement.is_empty():  # bulan pensiun (v2b): JHT & JP sekaligus
+		_add_row(box, "REPORT_JHT", Fmt.signed_rupiah(retirement["jht"]), Palette.GAIN)
+		if int(retirement["jp_lump"]) > 0:
+			_add_row(box, "REPORT_JP_LUMP", Fmt.signed_rupiah(retirement["jp_lump"]), Palette.GAIN)
+	if r.get("retired", false):
+		_add_row(box, "REPORT_PENSION", Fmt.signed_rupiah(r.get("pension", 0)),
+			Palette.GAIN if int(r.get("pension", 0)) > 0 else Palette.MUTED)
+	elif r.get("unemployed", false):
 		_add_row(box, "REPORT_SALARY_UNEMPLOYED", Fmt.rupiah(0), Palette.LOSS)
 	elif r.get("unpaid_leave", false):
 		_add_row(box, "REPORT_SALARY_UNPAID", Fmt.rupiah(0), Palette.LOSS)
@@ -267,7 +275,7 @@ static func fill_annual(box: VBoxContainer, a: Dictionary) -> void:
 
 	_add_header(box, "ANNUAL_INCOME")
 	var income: Dictionary = a["income"]
-	for row: Array in [["salary", "REPORT_SALARY"], ["rent_income", "REPORT_RENT"]]:
+	for row: Array in [["salary", "REPORT_SALARY"], ["pension", "REPORT_PENSION"], ["rent_income", "REPORT_RENT"]]:
 		if float(income.get(row[0], 0.0)) != 0.0:
 			_add_row(box, row[1], Fmt.rupiah(income[row[0]]), Palette.GAIN)
 	if float(a["projects"]) > 0.0:

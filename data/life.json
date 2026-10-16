@@ -1,0 +1,24 @@
+{
+	"_comment": [
+		"Siklus hidup (v2b). chapters: bab kehidupan, berlaku mulai usia from_age (teks CHAPTER_<ID>, CHAPTER_TIP_<ID>).",
+		"retirement: usia pensiun; JHT (Jaminan Hari Tua) = jht_rate x gaji pekerjaan berjenjang/formal (bagian perusahaan; iuran pekerja 2% disederhanakan dengan tidak dipotong), tumbuh jht_return per tahun, cair sekaligus saat pensiun.",
+		"JP (Jaminan Pensiun) bulanan = jp_rate_per_year x tahun iuran x rata-rata upah riil (upah dibatasi jp_wage_cap, Rupiah awal permainan, ikut inflasi). Iuran kurang dari jp_min_years tahun: dibayar sekaligus jp_lump_rate x jumlah upah. Kerja lepas tidak ikut JHT/JP.",
+		"max_age: batas usia permainan (penjaga sampai kematian ditambahkan di langkah 3)."
+	],
+	"chapters": [
+		{ "id": "early", "from_age": 0 },
+		{ "id": "build", "from_age": 30 },
+		{ "id": "peak", "from_age": 45 },
+		{ "id": "retire", "from_age": 60 }
+	],
+	"retirement": {
+		"age": 60,
+		"jht_rate": 0.037,
+		"jht_return": 0.055,
+		"jp_rate_per_year": 0.01,
+		"jp_min_years": 15,
+		"jp_wage_cap": 10000000,
+		"jp_lump_rate": 0.03
+	},
+	"max_age": 100
+}

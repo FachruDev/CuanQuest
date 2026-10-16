@@ -106,6 +106,8 @@ static func career_log_text(entry: Dictionary) -> String:
 			text = _t("CAREER_LOG_LAID_OFF") % [title, company]
 		"resigned":
 			text = _t("CAREER_LOG_RESIGNED") % [title, company]
+		"retired":  # v2b
+			text = _t("CAREER_LOG_RETIRED") % [title, company]
 		"graduated":
 			text = _t("CAREER_LOG_GRADUATED") % program
 		"dropped_out":

@@ -196,7 +196,7 @@ func context_flags() -> Dictionary:
 		"low_health": gs.health < int(cfg["low_health"]),
 		"holds_risky": risky,
 		"holds_crypto": crypto,
-		"unemployed": not gs.career.is_employed(),
+		"unemployed": not gs.career.is_employed() and not gs.life.retired,
 	}
 
 

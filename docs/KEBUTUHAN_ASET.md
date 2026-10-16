@@ -2,7 +2,7 @@
 
 Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang **dibutuhkan**, dan **di file mana** aset itu dipakai. Diperbarui setiap kali sebuah langkah membutuhkan aset baru.
 
-- **Terakhir diperbarui:** 16 Oktober 2026 (v2a selesai, langkah 5 tanpa aset baru; langkah 4: tanpa aset baru, popup peringatan memakai lencana "!" dari tema; langkah 3: tanpa aset baru, popup leverage memakai ulang `trend_up.svg`; langkah 2: ikon kelas Valas, sementara `arrow_badge.svg`; langkah 1: ikon kelas Komoditas, sementara `trend_line.svg`; penutup v1.5: tanpa aset baru, menu Lisensi memakai ulang `book.svg`; v1.5d langkah 5: tanpa aset baru; langkah 4: 21 lencana pencapaian sementara ikon bintang/gembok, bingkai avatar digambar kode; langkah 3: ikon bidang "Umum"; potret tokoh langkah 1 masih lingkaran berwarna + inisial)
+- **Terakhir diperbarui:** 16 Oktober 2026 (v2b langkah 1: popup bab memakai lencana bintang, ilustrasi bab menyusul; v2a selesai, langkah 5 tanpa aset baru; langkah 4: tanpa aset baru, popup peringatan memakai lencana "!" dari tema; langkah 3: tanpa aset baru, popup leverage memakai ulang `trend_up.svg`; langkah 2: ikon kelas Valas, sementara `arrow_badge.svg`; langkah 1: ikon kelas Komoditas, sementara `trend_line.svg`; penutup v1.5: tanpa aset baru, menu Lisensi memakai ulang `book.svg`; v1.5d langkah 5: tanpa aset baru; langkah 4: 21 lencana pencapaian sementara ikon bintang/gembok, bingkai avatar digambar kode; langkah 3: ikon bidang "Umum"; potret tokoh langkah 1 masih lingkaran berwarna + inisial)
 - **Rencana pembuatan:** pengembang membuat aset setelah **v2 selesai**. Sampai saat itu game memakai aset sementara (🔁), dan daftar di bawah terus diperbarui setiap langkah.
 - **Tanda:** ✅ sudah ada · ⬜ dibutuhkan · 🔁 sementara memakai aset lain atau gambar pengganti sederhana (game tetap jalan)
 - Tabel aset yang sudah ada dibuat otomatis dengan memindai `scenes/`, `scripts/`, `theme/`, dan `data/`.
@@ -19,7 +19,8 @@ Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang
 | **v1.5d** Tokoh & konten | 6 potret tokoh (sementara inisial berwarna) + 1 ikon bidang "Umum" (proyek sampingan) + 21 lencana pencapaian (sementara bintang/gembok); tema & avatar tambahan setelah v2 | ⬜ 🔁 |
 | **Penutup v1.5** Performa, playtest, legal | Tidak ada; menu Lisensi Pihak Ketiga memakai ulang `book.svg`, info performa & Sesi Bermain hanya teks | ✅ |
 | **v2a** Instrumen lanjut | 2 ikon kelas: Komoditas (sementara `trend_line.svg`) & Valas (sementara `arrow_badge.svg`) + 8 ikon per aset opsional | ⬜ 🔁 |
-| **v2b-v2d** | Ilustrasi bab kehidupan | ⬜ (rencana) |
+| **v2b** Siklus hidup penuh | 4 ilustrasi bab kehidupan (opsional; popup bab sementara memakai lencana bintang) | ⬜ 🔁 |
+| **v2c-v2d** | (belum ada) | ⬜ (rencana) |
 | **M7** Rilis Play Store | Ikon aplikasi adaptif, grafis & screenshot Play Store | ⬜ (rencana) |
 
 ## Aturan Umum
@@ -173,11 +174,11 @@ Ukuran & gaya sama dengan ikon kelas lain di `assets/icons/classes/` (26x26, gar
 
 **Opsional (setelah v2):** ikon per aset jika nanti daftar aset memakai ikon per aset, bukan per kelas: `assets/icons/commodities/emas.svg` (emas batangan), `minyak.svg` (drum/tetes minyak), `cpo.svg` (buah sawit), `kopi.svg` (biji kopi); bendera kecil `assets/icons/currencies/usd.svg`, `eur.svg`, `sgd.svg`, `jpy.svg`.
 
-## v2b-v2d ⬜ (rencana)
+## v2b: Siklus Hidup Penuh ⬜ 🔁
 
-| File | Isi | Akan dipakai di |
-|:--|:--|:--|
-| `assets/illustrations/chapters/<bab>.svg` | Ilustrasi bab kehidupan (awal karier, membangun, puncak, pensiun) | Popup pergantian bab (rencana) |
+| File | Isi | Akan dipakai di | Sementara |
+|:--|:--|:--|:--|
+| `assets/illustrations/chapters/early.svg`, `build.svg`, `peak.svg`, `retire.svg` (opsional, mis. 624x260) | Ilustrasi bab kehidupan: lulus & kerja pertama, keluarga muda & rumah, puncak karier, masa pensiun | Popup "Bab Baru" & kartu Perjalanan Hidup (`main.gd` `chapter_changed`, `profile_screen.gd`) | Popup memakai lencana bintang `badge_star.svg`, tanpa ilustrasi 🔁 |
 
 ## M7: Rilis Play Store ⬜ (rencana)
 

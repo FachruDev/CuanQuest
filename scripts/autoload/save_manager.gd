@@ -15,6 +15,8 @@ extends Node
 const DB_FILE := "cuan_quest.db"
 const AUTO_SLOT := "auto"
 const MANUAL_SLOTS: Array[String] = ["slot_1", "slot_2", "slot_3"]
+## Titik simpan bab (v2b): ditulis otomatis setiap bab kehidupan baru, bisa dimuat dari Profil.
+const CHAPTER_SLOT := "chapter"
 const HISTORY_SHOWN := 10  # riwayat permainan yang dimuat ke GameState.history
 ## File JSON versi lama (v1 sampai v1.5-0 langkah 4): diimpor sekali ke database lalu dihapus.
 const LEGACY_PLAYER := "player.json"
@@ -42,6 +44,8 @@ func _ready() -> void:
 	GameState.state_committed.connect(func() -> void: save_slot(AUTO_SLOT))
 	GameState.player_changed.connect(_save_player)
 	GameState.game_ended.connect(_on_game_ended)
+	# Ditunda ke akhir frame: bulan itu selesai diproses dulu (event bulan baru sudah diundi).
+	GameState.chapter_changed.connect(func(_summary: Dictionary) -> void: save_slot.call_deferred(CHAPTER_SLOT))
 
 
 ## Android bisa mematikan app kapan saja saat di background, jadi simpan saat di-pause/ditutup.

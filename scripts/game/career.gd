@@ -204,6 +204,8 @@ func hire_chance(def: Dictionary) -> float:
 ## "" jika lowongan ke-`index` bisa dilamar, atau key pesan alasannya.
 func apply_block_reason(index: int) -> String:
 	var opening: Dictionary = job_board[index]
+	if gs.life.retired:
+		return "ERR_RETIRED"
 	if opening.get("applied", false):
 		return "ERR_JOB_APPLIED"
 	if is_employed() and job["id"] == opening["job_id"] and job["company"] == opening["company"]:
@@ -288,7 +290,8 @@ func resolve_applications() -> Dictionary:
 ## Gaji bulan ini: 0 jika belum bekerja atau sedang cuti tanpa gaji; kerja lepas naik-turun.
 func monthly_pay() -> int:
 	if not is_employed():
-		gs.stats["months_unemployed"] += 1
+		if not gs.life.retired:  # pensiun (v2b) bukan menganggur
+			gs.stats["months_unemployed"] += 1
 		return 0
 	if unpaid_months > 0:
 		unpaid_months -= 1
@@ -334,6 +337,9 @@ func _leave_job() -> void:
 ## Lowongan bulan ini: 1 kerja lepas, 1 yang paling tinggi jenjangnya di antara yang syaratnya
 ## terpenuhi, sisanya acak sampai jenjang berikutnya (sebagai motivasi). Gaji ikut inflasi.
 func refresh_board() -> void:
+	if gs.life.retired:  # pensiun (v2b): tidak ada lowongan lagi
+		job_board.clear()
+		return
 	var cfg: Dictionary = data["board"]
 	var gigs: Array = data["jobs"].filter(func(def: Dictionary) -> bool: return def["track"] == "gig")
 	var careers: Array = data["jobs"].filter(func(def: Dictionary) -> bool: return def["track"] != "gig")
@@ -480,6 +486,12 @@ func layoff_chance() -> float:
 ## Pesangon PHK dalam bulan gaji: 1 bulan untuk tiap tahun masa kerja yang dimulai (maks. 9).
 func severance_months() -> int:
 	return clampi(floori(months_at_company() / 12.0) + 1, 1, int(data["layoff"]["severance_max"]))
+
+
+## Pensiun di usia pensiun (v2b, dipanggil Life.retire): pekerjaan berakhir tanpa pesangon PHK.
+func retire() -> void:
+	record("retired")
+	_leave_job()
 
 
 ## Berhenti sendiri: tanpa pesangon, gaji berhenti mulai bulan depan.

@@ -46,6 +46,7 @@ data/
   legal.json                  Kebijakan privasi, syarat penggunaan & lisensi pihak ketiga (tampil di game)
   activities.json             6 aktivitas bulanan & aturan energi
   leverage.json               Leverage (v2a): kelas & pilihan leverage, fee, biaya inap, batas margin call & likuidasi
+  life.json                   Siklus hidup (v2b): bab kehidupan, usia pensiun, JHT & Jaminan Pensiun, batas usia
   risk_profile.json           Kuesioner & 3 profil risiko
   unlocks.json                Syarat membuka tiap tahap instrumen
 localization/strings.csv      Semua teks UI (kolom id & en)
@@ -70,6 +71,7 @@ scripts/
     characters.gd             Tokoh berulang: kedekatan, nama atasan/rekan per perusahaan, saran Kak Wulan
     research.gd               Rumor pasar & riset: rumor benar/jebakan, penilaian riset, rekam jejak
     leverage.gd               Posisi leverage & margin: buka/tutup, tambah margin, cek harian, likuidasi
+    life.gd                   Siklus hidup (v2b): bab kehidupan, pensiun, JHT & Jaminan Pensiun
     contracts.gd              Proyek sampingan: papan tawaran, strategi, energi bulanan, hasil, reputasi
     annual.gd                 Laporan tahunan: catatan tahun berjalan, ditutup setiap Januari
     achievements.gd           Pencapaian & kosmetik (data pemain lintas permainan, bukan modul slot save)
@@ -228,7 +230,13 @@ scenes/
   - [x] (3) Leverage & margin
   - [x] (4) Peringatan & cerita
   - [x] (5) Penyeimbangan & uji celah
-- [ ] **v2b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
+- [ ] **v2b "Siklus Hidup Penuh"** (pedoman konten sensitif: `docs/PEDOMAN_KONTEN_SENSITIF.md`, usulan):
+  - [x] (1) Bab kehidupan & pensiun berlanjut
+  - [ ] (2) Penuaan
+  - [ ] (3) Kesehatan Kritis & kematian (setelah pedoman disetujui)
+  - [ ] (4) Depresi (setelah pedoman disetujui)
+  - [ ] (5) Warisan, layar akhir & penyeimbangan
+- [ ] **v2c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
 Rangkuman semua checklist MVP (v1, v1.5, v2, M7) ada di [docs/CHECKLIST_MVP.md](docs/CHECKLIST_MVP.md).
 - [ ] **M7: Export rilis & Play Store** (setelah v2 selesai; tanpa monetisasi)
@@ -336,6 +344,17 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Save:** kunci baru `contract_board`, `contracts`, `contract_reputation`, `contract_energy`, `contract_seq`, `contract_rng`; statistik `projects_*` & `project_income` (save lama: tanpa proyek, papan terisi bulan berikutnya).
 - **Hasil simulator** (40 × 30 tahun): tahun bebas finansial S1 hemat 12,6 → selalu 1 proyek 10,5 → selalu 2 proyek 9,6; SMA 18,4 → 14,7 → 13,4. Dua proyek sekaligus menguras kesehatan (±75) & kebahagiaan (±81) dan menurunkan kinerja kantor. Versi awal (bayaran 2× lebih besar dan keahlian lebih banyak) membuat S1 bebas finansial di tahun 7,6, jadi angka di data sudah diturunkan.
 - **Menambah proyek:** salin satu baris di `projects` (`id`, `track` = id bidang di `jobs.json` atau `general`, `tier`, `months` [min, max], `weight`), lalu tambahkan nama & deskripsinya di CSV.
+
+## Bab Kehidupan & Pensiun (v2b langkah 1)
+
+- **Modul `Life`** (`scripts/game/life.gd`, `GameState.life`, data `data/life.json`): bab kehidupan, pensiun, dan jaminan sosial. Dipanggil di awal `_start_month()` (**sebelum gaji**, agar bulan pensiun tanpa gaji) lewat `life.month_start()`, lalu `life.accrue(paid)` setelah gaji dihitung. Analogi web: seperti "milestone" akun yang memicu email ringkasan, plus job terjadwal yang mencairkan dana.
+- **Bab**: Awal Karier (mulai-29), Membangun (30-44), Puncak (45-59), Pensiun (60+). Saat usia melewati batas bab, ringkasan bab lama (keadaan awal & akhir: kekayaan nominal & riil, impian, pekerjaan) dikirim lewat signal `chapter_changed` **setelah** laporan bulanan (`queue_after_report`), lalu `main.gd` menampilkannya dengan pesan bab berikutnya (`CHAPTER_TIP_<ID>`). `chapter_log` menyimpan keadaan awal tiap bab (kartu **Perjalanan Hidup** di Profil).
+- **Titik simpan bab**: `SaveManager.CHAPTER_SLOT` ("chapter") ditulis otomatis saat `chapter_changed`, ditunda ke akhir frame (`call_deferred`) agar bulan itu selesai diproses (termasuk undian event). Profil menampilkan slot "Awal Bab" dengan tombol Muat saja.
+- **Pensiun** (`Life.retire()`): di usia 60 pekerjaan berakhir lewat `Career.retire()` (catatan karier "retired", bukan PHK), lowongan tidak dibuat lagi, melamar ditolak (`ERR_RETIRED`), bulan pensiun tidak dihitung menganggur, dan perubahan kesehatan/kebahagiaan memakai `monthly_drift.retired` (tanpa stres mencari kerja). Syarat event `unemployed` dan konteks `unemployed` tidak berlaku untuk pensiunan. **Permainan tidak berakhir saat pensiun**; batas sementara usia 100 sampai kematian ditambahkan di langkah 3.
+- **JHT & Jaminan Pensiun** ala BPJS Ketenagakerjaan: setiap bulan pekerjaan formal (berjenjang) yang membayar gaji menambah saldo JHT 3,7% gaji (saldo tumbuh 5,5%/tahun) serta masa iuran & upah JP (dibatasi batas upah, ikut inflasi). Saat pensiun JHT cair sekaligus; JP bulanan = 1% x tahun iuran x rata-rata upah riil (dibayar nominal ikut inflasi, `pension_payment()`), atau sekaligus 3% x jumlah upah jika iuran < 15 tahun. Kerja lepas tidak ikut. Kartu pekerjaan menampilkan saldo JHT & perkiraan JP.
+- **Laporan:** `retirement` (bulan pensiun: JHT & JP sekaligus), `retired`, `pension`; `pension` juga masuk pemasukan laporan tahunan. Tombol **+1 Tahun** di samping Lanjut hanya di masa pensiun (`GameState.fast_forward(12)`).
+- **Save lama:** bab dimulai dari usia saat dimuat; saldo JHT diperkirakan dari total gaji, masa iuran dari pengalaman kerja formal.
+- **Pedoman konten sensitif** (`docs/PEDOMAN_KONTEN_SENSITIF.md`) masih **usulan**: langkah 3 (kematian) & 4 (depresi) menunggu persetujuan.
 
 ## Penyeimbangan Instrumen Lanjut (v2a langkah 5)
 

@@ -30,6 +30,7 @@ var _toast_label: Label
 var _toast_tween: Tween
 var _annual_popup: ModalPopup  # laporan tahunan (v1.5d), dibuat lewat kode
 var _leverage_popup: ModalPopup  # buka posisi / tambah margin (v2a), dibuat lewat kode
+var _year_button: Button  # "+1 Tahun" di masa pensiun (v2b)
 
 
 func _ready() -> void:
@@ -49,6 +50,7 @@ func _ready() -> void:
 	%NextButton.pressed.connect(func() -> void:
 		Sfx.play("coin")
 		GameState.advance_month())
+	_build_year_button()
 	%GlossaryButton.pressed.connect(func() -> void: _enqueue(%GlossaryPopup.open))
 	%ProfileScreen.glossary_requested.connect(func() -> void: _enqueue(%GlossaryPopup.open))
 	GameState.changed.connect(_refresh_top_bar)
@@ -163,6 +165,11 @@ func _ready() -> void:
 		_enqueue(_annual_popup.open.bind(GameState.annual.latest())))
 	GameState.achievements_unlocked.connect(_on_achievements_unlocked)
 	_setup_leverage()
+	GameState.chapter_changed.connect(func(summary: Dictionary) -> void:
+		_enqueue(_celebrating(%InfoPopup.open.bind(tr("CHAPTER_POPUP_TITLE") % tr("CHAPTER_" + str(summary["to"]).to_upper()),
+			_chapter_text(summary)))))
+	GameState.retirement_started.connect(func(info: Dictionary) -> void:
+		_enqueue(_celebrating(%InfoPopup.open.bind(tr("RETIRE_POPUP_TITLE"), _retirement_text(info)))))
 	for popup: ModalPopup in [%SummaryPopup, %InfoPopup, %EventPopup, %QuizPopup, %GlossaryPopup, %TextPopup,
 			%PlanPopup, %DreamPickerPopup, %DreamPopup, %TradeConfirmPopup, %InsurancePopup, %OrderPopup, %OfferPopup,
 			%LoanPopup, %VehiclePopup, %PropertyPopup, _annual_popup, _leverage_popup]:
@@ -214,6 +221,8 @@ func _refresh_top_bar() -> void:
 	var busy := GameState.events.has_pending() or GameState.is_over
 	%NextButton.disabled = busy
 	%NextButton.get_child(0).modulate.a = 0.45 if busy else 1.0
+	_year_button.visible = GameState.life.retired
+	_year_button.disabled = busy
 
 
 ## Pencapaian baru: satu popup perayaan berisi semua pencapaian yang terbuka bersamaan + hadiahnya.
@@ -329,6 +338,54 @@ func _setup_leverage() -> void:
 			tr(GameState.market.get_asset(result["asset_id"]).name_key)]))
 	_leverage_popup.margin_added.connect(func(_asset_id: String, amount: int) -> void:
 		_show_toast(tr("TOAST_LEV_MARGIN") % Fmt.rupiah(amount)))
+
+
+# --- Siklus hidup (v2b) ---------------------------------------------------------------------------
+
+## Tombol kedua di samping Lanjut, hanya di masa pensiun: lompat 12 bulan (berhenti otomatis bila ada
+## event, peringatan, atau target tercapai; lihat GameState.fast_forward).
+func _build_year_button() -> void:
+	_year_button = UiText.chunky_button(tr("NEXT_YEAR_BUTTON"), &"NeutralButton", &"NeutralButtonLabel", 88.0, 24)
+	_year_button.custom_minimum_size.x = 170
+	_year_button.pressed.connect(func() -> void:
+		Sfx.play("coin")
+		GameState.fast_forward(12))
+	%NextButton.get_parent().add_child(_year_button)
+
+
+## Ringkasan bab yang selesai + pesan bab berikutnya.
+func _chapter_text(summary: Dictionary) -> String:
+	var start: Dictionary = summary["start"]
+	var end: Dictionary = summary["end"]
+	var ages := GameState.life.chapter_ages(summary["from"])
+	var lines: PackedStringArray = [
+		tr("CHAPTER_DONE") % [tr("CHAPTER_" + str(summary["from"]).to_upper()), ages[0], int(end["age"]) - 1],
+		tr("CHAPTER_WORTH") % [Fmt.rupiah(start["worth"]), Fmt.rupiah(end["worth"]), Fmt.rupiah(end["real_worth"])],
+		tr("CHAPTER_DREAMS") % (int(end["dreams"]) - int(start["dreams"])),
+	]
+	var job_id: String = end["job_id"]
+	lines.append(tr("CHAPTER_JOB") % (tr(GameState.career.job_def(job_id)["title"]) if job_id != "" else tr("CHAPTER_NO_JOB")))
+	var next_ages := GameState.life.chapter_ages(summary["to"])
+	var range_text := "%d-%d" % next_ages if next_ages[1] >= 0 else "%d+" % next_ages[0]
+	lines.append("")
+	lines.append(tr("CHAPTER_NEXT") % [tr("CHAPTER_" + str(summary["to"]).to_upper()), range_text,
+		tr("CHAPTER_TIP_" + str(summary["to"]).to_upper())])
+	lines.append("")
+	lines.append(tr("CHAPTER_SAVED"))
+	return "\n".join(lines)
+
+
+func _retirement_text(info: Dictionary) -> String:
+	var lines: PackedStringArray = [tr("RETIRE_POPUP_INTRO"), "", tr("RETIRE_JHT") % Fmt.rupiah(info["jht"])]
+	if int(info["jp_monthly"]) > 0:
+		lines.append(tr("RETIRE_JP_MONTHLY") % [Fmt.rupiah(info["jp_monthly"]), Fmt.number(info["years"], 1)])
+	elif int(info["jp_lump"]) > 0:
+		lines.append(tr("RETIRE_JP_LUMP") % Fmt.rupiah(info["jp_lump"]))
+	else:
+		lines.append(tr("RETIRE_JP_NONE"))
+	lines.append("")
+	lines.append(tr("RETIRE_POPUP_TIP"))
+	return "\n".join(lines)
 
 
 ## Sebelum transaksi leverage pertama di permainan ini, peringatan risiko wajib disetujui (v2a langkah 4).

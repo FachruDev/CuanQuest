@@ -1505,3 +1505,51 @@ INSIGHT_LEV_FINANCING,Biaya inap leverage menghabiskan %s. Menahan posisi levera
 PROFILE_STAT_LEVERAGE,Posisi leverage,Leveraged positions
 PROFILE_STAT_LEVERAGE_VALUE,%d dibuka · %d likuidasi,%d opened · %d liquidated
 PROFILE_STAT_LEVERAGE_PNL,Untung/rugi leverage,Leverage profit/loss
+CHAPTER_EARLY,Awal Karier,Early Career
+CHAPTER_BUILD,Membangun,Building
+CHAPTER_PEAK,Puncak,Peak
+CHAPTER_RETIRE,Pensiun,Retirement
+CHAPTER_TIP_EARLY,"Cari kerja, kumpulkan dana darurat, dan mulai investasi kecil secara rutin.","Find a job, build an emergency fund, and start investing small amounts regularly."
+CHAPTER_TIP_BUILD,"Tingkatkan keahlian dan jabatan, lengkapi asuransi, pertimbangkan rumah, dan biarkan investasi rutin bekerja.","Grow your skills and position, get insured, consider a home, and let regular investing do its work."
+CHAPTER_TIP_PEAK,"Penghasilan biasanya di puncak. Lunasi utang, perbesar porsi investasi, dan mulai hitung kebutuhan pensiun.","Income is usually at its peak. Pay off debt, invest more, and start calculating what retirement will need."
+CHAPTER_TIP_RETIRE,"Gaji berhenti. Hidup dari JHT, Jaminan Pensiun, investasi, dan sewa; tarik investasi secukupnya (sekitar 4% per tahun) dan jaga kesehatan.","Your salary stops. Live on your old-age savings, pension, investments, and rent; withdraw modestly (about 4% a year) and look after your health."
+CHAPTER_POPUP_TITLE,Bab Baru: %s,New Chapter: %s
+CHAPTER_DONE,Bab %s selesai (usia %d-%d).,The %s chapter is over (age %d-%d).
+CHAPTER_WORTH,Kekayaan bersih: %s → %s (nilai riil %s),Net worth: %s → %s (real value %s)
+CHAPTER_DREAMS,Impian tercapai di bab ini: %d,Dreams achieved in this chapter: %d
+CHAPTER_JOB,Pekerjaan di akhir bab: %s,Job at the end of the chapter: %s
+CHAPTER_NO_JOB,belum/tidak bekerja,not working
+CHAPTER_NEXT,%s (usia %s): %s,%s (age %s): %s
+CHAPTER_SAVED,Titik simpan bab tersimpan otomatis (Profil > Simpan & Muat).,A chapter checkpoint was saved automatically (Profile > Save & Load).
+RETIRE_POPUP_TITLE,Selamat Pensiun!,Happy Retirement!
+RETIRE_POPUP_INTRO,"Di usia 60 kamu resmi pensiun. Gaji berhenti, tetapi perjalanan hidupmu berlanjut.","At 60 you officially retire. Your salary stops, but your life's journey continues."
+RETIRE_JHT,Jaminan Hari Tua (JHT) cair: %s,Old-age savings (JHT) paid out: %s
+RETIRE_JP_MONTHLY,"Jaminan Pensiun: %s per bulan (iuran %s tahun, ikut naik dengan inflasi)","Pension: %s per month (%s years of contributions, indexed to inflation)"
+RETIRE_JP_LUMP,Jaminan Pensiun dibayar sekaligus %s karena masa iuran kurang dari 15 tahun.,Pension paid as a lump sum of %s because you contributed for less than 15 years.
+RETIRE_JP_NONE,Tidak ada Jaminan Pensiun: kamu tidak pernah bekerja di pekerjaan formal (kerja lepas tidak ikut BPJS Ketenagakerjaan).,No pension: you never worked a formal job (freelance work is not covered by BPJS Ketenagakerjaan).
+RETIRE_POPUP_TIP,"Mulai sekarang hidupmu ditopang pensiun, investasi, dan sewa. Tarik investasi secukupnya (sekitar 4% per tahun) agar tidak cepat habis. Tombol ""+1 Tahun"" kini tersedia.","From now on you live on your pension, investments, and rent. Withdraw modestly (about 4% a year) so it lasts. The ""+1 Year"" button is now available."
+NEXT_YEAR_BUTTON,+1 Tahun,+1 Year
+CAREER_RETIRED,Pensiun,Retired
+CAREER_RETIRED_INFO,Pensiun sejak %s · Jaminan Pensiun %s/bulan · JHT diterima %s,Retired since %s · pension %s/month · JHT received %s
+CAREER_RETIRED_HINT,"Kamu tidak melamar kerja lagi, tetapi proyek sampingan tetap bisa diambil.","You no longer apply for jobs, but side projects are still available."
+CAREER_RETIRED_BOARD,"Kamu sudah pensiun, jadi tidak ada lowongan lagi.","You are retired, so there are no more job openings."
+CAREER_BPJS,BPJS Ketenagakerjaan: saldo JHT %s · perkiraan Jaminan Pensiun %s/bulan di usia 60,BPJS Ketenagakerjaan: JHT balance %s · estimated pension %s/month at 60
+CAREER_BPJS_EARLY,BPJS Ketenagakerjaan: saldo JHT %s · masa iuran pensiun %d tahun (Jaminan Pensiun bulanan butuh minimal 15 tahun),BPJS Ketenagakerjaan: JHT balance %s · %d years of pension contributions (a monthly pension needs at least 15 years)
+CAREER_LOG_RETIRED,Pensiun sebagai %s di %s,Retired as %s at %s
+HOME_RETIRED_TITLE,Masa Pensiun,Retirement
+HOME_RETIRED_INCOME,Jaminan Pensiun %s/bulan · pendapatan pasif %s/bulan,Pension %s/month · passive income %s/month
+SAVE_CHAPTER_SLOT,Awal Bab,Chapter Start
+SAVE_CHAPTER_NOTE,Disimpan otomatis setiap bab kehidupan baru.,Saved automatically at the start of every life chapter.
+PROFILE_LIFE_TITLE,Perjalanan Hidup,Life Journey
+PROFILE_LIFE_NOW,(sekarang),(now)
+PROFILE_LIFE_ROW,%s · usia %s,%s · age %s
+PROFILE_LIFE_START_WORTH,awal %s,start %s
+PROFILE_LIFE_RETIRED,Pensiun: JHT %s · Jaminan Pensiun %s/bulan,Retired: JHT %s · pension %s/month
+PROFILE_LIFE_NOTE,"Hidup dibagi menjadi 4 bab: Awal Karier, Membangun (30), Puncak (45), dan Pensiun (60). Setiap bab baru ada ringkasan dan titik simpan.","Life has 4 chapters: Early Career, Building (30), Peak (45), and Retirement (60). Each new chapter brings a summary and a checkpoint."
+REPORT_JHT,JHT cair,JHT paid out
+REPORT_JP_LUMP,Jaminan Pensiun (sekaligus),Pension (lump sum)
+REPORT_PENSION,Jaminan Pensiun,Pension
+END_REASON_MAX_AGE,Kamu menjalani hidup yang sangat panjang. Inilah hasil perjalanan finansialmu.,You lived a very long life. Here is your financial journey.
+END_REASON_SHORT_MAX_AGE,usia 100,age 100
+ERR_RETIRED,Kamu sudah pensiun.,You are retired.
+HOME_RETIRED_NOTE,Masa pensiun: tidak ada beban kerja. Jaga kesehatan dengan olahraga dan istirahat.,Retirement: no workload. Keep healthy with exercise and rest.

@@ -277,7 +277,13 @@ func _build_scene_card() -> void:
 ## Bekerja: jabatan, kinerja & promosi berikutnya. Keduanya menampilkan kuliah yang berjalan.
 func _refresh_career() -> void:
 	_clear(_career_box)
-	if not GameState.career.is_employed():
+	if GameState.life.retired:  # v2b
+		var title := _wrap_label(tr("HOME_RETIRED_TITLE"), &"AssetNameLabel")
+		title.add_theme_color_override("font_color", Palette.GAIN)
+		_career_box.add_child(title)
+		_career_box.add_child(_wrap_label(tr("HOME_RETIRED_INCOME") % [Fmt.rupiah(GameState.life.pension_payment()),
+			Fmt.rupiah(GameState.passive_income())], &"RowLabel"))
+	elif not GameState.career.is_employed():
 		var title := _wrap_label(tr("HOME_JOBLESS_TITLE"), &"AssetNameLabel")
 		title.add_theme_color_override("font_color", Palette.LOSS)
 		_career_box.add_child(title)
@@ -323,7 +329,7 @@ func _refresh_career() -> void:
 		projects.append(tr("HOME_PROJECT_ITEM") % [tr("CONTRACT_" + str(c["id"]).to_upper()), int(c["months_left"])])
 	if not projects.is_empty():
 		_career_box.add_child(_wrap_label(tr("HOME_PROJECTS") % ", ".join(projects), &"SmallMutedLabel"))
-	var employed := GameState.career.is_employed()
+	var employed := GameState.career.is_employed() or GameState.life.retired  # pensiun: buka tab Karier, bukan lowongan
 	var button := UiText.chunky_button(tr("HOME_OPEN_CAREER") if employed else tr("HOME_SEE_OPENINGS"),
 		&"NeutralButton" if employed else &"PrimaryButton",
 		&"NeutralButtonLabel" if employed else &"PrimaryButtonLabel", 68.0)
@@ -347,7 +353,9 @@ func _promotion_summary() -> String:
 ## cuti, dan beban kuliah.
 func _refresh_workload() -> void:
 	var text := ""
-	if not GameState.career.is_employed():
+	if GameState.life.retired:  # v2b: tanpa beban kerja & tanpa stres mencari kerja
+		text = tr("HOME_RETIRED_NOTE")
+	elif not GameState.career.is_employed():
 		var unemployed: Dictionary = GameState.economy["monthly_drift"].get("unemployed", {})
 		text = tr("HOME_JOBLESS_NOTE") % int(unemployed.get("happiness", 0))
 	elif GameState.career.unpaid_months > 0:
