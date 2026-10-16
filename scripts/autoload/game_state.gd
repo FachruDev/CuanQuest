@@ -92,6 +92,7 @@ var debt := Debt.new(self)
 var events := LifeEvents.new(self)
 var portfolio := Portfolio.new(self)
 var research := Research.new(self)
+var leverage := Leverage.new(self)
 var contracts := Contracts.new(self)
 var annual := Annual.new(self)
 var budget := Budget.new(self)
@@ -104,8 +105,9 @@ var activities := Activities.new(self)
 ## (rencana awal memakai gaji); pendidikan sebelum aktivitas (energi memakai beban kuliah);
 ## impian sebelum kendaraan (save lama: impian kendaraan yang terwujud menjadi kendaraan). Riset (rumor
 ## pasar) dan proyek sampingan memakai RNG sendiri, jadi urutannya tidak memengaruhi undian modul lain.
+## Leverage (v2a) tidak memakai angka acak sama sekali.
 var modules: Array[GameModule] = [progress, career, characters, education, insurance, debt, events, portfolio,
-	research, contracts, budget, dreams, vehicles, properties, targets, activities, annual]
+	research, leverage, contracts, budget, dreams, vehicles, properties, targets, activities, annual]
 
 var fast_forwarding := false
 var _advancing := false  # di tengah advance_month(): pencapaian diperiksa sekali di akhirnya
@@ -209,6 +211,7 @@ func advance_month() -> void:
 	var trade := portfolio.turn_trade_result(start_prices)  # transaksi manual, sebelum pesanan otomatis
 	var executed := portfolio.execute_orders()
 	var rumor_result := research.after_market()
+	var leverage_result := leverage.check_month()  # biaya inap, margin call & likuidasi harian (v2a)
 	var sold_value := 0.0
 	for sale: Dictionary in executed:
 		sold_value += float(sale["units"]) * float(sale["price"])
@@ -257,6 +260,8 @@ func advance_month() -> void:
 	})
 	if not rumor_result.is_empty():
 		last_report["rumors"] = [rumor_result]
+	if not leverage_result.is_empty():
+		last_report["leverage"] = leverage_result
 	annual.add_month(last_report)
 	if month % 12 == 0:  # Januari: laporan tahun lalu (v1.5d), tampil setelah laporan bulanan
 		var year_report := annual.close_year(floori(month / 12.0))
@@ -526,7 +531,7 @@ func round_thousand(value: float) -> int:
 ## Kekayaan bersih = semua aset (termasuk kendaraan & properti) dikurangi utang (sisa pokok + tunggakan).
 func net_worth() -> float:
 	return cash + portfolio.investments_value() + dreams.funds() + vehicles.total_value() + properties.total_value() \
-		- debt.outstanding()
+		- debt.outstanding() + leverage.total_equity()
 
 
 ## Neraca (v1.5c langkah 4) untuk tab Portofolio & layar akhir: rincian yang sama dengan net_worth().
@@ -541,6 +546,8 @@ func balance_sheet() -> Dictionary:
 		{"key": "SHEET_VEHICLES", "value": vehicles.total_value()},
 		{"key": "SHEET_PROPERTIES", "value": properties.total_value()},
 	]
+	if not leverage.positions.is_empty():  # ekuitas posisi leverage (v2a)
+		assets.append({"key": "SHEET_LEVERAGE", "value": leverage.total_equity()})
 	var debts: Array[Dictionary] = []
 	for loan: Dictionary in debt.loans:
 		debts.append({"name": debt.product(loan["product"])["name"], "value": float(loan["balance"]) + int(loan["arrears"])})

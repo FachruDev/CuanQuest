@@ -17,12 +17,17 @@ enum Mode { BUY, SELL }
 signal trade_requested(asset_id: String, is_buy: bool, amount: int)
 ## Tombol "Atur stop loss / take profit" ditekan: main membuka popup pesanan otomatis.
 signal order_requested(asset_id: String)
+## Kartu leverage (v2a): buka posisi, tambah margin, atau tutup posisi (main membuka popup / konfirmasi).
+signal leverage_requested(asset_id: String)
+signal margin_requested(uid: int)
+signal close_position_requested(uid: int)
 
 var mode := Mode.BUY
 var _selected_id := ""
 var _rows: Dictionary = {}  # asset_id -> { "button": Button, "risk": Label, "price": Label, "change": Label }
 var _rumor_cards: Dictionary = {}  # "list" / "detail" -> kartu rumor yang sedang tampil (v1.5d)
 var _rumor_error := ""  # pesan riset gagal terakhir (mis. energi habis)
+var _lev_box: VBoxContainer  # isi kartu leverage di detail aset (v2a)
 
 
 func _ready() -> void:
@@ -42,6 +47,7 @@ func _ready() -> void:
 	order_button.pressed.connect(func() -> void: order_requested.emit(_selected_id))
 	%OrderHolder.add_child(order_button)
 	%BackButton.pressed.connect(_show_list)
+	_build_leverage_card()
 
 	_build_asset_list()
 	UiText.build_period_buttons(%PeriodRow, %Chart, 3, [1, 3, 12, 0])  # data harian
@@ -364,6 +370,67 @@ func _refresh_detail() -> void:
 	else:
 		%HoldingLabel.text = tr("LBL_NO_HOLDING")
 	_refresh_order(asset)
+	_refresh_leverage(asset)
+
+
+# --- Leverage (v2a langkah 3) --------------------------------------------------------------------
+
+## Kartu leverage disisipkan setelah kotak beli/jual; isinya dibangun ulang di _refresh_leverage().
+func _build_leverage_card() -> void:
+	var page: VBoxContainer = %DetailView.get_node("VBox")
+	var card := PanelContainer.new()
+	card.name = "LeverageCard"
+	card.theme_type_variation = &"HomeCard"
+	_lev_box = VBoxContainer.new()
+	_lev_box.add_theme_constant_override("separation", 8)
+	card.add_child(_lev_box)
+	page.add_child(card)
+	page.move_child(card, page.get_node("BottomGap").get_index())
+
+
+## Aset yang tidak bisa memakai leverage: kartu disembunyikan. Sebelum tahap 6: syaratnya (setelah
+## tahap 5 terbuka). Ada posisi: ringkasan + tambah margin / tutup. Belum ada: tombol buka posisi.
+func _refresh_leverage(asset: MarketAsset) -> void:
+	var lev := GameState.leverage
+	var card := _lev_box.get_parent() as Control
+	for child in _lev_box.get_children():
+		_lev_box.remove_child(child)
+		child.queue_free()
+	card.visible = not lev.rules_for(asset.id).is_empty() and (lev.is_open() or GameState.progress.is_stage_unlocked(5))
+	if not card.visible:
+		return
+	_lev_box.add_child(_make_label(tr("LEV_CARD_TITLE"), &"SubSectionLabel"))
+	if not lev.is_open():
+		var note := _make_label(tr("LEV_LOCKED_NOTE"), &"InfoLabel")
+		note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_lev_box.add_child(note)
+		var reqs := VBoxContainer.new()
+		_lev_box.add_child(reqs)
+		UiText.fill_requirements(reqs, GameState.progress.stage_def(int(lev.data["stage"])))
+		return
+	var p := lev.position_of(asset.id)
+	if p.is_empty():
+		var intro := _make_label(tr("LEV_INTRO") % ", ".join(lev.leverage_options(asset.id).map(func(x: int) -> String:
+			return "%dx" % x)), &"InfoLabel")
+		intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_lev_box.add_child(intro)
+		var open := UiText.chunky_button(tr("LEV_OPEN_BUTTON"), &"PrimaryButton", &"PrimaryButtonLabel", 72.0, 26)
+		open.pressed.connect(func() -> void: leverage_requested.emit(asset.id))
+		_lev_box.add_child(open)
+		return
+	LeverageView.fill_position(_lev_box, p)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	var uid := int(p["uid"])
+	var add := UiText.chunky_button(tr("LEV_ADD_MARGIN"), &"NeutralButton", &"NeutralButtonLabel", 64.0, 24)
+	add.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	add.pressed.connect(func() -> void: margin_requested.emit(uid))
+	var close_button := UiText.chunky_button(tr("LEV_CLOSE_BUTTON"), &"DangerButton", &"DangerButtonLabel", 64.0, 24)
+	close_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	close_button.pressed.connect(func() -> void: close_position_requested.emit(uid))
+	row.add_child(add)
+	row.add_child(close_button)
+	_lev_box.add_child(row)
 
 
 ## Status stop loss / take profit di kartu kepemilikan (hanya aset berharga harian yang dimiliki).

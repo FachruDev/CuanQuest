@@ -11,16 +11,20 @@ const CLASS_COLORS := {
 }
 ## Chip jenis transaksi: beli hijau, jual emas, jual paksa/panik merah.
 const TX_CHIPS := {"buy": &"MoodGreen", "auto": &"MoodGreen", "sell": &"MoodGold", "forced": &"MoodRed", "panic": &"MoodRed",
-	"stop_loss": &"MoodRed", "take_profit": &"MoodGreen"}
-const BUY_KINDS := ["buy", "auto"]  # transaksi beli tidak punya untung/rugi terealisasi
+	"stop_loss": &"MoodRed", "take_profit": &"MoodGreen",
+	"lev_open": &"MoodGold", "lev_close": &"MoodGold", "lev_liquidated": &"MoodRed", "lev_forced": &"MoodRed"}
+const BUY_KINDS := ["buy", "auto", "lev_open"]  # transaksi beli/buka posisi tidak punya untung/rugi terealisasi
 
 var _sheet_box: VBoxContainer  # isi kartu Neraca (v1.5c langkah 4)
+var _lev_title: Label  # judul & daftar posisi leverage (v2a), tampil jika ada posisi
+var _lev_list: VBoxContainer
 var _render: Dictionary = {}  # kunci data terakhir per bagian (UiText.changed_key)
 
 
 func _ready() -> void:
 	UiText.build_period_buttons(%PeriodRow, %NetWorthChart, 0)
 	_build_sheet_card()
+	_build_leverage_list()
 	GameState.changed.connect(_refresh)
 	visibility_changed.connect(_refresh)
 	_refresh()
@@ -52,6 +56,9 @@ func _refresh() -> void:
 	if UiText.changed_key(_render, "holdings", base + [GameState.portfolio.holdings, GameState.portfolio.orders,
 			GameState.portfolio.risk_profile_id]):
 		_build_holdings()
+	var positions := GameState.leverage.positions
+	if UiText.changed_key(_render, "leverage", base + [positions]):
+		_refresh_leverage()
 	if UiText.changed_key(_render, "report", base + [GameState.last_report.get("to_month", -1), GameState.last_report.size()]):
 		MonthReport.fill(%ReportBox, GameState.last_report)
 	var txs := GameState.portfolio.transactions
@@ -73,6 +80,34 @@ func _build_sheet_card() -> void:
 	page.move_child(title, index)
 	page.add_child(card)
 	page.move_child(card, index + 1)
+
+
+## Judul + daftar posisi leverage disisipkan setelah daftar kepemilikan (v2a langkah 3).
+func _build_leverage_list() -> void:
+	var page: VBoxContainer = $VBox
+	var index := page.get_node("Gap4").get_index()
+	_lev_title = _label(tr("LEV_PORTFOLIO_TITLE"), &"SubSectionLabel")
+	_lev_list = VBoxContainer.new()
+	_lev_list.add_theme_constant_override("separation", 10)
+	page.add_child(_lev_title)
+	page.move_child(_lev_title, index)
+	page.add_child(_lev_list)
+	page.move_child(_lev_list, index + 1)
+
+
+func _refresh_leverage() -> void:
+	_clear(_lev_list)
+	var positions := GameState.leverage.positions
+	_lev_title.visible = not positions.is_empty()
+	_lev_list.visible = not positions.is_empty()
+	for p: Dictionary in positions:
+		var card := PanelContainer.new()
+		card.theme_type_variation = &"HomeCard"
+		var box := VBoxContainer.new()
+		box.add_theme_constant_override("separation", 4)
+		card.add_child(box)
+		LeverageView.fill_position(box, p, true)
+		_lev_list.add_child(card)
 
 
 ## Donat alokasi per kelas aset (kas termasuk) + legenda dengan persentase.

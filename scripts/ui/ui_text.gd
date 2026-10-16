@@ -204,6 +204,12 @@ static func requirement_text(req: Dictionary, status: Dictionary) -> String:
 			return _t("REQ_LEVEL") % [int(status["current"]), int(status["target"])]
 		"quiz_topic":
 			return _t("REQ_QUIZ") % [_t("TOPIC_" + str(req["topic"]).to_upper()), int(status["current"]), int(status["target"])]
+		"research_correct":
+			return _t("REQ_RESEARCH") % [int(status["current"]), int(status["target"])]
+		"credit_score":
+			return _t("REQ_CREDIT") % [int(status["current"]), int(status["target"])]
+		"stage":
+			return _t("REQ_STAGE") % _t(GameState.progress.stage_def(int(req["stage"])).get("name_key", ""))
 	return ""
 
 
@@ -385,6 +391,8 @@ static func stage_assets_text(stage: int) -> String:
 	for asset: MarketAsset in GameState.market.assets.values():
 		if asset.stage == stage:
 			names.append(_t(asset.name_key))
+	if names.is_empty():  # tahap tanpa aset baru, mis. leverage (v2a)
+		return _t(GameState.progress.stage_def(stage).get("desc_key", ""))
 	return ", ".join(names)
 
 

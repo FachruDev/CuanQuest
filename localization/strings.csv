@@ -1400,3 +1400,77 @@ NEWS_FX_EURO_CRISIS,Krisis utang di Eropa kembali mencuat. %s melemah.,Europe's 
 NEWS_FX_ECB_HIKE,Bank sentral Eropa menaikkan suku bunga. %s menguat.,The European central bank raises rates. %s strengthens.
 NEWS_FX_BOJ_SHIFT,Bank sentral Jepang mengubah kebijakan suku bunganya. %s melonjak.,Japan's central bank shifts its rate policy. %s jumps.
 NEWS_FX_YEN_SLIDE,Yen terus melemah karena suku bunga Jepang sangat rendah. %s turun.,The yen keeps sliding as Japanese rates stay very low. %s falls.
+STAGE_6,Tahap 6: Leverage,Stage 6: Leverage
+STAGE_6_DESC,"Posisi leverage (margin) untuk saham, emas, komoditas, dan valas: untung dan rugi ikut berlipat.","Leveraged (margin) positions for stocks, gold, commodities, and forex: gains and losses are multiplied."
+REQ_RESEARCH,Riset rumor yang tepat: %d / %d,Correct rumor research: %d / %d
+REQ_CREDIT,Skor kredit: %d / %d,Credit score: %d / %d
+REQ_STAGE,%s sudah terbuka,%s unlocked
+SHEET_LEVERAGE,Posisi leverage (ekuitas),Leveraged positions (equity)
+LEV_ERR_LOCKED,Leverage terbuka di Tahap 6.,Leverage unlocks at Stage 6.
+LEV_ERR_ASSET,Aset ini tidak bisa diperdagangkan dengan leverage.,This asset can't be traded with leverage.
+LEV_ERR_SHORT,Aset ini hanya bisa posisi naik (long).,This asset only allows long positions.
+LEV_ERR_LEVERAGE,Pilihan leverage tidak tersedia untuk aset ini.,That leverage isn't available for this asset.
+LEV_ERR_EXISTS,Sudah ada posisi di aset ini. Tambah margin atau tutup dulu.,You already have a position in this asset. Add margin or close it first.
+LEV_ERR_MAX,Maksimal %d posisi terbuka sekaligus.,At most %d open positions at a time.
+LEV_ERR_MIN,Margin minimal %s.,Minimum margin is %s.
+LEV_ERR_CASH,Kas tidak cukup: butuh %s (margin + fee).,Not enough cash: %s needed (margin + fee).
+LEV_ERR_NONE,Posisi tidak ditemukan.,Position not found.
+LEV_SIDE_LONG,Naik (long),Long
+LEV_SIDE_SHORT,Turun (short),Short
+LEV_POS_HEAD,%s %dx · margin %s,%s %dx · margin %s
+LEV_POS_EQUITY,Ekuitas %s · %s (%s),Equity %s · %s (%s)
+LEV_POS_PRICES,Harga buka %s · sekarang %s,Opened at %s · now %s
+LEV_POS_LIQ,Likuidasi di %s (%s dari harga sekarang),Liquidation at %s (%s from the current price)
+LEV_POS_FIN,Biaya inap ±%s per bulan,Financing ±%s per month
+LEV_POS_CALL,MARGIN CALL: ekuitas tinggal %s dari margin. Tambah margin atau tutup posisi sebelum kena likuidasi.,MARGIN CALL: equity is down to %s of margin. Add margin or close the position before it is liquidated.
+LEV_OPEN_TITLE,Buka Posisi Leverage,Open a Leveraged Position
+LEV_OPEN_BODY,"Pilih arah, leverage, dan margin. Untung dan rugi = leverage x pergerakan harga. Rugi bisa melebihi margin jika harga melompat.","Choose direction, leverage, and margin. Profit and loss = leverage x price move. Losses can exceed the margin if the price gaps."
+LEV_DIRECTION,Arah,Direction
+LEV_LONG_ONLY,Saham hanya bisa posisi naik (transaksi margin).,Stocks are long only (margin trading).
+LEV_LEVERAGE,Leverage,Leverage
+LEV_MARGIN,Margin,Margin
+LEV_OPEN_CONFIRM,Buka Posisi,Open Position
+LEV_MARGIN_TITLE,Tambah Margin,Add Margin
+LEV_MARGIN_BODY,Margin tambahan dari kas menjauhkan harga likuidasi dan mengurangi dana pinjaman.,Extra margin from cash moves the liquidation price further away and reduces the borrowed amount.
+LEV_MARGIN_ADD,Tambah,Add
+LEV_MARGIN_CONFIRM,Tambah Margin,Add Margin
+LEV_PRICE_NOW,Harga sekarang,Current price
+LEV_SIZE,Besar posisi,Position size
+LEV_FEE,Fee buka,Opening fee
+LEV_TOTAL,Total dari kas,Total from cash
+LEV_FINANCING,Biaya inap,Financing
+LEV_PER_MONTH,±%s / bulan,±%s / month
+LEV_CALL_AT,Margin call di,Margin call at
+LEV_LIQ_AT,Likuidasi di,Liquidation at
+LEV_LOSS_IF,Rugi jika harga bergerak %s melawan,Loss if the price moves %s against you
+LEV_EQUITY,Ekuitas,Equity
+LEV_CARD_TITLE,Leverage,Leverage
+LEV_LOCKED_NOTE,Posisi leverage untuk aset ini terbuka di Tahap 6:,Leveraged positions for this asset unlock at Stage 6:
+LEV_INTRO,Buka posisi naik atau turun dengan modal kecil (%s). Untung dan rugi ikut berlipat; batas likuidasi dicek setiap hari.,Open a long or short position with a small stake (%s). Gains and losses are multiplied; the liquidation limit is checked every day.
+LEV_OPEN_BUTTON,Buka Posisi Leverage,Open Leveraged Position
+LEV_ADD_MARGIN,Tambah Margin,Add Margin
+LEV_CLOSE_BUTTON,Tutup Posisi,Close Position
+LEV_CLOSE_TITLE,Tutup Posisi?,Close Position?
+LEV_CLOSE_BODY,"%s %dx · %s
+Harga sekarang %s
+Fee tutup %s
+Uang kembali ke kas %s
+Untung/rugi %s","%s %dx · %s
+Current price %s
+Closing fee %s
+Cash returned %s
+Profit/loss %s"
+LEV_PORTFOLIO_TITLE,Posisi Leverage,Leveraged Positions
+TOAST_LEV_OPENED,Posisi %s %dx dibuka: %s,%s %dx position opened: %s
+TOAST_LEV_MARGIN,Margin ditambah %s,Margin added: %s
+TOAST_LEV_CLOSED,Posisi ditutup: %s,Position closed: %s
+REPORT_LEVERAGE,LEVERAGE,LEVERAGE
+REPORT_LEV_PNL,Untung/rugi posisi,Position profit/loss
+REPORT_LEV_FINANCING,Biaya inap,Financing
+REPORT_LEV_LIQUIDATED,LIKUIDASI tanggal %d · %s · %s %dx: %s,LIQUIDATED on day %d · %s · %s %dx: %s
+REPORT_LEV_SHORTFALL,Rugi melebihi margin: %s ditagih dari kas.,Loss exceeded the margin: %s charged to cash.
+REPORT_LEV_CALL,MARGIN CALL %s: ekuitas %s dari margin %s. Tambah margin atau tutup posisi.,MARGIN CALL %s: equity %s of margin %s. Add margin or close the position.
+TX_LEV_OPEN,Buka leverage,Open leverage
+TX_LEV_CLOSE,Tutup leverage,Close leverage
+TX_LEV_LIQUIDATED,Likuidasi,Liquidated
+TX_LEV_FORCED,Tutup paksa,Forced close

@@ -94,6 +94,7 @@ func daily_worth_series(start_value: float, executed: Array[Dictionary] = []) ->
 			if day < int(sale["day"]):
 				var sold := gs.market.get_asset(sale["asset_id"])
 				value += float(sale["units"]) * sold.price_on_day(day) - float(sale["proceeds"])
+		value += gs.leverage.daily_value(day)  # posisi leverage (v2a); 0 jika tidak ada
 		series.append(value)
 	return series
 
@@ -252,6 +253,16 @@ func _trade_warnings(asset: MarketAsset, q: Dictionary) -> Array[Dictionary]:
 		if q["pnl"] < 0.0:
 			warnings.append({"id": "loss", "args": [-q["pnl"]]})
 	return warnings
+
+
+## Fee transaksi dari modul lain (posisi leverage, v2a): masuk laporan "Pajak & Biaya" & statistik.
+func add_fee(fee: float) -> void:
+	_add_trade_costs(fee, 0.0)
+
+
+## Riwayat transaksi posisi leverage (v2a). `kind`: lev_open | lev_close | lev_liquidated | lev_forced.
+func log_leverage(kind: String, asset: MarketAsset, amount: float, units: float, fee: float, pnl: float) -> void:
+	_log_transaction(kind, asset, amount, units, fee, 0.0, pnl)
 
 
 func _add_trade_costs(fee: float, tax: float) -> void:
@@ -413,6 +424,7 @@ func cover_negative_cash() -> Array[Dictionary]:
 		var result := sell(asset_id, mini(needed, ceili(holding_value(asset_id))), "forced")
 		if result["ok"]:
 			sales.append({"asset_key": asset.name_key, "proceeds": result["proceeds"]})
+	sales.append_array(gs.leverage.cover_cash())  # lalu posisi leverage ditutup paksa (v2a)
 	for entry: Dictionary in gs.dreams.active():  # terakhir: dana pos impian terpaksa dipakai
 		if gs.cash >= 0:
 			break

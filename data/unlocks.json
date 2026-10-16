@@ -1,5 +1,5 @@
 {
-	"_comment": "Syarat membuka instrumen (GDD 5.5). type: tutorial | emergency_fund | net_worth | level | quiz_topic",
+	"_comment": "Syarat membuka instrumen (GDD 5.5). type: tutorial | emergency_fund | net_worth | level | quiz_topic | research_correct (riset rumor tepat) | credit_score | stage (tahap lain sudah terbuka). desc_key = penjelasan tahap tanpa aset baru (mis. leverage).",
 	"stages": [
 		{ "stage": 1, "name_key": "STAGE_1", "requirements": [] },
 		{
@@ -29,6 +29,15 @@
 			"requirements": [
 				{ "type": "net_worth", "min": 500000000 },
 				{ "type": "quiz_topic", "topic": "forex", "correct": 5 }
+			]
+		},
+		{
+			"stage": 6, "name_key": "STAGE_6", "desc_key": "STAGE_6_DESC",
+			"requirements": [
+				{ "type": "stage", "stage": 5 },
+				{ "type": "research_correct", "min": 5 },
+				{ "type": "quiz_topic", "topic": "forex", "correct": 8 },
+				{ "type": "credit_score", "min": 60 }
 			]
 		}
 	]

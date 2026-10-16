@@ -45,6 +45,7 @@ data/
   glossary.json               92 istilah glosarium
   legal.json                  Kebijakan privasi, syarat penggunaan & lisensi pihak ketiga (tampil di game)
   activities.json             6 aktivitas bulanan & aturan energi
+  leverage.json               Leverage (v2a): kelas & pilihan leverage, fee, biaya inap, batas margin call & likuidasi
   risk_profile.json           Kuesioner & 3 profil risiko
   unlocks.json                Syarat membuka tiap tahap instrumen
 localization/strings.csv      Semua teks UI (kolom id & en)
@@ -68,6 +69,7 @@ scripts/
     properties.gd             Properti: harga, beli tunai/KPR, dihuni/disewakan, jual, dilelang
     characters.gd             Tokoh berulang: kedekatan, nama atasan/rekan per perusahaan, saran Kak Wulan
     research.gd               Rumor pasar & riset: rumor benar/jebakan, penilaian riset, rekam jejak
+    leverage.gd               Posisi leverage & margin: buka/tutup, tambah margin, cek harian, likuidasi
     contracts.gd              Proyek sampingan: papan tawaran, strategi, energi bulanan, hasil, reputasi
     annual.gd                 Laporan tahunan: catatan tahun berjalan, ditutup setiap Januari
     achievements.gd           Pencapaian & kosmetik (data pemain lintas permainan, bukan modul slot save)
@@ -90,6 +92,8 @@ scripts/
     event_popup.gd, quiz_popup.gd, info_popup.gd
     ui_text.gd                Helper teks: perubahan efek, syarat unlock, cache tampilan (changed_key)
     perf_overlay.gd           Info performa (FPS, waktu proses, memori, node) untuk uji di HP
+    leverage_popup.gd         Popup buka posisi leverage & tambah margin (v2a)
+    leverage_view.gd          Teks ringkasan posisi leverage (detail aset & Portofolio)
     home_scene.gd             Ilustrasi Hunian & Kendaraan di Beranda (3 lapis gambar, v1.5c)
     balance_sheet.gd          Kartu Neraca (aset - utang) di Portofolio & layar akhir (v1.5c)
     character_portrait.gd     Potret tokoh (SVG atau lingkaran + inisial) di popup event & Profil (v1.5d)
@@ -221,7 +225,7 @@ scenes/
 - [ ] **v2a "Instrumen Lanjut"**:
   - [x] (1) Komoditas & emas
   - [x] (2) Valas
-  - [ ] (3) Leverage & margin
+  - [x] (3) Leverage & margin
   - [ ] (4) Tampilan, peringatan & cerita
   - [ ] (5) Penyeimbangan & uji celah
 - [ ] **v2b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
@@ -332,6 +336,17 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Save:** kunci baru `contract_board`, `contracts`, `contract_reputation`, `contract_energy`, `contract_seq`, `contract_rng`; statistik `projects_*` & `project_income` (save lama: tanpa proyek, papan terisi bulan berikutnya).
 - **Hasil simulator** (40 × 30 tahun): tahun bebas finansial S1 hemat 12,6 → selalu 1 proyek 10,5 → selalu 2 proyek 9,6; SMA 18,4 → 14,7 → 13,4. Dua proyek sekaligus menguras kesehatan (±75) & kebahagiaan (±81) dan menurunkan kinerja kantor. Versi awal (bayaran 2× lebih besar dan keahlian lebih banyak) membuat S1 bebas finansial di tahun 7,6, jadi angka di data sudah diturunkan.
 - **Menambah proyek:** salin satu baris di `projects` (`id`, `track` = id bidang di `jobs.json` atau `general`, `tier`, `months` [min, max], `weight`), lalu tambahkan nama & deskripsinya di CSV.
+
+## Leverage & Margin (v2a langkah 3)
+
+- **Posisi** (`GameState.leverage`, kelas `Leverage`, `data/leverage.json`): margin (uang sendiri) x leverage = besar posisi; untung/rugi = arah x unit x (harga sekarang - harga buka). Saham hanya long 2x (seperti transaksi margin bursa), emas & komoditas 2/5/10x, valas 5/10/20x, long atau short; kripto & reksa dana tidak bisa. **Margin terpisah per posisi** dan **satu posisi per aset** (maks. 5 posisi).
+- **Ekuitas** = margin + untung/rugi berjalan - biaya inap. **Biaya inap** = (suku bunga acuan + 4%) per tahun atas dana pinjaman (besar posisi - margin), terkumpul setiap hari dan dipotong dari ekuitas. Menambah margin menjauhkan harga likuidasi sekaligus mengurangi pinjaman.
+- **Cek harian** (`check_month()`, dipanggil `advance_month` setelah pasar & pesanan otomatis): untuk setiap hari bursa, biaya inap ditambah lalu ekuitas dihitung dengan harga hari itu. Ekuitas ≤ 40% margin → **likuidasi** di harga hari itu (`close(uid, "lev_liquidated", harga)`). Selamat sampai akhir bulan tetapi ekuitas < 70% → **margin call** (`call = true`). Harga likuidasi & margin call = `price_at_ratio()`.
+- **Rugi melebihi margin ditagih ke kas** (tanpa perlindungan saldo negatif): jika harga melompat melewati batas karena berita, uang yang kembali bisa minus. Kas minus ditangani seperti biasa (aset dijual paksa, lalu posisi leverage ditutup paksa lewat `cover_cash()`, lalu dana impian; tetap minus 3 bulan = bangkrut). Inilah yang menutup celah "pasang long & short lalu berharap satu dilikuidasi".
+- **Tahap 6** (`unlocks.json`, tipe syarat baru `stage`, `research_correct`, `credit_score`): Tahap 5 terbuka, riset rumor tepat ≥ 5, kuis Valas & Leverage 8 benar, skor kredit ≥ 60. Tahap tanpa aset baru memakai `desc_key` untuk teksnya.
+- **Tampilan:** kartu **Leverage** di detail aset (syarat, tombol buka, atau ringkasan posisi + Tambah Margin / Tutup Posisi), `LeveragePopup` (dibuat lewat kode di `main.gd`, seperti laporan tahunan) dengan pratinjau dari `quote()` (besar posisi, fee, biaya inap, harga margin call & likuidasi, rugi jika harga bergerak 5%/10%), daftar **Posisi Leverage** di Portofolio, bagian **LEVERAGE** di laporan bulanan, jenis transaksi `lev_open/lev_close/lev_liquidated/lev_forced`, baris neraca.
+- **Kekayaan bersih** & grafik harian laporan memuat ekuitas posisi (`total_equity()`, `daily_value(hari)`); tanpa posisi nilainya tepat 0, jadi golden runner tetap identik. Kunci save baru: `positions`, `position_seq`, `leverage_record`.
+- **Uji celah:** strategi acak (arah & aset acak, leverage maksimal, ditahan sebulan) rugi rata-rata ±12% margin per posisi-bulan karena fee & biaya inap; long + short aset yang sama ditolak; lompatan harga -20% pada long 10x menagih ±Rp10 jt ke kas.
 
 ## Valas (v2a langkah 2)
 

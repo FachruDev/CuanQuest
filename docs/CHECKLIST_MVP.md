@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 15 Oktober 2026 (v2a langkah 2: valas)
+- **Terakhir diperbarui:** 16 Oktober 2026 (v2a langkah 3: leverage & margin)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -19,7 +19,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v1.5c** | Utang, properti, hunian yang tumbuh | ✅ 5/5 langkah (aset final menyusul setelah v2) |
 | **v1.5d** | Tokoh, riset, kontrak, konten | ✅ 5/5 langkah (aset final menyusul setelah v2) |
 | **Penutup v1.5** | Performa & baterai, playtest, legal | ✅ legal & performa (APK dicoba di HP); playtest berjalan terus lewat Profil > Sesi Bermain |
-| **v2a** | Instrumen lanjut: komoditas, valas, leverage & margin | 🔄 2/5 langkah |
+| **v2a** | Instrumen lanjut: komoditas, valas, leverage & margin | 🔄 3/5 langkah |
 | **v2b-v2d** | Hidup penuh, dana investor, mini-game | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
 
@@ -476,18 +476,25 @@ Panduan uji di HP: `docs/UJI_AKHIR_V15.md` (tabel performa, baterai, dan pertany
   - ✅ Tampilan: kelas Valas di Pasar & alokasi, chip kurs dolar, satuan per mata uang; valas bisa diautodebet
   - ✅ 5 istilah glosarium baru + Depresiasi diperluas (92); 71 uji valas + 1098 uji lama lulus; golden runner identik
   - 🔁 Ikon kelas valas sementara `arrow_badge.svg` (lihat `docs/KEBUTUHAN_ASET.md`)
-- ⬜ Langkah 3: Leverage & margin (posisi, cek harian, margin call, likuidasi, biaya inap, tahap 6)
-- ⬜ Langkah 4: Tampilan, peringatan & cerita
+- ✅ **Langkah 3: Leverage & margin**
+  - ✅ Posisi leverage (`scripts/game/leverage.gd`, `data/leverage.json`): saham long 2x; emas & komoditas 2/5/10x; valas 5/10/20x; long & short; kripto & reksa dana tidak bisa
+  - ✅ Margin terpisah per posisi, satu posisi per aset, maksimal 5 posisi; fee buka & tutup; biaya inap harian (BI + 4%/tahun atas dana pinjaman)
+  - ✅ Dicek setiap hari bursa: likuidasi otomatis saat ekuitas ≤ 40% margin; margin call saat < 70% di akhir bulan; rugi melebihi margin (harga melompat) ditagih ke kas
+  - ✅ Tahap 6: Tahap 5 terbuka + riset rumor tepat ≥ 5 + kuis Valas & Leverage 8 benar + skor kredit ≥ 60
+  - ✅ Tampilan dasar: kartu Leverage di detail aset (syarat / buka / tambah margin / tutup), popup buka posisi dengan pratinjau risiko (harga margin call & likuidasi, rugi jika harga bergerak 5% & 10%), popup tambah margin, daftar Posisi Leverage di Portofolio, bagian LEVERAGE di laporan, riwayat transaksi, neraca
+  - ✅ Ekuitas posisi masuk kekayaan bersih & grafik harian laporan; kas minus → posisi ikut ditutup paksa setelah aset dijual
+  - ✅ 78 uji leverage + 1170 uji lama lulus; golden runner identik; strategi acak leverage maksimal rugi ±12% margin per posisi-bulan
+- ⬜ Langkah 4: Peringatan & cerita (peringatan risiko sebelum transaksi leverage pertama, popup margin call di awal giliran, peringatan di Beranda, event penipuan, glosarium, analisis akhir)
 - ⬜ Langkah 5: Penyeimbangan & uji celah
 
 *Daftar fitur*
 - ✅ Komoditas (3-4) dengan siklus musiman
 - ✅ Forex (4 kurs terhadap rupiah), kurs dipengaruhi suku bunga & event makro, selisih kurs 0,5%
-- ⬜ Leverage & margin (dicek harian), peringatan jelas sebelum likuidasi
-- 🔄 Syarat pembukaan sesuai draft (emas tahap 3, komoditas tahap 4, valas tahap 5 ✅; leverage tahap 6 ⬜)
+- 🔄 Leverage & margin (dicek harian) ✅; peringatan jelas sebelum likuidasi: margin call di laporan & kartu posisi ✅, popup awal giliran & Beranda ⬜ (langkah 4)
+- ✅ Syarat pembukaan sesuai draft (emas tahap 3, komoditas tahap 4, valas tahap 5, leverage tahap 6)
 
 *Kriteria selesai*
-- ⬜ Margin call dan likuidasi tidak bisa dieksploitasi
+- 🔄 Margin call dan likuidasi tidak bisa dieksploitasi (uji celah dasar ✅: satu posisi per aset, kekurangan ditagih ke kas, strategi acak rugi; uji simulator langkah 5 ⬜)
 - ⬜ Peringatan risiko sebelum transaksi leverage pertama
 
 **v2b: Siklus hidup penuh**

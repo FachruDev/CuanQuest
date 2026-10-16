@@ -89,6 +89,7 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 	_add_row(box, "REPORT_INVEST_CHANGE", Fmt.signed_rupiah(r["invest_change"]), signed_color(r["invest_change"]))
 
 	_add_orders(box, r)
+	_add_leverage(box, r)
 	_add_costs(box, r)
 
 	if r.has("inflation_month"):
@@ -214,6 +215,26 @@ static func _add_orders(box: VBoxContainer, r: Dictionary) -> void:
 		_add_row_text(box, title, Fmt.signed_rupiah(sale["proceeds"]), Palette.GAIN)
 		_add_text(box, TranslationServer.translate("REPORT_ORDER_DETAIL") % [int(sale["day"]),
 			asset.price_text(sale["price"]), Fmt.signed_rupiah(sale["pnl"]), asset.price_text(sale["end_price"])], Palette.MUTED)
+
+
+## Posisi leverage bulan ini (v2a langkah 3): untung/rugi berjalan, biaya inap, likuidasi (termasuk
+## kekurangan yang ditagih ke kas), dan margin call.
+static func _add_leverage(box: VBoxContainer, r: Dictionary) -> void:
+	var lev: Dictionary = r.get("leverage", {})
+	if lev.is_empty():
+		return
+	_add_header(box, "REPORT_LEVERAGE")
+	_add_row(box, "REPORT_LEV_PNL", Fmt.signed_rupiah(lev["pnl"]), signed_color(lev["pnl"]))
+	_add_row(box, "REPORT_LEV_FINANCING", Fmt.signed_rupiah(-float(lev["financing"])), Palette.LOSS)
+	for item: Dictionary in lev["liquidated"]:
+		_add_text(box, TranslationServer.translate("REPORT_LEV_LIQUIDATED") % [int(item["day"]),
+			TranslationServer.translate(item["asset_key"]), LeverageView.side_text(item["side"]), int(item["leverage"]),
+			Fmt.signed_rupiah(item["pnl"])], Palette.LOSS)
+		if float(item["shortfall"]) > 0.0:
+			_add_text(box, TranslationServer.translate("REPORT_LEV_SHORTFALL") % Fmt.rupiah(item["shortfall"]), Palette.LOSS)
+	for item: Dictionary in lev["margin_calls"]:
+		_add_text(box, TranslationServer.translate("REPORT_LEV_CALL") % [TranslationServer.translate(item["asset_key"]),
+			Fmt.rupiah(item["equity"]), Fmt.rupiah(item["margin"])], Palette.LOSS)
 
 
 ## Pajak & biaya bulan ini (v1.5a langkah 2): fee & pajak transaksi (termasuk autodebet dan

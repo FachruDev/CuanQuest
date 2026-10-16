@@ -78,6 +78,15 @@ func requirement_status(req: Dictionary) -> Dictionary:
 		"quiz_topic":
 			current = gs.quiz.correct_in_topic(req["topic"])
 			target = req["correct"]
+		"research_correct":  # riset rumor yang penilaiannya tepat (v2a: "level riset")
+			current = float(gs.research.record["basic"][1]) + float(gs.research.record["deep"][1])
+			target = req["min"]
+		"credit_score":
+			current = gs.debt.credit_score
+			target = req["min"]
+		"stage":  # tahap sebelumnya harus sudah terbuka
+			current = 1.0 if is_stage_unlocked(int(req["stage"])) else 0.0
+			target = 1.0
 	return {"met": current >= target, "current": current, "target": target}
 
 

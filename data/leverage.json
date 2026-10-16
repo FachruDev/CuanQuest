@@ -1,0 +1,21 @@
+{
+	"_comment": [
+		"Leverage & margin (v2a langkah 3). Posisi = margin (uang sendiri) x leverage; untung/rugi = arah x unit x (harga - harga buka).",
+		"classes: kelas aset yang boleh memakai leverage, pilihan leverage, boleh short atau tidak, fee buka & tutup (dari besar posisi). Saham hanya long 2x (transaksi margin bursa); kripto & reksa dana tidak bisa.",
+		"financing_spread: biaya inap per tahun = suku bunga acuan + spread, dihitung harian atas dana pinjaman (besar posisi - margin), dipotong dari ekuitas.",
+		"margin_call & liquidation: rasio ekuitas terhadap margin. Dicek setiap hari bursa; ekuitas <= liquidation x margin = ditutup paksa di harga hari itu. Kerugian di atas margin ditagih ke kas (tanpa perlindungan saldo negatif).",
+		"min_margin & margin_steps dalam Rupiah (angka bulat, tidak ikut inflasi). max_positions = jumlah posisi terbuka sekaligus (satu posisi per aset)."
+	],
+	"stage": 6,
+	"classes": {
+		"stock": { "leverage": [2], "short": false, "fee": 0.0015 },
+		"commodity": { "leverage": [2, 5, 10], "short": true, "fee": 0.001 },
+		"forex": { "leverage": [5, 10, 20], "short": true, "fee": 0.0005 }
+	},
+	"financing_spread": 0.04,
+	"margin_call": 0.7,
+	"liquidation": 0.4,
+	"min_margin": 1000000,
+	"max_positions": 5,
+	"margin_steps": [1000000, 2000000, 5000000, 10000000, 20000000, 50000000, 100000000, 200000000, 500000000, 1000000000]
+}

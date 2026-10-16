@@ -8,6 +8,7 @@ extends Control
 
 const END_SCENE := "res://scenes/end_screen.tscn"
 const ANNUAL_POPUP := preload("res://scenes/ui/annual_popup.tscn")
+const LEVERAGE_POPUP := preload("res://scenes/ui/leverage_popup.tscn")
 
 ## Petunjuk kontekstual saat tab dibuka pertama kali (index tab -> key teks).
 const TAB_HINTS := {1: "HINT_MARKET", 2: "HINT_PORTFOLIO", 3: "HINT_ACTIVITY", 4: "HINT_PROFILE"}
@@ -28,6 +29,7 @@ var _toast: PanelContainer
 var _toast_label: Label
 var _toast_tween: Tween
 var _annual_popup: ModalPopup  # laporan tahunan (v1.5d), dibuat lewat kode
+var _leverage_popup: ModalPopup  # buka posisi / tambah margin (v2a), dibuat lewat kode
 
 
 func _ready() -> void:
@@ -159,9 +161,10 @@ func _ready() -> void:
 	%ProfileScreen.annual_requested.connect(func() -> void:
 		_enqueue(_annual_popup.open.bind(GameState.annual.latest())))
 	GameState.achievements_unlocked.connect(_on_achievements_unlocked)
+	_setup_leverage()
 	for popup: ModalPopup in [%SummaryPopup, %InfoPopup, %EventPopup, %QuizPopup, %GlossaryPopup, %TextPopup,
 			%PlanPopup, %DreamPickerPopup, %DreamPopup, %TradeConfirmPopup, %InsurancePopup, %OrderPopup, %OfferPopup,
-			%LoanPopup, %VehiclePopup, %PropertyPopup, _annual_popup]:
+			%LoanPopup, %VehiclePopup, %PropertyPopup, _annual_popup, _leverage_popup]:
 		popup.closed.connect(_show_next_popup)
 
 	_build_toast()
@@ -309,6 +312,37 @@ func _show_toast(text: String) -> void:
 	_toast_tween.tween_interval(2.2)
 	_toast_tween.tween_property(_toast, "modulate:a", 0.0, 0.4)
 	_toast_tween.tween_callback(_toast.hide)
+
+
+## Leverage (v2a langkah 3): popup buka posisi & tambah margin, konfirmasi tutup posisi.
+func _setup_leverage() -> void:
+	_leverage_popup = LEVERAGE_POPUP.instantiate()
+	add_child(_leverage_popup)
+	%MarketScreen.leverage_requested.connect(func(asset_id: String) -> void:
+		_enqueue(_leverage_popup.open.bind(asset_id)))
+	%MarketScreen.margin_requested.connect(func(uid: int) -> void:
+		_enqueue(_leverage_popup.open_margin.bind(uid)))
+	%MarketScreen.close_position_requested.connect(_confirm_close_position)
+	_leverage_popup.opened.connect(func(result: Dictionary) -> void:
+		_show_toast(tr("TOAST_LEV_OPENED") % [LeverageView.side_text(result["side"]), int(result["leverage"]),
+			tr(GameState.market.get_asset(result["asset_id"]).name_key)]))
+	_leverage_popup.margin_added.connect(func(_asset_id: String, amount: int) -> void:
+		_show_toast(tr("TOAST_LEV_MARGIN") % Fmt.rupiah(amount)))
+
+
+## Konfirmasi tutup posisi: harga sekarang, fee tutup, uang kembali ke kas, untung/rugi.
+func _confirm_close_position(uid: int) -> void:
+	var p := GameState.leverage.find(uid)
+	if p.is_empty():
+		return
+	var asset := GameState.market.get_asset(p["asset"])
+	var q := GameState.leverage.close_quote(uid)
+	var body := tr("LEV_CLOSE_BODY") % [LeverageView.side_text(p["side"]), int(p["leverage"]), tr(asset.name_key),
+		asset.price_text(q["price"]), Fmt.rupiah(q["fee"]), Fmt.rupiah(q["proceeds"]), Fmt.signed_rupiah(q["pnl"])]
+	_enqueue(%InfoPopup.open.bind(tr("LEV_CLOSE_TITLE"), body, tr("LEV_CLOSE_BUTTON"), func() -> void:
+		var result := GameState.leverage.close(uid)
+		if result["ok"]:
+			_show_toast(tr("TOAST_LEV_CLOSED") % Fmt.signed_rupiah(result["pnl"])), tr("BTN_CANCEL")))
 
 
 ## Konfirmasi daftar kuliah: lama, biaya per bulan & total, beban energi & kebahagiaan.
