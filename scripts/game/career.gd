@@ -198,7 +198,7 @@ func hire_chance(def: Dictionary) -> float:
 	var chance := float(cfg["base"]) + float(cfg["per_5_skill"]) * floorf((skill - skill_requirement(def)) / 5.0)
 	if gs.education.level > gs.education.level_index(def.get("education", "")):
 		chance += float(cfg["higher_education"])
-	return clampf(chance, 0.0, float(cfg["max"]))
+	return clampf(chance, 0.0, float(cfg["max"])) * gs.life.hire_mult()  # usia 50+ sedikit lebih sulit (v2b)
 
 
 ## "" jika lowongan ke-`index` bisa dilamar, atau key pesan alasannya.

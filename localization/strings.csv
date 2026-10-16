@@ -333,7 +333,7 @@ Melamar kerja, kuliah, dan sebagian aktivitas memakai energi yang terisi ulang s
 Applying for jobs, studying, and some activities use energy, which refills every month. Scroll down to see everything."
 HINT_PROFILE,"Simpan cadangan game di slot manual, buka glosarium, atau ulangi tutorial dari sini.","Save backups in manual slots, open the glossary, or replay the tutorial here."
 WARN_BANKRUPT,"PERINGATAN: kas minus %d/%d bulan berturut-turut. Jika mencapai batas, kamu bangkrut!",WARNING: negative cash for %d/%d months in a row. Reach the limit and you go bankrupt!
-WARN_HEALTH,PERINGATAN: kesehatan 0 selama %d/%d bulan. Segera perbaiki pola makan & istirahat!,WARNING: health at 0 for %d/%d months. Improve food & rest now!
+WARN_HEALTH,"PERINGATAN: kesehatan 0 selama %d/%d bulan. Jika mencapai batas, kamu bisa meninggal dunia karena sakit parah. Segera berobat dan istirahat!","WARNING: health at 0 for %d/%d months. If it reaches the limit, you may pass away from a serious illness. Get treatment and rest now!"
 WARN_HAPPINESS,PERINGATAN: kebahagiaan 0 selama %d/%d bulan. Kamu butuh hiburan & istirahat!,WARNING: happiness at 0 for %d/%d months. You need rest & fun!
 REPORT_FORCED_SALE,Penjualan paksa %s: %s masuk untuk menutup kas minus.,Forced sale of %s: %s received to cover negative cash.
 GOAL_TITLE_MILLIONAIRE,Miliarder!,Billionaire (in Rupiah)!
@@ -1553,3 +1553,62 @@ END_REASON_MAX_AGE,Kamu menjalani hidup yang sangat panjang. Inilah hasil perjal
 END_REASON_SHORT_MAX_AGE,usia 100,age 100
 ERR_RETIRED,Kamu sudah pensiun.,You are retired.
 HOME_RETIRED_NOTE,Masa pensiun: tidak ada beban kerja. Jaga kesehatan dengan olahraga dan istirahat.,Retirement: no workload. Keep healthy with exercise and rest.
+AGING_ENERGY,Energi bulanan berkurang %d,Monthly energy reduced by %d
+AGING_HEALTH_MONTHLY,Kesehatan turun alami %d poin setiap bulan,Health naturally drops %d point(s) every month
+AGING_HEALTH_EVERY,Kesehatan turun alami %d poin tiap %d bulan,Health naturally drops %d point(s) every %d months
+AGING_MEDICAL,Biaya berobat %s,Medical costs %s
+AGING_HIRE,Peluang diterima kerja %d%% lebih kecil,%d%% lower chance of getting hired
+AGING_INS_CLOSED,%s tidak bisa dibeli baru lagi (polis yang sudah ada tetap berjalan),%s can no longer be newly bought (existing policies continue)
+AGING_PREMIUM_NEW,Premi %s untuk polis baru %s,%s premium for a new policy %s
+AGING_PREMIUM,Premi %s %s,%s premium %s
+AGING_SHORT_ENERGY,energi %d,energy %d
+AGING_SHORT_HEALTH_MONTHLY,kesehatan -%d/bulan,health -%d/month
+AGING_SHORT_HEALTH,kesehatan -%d tiap %d bulan,health -%d every %d months
+HOME_AGING_NOTE,Usia %d: %s.,Age %d: %s.
+AGING_POPUP_TITLE,Usia %d Tahun,Age %d
+AGING_POPUP_INTRO,Bertambah usia membawa perubahan pada tubuh dan biaya hidup. Yang berlaku mulai sekarang:,Getting older changes your body and your costs. From now on:
+AGING_POPUP_TIP,"Olahraga, istirahat cukup, makan sehat, dan pemeriksaan rutin menjaga kesehatan tetap baik. Dana darurat dan asuransi kesehatan makin penting seiring usia.","Exercise, enough rest, healthy food, and regular check-ups keep you healthy. An emergency fund and health insurance matter more as you age."
+CHAPTER_AGING,Efek usia mulai sekarang:,Age effects from now on:
+PROFILE_AGING_NONE,"Belum ada efek usia. Mulai usia 40 kesehatan turun perlahan, lalu biaya berobat dan premi asuransi ikut naik.","No age effects yet. From 40 your health slowly declines, then medical costs and insurance premiums rise."
+PROFILE_AGING_TITLE,Efek usia %d tahun:,Age effects at %d:
+INS_ERR_AGE,Tidak bisa dibeli baru mulai usia %d.,Can't be newly bought from age %d.
+INS_AGE_PURCHASE,"Premi dikunci sesuai usia saat membeli: makin muda, makin murah.","The premium is locked at your age when you buy: the younger, the cheaper."
+INS_AGE_CURRENT,Premi naik sesuai kelompok usia.,The premium rises with your age group.
+INS_AGE_FACTOR,Sekarang %s.,Now %s.
+REPORT_AGING_HEALTH,Termasuk penurunan alami karena usia: -%d,Includes natural decline from age: -%d
+ACT_ENERGY_AGE,usia %d,age %d
+CAREER_AGE_HINT,Di usiamu sekarang peluang diterima %d%% lebih kecil. Keahlian dan pengalaman tetap dihargai.,At your age the chance of getting hired is %d%% lower. Skills and experience still count.
+CRITICAL_POPUP_TITLE,Kondisi Kritis,Critical Condition
+CRITICAL_POPUP_BODY,Kesehatanmu turun ke %d. Kamu sekarang dalam kondisi kritis.,Your health has dropped to %d. You are now in critical condition.
+CRITICAL_POPUP_CHANCE,"Selama kondisi kritis, ada peluang meninggal dunia setiap bulan: sekitar %s per tahun di usiamu.",While in critical condition there is a chance of passing away every month: about %s a year at your age.
+CRITICAL_POPUP_YOUNG,"Di usiamu peluang meninggal dunia masih sangat kecil, tetapi jika kesehatan habis (0) selama %d bulan berturut-turut, kamu bisa meninggal dunia karena sakit parah.","At your age the chance of passing away is still very small, but if your health stays at zero for %d months in a row, you may pass away from a serious illness."
+CRITICAL_POPUP_TIP,"Segera pulihkan kesehatan: berobat (asuransi kesehatan menanggung sebagian biayanya), Istirahat Total dan Olahraga di tab Karier, serta makanan yang sehat. Kondisi kritis berakhir saat kesehatan kembali ke %d.","Recover as soon as you can: get treatment (health insurance covers part of the cost), use Full Rest and Exercise in the Career tab, and eat well. Critical condition ends when your health is back to %d."
+CRITICAL_POPUP_OK,Saya Mengerti,I Understand
+HOME_CRITICAL,Kondisi kritis (kesehatan %d). Pulihkan sampai kesehatan %d sebelum terlambat.,Critical condition (health %d). Recover to health %d before it's too late.
+HOME_CRITICAL_ACTION,Pulihkan,Recover
+REPORT_CRITICAL,Kondisi kritis: peluang meninggal dunia sekitar %s per tahun. Kondisi kritis berakhir saat kesehatan kembali ke %d.,Critical condition: about a %s chance a year of passing away. It ends when your health is back to %d.
+REPORT_CRITICAL_YOUNG,Kondisi kritis: jangan biarkan kesehatan habis (0) berbulan-bulan. Kondisi kritis berakhir saat kesehatan kembali ke %d.,Critical condition: don't let your health stay at zero for months. It ends when your health is back to %d.
+TOAST_CRITICAL_ENDED,Kamu pulih dari kondisi kritis.,You have recovered from critical condition.
+REPORT_INSURANCE_ENDED,Polis %s berakhir karena sudah mencapai batas usia pertanggungan.,Your %s policy has ended because you reached its maximum age.
+TWILIGHT_POPUP_TITLE,Masa Senja · Usia %d,Golden Years · Age %d
+TWILIGHT_POPUP_BODY,"Kamu memasuki masa senja. Di usia ini, peluang tutup usia dalam setahun sekitar %s dengan kesehatanmu sekarang.","You are in your golden years. At this age, the chance of passing away within a year is about %s with your current health."
+TWILIGHT_POPUP_HEALTH,Kesehatan 70 ke atas membuat peluang itu separuh lebih kecil; kesehatan di bawah 40 membuatnya berlipat.,Health of 70 or more halves that chance; health below 40 multiplies it.
+TWILIGHT_POPUP_TIP,"Nikmati hasil kerja kerasmu, jaga kesehatan, dan pastikan warisan untuk keluarga tertata.","Enjoy the fruits of your hard work, look after your health, and make sure your legacy for your family is in order."
+DEATH_POPUP_TITLE,Perjalanan Hidup Selesai,Life's Journey Complete
+DEATH_OLD_AGE,%s tutup usia di usia %d dengan tenang.,%s passed away peacefully at age %d.
+DEATH_CRITICAL,%s meninggal dunia di usia %d setelah masa sakit kritis.,%s passed away at age %d after a period of critical illness.
+DEATH_ILLNESS,%s meninggal dunia di usia %d karena sakit parah yang berkepanjangan.,"%s passed away at age %d after a long, serious illness."
+DEATH_ESTATE,Warisan untuk keluarga: %s.,Legacy for the family: %s.
+DEATH_PAYOUT,Termasuk uang pertanggungan asuransi jiwa %s.,Including a life insurance payout of %s.
+DEATH_POPUP_NOTE,Terima kasih sudah menjalani perjalanan hidup ini. Lihat rangkuman perjalanan dan warisanmu.,Thank you for living this journey. See the summary of your journey and legacy.
+DEATH_POPUP_OK,Lihat Perjalanan Hidup,See Life's Journey
+END_TITLE_DIED,Perjalanan Hidup Selesai,Life's Journey Complete
+END_REASON_SHORT_OLD_AGE,tutup usia,passed away
+END_REASON_SHORT_CRITICAL,sakit kritis,critical illness
+END_REASON_SHORT_ILLNESS,sakit parah,serious illness
+INSIGHT_DIED_CRITICAL,"Kamu meninggal dunia saat kondisi kritis. Pemeriksaan rutin, berobat lebih awal, olahraga, dan istirahat cukup menjaga kesehatan tetap jauh dari titik kritis.","You passed away while in critical condition. Regular check-ups, early treatment, exercise, and enough rest keep your health far from the critical point."
+INSIGHT_DIED_ILLNESS,Kesehatanmu habis berbulan-bulan berturut-turut. Kesehatan adalah aset paling mahal: berobat lebih awal dan siapkan dana darurat untuk biaya kesehatan.,Your health stayed at zero for months in a row. Health is your most valuable asset: get treatment early and keep an emergency fund for medical costs.
+INSIGHT_LONG_LIFE,Kamu hidup sampai usia %d. Kesehatan yang terjaga memberi waktu lebih panjang untuk menikmati hasil investasimu.,You lived to age %d. Good health gave you more time to enjoy the fruits of your investments.
+INSIGHT_LIFE_PAYOUT,Asuransi jiwa memberi keluargamu %s. Perlindungan ini paling penting selama masa produktif.,Life insurance gave your family %s. This protection matters most during your working years.
+INSIGHT_NO_LIFE_COVER,"Kamu meninggal dunia di usia %d tanpa asuransi jiwa aktif, sehingga keluarga hanya menerima aset yang kamu tinggalkan. Asuransi jiwa berjangka melindungi keluarga selama masa produktif.","You passed away at age %d without active life insurance, so your family only received the assets you left. Term life insurance protects your family during your working years."
+INSIGHT_CRITICAL_COUNT,"Kamu pernah %d kali masuk kondisi kritis. Setiap kali kesehatan turun di bawah 20, peluang meninggal dunia naik berlipat.","You entered critical condition %d time(s). Whenever health drops below 20, the chance of passing away multiplies."

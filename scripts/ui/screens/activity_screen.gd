@@ -103,6 +103,8 @@ func _refresh_energy() -> void:
 		tr("ACT_ENERGY_COUNT") % [GameState.activities.energy, GameState.activities.energy_capacity]]
 	if GameState.contracts.month_energy > 0:  # energi yang dipakai proyek sampingan bulan ini
 		%EnergyTitle.text += " · " + tr("ACT_ENERGY_PROJECTS") % GameState.contracts.month_energy
+	if GameState.life.energy_change() != 0:  # v2b: usia 60+
+		%EnergyTitle.text += " · " + tr("ACT_ENERGY_AGE") % GameState.life.energy_change()
 	while %EnergyIcons.get_child_count() < GameState.activities.energy_capacity:
 		var bolt := TextureRect.new()
 		bolt.texture = BOLT_ICON
@@ -328,6 +330,9 @@ func _refresh_board() -> void:
 		return
 	_board_box.add_child(_wrap(tr("CAREER_BOARD_HINT") % [int(GameState.career.data["applications_per_month"]),
 		int(GameState.career.data["apply_energy"])], &"SmallMutedLabel"))
+	if GameState.life.hire_mult() < 1.0:  # v2b: usia 50+
+		_board_box.add_child(_wrap(tr("CAREER_AGE_HINT") % roundi((1.0 - GameState.life.hire_mult()) * 100.0),
+			&"SmallMutedLabel"))
 	for i in GameState.career.job_board.size():
 		var opening: Dictionary = GameState.career.job_board[i]
 		var def := GameState.career.job_def(opening["job_id"])

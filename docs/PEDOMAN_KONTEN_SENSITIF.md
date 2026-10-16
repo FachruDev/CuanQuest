@@ -1,6 +1,6 @@
 # Pedoman Konten Sensitif (v2b)
 
-> **Status: USULAN, menunggu persetujuan pemilik proyek.** Fitur depresi (v2b langkah 4) dan kematian (v2b langkah 3) baru dikerjakan setelah pedoman ini disetujui (dokumen MVP, bagian 11: "v2b jangan dikerjakan sebelum pedoman konten sensitif disepakati").
+> **Status: DISETUJUI pemilik proyek (16 Oktober 2026).** Semua konten v2b, terutama kematian (langkah 3) dan depresi (langkah 4), wajib mengikuti pedoman ini (dokumen MVP, bagian 11: "v2b jangan dikerjakan sebelum pedoman konten sensitif disepakati").
 
 Pedoman ini berlaku untuk semua teks, event, popup, dan layar yang menyentuh **kesehatan mental (depresi)**, **sakit kritis**, dan **kematian**. Tujuannya: game tetap jujur bahwa hidup punya risiko, tanpa menakut-nakuti, menstigma, atau membahayakan pemain yang sedang rapuh.
 
@@ -39,6 +39,15 @@ Sebelum event, teks, atau layar bertema sensitif ditambahkan:
 - [ ] Ada nilai edukasi (BPJS, asuransi, pemeriksaan, dana darurat, istirahat, dukungan sosial)
 
 **Uji otomatis:** uji konten memeriksa data event & teks terhadap daftar kata terlarang (mis. "bunuh diri", "mengakhiri hidup", "menyakiti diri", "gila", "lemah mental") dan memastikan event bertema depresi selalu punya pilihan mencari bantuan.
+
+**Sudah diterapkan (v2b langkah 2):**
+- Pemeriksaan kata terlarang berjalan di `test_content` untuk semua file `data/*.json`, `data/events/*.json`, dan `localization/strings.csv`. Pemeriksaan "event depresi selalu punya pilihan bantuan" ditambahkan di langkah 4.
+- Prinsip 8: Ibu memakai `"until_player_age": 55` di `data/characters.json`. Semua event Ibu, termasuk lanjutan cerita, berhenti muncul saat pemain berusia 55, tanpa diceritakan alasannya. Ibu tetap tercatat di Profil > Orang Terdekat.
+
+**Sudah diterapkan (v2b langkah 3, kematian):**
+- Prinsip 6: peluang meninggal hanya diundi setelah peringatan Kritis (bulan sebelumnya) atau pemberitahuan masa senja; uji otomatis memaksa peluang sangat besar dan memastikan tidak ada kematian tanpa peringatan. Kesehatan 0 diperingatkan setiap bulan dengan menyebut risikonya.
+- Prinsip 7: penyebab ditulis umum ("tutup usia", "setelah masa sakit kritis", "sakit parah yang berkepanjangan"); popup perpisahan dan layar akhir berjudul "Perjalanan Hidup Selesai", tanpa bunyi atau getar, berisi warisan untuk keluarga dan refleksi perjalanan, bukan "GAME OVER".
+- Prinsip 9: popup Kritis dan event perawatan menekankan berobat, asuransi, istirahat, dan dana darurat.
 
 ## 4. Play Store
 

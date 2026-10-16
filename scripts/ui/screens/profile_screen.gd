@@ -85,7 +85,7 @@ func _refresh() -> void:
 	if UiText.changed_key(_render, "stats", base + [s, GameState.quiz.correct_ids.size(), GameState.leverage.record]):
 		_refresh_stats(s, best)
 	var life := GameState.life
-	if UiText.changed_key(_render, "life", base + [life.chapter_log.size(), life.retired]):
+	if UiText.changed_key(_render, "life", base + [life.chapter_log.size(), life.retired, GameState.insurance.policies]):
 		_refresh_life()
 	if UiText.changed_key(_render, "career", base + [GameState.career.history.size()]):
 		UiText.fill_career_log(_career_log_box, 8)
@@ -519,6 +519,11 @@ func _refresh_life() -> void:
 			Fmt.rupiah(life.pension_payment())], &"SmallMutedLabel"))
 	else:
 		_life_box.add_child(_wrap(tr("PROFILE_LIFE_NOTE"), &"SmallMutedLabel"))
+	var aging := UiText.aging_lines()  # v2b langkah 2
+	if aging.is_empty():
+		_life_box.add_child(_wrap(tr("PROFILE_AGING_NONE"), &"SmallMutedLabel"))
+	else:
+		_life_box.add_child(_wrap(tr("PROFILE_AGING_TITLE") % GameState.age() + "\n• " + "\n• ".join(aging), &"SmallMutedLabel"))
 
 
 ## Judul + kartu "Orang Terdekat" setelah Perjalanan Karier.

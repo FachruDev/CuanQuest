@@ -35,6 +35,8 @@ var _workload_label: Label             # catatan beban kerja di kartu Kondisi
 var _scene: HomeScene                  # ilustrasi hunian & kendaraan (v1.5c langkah 4)
 var _lev_alert: PanelContainer         # spanduk margin call (v2a langkah 4)
 var _lev_alert_label: Label
+var _critical_alert: PanelContainer    # spanduk kondisi kritis (v2b langkah 3)
+var _critical_label: Label
 var _scene_caption: Label
 
 
@@ -46,6 +48,7 @@ func _ready() -> void:
 	_build_career_card()
 	_build_scene_card()
 	_build_leverage_alert()
+	_build_critical_alert()
 	_workload_label = _wrap_label("", &"SmallMutedLabel")  # kenapa kondisi berubah tiap bulan
 	$VBox/WellbeingCard/VBox.add_child(_workload_label)
 	GameState.changed.connect(_refresh)
@@ -57,6 +60,7 @@ func _refresh() -> void:
 	if not is_visible_in_tree():
 		return
 	_refresh_leverage_alert()
+	_refresh_critical_alert()
 	%HealthBar.value = GameState.health
 	%HappinessBar.value = GameState.happiness
 	%HealthValue.text = "%d / 100" % GameState.health
@@ -244,6 +248,39 @@ func _build_leverage_alert() -> void:
 	$VBox.move_child(_lev_alert, 0)
 
 
+## Spanduk kondisi kritis tepat di bawah spanduk margin call (v2b langkah 3): tombol Pulihkan membuka
+## tab Karier (Istirahat Total, Olahraga).
+func _build_critical_alert() -> void:
+	_critical_alert = PanelContainer.new()
+	_critical_alert.theme_type_variation = &"WarningBanner"
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	var icon := TextureRect.new()
+	icon.texture = load("res://assets/icons/warning_small.svg")
+	icon.custom_minimum_size = Vector2(22, 20)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_critical_label = _wrap_label("", &"WarningLabel")
+	_critical_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var heal := UiText.chunky_button(tr("HOME_CRITICAL_ACTION"), &"NeutralButton", &"NeutralButtonLabel", 52.0, 22)
+	heal.custom_minimum_size.x = 150
+	heal.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	heal.pressed.connect(func() -> void: career_requested.emit())
+	row.add_child(icon)
+	row.add_child(_critical_label)
+	row.add_child(heal)
+	_critical_alert.add_child(row)
+	$VBox.add_child(_critical_alert)
+	$VBox.move_child(_critical_alert, _lev_alert.get_index() + 1)
+
+
+func _refresh_critical_alert() -> void:
+	_critical_alert.visible = GameState.life.critical
+	if GameState.life.critical:
+		_critical_label.text = tr("HOME_CRITICAL") % [GameState.health, int(GameState.life.data["mortality"]["critical_exit"])]
+
+
 func _refresh_leverage_alert() -> void:
 	var calls := GameState.leverage.calls()
 	_lev_alert.visible = not calls.is_empty()
@@ -367,6 +404,9 @@ func _refresh_workload() -> void:
 	if GameState.education.is_studying():
 		var load: Dictionary = GameState.education.data["load"]
 		text += " " + tr("HOME_STUDY_NOTE") % [int(load["energy"]), -int(load["happiness"])]
+	var aging := UiText.aging_short()  # v2b: energi & kesehatan menurun seiring usia
+	if aging != "":
+		text += " " + aging
 	_workload_label.text = text
 
 

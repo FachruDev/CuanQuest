@@ -89,6 +89,24 @@
 				{ "label": "Begadang memantau harga", "effects": { "health": -3, "happiness": -3 }, "result": "Harga tidak berubah karena kamu menatapnya. Besok kamu lelah dan tetap harus memutuskan." },
 				{ "label": "Tidur, besok putuskan dengan kepala dingin", "effects": { "happiness": -1 }, "result": "Pagi harinya kamu menimbang: tambah margin, tutup posisi, atau terima kemungkinan rugi. Leverage yang membuatmu tidak bisa tidur biasanya terlalu besar." }
 			]
+		},
+		{
+			"id": "age_checkup", "category": "health", "weight": 1.5, "cooldown": 12, "min_age": 40, "context": { "low_health": 2 },
+			"title": "Pemeriksaan Kesehatan Rutin", "text": "Dokter menyarankan pemeriksaan rutin setahun sekali setelah usia 40: tekanan darah, gula darah, dan kolesterol. Banyak masalah kesehatan di usia ini datang tanpa gejala.",
+			"choices": [
+				{ "label": "Medical check-up lengkap", "cost": 1500000, "effects": { "health": 6, "happiness": 1 }, "result": "Hasilnya lengkap dan kamu tahu apa yang perlu dijaga. Mendeteksi lebih awal jauh lebih murah daripada mengobati." },
+				{ "label": "Skrining dasar di puskesmas", "cost": 100000, "effects": { "health": 4 }, "result": "Pemeriksaan dasar sudah memberi gambaran kondisimu. Peserta BPJS Kesehatan juga bisa ikut skrining rutin di faskes pertama." },
+				{ "label": "Nanti saja, badan masih kuat", "effects": { "health": -3 }, "result": "Kamu menundanya. Semakin bertambah usia, merawat kesehatan sejak dini menghemat biaya berobat di kemudian hari." }
+			]
+		},
+		{
+			"id": "critical_care", "bad": true, "chain_only": true, "category": "health", "weight": 1,
+			"title": "Perawatan Kondisi Kritis", "text": "Dokter menjelaskan bahwa kondisimu sedang kritis dan perlu segera ditangani. Semakin cepat dirawat, semakin besar peluang untuk pulih.",
+			"choices": [
+				{ "label": "Rawat inap intensif", "cost": 15000000, "claim": "medical", "effects": { "health": 30, "happiness": -2, "unpaid_months": 1 }, "result": "Perawatan intensif berjalan baik dan kondisimu mulai membaik. Di saat seperti ini dana darurat dan asuransi kesehatan sangat menolong." },
+				{ "label": "Rawat jalan dan istirahat total di rumah", "cost": 2000000, "claim": "medical", "effects": { "health": 12, "happiness": -3 }, "result": "Kondisimu perlahan membaik, tetapi masih perlu dijaga dengan ketat: istirahat, makan teratur, dan kontrol rutin." },
+				{ "label": "Tunda berobat", "effects": { "health": -5, "happiness": -4 }, "result": "Kondisimu belum membaik. Berobat lebih awal biasanya lebih murah dan lebih aman daripada menunda." }
+			]
 		}
 	]
 }

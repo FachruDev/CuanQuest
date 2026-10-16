@@ -4,12 +4,14 @@ extends ModalPopup
 
 var _on_secondary := Callable()
 var _mark: Label  # tanda "!" pada lencana mode peringatan (v2a), dibuat saat pertama dipakai
+var _default_icon: Texture2D  # ikon bintang bawaan lencana (diganti sementara oleh open_quiet)
 
 
 func _ready() -> void:
 	super()
 	%OkButton.pressed.connect(close)
 	%SecondaryButton.pressed.connect(_on_secondary_pressed)
+	_default_icon = $Center/Dialog/BadgeHolder/Badge/Icon.texture
 
 
 ## `ok_text`: label tombol utama (default "Oke"), mis. "Batal" untuk popup konfirmasi.
@@ -29,10 +31,21 @@ func open_warning(title: String, body: String, secondary_text: String = "", on_s
 	Sfx.play("alert")
 
 
+## Varian tenang (v2b langkah 3): lencana dengan ikon lain dan tanpa bunyi perayaan, untuk masa senja
+## dan perpisahan di akhir hidup (pedoman konten sensitif: tanpa nuansa "GAME OVER").
+func open_quiet(title: String, body: String, ok_text: String = "", icon: Texture2D = null) -> void:
+	_set_warning(false)
+	if icon != null:
+		$Center/Dialog/BadgeHolder/Badge/Icon.texture = icon
+	_fill(title, body, "", Callable(), ok_text)
+
+
 func _set_warning(on: bool) -> void:
 	var badge: PanelContainer = $Center/Dialog/BadgeHolder/Badge
 	badge.theme_type_variation = &"WarningBadgePanel" if on else &"BadgeGoldPanel"
 	badge.get_node("Icon").visible = not on
+	if _default_icon != null:
+		badge.get_node("Icon").texture = _default_icon
 	if on and _mark == null:
 		_mark = Label.new()
 		_mark.theme_type_variation = &"PopupBadgeLabel"

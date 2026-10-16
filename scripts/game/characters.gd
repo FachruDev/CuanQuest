@@ -80,6 +80,12 @@ func available(id: String) -> bool:
 	return not def(id).is_empty() and (not is_work(id) or gs.career.is_career())
 
 
+## Tokoh masih muncul di cerita: "until_player_age" = event tokoh berhenti saat pemain mencapai usia
+## itu, tanpa diceritakan alasannya (pedoman konten sensitif: tokoh berulang tidak meninggal).
+func in_story(id: String) -> bool:
+	return gs.age() < int(def(id).get("until_player_age", 999))
+
+
 func is_known(id: String) -> bool:
 	return id in met
 

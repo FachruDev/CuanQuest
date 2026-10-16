@@ -39,6 +39,7 @@ func energy_max() -> int:
 		value -= 1
 	if not gs.education.study.is_empty() and int(gs.education.study["paid_month"]) == gs.month:  # kuliah bulan ini
 		value -= int(gs.education.data["load"]["energy"])
+	value += gs.life.energy_change()  # usia 60+ (v2b)
 	return maxi(value, 1)
 
 

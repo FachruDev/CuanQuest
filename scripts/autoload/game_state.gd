@@ -40,10 +40,17 @@ signal target_completed(target: Dictionary)
 signal achievements_unlocked(ids: Array[String])
 ## Januari: laporan tahun lalu sudah ditutup (v1.5d langkah 4), dikirim setelah laporan bulanan.
 signal year_closed(report: Dictionary)
-## Bab kehidupan berganti (v2b): {from, to, start, end} keadaan di awal & akhir bab yang selesai.
+## Bab kehidupan berganti (v2b): {from, to, start, end} keadaan di awal & akhir bab yang selesai,
+## aging = true jika efek penuaan juga berubah di ulang tahun ini (ditampilkan di popup yang sama).
 signal chapter_changed(summary: Dictionary)
 ## Pensiun dimulai (v2b): {month, jht, jp_monthly, jp_lump, years}.
 signal retirement_started(info: Dictionary)
+## Efek penuaan berubah di ulang tahun ini (v2b langkah 2), di luar pergantian bab. Dikirim setelah laporan bulanan.
+signal aging_changed(age: int)
+## Status Kritis dimulai (v2b langkah 3): {health, age, chance}. Peringatan wajib sebelum peluang meninggal berlaku.
+signal critical_started(info: Dictionary)
+## Pemberitahuan masa senja tahunan mulai usia 70 (v2b langkah 3): {age, chance, aging}.
+signal twilight_notice(info: Dictionary)
 
 ## Versi slot save. Naik ke 2 di v1.5 (pasar harian); save lama ditolak, tanpa migrasi.
 const SAVE_VERSION := 3
@@ -196,7 +203,12 @@ func new_game(profile: Dictionary = {}, seed_value: int = -1) -> void:
 
 
 func age() -> int:
-	return int(background["start_age"]) + floori(month / 12.0)
+	return age_at(month)
+
+
+## Usia pemain pada bulan permainan `m` (mis. saat polis asuransi dibeli).
+func age_at(m: int) -> int:
+	return int(background["start_age"]) + floori(m / 12.0)
 
 
 ## Tombol "Lanjut": tutup bulan ini (pasar bergerak), lalu buka bulan baru.
@@ -230,6 +242,7 @@ func advance_month() -> void:
 	var delayed := events.resolve_delayed()
 	var forced_sales := portfolio.cover_negative_cash()
 	var warnings := _update_danger_counters()
+	var health_report := life.check_health()  # v2b: undian peluang meninggal (setelah peringatan) & status Kritis
 	progress.xp += int(economy["xp_per_month"])
 	var worth := net_worth()
 	net_worth_history.append(worth)
@@ -264,6 +277,7 @@ func advance_month() -> void:
 		"vehicle_depreciation": vehicles.depreciation_since(from_month, level_before),
 		"erosion": idle_money * month_inflation,
 	})
+	last_report.merge(health_report)
 	if not rumor_result.is_empty():
 		last_report["rumors"] = [rumor_result]
 	if not leverage_result.is_empty():
@@ -329,7 +343,9 @@ func _start_month() -> Dictionary:
 	stats["vehicle_costs"] += vehicle_cost
 	if food_id == "luxury" or housing["id"] == "apartment":
 		stats["luxury_months"] += 1
-	health = clampi(health + int(food["health"]) + int(housing["health"]) + _drift("health", health, working), 0, 100)
+	var aging_health := life.health_decline()  # penurunan kesehatan alami karena usia (v2b)
+	health = clampi(health + int(food["health"]) + int(housing["health"]) + _drift("health", health, working) - aging_health,
+		0, 100)
 	happiness = clampi(happiness + int(food["happiness"]) + int(housing["happiness"]) + vehicles.happiness()
 		+ _drift("happiness", happiness, working), 0, 100)
 	var debt_report := debt.pay_installments()  # kewajiban utang sebelum premi, kuliah, dan rencana gaji
@@ -358,6 +374,7 @@ func _start_month() -> Dictionary:
 		"housing_cost": housing_cost,
 		"vehicle_cost": vehicle_cost,
 		"health_delta": health - health_before,
+		"aging_health": aging_health,
 		"happiness_delta": happiness - happiness_before,
 		"salary_raise": salary_raise,
 		"performance": roundi(career.performance) if working and career.is_career() else -1,
@@ -760,16 +777,23 @@ func _update_danger_counters() -> Array[String]:
 	return warnings
 
 
+## Akhir permainan. v2b: meninggal dunia (selalu setelah peringatan, lihat Life.check_health) lebih
+## dulu; kesehatan 0 selama danger_months = meninggal karena sakit parah (peringatan tiap bulan);
+## batas usia = tutup usia. Pensiun tidak lagi mengakhiri permainan.
 func _check_end() -> bool:
 	var limit := int(economy["end"]["danger_months"])
-	if negative_cash_months >= limit:
+	if not life.death.is_empty():
+		finish_game("died", life.death["cause"])
+	elif negative_cash_months >= limit:
 		finish_game("lose", "bankrupt")
 	elif zero_health_months >= limit:
-		finish_game("lose", "health")
+		life.die("illness")
+		finish_game("died", "illness")
 	elif zero_happiness_months >= limit:
 		finish_game("lose", "happiness")
-	elif age() >= int(life.data["max_age"]):  # v2b: pensiun tidak mengakhiri permainan
-		finish_game("retired", "max_age")
+	elif age() >= int(life.data["max_age"]):
+		life.die("old_age")
+		finish_game("died", "old_age")
 	return is_over
 
 
@@ -806,7 +830,8 @@ func legacy_score() -> int:
 	return floori(net_worth() / 1_000_000.0) + health + happiness + progress.level() * 10
 
 
-## Mengakhiri permainan. `result_type`: win | lose | retired.
+## Mengakhiri permainan. `result_type`: win | lose | retired | died (v2b; reason = penyebab:
+## old_age | critical | illness, payout = uang pertanggungan asuransi jiwa untuk ahli waris).
 func finish_game(result_type: String, reason: String) -> void:
 	is_over = true
 	events.pending = {}
@@ -814,6 +839,8 @@ func finish_game(result_type: String, reason: String) -> void:
 		"type": result_type, "reason": reason, "month": month, "age": age(),
 		"net_worth": net_worth(), "peak": stats["peak_net_worth"], "score": legacy_score(),
 	}
+	if result_type == "died":
+		end_result["payout"] = int(life.death.get("payout", 0))
 	history.push_front({
 		"name": player_name, "avatar": avatar, "background": background["id"],
 		"difficulty": difficulty["id"], "type": result_type, "reason": reason,
@@ -843,7 +870,8 @@ func fast_forward(months: int) -> void:
 		reports.append(last_report)
 		var interrupted: bool = is_over or events.has_pending() \
 				or goals_reached.size() != goals_before or progress.unlocked_stages.size() != stages_before \
-				or not last_report["warnings"].is_empty() or not last_report["forced_sales"].is_empty()
+				or not last_report["warnings"].is_empty() or not last_report["forced_sales"].is_empty() \
+				or last_report.has("critical_started") or last_report.has("twilight")  # v2b: peringatan kesehatan & usia
 		if interrupted:
 			break
 	fast_forwarding = false

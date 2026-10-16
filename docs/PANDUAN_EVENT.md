@@ -56,6 +56,7 @@ Semua file dimuat oleh `EventManager.load_defs()` (`scripts/core/event_manager.g
 | `cooldown` | - | Jeda bulan sebelum boleh muncul lagi (default 12) |
 | `max_times` | - | Maksimal muncul sepanjang permainan |
 | `month_of_year` | - | Hanya di bulan tertentu (0 = Januari) |
+| `min_age`, `max_age` | - | Hanya muncul di rentang usia pemain ini (v2b), mis. `"min_age": 40` untuk pemeriksaan rutin |
 | `guaranteed` | - | Selalu muncul jika syarat terpenuhi (mis. THR), di luar jatah acak |
 | `requires` | - | Syarat kondisi pemain (lihat tabel syarat) |
 | `context` | - | Pengali bobot saat kondisi aktif, mis. `{ "cash_rich": 3 }` |
@@ -65,7 +66,7 @@ Semua file dimuat oleh `EventManager.load_defs()` (`scripts/core/event_manager.g
 | `known` | - | `true` = hanya muncul jika tokohnya sudah pernah ditemui |
 | `min_rel`, `max_rel` | - | Batas kedekatan dengan tokoh event (0-100), mis. `"min_rel": 65` untuk rekomendasi kerja |
 
-**Pilihan (`choices`):** `label`, `result`, lalu salah satu dari `effects` atau `outcomes` (`[{chance, effects, result}]`, peluangnya dijumlah 1). Opsional: `cost` (dibayar di muka; pilihan nonaktif jika kas kurang), `cost_vehicle` (persen nilai pasar kendaraan utama, mis. biaya perbaikan), `cost_property` (persen nilai pasar properti yang dituju event, mis. `0.004` = 0,4%), `cost_var` (biaya = angka dari isian event, mis. `"arrears"` untuk tunggakan atau `"fee"` untuk biaya take over KPR), `claim` (`medical` / `vehicle`, biaya ditanggung asuransi aktif).
+**Pilihan (`choices`):** `label`, `result`, lalu salah satu dari `effects` atau `outcomes` (`[{chance, effects, result}]`, peluangnya dijumlah 1). Opsional: `cost` (dibayar di muka; pilihan nonaktif jika kas kurang), `cost_vehicle` (persen nilai pasar kendaraan utama, mis. biaya perbaikan), `cost_property` (persen nilai pasar properti yang dituju event, mis. `0.004` = 0,4%), `cost_var` (biaya = angka dari isian event, mis. `"arrears"` untuk tunggakan atau `"fee"` untuk biaya take over KPR), `claim` (`medical` / `vehicle`, biaya ditanggung asuransi aktif). Biaya pilihan `"claim": "medical"` otomatis dikali pengali usia (`data/life.json` `aging.medical_cost`, mis. ×2 mulai usia 60), jadi tulis harganya untuk orang muda.
 
 ## Efek (`effects`) dan modul yang menjalankannya
 
@@ -147,6 +148,7 @@ Tokoh ada di `data/characters.json` (Bima, Ibu, Kak Wulan, Bu Ratna, serta atasa
 2. Tambahkan efek `"rel"` di pilihan agar kedekatan berubah sesuai keputusan pemain.
 3. Sambungkan ke event lanjutan dengan efek `"chain"` (event lanjutan diberi `"chain_only": true`). Cabang cerita = pilihan/hasil berbeda menjadwalkan event lanjutan yang berbeda.
 4. Pakai `"min_rel"` / `"max_rel"` / `"known"` untuk lanjutan yang hanya terjadi jika hubungan cukup dekat. Syarat event lanjutan **dicek ulang saat jatuh tempo**; jika tidak terpenuhi, lanjutan dibatalkan.
+5. Tokoh dengan `"until_player_age"` di `data/characters.json` berhenti muncul saat pemain mencapai usia itu, termasuk lanjutan cerita (v2b: Ibu 55, sesuai `docs/PEDOMAN_KONTEN_SENSITIF.md`, tokoh berulang tidak meninggal). Konten bertema sakit, depresi, atau kematian wajib mengikuti pedoman itu; uji konten menolak kata terlarang.
 
 Contoh rantai: `bima_coin` → `bima_coin_pump` → `bima_coin_rug` → `bima_rebound` (hanya jika kedekatan dengan Bima ≥ 50).
 
@@ -155,6 +157,8 @@ Contoh rantai: `bima_coin` → `bima_coin_pump` → `bima_coin_rug` → `bima_re
 Event yang waktunya ditentukan oleh logika game (bukan undian) ditandai `"chain_only": true`, lalu dijadwalkan dari kode. Contohnya `Career.scheduled_events()`: wawancara saat ada tawaran kerja berjenjang, PHK sesuai peluang, dan promosi saat semua syarat terpenuhi. Daftarnya ada di `Career.SCHEDULED_EVENTS`.
 
 `Debt.scheduled_events()` (v1.5c, tanpa undian sehingga tidak mengubah urutan acak permainan): **Penagih Utang Datang** / **Surat Peringatan Terakhir** saat pinjaman tanpa / dengan agunan menunggak 2 bulan (sebulan sebelum macet), dan **Masa Bunga Tetap KPR Berakhir** sebulan sebelum bunga KPR mengambang (varian `kpr_rate_reset` dengan pilihan take over jika syarat bank lain terpenuhi, `kpr_rate_reset_basic` tanpa take over). Daftarnya di `Debt.SCHEDULED_EVENTS`.
+
+`Life.scheduled_events()` (v2b langkah 3): **Perawatan Kondisi Kritis** (`critical_care`) di bulan status Kritis dimulai. Teks bertema sakit kritis dan kematian wajib mengikuti `docs/PEDOMAN_KONTEN_SENSITIF.md` (bahasa tenang, penyebab umum, selalu ada pilihan berobat).
 
 ## Sebelum selesai
 

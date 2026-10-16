@@ -72,6 +72,8 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 			int(r["study_done"]), int(r["study_total"])], Fmt.signed_rupiah(-r["study_fee"]), Palette.LOSS)
 	for policy_name: String in r.get("insurance_lapsed", []):
 		_add_text(box, TranslationServer.translate("REPORT_INSURANCE_LAPSED") % TranslationServer.translate(policy_name), Palette.LOSS)
+	for policy_name: String in r.get("insurance_ended", []):  # asuransi berjangka berakhir (v2b)
+		_add_text(box, TranslationServer.translate("REPORT_INSURANCE_ENDED") % TranslationServer.translate(policy_name), Palette.MUTED)
 	if int(r.get("lifestyle_cost", 0)) > 0:
 		_add_row(box, "REPORT_LIFESTYLE", Fmt.signed_rupiah(-r["lifestyle_cost"]), Palette.LOSS)
 
@@ -141,6 +143,13 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 
 	_add_header(box, "REPORT_WELLBEING")
 	_add_row(box, "STAT_HEALTH", "%+d" % r["health_delta"], signed_color(r["health_delta"]))
+	if int(r.get("aging_health", 0)) > 0:  # v2b langkah 2
+		_add_text(box, TranslationServer.translate("REPORT_AGING_HEALTH") % int(r["aging_health"]), Palette.MUTED)
+	if r.has("critical"):  # v2b langkah 3: peringatan setiap bulan selama kondisi kritis
+		var exit := int(GameState.life.data["mortality"]["critical_exit"])
+		var chance := float(r["critical"]["chance"])
+		_add_text(box, TranslationServer.translate("REPORT_CRITICAL") % [UiText.percent_short(chance), exit] if chance > 0.0
+			else TranslationServer.translate("REPORT_CRITICAL_YOUNG") % exit, Palette.LOSS)
 	_add_row(box, "STAT_HAPPINESS", "%+d" % r["happiness_delta"], signed_color(r["happiness_delta"]))
 
 	if with_net_worth:

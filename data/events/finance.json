@@ -147,6 +147,15 @@
 				{ "label": "Terima dan tabung", "effects": { "cash": 2000000, "happiness": 4 }, "result": "Rezeki tak terduga masuk ke rekeningmu, tanpa diminta biaya apa pun. Undian asli tidak pernah meminta transfer atau OTP." },
 				{ "label": "Terima, sebagian disumbangkan", "effects": { "cash": 1000000, "happiness": 6, "xp": 5 }, "result": "Berbagi membuat rezeki terasa lebih berarti." }
 			]
+		},
+		{
+			"id": "retirement_withdrawal", "category": "finance", "weight": 1.5, "cooldown": 24, "max_times": 3, "min_age": 55, "requires": "has_investments",
+			"title": "Rencana Penarikan Dana Pensiun", "text": "Usia pensiun makin dekat. Investasimu sekarang sekitar {invest}. Menurut aturan 4%, kamu bisa menarik kira-kira {withdraw} per bulan, dan dananya kemungkinan besar bertahan sekitar 30 tahun.",
+			"choices": [
+				{ "label": "Susun jadwal penarikan 4%", "effects": { "happiness": 3, "xp": 30 }, "result": "Kamu menarik secukupnya dan membiarkan sisanya terus bertumbuh. Pensiun yang tenang dimulai dari rencana penarikan yang realistis." },
+				{ "label": "Bayar perencana keuangan untuk rencana lengkap", "cost": 2000000, "effects": { "happiness": 5, "xp": 40 }, "result": "Rencananya: dana darurat setahun di tabungan, sisanya di investasi yang lebih stabil, dan penarikan rutin yang aman." },
+				{ "label": "Belum perlu dipikirkan", "effects": { "happiness": -1 }, "result": "Tanpa rencana, dana pensiun sering habis lebih cepat dari perkiraan." }
+			]
 		}
 	]
 }

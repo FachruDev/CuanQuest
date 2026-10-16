@@ -17,6 +17,20 @@ static func insights(state: Node) -> Array[String]:
 			out.append(_t("INSIGHT_HEALTH"))
 		"happiness":
 			out.append(_t("INSIGHT_HAPPINESS"))
+		"critical":  # v2b langkah 3
+			out.append(_t("INSIGHT_DIED_CRITICAL"))
+		"illness":
+			out.append(_t("INSIGHT_DIED_ILLNESS"))
+		"old_age":
+			if int(state.end_result.get("age", 0)) >= 80:
+				out.append(_t("INSIGHT_LONG_LIFE") % int(state.end_result["age"]))
+	if state.end_result.get("type", "") == "died":  # uang pertanggungan untuk keluarga
+		if int(state.end_result.get("payout", 0)) > 0:
+			out.append(_t("INSIGHT_LIFE_PAYOUT") % Fmt.rupiah(state.end_result["payout"]))
+		elif int(state.end_result.get("age", 0)) < 70:
+			out.append(_t("INSIGHT_NO_LIFE_COVER") % int(state.end_result["age"]))
+	if state.life.critical_count > 0 and state.end_result.get("reason", "") != "critical":
+		out.append(_t("INSIGHT_CRITICAL_COUNT") % state.life.critical_count)
 
 	if s["scam_loss"] > 0:
 		out.append(_t("INSIGHT_SCAM") % Fmt.rupiah(s["scam_loss"]))

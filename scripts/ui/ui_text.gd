@@ -62,7 +62,7 @@ static func event_text(text: String, vars: Dictionary) -> String:
 	if vars.has("company"):
 		result = result.replace("{company}", vars["company"])
 	for key: String in ["salary", "severance", "rent2", "arrears", "amount", "installment", "interest", "pay_from",
-			"pay_to", "pay_refi", "pay_prepaid", "fee", "prepay", "prepay_amount"]:
+			"pay_to", "pay_refi", "pay_prepaid", "fee", "prepay", "prepay_amount", "invest", "withdraw"]:
 		if vars.has(key):
 			result = result.replace("{%s}" % key, Fmt.rupiah(vars[key]))
 	for key: String in ["rate_from", "rate_to", "refi_rate"]:  # bunga per tahun (utang, v1.5c)
@@ -484,6 +484,73 @@ static func icon_tile(icon_path: String, variation: StringName, tile_size := 48.
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		tile.add_child(icon)
 	return tile
+
+
+## Peluang seperti "4%" atau "1,5%" (tanpa ",0").
+static func percent_short(ratio: float) -> String:
+	return Fmt.number(ratio * 100.0, 1).trim_suffix(",0") + "%"
+
+
+## Kalimat perpisahan yang tenang (pedoman konten sensitif): penyebab umum, usia, dan warisan untuk
+## keluarga (termasuk uang pertanggungan asuransi jiwa). `result` = GameState.end_result jenis "died".
+static func death_text(result: Dictionary) -> String:
+	var cause := _t("DEATH_" + str(result["reason"]).to_upper()) % [GameState.player_name, int(result["age"])]
+	var estate := _t("DEATH_ESTATE") % Fmt.rupiah(result["net_worth"])
+	if int(result.get("payout", 0)) > 0:
+		estate += " " + _t("DEATH_PAYOUT") % Fmt.rupiah(result["payout"])
+	return cause + "\n" + estate
+
+
+## Pengali seperti "×1,5" atau "×2".
+static func times(mult: float) -> String:
+	return "×" + Fmt.number(mult, 1).trim_suffix(",0")
+
+
+## Efek usia yang sedang berlaku (v2b langkah 2), satu baris per efek; kosong sebelum usia 40.
+## Termasuk premi asuransi yang naik menurut usia dan polis yang tidak bisa dibeli baru lagi.
+static func aging_lines() -> PackedStringArray:
+	var fx := GameState.life.aging_effects()
+	var lines: PackedStringArray = []
+	if int(fx["energy"]) != 0:
+		lines.append(_t("AGING_ENERGY") % -int(fx["energy"]))
+	if int(fx["health"]) > 0:
+		if int(fx["every"]) <= 1:
+			lines.append(_t("AGING_HEALTH_MONTHLY") % int(fx["health"]))
+		else:
+			lines.append(_t("AGING_HEALTH_EVERY") % [int(fx["health"]), int(fx["every"])])
+	if float(fx["medical"]) != 1.0:
+		lines.append(_t("AGING_MEDICAL") % times(fx["medical"]))
+	if float(fx["hire"]) < 1.0 and not GameState.life.retired:
+		lines.append(_t("AGING_HIRE") % roundi((1.0 - float(fx["hire"])) * 100.0))
+	var insurance := GameState.insurance
+	for product: Dictionary in insurance.data.get("products", []):
+		if not product.has("age_premium") or GameState.age() >= int(product.get("cover_until_age", 999)):
+			continue  # polis berjangka yang sudah lewat batas usianya tidak relevan lagi
+		var owned: bool = insurance.policies.get(product["category"], {}).get("id", "") == product["id"]
+		if insurance.buy_block_reason(product) != "":
+			lines.append(_t("AGING_INS_CLOSED") % _t(product["name"]))
+		elif product.get("age_basis", "") == "purchase":
+			if not owned and insurance.age_factor(product) > 1.0:
+				lines.append(_t("AGING_PREMIUM_NEW") % [_t(product["name"]), times(insurance.age_factor(product))])
+		elif insurance.age_factor(product) > 1.0:
+			lines.append(_t("AGING_PREMIUM") % [_t(product["name"]), times(insurance.age_factor(product))])
+	return lines
+
+
+## Versi singkat untuk catatan Beranda: hanya energi & kesehatan ("" jika belum ada efek).
+static func aging_short() -> String:
+	var fx := GameState.life.aging_effects()
+	var parts: PackedStringArray = []
+	if int(fx["energy"]) != 0:
+		parts.append(_t("AGING_SHORT_ENERGY") % int(fx["energy"]))
+	if int(fx["health"]) > 0:
+		if int(fx["every"]) <= 1:
+			parts.append(_t("AGING_SHORT_HEALTH_MONTHLY") % int(fx["health"]))
+		else:
+			parts.append(_t("AGING_SHORT_HEALTH") % [int(fx["health"]), int(fx["every"])])
+	if parts.is_empty():
+		return ""
+	return _t("HOME_AGING_NOTE") % [GameState.age(), ", ".join(parts)]
 
 
 static func _t(key: String) -> String:

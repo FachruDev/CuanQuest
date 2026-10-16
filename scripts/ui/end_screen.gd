@@ -9,6 +9,7 @@ const RESULT_LOOK := {
 	"win": [Color("#1e7f5c"), &"BadgeGoldPanel", "res://assets/icons/badge_trophy.svg"],
 	"retired": [Color("#23877b"), &"BadgeTealPanel", "res://assets/icons/badge_retire.svg"],
 	"lose": [Color("#c2452d"), &"WarningBadgePanel", "res://assets/icons/badge_lose.svg"],
+	"died": [Color("#2b2147"), &"BadgeTealPanel", "res://assets/icons/badge_retire.svg"],  # v2b: tenang, bukan "kalah"
 }
 const TREND_UP := preload("res://assets/icons/trend_up.svg")
 const TREND_DOWN := preload("res://assets/icons/trend_down.svg")
@@ -27,7 +28,10 @@ func _ready() -> void:
 	%ResultTitle.add_theme_color_override("font_color", look[0])
 	%Badge.theme_type_variation = look[1]
 	%BadgeIcon.texture = load(look[2])
-	%ReasonLabel.text = tr("END_REASON_" + str(r["reason"]).to_upper())
+	if r["type"] == "died":  # v2b: penyebab umum, usia, dan warisan (pedoman konten sensitif)
+		%ReasonLabel.text = UiText.death_text(r)
+	else:
+		%ReasonLabel.text = tr("END_REASON_" + str(r["reason"]).to_upper())
 
 	%Avatar.avatar_index = GameState.avatar
 	%Avatar.display_name = GameState.player_name
@@ -37,6 +41,8 @@ func _ready() -> void:
 		%InfoChips.add_child(_chip(GameState.achievements.current_title(), &"MoodGreen"))
 	var months := int(r["month"])
 	var job_title := tr(GameState.career.current_job_def()["title"]) if GameState.career.is_employed() else tr("CAREER_UNEMPLOYED")
+	if GameState.life.retired:  # v2b
+		job_title = tr("CAREER_RETIRED")
 	%InfoChips.add_child(_chip(job_title, &"MoodGold"))
 	%InfoChips.add_child(_chip(GameState.education.level_name(GameState.education.level), &"MoodNeutral"))
 	%InfoChips.add_child(_chip(tr("END_AGE") % int(r["age"]), &"MoodNeutral"))
@@ -69,7 +75,8 @@ func _ready() -> void:
 	for text in EndAnalysis.insights(GameState):
 		%InsightList.add_child(_insight_card(text))
 
-	Sfx.play("fail" if r["type"] == "lose" else "success")
+	if r["type"] != "died":  # akhir hidup tanpa bunyi perayaan atau getar
+		Sfx.play("fail" if r["type"] == "lose" else "success")
 	if r["type"] == "lose":
 		Sfx.vibrate(300)
 

@@ -1,8 +1,11 @@
 {
 	"_comment": "Glosarium istilah. Teks ditampilkan lewat tr() sehingga bisa diterjemahkan nanti.",
 	"terms": [
+		{ "term": "Ahli waris", "definition": "Orang yang berhak menerima harta peninggalan seseorang yang meninggal dunia, biasanya keluarga terdekat. Di game, warisan = kekayaan bersih yang ditinggalkan ditambah uang pertanggungan asuransi jiwa." },
 		{ "term": "Anuitas", "definition": "Cara menghitung cicilan yang dipakai bank: jumlah cicilan sama tiap bulan, tetapi di awal sebagian besar untuk membayar bunga dan di akhir sebagian besar untuk pokok." },
 		{ "term": "Apresiasi", "definition": "Menguatnya nilai sebuah mata uang terhadap mata uang lain. Apresiasi rupiah membuat barang impor dan perjalanan ke luar negeri lebih murah." },
+		{ "term": "Asuransi jiwa berjangka", "definition": "Asuransi jiwa dengan masa perlindungan tertentu (misalnya sampai usia 70). Preminya murah karena tanpa unsur investasi, dan uang pertanggungan dibayarkan kepada ahli waris hanya jika tertanggung meninggal dunia selama masa perlindungan." },
+		{ "term": "Aturan 4%", "definition": "Patokan penarikan dana pensiun: tarik sekitar 4% dari total investasi per tahun (dinaikkan sesuai inflasi), maka dana kemungkinan besar bertahan sekitar 30 tahun. Di game, aturan ini juga dipakai untuk mengukur bebas finansial." },
 		{ "term": "Aturan 72", "definition": "Cara cepat memperkirakan lama uang berlipat dua: 72 dibagi imbal hasil per tahun. Contoh: 6% per tahun, sekitar 12 tahun." },
 		{ "term": "Bear market", "definition": "Periode ketika harga pasar cenderung turun dalam waktu cukup lama, biasanya disertai pesimisme investor." },
 		{ "term": "Biaya inap", "definition": "Bunga atas dana pinjaman pada posisi leverage, dihitung setiap hari selama posisi terbuka (disebut juga swap atau rollover)." },
@@ -32,6 +35,8 @@
 		{ "term": "Inflasi", "definition": "Kenaikan harga barang dan jasa secara umum. Inflasi membuat daya beli uang turun dari waktu ke waktu." },
 		{ "term": "Intervensi", "definition": "Langkah bank sentral membeli atau menjual valas untuk meredam gejolak kurs. Tujuannya stabilitas, bukan mematok kurs di angka tertentu." },
 		{ "term": "Investasi bodong", "definition": "Penawaran investasi ilegal atau palsu. Cirinya: janji untung tinggi, pasti, tanpa risiko, dan tidak berizin OJK." },
+		{ "term": "Jaminan Hari Tua (JHT)", "definition": "Tabungan hari tua dari BPJS Ketenagakerjaan untuk pekerja formal. Perusahaan dan pekerja menyetor sebagian gaji setiap bulan, saldonya berkembang, lalu dicairkan sekaligus saat pensiun." },
+		{ "term": "Jaminan Pensiun (JP)", "definition": "Program BPJS Ketenagakerjaan yang membayar uang pensiun bulanan setelah usia pensiun, dengan syarat masa iuran minimal 15 tahun. Jika kurang, iurannya dikembalikan sekaligus." },
 		{ "term": "Jatuh tempo", "definition": "Tanggal berakhirnya tenor deposito atau obligasi. Setelah jatuh tempo, dana bisa dicairkan tanpa penalti." },
 		{ "term": "Kekayaan bersih", "definition": "Net worth: total nilai semua aset dikurangi total utang." },
 		{ "term": "Keterbukaan informasi", "definition": "Pengumuman resmi perusahaan tercatat di situs bursa (mis. laba, kontrak, aksi korporasi). Sumber pertama untuk mengecek benar tidaknya sebuah rumor." },
@@ -66,6 +71,7 @@
 		{ "term": "Portofolio", "definition": "Kumpulan semua aset investasi yang kamu miliki." },
 		{ "term": "PPh 21", "definition": "Pajak penghasilan atas gaji. Dihitung dari gaji setahun dikurangi PTKP, dengan tarif bertingkat 5% sampai 35%, lalu dipotong langsung oleh kantor setiap bulan." },
 		{ "term": "Premi", "definition": "Iuran rutin yang dibayar agar polis asuransi tetap aktif. Jika premi tidak dibayar, perlindungan berhenti." },
+		{ "term": "Premi Berbasis Usia", "definition": "Premi asuransi yang naik seiring usia karena risiko sakit makin besar. Asuransi jiwa berjangka yang dibeli saat muda biasanya terkunci di premi yang lebih murah." },
 		{ "term": "PTKP", "definition": "Penghasilan Tidak Kena Pajak: bagian gaji setahun yang bebas pajak. Untuk lajang tanpa tanggungan Rp54 juta per tahun." },
 		{ "term": "Pump and dump", "definition": "Manipulasi harga: aset kecil 'dipompa' dengan promosi agar naik, lalu dijual oleh pelakunya sehingga harga anjlok." },
 		{ "term": "Rasio utang terhadap aset", "definition": "Total utang dibagi total aset. Makin kecil makin aman; di awal KPR biasanya tinggi lalu turun seiring cicilan dibayar." },

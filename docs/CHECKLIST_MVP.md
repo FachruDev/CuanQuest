@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 16 Oktober 2026 (v2b langkah 1: bab kehidupan & pensiun berlanjut; pedoman konten sensitif menunggu persetujuan)
+- **Terakhir diperbarui:** 16 Oktober 2026 (v2b langkah 3: kesehatan Kritis & kematian)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -20,7 +20,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v1.5d** | Tokoh, riset, kontrak, konten | ✅ 5/5 langkah (aset final menyusul setelah v2) |
 | **Penutup v1.5** | Performa & baterai, playtest, legal | ✅ legal & performa (APK dicoba di HP); playtest berjalan terus lewat Profil > Sesi Bermain |
 | **v2a** | Instrumen lanjut: komoditas, valas, leverage & margin | ✅ 5/5 langkah (ikon kelas menyusul setelah v2) |
-| **v2b** | Siklus hidup penuh: bab, penuaan, kematian, depresi, warisan | 🔄 1/5 langkah (langkah 3-4 menunggu persetujuan pedoman konten sensitif) |
+| **v2b** | Siklus hidup penuh: bab, penuaan, kematian, depresi, warisan | 🔄 3/5 langkah (pedoman konten sensitif disetujui) |
 | **v2c-v2d** | Dana investor, mini-game | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
 
@@ -510,7 +510,7 @@ Panduan uji di HP: `docs/UJI_AKHIR_V15.md` (tabel performa, baterai, dan pertany
 **v2b: Siklus hidup penuh** 🔄 (rancangan: `MVP_Cuan_Quest_Revisi3.md` 6.2.1-6.2.9; pedoman: `docs/PEDOMAN_KONTEN_SENSITIF.md`)
 
 *Langkah pengerjaan*
-- 🔄 **Pedoman konten sensitif** ditulis (usulan); menunggu persetujuan pemilik proyek sebelum langkah 3 & 4
+- ✅ **Pedoman konten sensitif** disetujui pemilik proyek (16 Oktober 2026); uji kata terlarang berjalan di uji konten
 - ✅ **Langkah 1: Bab kehidupan & pensiun berlanjut**
   - ✅ 4 bab (Awal Karier, Membangun 30, Puncak 45, Pensiun 60) di `data/life.json`; popup ringkasan bab (kekayaan nominal & riil, impian, pekerjaan) + pesan bab berikutnya
   - ✅ Titik simpan bab otomatis (slot "Awal Bab", bisa dimuat dari Profil); kartu Perjalanan Hidup di Profil
@@ -518,22 +518,36 @@ Panduan uji di HP: `docs/UJI_AKHIR_V15.md` (tabel performa, baterai, dan pertany
   - ✅ JHT (3,7% gaji pekerjaan formal, ±5,5%/tahun) cair sekaligus; Jaminan Pensiun bulanan 1% x tahun iuran x upah riil rata-rata (ikut inflasi), atau sekaligus jika iuran < 15 tahun; kerja lepas tanpa JHT/JP; perkiraan JHT & JP di kartu pekerjaan
   - ✅ Tombol "+1 Tahun" di masa pensiun; JP masuk laporan bulanan & tahunan; batas usia 100 (sementara, sampai kematian di langkah 3)
   - ✅ Save lama tetap bisa dimuat (bab dimulai saat dimuat, JHT/JP diperkirakan); 46 uji siklus hidup + 1282 uji lama lulus; golden runner identik
-- ⬜ Langkah 2: Penuaan (energi, kesehatan, biaya kesehatan & premi, peluang kerja, event usia)
-- ⬜ Langkah 3: Kesehatan Kritis & kematian (setelah pedoman disetujui)
-- ⬜ Langkah 4: Depresi (setelah pedoman disetujui)
+- ✅ **Langkah 2: Penuaan**
+  - ✅ Tabel penuaan di `data/life.json`: energi −1 (60) / −2 (70); kesehatan turun alami 1 poin tiap 4 bulan (40), tiap 2 bulan (50), tiap bulan (60), 2 per bulan (70)
+  - ✅ Biaya berobat ×1,5 (45) / ×2 (60), ditanggung asuransi sesuai porsinya; premi asuransi kesehatan swasta naik per kelompok usia; asuransi jiwa berjangka terkunci di usia saat membeli dan tidak bisa dibeli baru mulai 60
+  - ✅ Peluang diterima pekerjaan berjenjang ×0,85 (50) / ×0,7 (55); kerja lepas tidak terpengaruh
+  - ✅ 4 event usia (pemeriksaan rutin, reuni, mentor, rencana penarikan dana pensiun dengan aturan 4%); syarat event `min_age`/`max_age`; glosarium +4
+  - ✅ Popup "Usia N Tahun" saat efek usia berubah (digabung ke ringkasan bab di 45 & 60); efek usia di Beranda, Profil, Karier, Perlindungan, laporan bulanan
+  - ✅ Event Ibu berhenti di usia pemain 55 (pedoman); perbaikan ringkasan bab Puncak yang kini mencatat jabatan terakhir
+  - ✅ 74 uji penuaan + 1331 uji lama lulus (termasuk uji kata terlarang); golden runner identik; simulator 45 tahun
+- ✅ **Langkah 3: Kesehatan Kritis & kematian**
+  - ✅ Tabel peluang meninggal (usia × kesehatan, `data/life.json` `mortality`; tambahan baris 90+), diundi tiap bulan dengan RNG tersendiri
+  - ✅ Selalu dengan peringatan: status Kritis (kesehatan < 20, berakhir di 30) atau masa senja (pemberitahuan tahunan mulai 70); tanpa peringatan tidak ada undian
+  - ✅ Status Kritis: popup peringatan, spanduk Beranda dengan tombol Pulihkan, peringatan di laporan bulanan, event Perawatan Kondisi Kritis (biaya ikut usia & asuransi)
+  - ✅ Kesehatan 0 selama 3 bulan = meninggal karena sakit parah, dengan peringatan tiap bulan
+  - ✅ Asuransi jiwa berjangka membayar ahli waris (warisan), berakhir di usia 70; lompat 1 tahun berhenti di peringatan Kritis & masa senja
+  - ✅ Popup perpisahan & layar akhir yang tenang (tanpa "kalah"/"GAME OVER"), penyebab umum & warisan, analisis akhir baru; glosarium +2
+  - ✅ 61 uji kematian + 1405 uji lama lulus; golden runner identik; simulator hidup penuh 80 tahun
+- ⬜ Langkah 4: Depresi
 - ⬜ Langkah 5: Warisan, layar akhir & penyeimbangan
 
 *Daftar fitur*
-- 🔄 Bab kehidupan ✅, penuaan ⬜, pensiun usia 60 yang berlanjut ✅
-- ⬜ Kesehatan & kematian (tabel peluang meninggal), status Kritis dengan peringatan
+- ✅ Bab kehidupan ✅, penuaan ✅, pensiun usia 60 yang berlanjut ✅
+- ✅ Kesehatan & kematian (tabel peluang meninggal), status Kritis dengan peringatan
 - ⬜ Depresi dengan pedoman konten sensitif
 - ⬜ Warisan & layar akhir lengkap
 - ✅ Lompat per tahun di masa pensiun
 
 *Kriteria selesai*
 - ⬜ Pemain dapat menyelesaikan satu hidup penuh
-- ⬜ Pemain yang menjaga kesehatan hampir tidak pernah meninggal sebelum 60; yang mengabaikannya bisa meninggal muda, selalu dengan peringatan
-- ⬜ Konten depresi dan kematian mengikuti pedoman konten sensitif
+- ✅ Pemain yang menjaga kesehatan hampir tidak pernah meninggal sebelum 60; yang mengabaikannya bisa meninggal muda, selalu dengan peringatan (simulator langkah 3; ditinjau lagi di langkah 5)
+- 🔄 Konten depresi dan kematian mengikuti pedoman konten sensitif (kematian ✅, depresi di langkah 4)
 - ⬜ Skor warisan konsisten dan bisa dibandingkan antar permainan
 
 **v2c: Mengelola dana investor**

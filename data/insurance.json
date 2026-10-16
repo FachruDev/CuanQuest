@@ -3,14 +3,19 @@
 		"Asuransi (v1.5a langkah 3). Premi dibayar otomatis tiap awal bulan (harga awal permainan, ikut inflasi lewat GameState.nominal).",
 		"Polis aktif setelah waiting_months bulan (masa tunggu) dan berhenti jika kas tidak cukup membayar premi.",
 		"coverage = porsi biaya event yang ditanggung (pilihan event dengan \"claim\": \"medical\" / \"vehicle\"). critical_payout = uang pertanggungan saat event bertanda \"critical\".",
-		"premium_rate (kendaraan) = premi per tahun x harga kendaraan (harga impian motor/mobil yang sudah terwujud). deductible = risiko sendiri per klaim."
+		"premium_rate (kendaraan) = premi per tahun x harga kendaraan (harga impian motor/mobil yang sudah terwujud). deductible = risiko sendiri per klaim.",
+		"Usia (v2b langkah 2): age_premium = [[usia mulai, pengali premi], ...] menurut usia sekarang, atau usia saat polis dibeli jika age_basis \"purchase\" (premi terkunci, seperti asuransi jiwa berjangka). max_buy_age = polis baru tidak bisa dibeli mulai usia ini; polis yang sudah ada tetap berjalan.",
+		"Kematian (v2b langkah 3): death_payout = uang pertanggungan untuk ahli waris jika pemain meninggal dunia saat polis aktif (ikut inflasi). cover_until_age = polis berakhir otomatis di usia ini (asuransi berjangka)."
 	],
 	"waiting_months": 1,
 	"categories": ["health", "life", "vehicle"],
 	"products": [
 		{ "id": "health_basic", "category": "health", "name": "BPJS Kesehatan", "desc": "Program pemerintah. Menanggung 80% biaya berobat di game; antre lebih lama dan harus lewat faskes pertama.", "premium": 150000, "coverage": 0.8 },
-		{ "id": "health_plus", "category": "health", "name": "Asuransi Kesehatan Swasta", "desc": "Menanggung 100% biaya berobat dan rawat inap, tanpa rujukan berjenjang.", "premium": 500000, "coverage": 1.0 },
-		{ "id": "life_term", "category": "life", "name": "Asuransi Jiwa Berjangka", "desc": "Membayar uang pertanggungan {rp:100000000} jika kamu terkena penyakit kritis. Di dunia nyata juga melindungi keluarga jika pencari nafkah meninggal.", "premium": 150000, "critical_payout": 100000000 },
+		{ "id": "health_plus", "category": "health", "name": "Asuransi Kesehatan Swasta", "desc": "Menanggung 100% biaya berobat dan rawat inap, tanpa rujukan berjenjang.", "premium": 500000, "coverage": 1.0,
+			"age_premium": [[0, 1.0], [40, 1.5], [50, 2.2], [60, 3.0], [70, 4.0]] },
+		{ "id": "life_term", "category": "life", "name": "Asuransi Jiwa Berjangka", "desc": "Membayar uang pertanggungan {rp:100000000} jika kamu terkena penyakit kritis, atau kepada keluarga (ahli waris) jika kamu meninggal dunia sebelum usia 70. Polis berakhir di usia 70.", "premium": 150000, "critical_payout": 100000000,
+			"death_payout": 100000000, "cover_until_age": 70,
+			"age_premium": [[0, 1.0], [30, 1.4], [40, 2.2], [50, 3.5]], "age_basis": "purchase", "max_buy_age": 60 },
 		{ "id": "vehicle_allrisk", "category": "vehicle", "name": "Asuransi Kendaraan All Risk", "desc": "Menanggung biaya perbaikan saat kecelakaan, dikurangi risiko sendiri {rp:300000} per klaim. Servis rutin tidak ditanggung.", "premium_rate": 0.025, "coverage": 1.0, "deductible": 300000 }
 	]
 }

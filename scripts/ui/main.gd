@@ -9,6 +9,7 @@ extends Control
 const END_SCENE := "res://scenes/end_screen.tscn"
 const ANNUAL_POPUP := preload("res://scenes/ui/annual_popup.tscn")
 const LEVERAGE_POPUP := preload("res://scenes/ui/leverage_popup.tscn")
+const QUIET_ICON := preload("res://assets/icons/badge_retire.svg")  # masa senja & perpisahan (v2b)
 
 ## Petunjuk kontekstual saat tab dibuka pertama kali (index tab -> key teks).
 const TAB_HINTS := {1: "HINT_MARKET", 2: "HINT_PORTFOLIO", 3: "HINT_ACTIVITY", 4: "HINT_PROFILE"}
@@ -57,6 +58,8 @@ func _ready() -> void:
 	GameState.month_advanced.connect(func(report: Dictionary) -> void:
 		_enqueue(%SummaryPopup.show_report.bind(report))
 		_enqueue_leverage_alert(report)
+		if report.has("critical_ended"):  # v2b: pulih dari kondisi kritis
+			_show_toast(tr("TOAST_CRITICAL_ENDED"))
 		if GameState.research.has_rumor():  # rumor pertama (v1.5d): jelaskan riset di tab Pasar
 			_hint("HINT_RUMOR")
 		_enqueue_plan_review())
@@ -150,8 +153,11 @@ func _ready() -> void:
 			_enqueue(%PlanPopup.open))
 	# Game berakhir: popup yang masih mengantre (event, unlock) dibuang karena tidak relevan lagi.
 	# Popup yang sedang tampil (mis. laporan bulan terakhir) tetap dibaca dulu, lalu pindah ke layar akhir.
-	GameState.game_ended.connect(func(_result: Dictionary) -> void:
+	GameState.game_ended.connect(func(result: Dictionary) -> void:
 		_popup_queue.clear()
+		if result["type"] == "died":  # v2b: perpisahan yang tenang sebelum layar akhir
+			_enqueue(%InfoPopup.open_quiet.bind(tr("DEATH_POPUP_TITLE"),
+				UiText.death_text(result) + "\n\n" + tr("DEATH_POPUP_NOTE"), tr("DEATH_POPUP_OK"), QUIET_ICON))
 		_enqueue(func() -> void: get_tree().change_scene_to_file(END_SCENE)))
 	%ProfileScreen.text_requested.connect(func(title: String, body: String) -> void:
 		_enqueue(%TextPopup.open.bind(title, body)))
@@ -170,6 +176,14 @@ func _ready() -> void:
 			_chapter_text(summary)))))
 	GameState.retirement_started.connect(func(info: Dictionary) -> void:
 		_enqueue(_celebrating(%InfoPopup.open.bind(tr("RETIRE_POPUP_TITLE"), _retirement_text(info)))))
+	GameState.aging_changed.connect(func(age: int) -> void:
+		_enqueue(%InfoPopup.open.bind(tr("AGING_POPUP_TITLE") % age, _aging_text())))
+	GameState.critical_started.connect(func(info: Dictionary) -> void:
+		_enqueue(%InfoPopup.open_warning.bind(tr("CRITICAL_POPUP_TITLE"), _critical_text(info), "", Callable(),
+			tr("CRITICAL_POPUP_OK"))))
+	GameState.twilight_notice.connect(func(info: Dictionary) -> void:
+		_enqueue(%InfoPopup.open_quiet.bind(tr("TWILIGHT_POPUP_TITLE") % int(info["age"]), _twilight_text(info), "",
+			QUIET_ICON)))
 	for popup: ModalPopup in [%SummaryPopup, %InfoPopup, %EventPopup, %QuizPopup, %GlossaryPopup, %TextPopup,
 			%PlanPopup, %DreamPickerPopup, %DreamPopup, %TradeConfirmPopup, %InsurancePopup, %OrderPopup, %OfferPopup,
 			%LoanPopup, %VehiclePopup, %PropertyPopup, _annual_popup, _leverage_popup]:
@@ -370,8 +384,49 @@ func _chapter_text(summary: Dictionary) -> String:
 	lines.append("")
 	lines.append(tr("CHAPTER_NEXT") % [tr("CHAPTER_" + str(summary["to"]).to_upper()), range_text,
 		tr("CHAPTER_TIP_" + str(summary["to"]).to_upper())])
+	if summary.get("aging", false):  # efek usia berubah di ulang tahun yang sama (v2b langkah 2)
+		lines.append("")
+		lines.append(tr("CHAPTER_AGING"))
+		for line in UiText.aging_lines():
+			lines.append("• " + line)
 	lines.append("")
 	lines.append(tr("CHAPTER_SAVED"))
+	return "\n".join(lines)
+
+
+## Peringatan status Kritis (v2b langkah 3): peluang meninggal per tahun di usia ini (atau aturan
+## kesehatan 0 selama 3 bulan bagi yang masih muda) dan cara memulihkan diri.
+func _critical_text(info: Dictionary) -> String:
+	var lines: PackedStringArray = [tr("CRITICAL_POPUP_BODY") % int(info["health"])]
+	if float(info["chance"]) > 0.0:
+		lines.append(tr("CRITICAL_POPUP_CHANCE") % UiText.percent_short(info["chance"]))
+	else:
+		lines.append(tr("CRITICAL_POPUP_YOUNG") % int(GameState.economy["end"]["danger_months"]))
+	lines.append("")
+	lines.append(tr("CRITICAL_POPUP_TIP") % int(GameState.life.data["mortality"]["critical_exit"]))
+	return "\n".join(lines)
+
+
+## Pemberitahuan masa senja tahunan (usia 70+): peluang tutup usia tahun ini dan saran; di usia 70
+## sekaligus daftar efek usia.
+func _twilight_text(info: Dictionary) -> String:
+	var lines: PackedStringArray = [tr("TWILIGHT_POPUP_BODY") % UiText.percent_short(info["chance"]),
+		tr("TWILIGHT_POPUP_HEALTH"), "", tr("TWILIGHT_POPUP_TIP")]
+	if info.get("aging", false):
+		lines.append("")
+		lines.append(tr("CHAPTER_AGING"))
+		for line in UiText.aging_lines():
+			lines.append("• " + line)
+	return "\n".join(lines)
+
+
+## Popup ulang tahun saat efek penuaan berubah: daftar efek yang berlaku + saran menjaga kesehatan.
+func _aging_text() -> String:
+	var lines: PackedStringArray = [tr("AGING_POPUP_INTRO"), ""]
+	for line in UiText.aging_lines():
+		lines.append("• " + line)
+	lines.append("")
+	lines.append(tr("AGING_POPUP_TIP"))
 	return "\n".join(lines)
 
 

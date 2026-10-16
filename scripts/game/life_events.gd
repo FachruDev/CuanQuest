@@ -92,12 +92,15 @@ func _still_valid(def: Dictionary) -> bool:
 		return gs.career.scheduled_event_valid(def["id"])
 	if def.get("id", "") in Debt.SCHEDULED_EVENTS:
 		return gs.debt.scheduled_event_valid(def["id"])
+	if def.get("id", "") in Life.SCHEDULED_EVENTS:
+		return gs.life.scheduled_event_valid(def["id"])
 	return catalog.requires_met(def, gs)
 
 
 ## Biaya pilihan event (harga hari ini). "cost_vehicle" = persen dari nilai pasar kendaraan utama;
 ## "cost_property" = persen dari nilai pasar properti yang dituju event; "cost_var" = angka dari
-## isian event (mis. tunggakan atau biaya take over KPR yang dihitung modul Debt).
+## isian event (mis. tunggakan atau biaya take over KPR yang dihitung modul Debt). Biaya berobat
+## ("claim": "medical") dikali pengali usia (Life.medical_mult, v2b).
 func choice_cost(choice: Dictionary) -> int:
 	if choice.has("cost_vehicle"):
 		return roundi(gs.vehicles.repair_base() * float(choice["cost_vehicle"]) / 1000.0) * 1000
@@ -105,6 +108,8 @@ func choice_cost(choice: Dictionary) -> int:
 		return gs.properties.event_cost(float(choice["cost_property"]))
 	if choice.has("cost_var"):
 		return int(pending_vars.get(choice["cost_var"], 0))
+	if choice.get("claim", "") == "medical" and gs.life.medical_mult() != 1.0:  # biaya berobat naik seiring usia (v2b)
+		return roundi(gs.nominal(choice.get("cost", 0)) * gs.life.medical_mult() / 1000.0) * 1000
 	return gs.nominal(choice.get("cost", 0))
 
 
@@ -131,6 +136,7 @@ func roll() -> void:
 			queue.append(def)
 	queue.append_array(gs.career.scheduled_events())  # wawancara / PHK / promosi, juga di luar jatah
 	queue.append_array(gs.debt.scheduled_events())  # penagih utang / bunga KPR mengambang, juga di luar jatah
+	queue.append_array(gs.life.scheduled_events())  # perawatan saat status Kritis dimulai (v2b), di luar jatah
 
 	var context := context_flags()
 	var picked := 0

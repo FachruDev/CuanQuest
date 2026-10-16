@@ -31,7 +31,7 @@ data/
   rumors.json                 Rumor pasar (v1.5d): peluang, gerak harga benar/jebakan, riset dasar & mendalam
   contracts.json              Proyek sampingan (v1.5d): 17 proyek, tier & reputasi, 3 strategi, peluang, bayaran
   achievements.json           Pencapaian (v1.5d): 21 pencapaian (syarat sebagai data), gelar, 7 bingkai avatar
-  events/<kategori>.json      111 event hidup per kategori (finance, work, education, health, social,
+  events/<kategori>.json      116 event hidup per kategori (finance, work, education, health, social,
                               market, scam, property, debt): syarat, pilihan, efek, tokoh. Cara menambah:
                               docs/PANDUAN_EVENT.md
   characters.json             Tokoh berulang (v1.5d): Bima, Ibu, Kak Wulan, Bu Ratna, atasan, rekan kerja
@@ -42,11 +42,11 @@ data/
   jobs.json                   Pekerjaan (bidang, jenjang, syarat, gaji, beban kerja) & aturan lowongan
   education.json              Program kuliah (syarat, lama, biaya, hasil) & beban kuliah
   quiz.json                   170 soal kuis (9 topik, urutan topik di "topics")
-  glossary.json               100 istilah glosarium
+  glossary.json               106 istilah glosarium
   legal.json                  Kebijakan privasi, syarat penggunaan & lisensi pihak ketiga (tampil di game)
   activities.json             6 aktivitas bulanan & aturan energi
   leverage.json               Leverage (v2a): kelas & pilihan leverage, fee, biaya inap, batas margin call & likuidasi
-  life.json                   Siklus hidup (v2b): bab kehidupan, usia pensiun, JHT & Jaminan Pensiun, batas usia
+  life.json                   Siklus hidup (v2b): bab kehidupan, usia pensiun, JHT & Jaminan Pensiun, tabel penuaan, peluang meninggal, batas usia
   risk_profile.json           Kuesioner & 3 profil risiko
   unlocks.json                Syarat membuka tiap tahap instrumen
 localization/strings.csv      Semua teks UI (kolom id & en)
@@ -71,7 +71,7 @@ scripts/
     characters.gd             Tokoh berulang: kedekatan, nama atasan/rekan per perusahaan, saran Kak Wulan
     research.gd               Rumor pasar & riset: rumor benar/jebakan, penilaian riset, rekam jejak
     leverage.gd               Posisi leverage & margin: buka/tutup, tambah margin, cek harian, likuidasi
-    life.gd                   Siklus hidup (v2b): bab kehidupan, pensiun, JHT & Jaminan Pensiun
+    life.gd                   Siklus hidup (v2b): bab kehidupan, pensiun, JHT & Jaminan Pensiun, penuaan, status Kritis, masa senja, kematian
     contracts.gd              Proyek sampingan: papan tawaran, strategi, energi bulanan, hasil, reputasi
     annual.gd                 Laporan tahunan: catatan tahun berjalan, ditutup setiap Januari
     achievements.gd           Pencapaian & kosmetik (data pemain lintas permainan, bukan modul slot save)
@@ -230,11 +230,11 @@ scenes/
   - [x] (3) Leverage & margin
   - [x] (4) Peringatan & cerita
   - [x] (5) Penyeimbangan & uji celah
-- [ ] **v2b "Siklus Hidup Penuh"** (pedoman konten sensitif: `docs/PEDOMAN_KONTEN_SENSITIF.md`, usulan):
+- [ ] **v2b "Siklus Hidup Penuh"** (pedoman konten sensitif: `docs/PEDOMAN_KONTEN_SENSITIF.md`, disetujui):
   - [x] (1) Bab kehidupan & pensiun berlanjut
-  - [ ] (2) Penuaan
-  - [ ] (3) Kesehatan Kritis & kematian (setelah pedoman disetujui)
-  - [ ] (4) Depresi (setelah pedoman disetujui)
+  - [x] (2) Penuaan
+  - [x] (3) Kesehatan Kritis & kematian
+  - [ ] (4) Depresi
   - [ ] (5) Warisan, layar akhir & penyeimbangan
 - [ ] **v2c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
@@ -354,7 +354,31 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **JHT & Jaminan Pensiun** ala BPJS Ketenagakerjaan: setiap bulan pekerjaan formal (berjenjang) yang membayar gaji menambah saldo JHT 3,7% gaji (saldo tumbuh 5,5%/tahun) serta masa iuran & upah JP (dibatasi batas upah, ikut inflasi). Saat pensiun JHT cair sekaligus; JP bulanan = 1% x tahun iuran x rata-rata upah riil (dibayar nominal ikut inflasi, `pension_payment()`), atau sekaligus 3% x jumlah upah jika iuran < 15 tahun. Kerja lepas tidak ikut. Kartu pekerjaan menampilkan saldo JHT & perkiraan JP.
 - **Laporan:** `retirement` (bulan pensiun: JHT & JP sekaligus), `retired`, `pension`; `pension` juga masuk pemasukan laporan tahunan. Tombol **+1 Tahun** di samping Lanjut hanya di masa pensiun (`GameState.fast_forward(12)`).
 - **Save lama:** bab dimulai dari usia saat dimuat; saldo JHT diperkirakan dari total gaji, masa iuran dari pengalaman kerja formal.
-- **Pedoman konten sensitif** (`docs/PEDOMAN_KONTEN_SENSITIF.md`) masih **usulan**: langkah 3 (kematian) & 4 (depresi) menunggu persetujuan.
+- **Pedoman konten sensitif** (`docs/PEDOMAN_KONTEN_SENSITIF.md`) **disetujui** (16 Oktober 2026): langkah 3 (kematian) & 4 (depresi) wajib mengikutinya.
+
+## Kesehatan Kritis & Kematian (v2b langkah 3)
+
+- **Peluang meninggal** (`data/life.json` bagian `mortality`): `base` = peluang per tahun menurut usia, `health_mult` = pengali menurut kesehatan (tabel dibaca dengan `Life.band()` seperti tabel penuaan). `Life.annual_death_chance()` = base × pengali; peluang bulanan = ÷ 12. Undian memakai `Life.rng` (seed + `rng_offset`, disimpan sebagai `life_rng`), terpisah dari RNG utama, dan hanya terjadi jika peluangnya > 0, jadi permainan muda tidak mengubah urutan acak apa pun.
+- **Selalu dengan peringatan** (`Life.is_warned()`): undian hanya berlaku jika status **Kritis** sudah diumumkan di bulan sebelumnya dan kesehatan masih di bawah `critical_exit`, atau pemberitahuan **masa senja** sudah tampil (usia ≥ `twilight_age`). Analogi web: seperti fitur yang hanya aktif setelah pengguna menekan "Saya mengerti" di dialog persetujuan.
+- **Alur bulanan:** `Life.month_start()` mengirim pemberitahuan masa senja setiap ulang tahun mulai 70 (signal `twilight_notice`, digabung dengan efek usia di 70). Setelah kondisi bulan dihitung, `GameState.advance_month` memanggil `Life.check_health()`: undian (jika sudah diperingatkan), lalu status Kritis dimulai (`critical_started`, laporan `critical_started`/`critical`) atau berakhir (`critical_ended`). `GameState._check_end()` memeriksa `life.death` lebih dulu; kesehatan 0 selama `danger_months` dan batas usia kini juga lewat `Life.die()`.
+- **Event terjadwal:** `Life.SCHEDULED_EVENTS` = `critical_care` (Perawatan Kondisi Kritis, `chain_only`), muncul di bulan status Kritis dimulai lewat `Life.scheduled_events()` seperti event terjadwal Karier & Utang.
+- **Meninggal dunia** (`Life.die(cause)`): `death = {month, age, cause, payout}`; `Insurance.death_payout()` menambahkan uang pertanggungan polis jiwa aktif ke kas (warisan) dan `stats.life_insurance_payout`. `finish_game("died", cause)` dengan cause `old_age` / `critical` / `illness`; `end_result.payout` dipakai layar akhir. Polis dengan `cover_until_age` berakhir di `Insurance.pay_premiums()` (laporan `insurance_ended`).
+- **Tampilan:** `InfoPopup.open_quiet()` (lencana tanpa bunyi perayaan) untuk masa senja & perpisahan; `open_warning()` untuk status Kritis; spanduk Kritis di Beranda (`_build_critical_alert`, tepat di bawah spanduk margin call); `UiText.death_text()` dipakai popup perpisahan dan layar akhir (`RESULT_LOOK["died"]`, tanpa bunyi/getar); `EndAnalysis` menambah wawasan kematian & asuransi jiwa.
+- **Simulator:** baris `meninggal:` (jumlah, penyebab, usia median, sebelum 60, pernah kritis); jalankan `--years=80` untuk hidup penuh.
+- **Penyeimbangan:** simulator hidup penuh (40 permainan × 80 tahun, berhenti saat meninggal): **tidak ada yang meninggal sebelum usia 60** di semua tipe pemain. Usia meninggal median: S1 hemat 91 (tidak pernah kritis), pembeli rumah kota 91, SMA hemat 88, S1 acak 82 (25% pernah kritis), SMA acak 82 (1 dari 40 meninggal saat kritis), boros 90 tetapi 9 dari 40 bangkrut di masa tua karena tabungannya habis. Pemain yang selalu menjaga kesehatan ≥ 70 hidup lebih lama dari target ±75-85 (pengali ×0,5); ini ditinjau di langkah 5 bersama skor warisan.
+
+## Penuaan (v2b langkah 2)
+
+- **Tabel penuaan** di `data/life.json` bagian `aging`: setiap tabel berisi baris `[usia mulai, nilai]`, dan yang berlaku adalah baris terakhir yang usianya sudah tercapai (`Life.band()`). Analogi web: seperti tabel tarif bertingkat di konfigurasi, yang dibaca dengan "cari baris terakhir yang batasnya terlewati".
+  - `energy`: perubahan energi maksimal (`Life.energy_change()`, dipakai `Activities.energy_max()`).
+  - `health_decline`: `[usia, poin, tiap N bulan]`, dikurangkan di `_start_month()` bersama makanan, tempat tinggal, dan beban kerja (`Life.health_decline()`, kunci laporan `aging_health`). Pemulihan alami di bawah 50 tetap berjalan.
+  - `medical_cost`: pengali biaya pilihan event `"claim": "medical"` (`LifeEvents.choice_cost()`), sehingga popup event, pembayaran, dan klaim asuransi memakai angka yang sama.
+  - `hire_chance`: pengali peluang diterima pekerjaan berjenjang (`Career.hire_chance()`); kerja lepas tidak terpengaruh.
+- **Premi menurut usia** (`data/insurance.json`): `age_premium` = `[[usia, pengali], ...]` dihitung dari usia sekarang, atau dari usia saat polis dibeli jika `"age_basis": "purchase"` (asuransi jiwa berjangka, `Insurance.age_factor()` membaca `policies[kategori].since` lewat `GameState.age_at()`). `max_buy_age` menolak polis baru (`Insurance.buy_block_reason()` → `INS_ERR_AGE`; polis lama tetap berjalan, dan popup Perlindungan menonaktifkan pilihannya).
+- **Pemberitahuan:** `Life.month_start()` memeriksa ulang tahun yang mengubah efek usia (`aging_ages()`, diturunkan otomatis dari semua tabel: 40, 45, 50, 55, 60, 70). Jika bab juga berganti, ringkasan bab memuat `"aging": true` dan `main._chapter_text()` menambahkan daftar efek; jika tidak, signal `aging_changed(age)` menampilkan popup "Usia N Tahun". Teks efek dibuat sekali di `UiText.aging_lines()` / `aging_short()` dan dipakai popup, Profil, dan Beranda.
+- **Event usia:** field event `min_age` / `max_age` (dicek di `EventManager._is_eligible`). Isian `{invest}` & `{withdraw}` untuk event `retirement_withdrawal` dihitung `Life.event_vars()` (aturan 4%, dibulatkan).
+- **Tokoh & usia:** `until_player_age` di `data/characters.json` (Ibu: 55) dicek `Characters.in_story()` di `EventManager._character_ok()`, termasuk untuk lanjutan cerita.
+- **Penyeimbangan:** simulator 40 permainan × 45 tahun (S1 sampai usia 67, SMA sampai 63) dibandingkan versi sebelum langkah 2. Pemain hemat hampir tidak terpengaruh: bebas finansial tetap tahun 12,6 (SMA 19,0), kekayaan riil tahun ke-45 Rp15,6 M (sebelumnya Rp15,5 M), dan kesehatan tetap ±98-100 karena rutin berolahraga. Pemain acak yang jarang menjaga kesehatan turun ke kesehatan median 66 di usia 67 (sebelumnya 93), dan biaya berobat tanpa asuransinya naik dari Rp148 jt menjadi Rp216 jt (nominal, 45 tahun). Klaim asuransi pemain hemat naik dari Rp268 jt menjadi Rp328 jt sementara iuran BPJS tetap, jadi asuransi makin berharga di usia tua. Pemain boros tetap 3/40 bangkrut seperti sebelumnya (bukan karena penuaan). Tidak ada angka yang perlu diubah; dampak penuaan terhadap peluang meninggal dinilai di langkah 3 dan 5. Simulator kini mencatat tahun 35-70 dan baris pensiun (`CHECKPOINTS`).
 
 ## Penyeimbangan Instrumen Lanjut (v2a langkah 5)
 

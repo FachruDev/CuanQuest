@@ -5,6 +5,7 @@
 		"work = tokoh kantor (hanya ada saat bekerja di pekerjaan berjenjang): namanya dipilih dari names sesuai perusahaan, dan kedekatannya kembali ke start saat pindah perusahaan.",
 		"color = warna potret sementara (lingkaran + inisial) sampai ada assets/illustrations/characters/<id>.svg.",
 		"work_effects: dampak kedekatan dengan tokoh kantor terhadap karier (lihat Characters di scripts/game/characters.gd).",
+		"until_player_age (v2b): event tokoh berhenti muncul saat pemain mencapai usia ini, tanpa diceritakan alasannya (docs/PEDOMAN_KONTEN_SENSITIF.md: tokoh berulang tidak meninggal).",
 		"Teks ditulis langsung dalam bahasa Indonesia dan ditampilkan lewat tr()."
 	],
 	"levels": [
@@ -24,7 +25,7 @@
 			"desc": "Sahabatmu sejak sekolah. Seru dan setia kawan, tapi impulsif dan selalu punya ide \"cepat kaya\"."
 		},
 		{
-			"id": "ibu", "name": "Ibu", "role": "Orang tua", "start": 70, "known": true, "color": "#23877B",
+			"id": "ibu", "name": "Ibu", "role": "Orang tua", "start": 70, "known": true, "color": "#23877B", "until_player_age": 55,
 			"desc": "Ibumu di kampung. Selalu mendoakanmu, sesekali butuh bantuan."
 		},
 		{

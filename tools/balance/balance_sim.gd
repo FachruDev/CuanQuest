@@ -83,7 +83,7 @@ const PERSONAS := {
 		"quiz": true, "lump_invest": true, "activities": true,
 		"unlock_from": 60, "leverage": "seasonal"},
 }
-const CHECKPOINTS := [5, 10, 20, 30]
+const CHECKPOINTS := [5, 10, 20, 30, 35, 40, 45, 50, 60, 70]  # di atas 30 untuk simulasi hidup panjang (v2b)
 
 var _rng := RandomNumberGenerator.new()
 var _skip_events: PackedStringArray = []
@@ -197,7 +197,10 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 		"event_stats": _event_stats.duplicate(), "months": GameState.month,
 		"research": GameState.research.record.duplicate(true),
 		"leverage": _leverage_totals(), "season_trades": _season_trades.duplicate(),
-		"lev_bankrupt": GameState.is_over and int(GameState.leverage.record["liquidated"]) > 0}
+		"lev_bankrupt": GameState.is_over and int(GameState.leverage.record["liquidated"]) > 0,
+		"died": GameState.is_over and GameState.end_result.get("type", "") == "died",
+		"death_age": int(GameState.end_result.get("age", -1)) if GameState.is_over else -1,
+		"critical_count": GameState.life.critical_count}
 
 
 func _snapshot(start_salary: int) -> Dictionary:
@@ -212,6 +215,8 @@ func _snapshot(start_salary: int) -> Dictionary:
 		"skill": GameState.career.skill,
 		"months_unemployed": int(GameState.stats["months_unemployed"]),
 		"health": GameState.health, "happiness": GameState.happiness,
+		"retired": GameState.life.retired, "pension": GameState.life.pension_payment(),
+		"retirement_payout": float(GameState.stats.get("retirement_payout", 0)),
 		"taxes": float(GameState.stats["total_taxes"]),
 		"claims": float(GameState.stats["insurance_claims"]),
 		"premiums": float(GameState.stats["insurance_premiums"]),
@@ -736,13 +741,31 @@ func _expected_effects(choice: Dictionary) -> Dictionary:
 
 # --- Ringkasan ---------------------------------------------------------------------
 
+## Kematian (v2b langkah 3): berapa yang meninggal, usia median, penyebab, meninggal sebelum 60, dan
+## berapa yang pernah masuk status Kritis.
+func _print_deaths(results: Array[Dictionary]) -> void:
+	var died := results.filter(func(r: Dictionary) -> bool: return r["died"])
+	var causes := {}
+	var ages: Array = []
+	for r: Dictionary in died:
+		causes[r["reason"]] = causes.get(r["reason"], 0) + 1
+		ages.append(float(r["death_age"]))
+	ages.sort()
+	var young := died.filter(func(r: Dictionary) -> bool: return int(r["death_age"]) < 60).size()
+	var critical := results.filter(func(r: Dictionary) -> bool: return int(r["critical_count"]) > 0).size()
+	print("  meninggal: %d/%d %s | usia median %s | sebelum 60: %d (%d%%) | pernah kritis %d%%" % [died.size(), results.size(),
+		str(causes) if not causes.is_empty() else "", str(roundi(_pct(ages, 0.5))) if not ages.is_empty() else "-", young,
+		roundi(100.0 * young / results.size()), roundi(100.0 * critical / results.size())])
+
+
 func _print_summary(persona: String, results: Array[Dictionary], years: int) -> void:
-	var lost := results.filter(func(r: Dictionary) -> bool: return r["over"])
+	var lost := results.filter(func(r: Dictionary) -> bool: return r["over"] and not r["died"])
 	var reasons := {}
 	for r: Dictionary in lost:
 		reasons[r["reason"]] = reasons.get(r["reason"], 0) + 1
 	print("\n== %s (%s) ==" % [persona, PERSONAS[persona]["desc"]])
 	print("  kalah: %d/%d %s" % [lost.size(), results.size(), str(reasons) if not reasons.is_empty() else ""])
+	_print_deaths(results)
 	print("  bebas finansial: %s | Rp1 miliar: %s" % [
 		_month_stat(results, "freedom_month"), _month_stat(results, "millionaire_month")])
 	var first_jobs: Array = results.map(func(r: Dictionary) -> float: return float(r["first_job_month"]))
@@ -763,6 +786,11 @@ func _print_summary(persona: String, results: Array[Dictionary], years: int) -> 
 			GameState.education.level_name(int(_median(snaps, "education")))])
 	var last: int = CHECKPOINTS.filter(func(y: int) -> bool: return y <= years).max()
 	var finals: Array = results.map(func(r: Dictionary) -> Dictionary: return r["snapshots"][last])
+	var retirees := finals.filter(func(f: Dictionary) -> bool: return f["retired"])
+	if not retirees.is_empty():  # v2b: pensiun berlanjut
+		print("  tahun %d: pensiun %d%% | Jaminan Pensiun median %s/bulan | JHT & JP sekaligus median %s | sehat median %d | bahagia median %d" % [
+			last, roundi(100.0 * retirees.size() / finals.size()), Fmt.rupiah_short(_median(retirees, "pension")),
+			Fmt.rupiah_short(_median(retirees, "retirement_payout")), int(_median(retirees, "health")), int(_median(retirees, "happiness"))])
 	print("  tahun %d: gaji total %s | biaya hidup total %s (median, nominal)" % [last,
 		Fmt.rupiah_short(_median(finals, "salary_total")), Fmt.rupiah_short(_median(finals, "living_total"))])
 	print("  tahun %d: pajak total %s | premi asuransi %s | klaim %s | berobat tanpa asuransi %s (median, nominal)" % [

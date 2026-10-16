@@ -52,6 +52,9 @@ func _build_rows() -> void:
 			button.custom_minimum_size = Vector2(0, 84)
 			button.text = _option_text(product)
 			button.button_pressed = id == _choices[category]
+			if not product.is_empty() and GameState.insurance.buy_block_reason(product) != "":  # v2b: batas usia beli
+				button.disabled = true
+				button.text += "\n" + tr("INS_ERR_AGE") % int(product["max_buy_age"])
 			button.toggled.connect(func(on: bool) -> void:
 				if on:
 					_choices[category] = id
@@ -65,8 +68,17 @@ func _build_rows() -> void:
 func _option_text(product: Dictionary) -> String:
 	if product.is_empty():
 		return "%s\n%s" % [tr("INS_NONE"), tr("INS_NONE_DESC")]
-	return "%s · %s\n%s" % [tr(product["name"]), tr("INS_PER_MONTH") % Fmt.rupiah(GameState.insurance.premium(product)),
+	var text := "%s · %s\n%s" % [tr(product["name"]), tr("INS_PER_MONTH") % Fmt.rupiah(GameState.insurance.premium(product)),
 		UiText.money(tr(product["desc"]))]
+	if product.has("age_premium"):  # v2b: premi menurut usia
+		var factor := GameState.insurance.age_factor(product)
+		if product.get("age_basis", "") == "purchase":
+			text += "\n" + tr("INS_AGE_PURCHASE")
+		else:
+			text += "\n" + tr("INS_AGE_CURRENT")
+		if factor > 1.0:
+			text += " " + tr("INS_AGE_FACTOR") % UiText.times(factor)
+	return text
 
 
 ## "Polis aktif" atau "Masa tunggu: berlaku mulai Maret Tahun 2" untuk polis yang dimiliki.

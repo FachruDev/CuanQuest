@@ -101,6 +101,8 @@ func _is_eligible(def: Dictionary, state: Node) -> bool:
 		return false
 	if def.has("month_of_year") and state.month % 12 != int(def["month_of_year"]):
 		return false
+	if state.age() < int(def.get("min_age", 0)) or state.age() > int(def.get("max_age", 999)):  # event usia (v2b)
+		return false
 	return requires_met(def, state)
 
 
@@ -117,6 +119,8 @@ func _character_ok(def: Dictionary, state: Node) -> bool:
 	if not def.has("character"):
 		return true
 	var id: String = def["character"]
+	if not state.characters.in_story(id):  # mis. Ibu tidak muncul lagi saat pemain 55+ (pedoman konten sensitif)
+		return false
 	if not def.get("chain_only", false) and not state.characters.available(id):
 		return false
 	if def.get("known", false) and not state.characters.is_known(id):

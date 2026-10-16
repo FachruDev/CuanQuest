@@ -218,6 +218,24 @@
 				{ "label": "Sarankan emas batangan atau tabungan emas", "effects": { "xp": 10, "rel": { "ibu": 1 } }, "result": "Ibu setuju mulai menabung emas sedikit demi sedikit. Selisih harga beli dan jualnya lebih kecil dibanding perhiasan." },
 				{ "label": "Belum bisa tahun ini", "effects": { "happiness": -1, "rel": { "ibu": -2 } }, "result": "Ibu mengerti, walau sedikit kecewa." }
 			]
+		},
+		{
+			"id": "school_reunion", "category": "social", "weight": 1, "cooldown": 60, "max_times": 3, "min_age": 35,
+			"title": "Reuni Angkatan", "text": "Grup alumni ramai membahas reuni angkatan. Ada yang pamer mobil baru, ada yang sibuk bercerita soal bisnisnya.",
+			"choices": [
+				{ "label": "Datang dan bernostalgia", "cost": 500000, "effects": { "happiness": 7 }, "result": "Tertawa bersama teman lama mengisi semangatmu. Pencapaian orang lain bukan ukuran hidupmu." },
+				{ "label": "Datang dengan gaya: sewa mobil & baju baru", "cost": 3000000, "effects": { "happiness": 4 }, "result": "Semua memuji penampilanmu, tapi besoknya yang tersisa hanya tagihan. Gengsi itu mahal dan cepat berlalu." },
+				{ "label": "Tidak datang", "effects": { "happiness": -1 }, "result": "Kamu melewatkan kesempatan bertemu teman lama. Hubungan sosial juga bagian dari hidup yang sehat." }
+			]
+		},
+		{
+			"id": "mentor_youth", "category": "social", "weight": 1.5, "cooldown": 12, "min_age": 45,
+			"title": "Menjadi Mentor", "text": "Anak-anak muda di lingkunganmu memintamu berbagi pengalaman soal karier dan mengatur uang.",
+			"choices": [
+				{ "label": "Jadi mentor rutin sebulan sekali", "effects": { "happiness": 6, "xp": 30 }, "result": "Mengajar membuatmu merapikan pengalamanmu sendiri. Melihat mereka mulai menabung dan berinvestasi rutin terasa sangat berarti." },
+				{ "label": "Isi satu sesi saja", "effects": { "happiness": 3, "xp": 10 }, "result": "Satu sesi singkat tetap bermanfaat bagi mereka." },
+				{ "label": "Tolak dulu", "effects": {}, "result": "Tidak apa-apa. Lain kali mungkin kamu punya lebih banyak waktu." }
+			]
 		}
 	]
 }
