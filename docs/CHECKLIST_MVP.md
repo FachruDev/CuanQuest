@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 16 Oktober 2026 (v2a langkah 4: peringatan & cerita)
+- **Terakhir diperbarui:** 16 Oktober 2026 (v2a selesai: langkah 5 penyeimbangan & uji celah)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -19,7 +19,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v1.5c** | Utang, properti, hunian yang tumbuh | ✅ 5/5 langkah (aset final menyusul setelah v2) |
 | **v1.5d** | Tokoh, riset, kontrak, konten | ✅ 5/5 langkah (aset final menyusul setelah v2) |
 | **Penutup v1.5** | Performa & baterai, playtest, legal | ✅ legal & performa (APK dicoba di HP); playtest berjalan terus lewat Profil > Sesi Bermain |
-| **v2a** | Instrumen lanjut: komoditas, valas, leverage & margin | 🔄 4/5 langkah |
+| **v2a** | Instrumen lanjut: komoditas, valas, leverage & margin | ✅ 5/5 langkah (ikon kelas menyusul setelah v2) |
 | **v2b-v2d** | Hidup penuh, dana investor, mini-game | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
 
@@ -456,7 +456,7 @@ Panduan uji di HP: `docs/UJI_AKHIR_V15.md` (tabel performa, baterai, dan pertany
 
 ## v2 🔄
 
-**v2a: Instrumen lanjut** 🔄 (rancangan: `MVP_Cuan_Quest_Revisi3.md` 6.1.1-6.1.9)
+**v2a: Instrumen lanjut** ✅ (rancangan: `MVP_Cuan_Quest_Revisi3.md` 6.1.1-6.1.9)
 
 *Langkah pengerjaan*
 - ✅ **Langkah 1: Komoditas & emas**
@@ -491,7 +491,10 @@ Panduan uji di HP: `docs/UJI_AKHIR_V15.md` (tabel performa, baterai, dan pertany
   - ✅ 7 event baru (111): broker valas bonus 100% + dana tidak bisa ditarik, opsi biner, grup sinyal VIP, Bima & leverage 100x, emas untuk Lebaran (Ibu), Tidak Bisa Tidur saat margin call (syarat baru `has_margin_call`)
   - ✅ 8 istilah glosarium leverage (100); analisis layar akhir (likuidasi, rugi melebihi margin, biaya inap, untung tanpa likuidasi); statistik leverage di Profil; posisi leverage dihitung aset berisiko untuk event
   - ✅ 33 uji langkah 4 + 1248 uji lama lulus; golden runner identik (event baru disaring)
-- ⬜ Langkah 5: Penyeimbangan & uji celah
+- ✅ **Langkah 5: Penyeimbangan & uji celah**
+  - ✅ Simulator: 6 tipe pemain baru (`penabung_emas`, `pedagang_musiman`, `pemegang_dolar`, `penjudi_leverage`, `leverage_disiplin`, `musiman_leverage`) + ringkasan emas/komoditas/valas, dagang musiman, dan leverage
+  - ✅ Tidak ada strategi yang jauh mengungguli hemat: musiman & leverage disiplin hanya +3-6% kekayaan akhir dengan risiko lebih besar; penjudi leverage −11%; tanpa penyesuaian angka
+  - ✅ Uji celah lindung nilai (long/short searah, emas fisik + short emas) rugi rata-rata; 34 uji langkah 4-5 + 1248 uji lama lulus
 
 *Daftar fitur*
 - ✅ Komoditas (3-4) dengan siklus musiman
@@ -500,7 +503,7 @@ Panduan uji di HP: `docs/UJI_AKHIR_V15.md` (tabel performa, baterai, dan pertany
 - ✅ Syarat pembukaan sesuai draft (emas tahap 3, komoditas tahap 4, valas tahap 5, leverage tahap 6)
 
 *Kriteria selesai*
-- 🔄 Margin call dan likuidasi tidak bisa dieksploitasi (uji celah dasar ✅: satu posisi per aset, kekurangan ditagih ke kas, strategi acak rugi; uji simulator langkah 5 ⬜)
+- ✅ Margin call dan likuidasi tidak bisa dieksploitasi (satu posisi per aset, kekurangan ditagih ke kas, strategi acak & lindung nilai rugi, simulator 6 tipe pemain)
 - ✅ Peringatan risiko sebelum transaksi leverage pertama
 
 **v2b: Siklus hidup penuh**

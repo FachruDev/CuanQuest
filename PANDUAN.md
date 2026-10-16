@@ -222,12 +222,12 @@ scenes/
   - [x] (4) Pencapaian, kosmetik & laporan tahunan
   - [x] (5) Perluasan konten & penyeimbangan
 - [x] **Penutup v1.5**: legal & lisensi, performa & baterai, alat playtest (APK dicoba di HP; panduan `docs/UJI_AKHIR_V15.md`)
-- [ ] **v2a "Instrumen Lanjut"**:
+- [x] **v2a "Instrumen Lanjut"**:
   - [x] (1) Komoditas & emas
   - [x] (2) Valas
   - [x] (3) Leverage & margin
   - [x] (4) Peringatan & cerita
-  - [ ] (5) Penyeimbangan & uji celah
+  - [x] (5) Penyeimbangan & uji celah
 - [ ] **v2b/c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
 Rangkuman semua checklist MVP (v1, v1.5, v2, M7) ada di [docs/CHECKLIST_MVP.md](docs/CHECKLIST_MVP.md).
@@ -336,6 +336,13 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Save:** kunci baru `contract_board`, `contracts`, `contract_reputation`, `contract_energy`, `contract_seq`, `contract_rng`; statistik `projects_*` & `project_income` (save lama: tanpa proyek, papan terisi bulan berikutnya).
 - **Hasil simulator** (40 × 30 tahun): tahun bebas finansial S1 hemat 12,6 → selalu 1 proyek 10,5 → selalu 2 proyek 9,6; SMA 18,4 → 14,7 → 13,4. Dua proyek sekaligus menguras kesehatan (±75) & kebahagiaan (±81) dan menurunkan kinerja kantor. Versi awal (bayaran 2× lebih besar dan keahlian lebih banyak) membuat S1 bebas finansial di tahun 7,6, jadi angka di data sudah diturunkan.
 - **Menambah proyek:** salin satu baris di `projects` (`id`, `track` = id bidang di `jobs.json` atau `general`, `tier`, `months` [min, max], `weight`), lalu tambahkan nama & deskripsinya di CSV.
+
+## Penyeimbangan Instrumen Lanjut (v2a langkah 5)
+
+- **Tipe pemain baru di simulator** (`tools/balance/balance_sim.gd`): `penabung_emas` (20% porsi autodebet ke emas), `pedagang_musiman` (memegang sawit & kopi hanya saat drift musiman > 0,05), `pemegang_dolar` (15% kekayaan dalam dolar, diseimbangkan tiap Januari), dan tiga tipe leverage yang tahap 6-nya dibuka paksa di tahun 5 (`unlock_from`) agar strateginya bisa diukur: `penjudi_leverage` (acak, leverage maksimal), `leverage_disiplin` (long 2x saham & emas, tambah margin saat margin call), `musiman_leverage` (long sawit 10x selama musim naik). Ringkasan baru: nilai emas/komoditas & valas, transaksi musiman, dan leverage (posisi, likuidasi, untung/rugi termasuk posisi terbuka, biaya inap, kekurangan ditagih ke kas).
+- **Hasil** (S1, 40 x 30 tahun): hemat bebas finansial tahun 12,6 (sama seperti sebelum v2a); emas 12,9; dolar 12,6 dengan kekayaan akhir lebih rendah (pelindung, bukan pertumbuhan); musiman +6% kekayaan akhir (rata-rata +8,1% per musim, 60% untung); leverage disiplin +4% dengan risiko likuidasi; musiman + 10x hampir impas dengan sebaran sangat lebar; penjudi leverage −11% (rugi leverage median −Rp1,5 M). Kesimpulan: tidak ada celah; angka tidak perlu diubah.
+- **Uji celah** (`test_v2a_story._test_hedges`): long dolar AS 20x + short dolar Singapura 20x, dan emas fisik + short emas 10x, rugi rata-rata ±Rp3,6 jt per bulan karena biaya inap & fee dibayar dua kali.
+- **Cara menjalankan:** `--persona=pedagang_musiman` (atau tipe lain) seperti biasa; tipe leverage memakai opsi data `unlock_from` di `PERSONAS`.
 
 ## Peringatan & Cerita Leverage (v2a langkah 4)
 

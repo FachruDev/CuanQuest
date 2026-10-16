@@ -6,7 +6,8 @@ extends Node
 ## Jalankan (data asli aman karena --save-root):
 ##   Godot --headless --path . res://tools/balance/balance_sim.tscn -- --save-root=user://_sim/
 ##       [--games=40] [--years=30] [--persona=all|hemat|penabung|boros|spekulan|acak|pelajar|pengutang|pengendara|
-##       pembeli_rumah|pembeli_rumah_kota|pembeli_rumah_nekat|pemburu_rumor|periset|pekerja_lepas|gila_kerja]
+##       pembeli_rumah|pembeli_rumah_kota|pembeli_rumah_nekat|pemburu_rumor|periset|pekerja_lepas|gila_kerja|
+##       penabung_emas|pedagang_musiman|pemegang_dolar|penjudi_leverage|leverage_disiplin|musiman_leverage]
 ##       [--difficulty=normal]
 ##       [--background=s1|d3|sma]
 ##       [--skip-events=id1,id2] (buang event tertentu untuk membandingkan dampaknya)
@@ -56,6 +57,31 @@ const PERSONAS := {
 	"gila_kerja": {"desc": "Hemat + selalu 2 proyek sampingan sekaligus", "food": "standard", "housing": "kos",
 		"lifestyle": 0.05, "emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"}, "choice": "prudent",
 		"quiz": true, "lump_invest": true, "activities": true, "projects": 2},
+	# v2a: instrumen lanjut. Tahap 3-5 terbuka secara alami; tipe leverage dibuka paksa di tahun 5 (unlock_from)
+	# agar strategi leverage bisa diukur tanpa harus memenuhi syarat tahap 6 dulu.
+	"penabung_emas": {"desc": "Hemat + autodebet emas (20% porsi investasi)", "food": "standard", "housing": "kos", "lifestyle": 0.05,
+		"emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"}, "choice": "prudent",
+		"quiz": true, "lump_invest": true, "activities": true, "gold_share": 0.2},
+	"pedagang_musiman": {"desc": "Hemat + jual-beli sawit & kopi mengikuti pola musiman (20% kekayaan)", "food": "standard", "housing": "kos", "lifestyle": 0.05,
+		"emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"}, "choice": "prudent",
+		"quiz": true, "lump_invest": true, "activities": true,
+		"seasonal": 0.2},
+	"pemegang_dolar": {"desc": "Hemat + 15% kekayaan dalam dolar AS", "food": "standard", "housing": "kos", "lifestyle": 0.05,
+		"emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"}, "choice": "prudent",
+		"quiz": true, "lump_invest": true, "activities": true, "forex_share": 0.15,
+		"quiz_forex": true},
+	"penjudi_leverage": {"desc": "Hemat + posisi leverage maksimal acak, 5% kekayaan per posisi (mulai tahun 5)", "food": "standard", "housing": "kos", "lifestyle": 0.05,
+		"emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"}, "choice": "prudent",
+		"quiz": true, "lump_invest": true, "activities": true,
+		"unlock_from": 60, "leverage": "gamble"},
+	"leverage_disiplin": {"desc": "Hemat + long 2x saham & emas, tambah margin saat margin call (mulai tahun 5)", "food": "standard", "housing": "kos", "lifestyle": 0.05,
+		"emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"}, "choice": "prudent",
+		"quiz": true, "lump_invest": true, "activities": true,
+		"unlock_from": 60, "leverage": "steady"},
+	"musiman_leverage": {"desc": "Hemat + long sawit 10x selama musim naik, 5% kekayaan (mulai tahun 5)", "food": "standard", "housing": "kos", "lifestyle": 0.05,
+		"emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"}, "choice": "prudent",
+		"quiz": true, "lump_invest": true, "activities": true,
+		"unlock_from": 60, "leverage": "seasonal"},
 }
 const CHECKPOINTS := [5, 10, 20, 30]
 
@@ -66,6 +92,8 @@ var _skip_events: PackedStringArray = []
 var _event_stats := {}
 var _rumor_position: Dictionary = {}  # aset yang dibeli karena rumor (v1.5d), dijual setelah rumor terjawab
 var _rumor_trades: Array[float] = []  # imbal hasil tiap transaksi rumor (0.05 = +5%)
+var _season_trades: Array[float] = []  # imbal hasil tiap transaksi musiman (v2a), dari modal yang dibayar
+var _season_paid: Dictionary = {}  # aset musiman -> uang yang dibayar untuk posisi yang sedang dipegang
 
 
 func _ready() -> void:
@@ -118,6 +146,8 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 	_update_plan(p)
 	_rumor_position = {}
 	_rumor_trades.clear()
+	_season_trades.clear()
+	_season_paid.clear()
 	GameState.achievements.unlocked.clear()  # pencapaian dihitung per permainan di simulasi (v1.5d)
 	_event_stats = {"good": 0, "bad": 0, "good_cash": 0.0, "bad_cash": 0.0, "positive": 0}
 	var snapshots := {}
@@ -165,7 +195,9 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 		"rumors": int(GameState.research.record["rumors"]), "rumor_trades": _rumor_trades.duplicate(),
 		"achievements": GameState.achievements.unlocked.keys(), "annual_reports": GameState.annual.reports.size(),
 		"event_stats": _event_stats.duplicate(), "months": GameState.month,
-		"research": GameState.research.record.duplicate(true)}
+		"research": GameState.research.record.duplicate(true),
+		"leverage": _leverage_totals(), "season_trades": _season_trades.duplicate(),
+		"lev_bankrupt": GameState.is_over and int(GameState.leverage.record["liquidated"]) > 0}
 
 
 func _snapshot(start_salary: int) -> Dictionary:
@@ -219,7 +251,28 @@ func _snapshot(start_salary: int) -> Dictionary:
 		"projects_revised": int(GameState.stats["projects_revised"]),
 		"project_income": float(GameState.stats["project_income"]),
 		"reputation": GameState.contracts.reputation,
+		"commodity_value": _class_value("commodity"),
+		"forex_value": _class_value("forex"),
+		"lev_equity": GameState.leverage.total_equity(),
 	}
+
+
+## Rekam jejak leverage + posisi yang masih terbuka (untung/rugi berjalan & biaya inap terkumpul).
+func _leverage_totals() -> Dictionary:
+	var lev := GameState.leverage
+	var totals := lev.record.duplicate(true)
+	for p: Dictionary in lev.positions:
+		totals["pnl"] += lev.equity(p) - float(p["margin"])
+		totals["financing"] += float(p["financing"])
+	return totals
+
+
+func _class_value(asset_class: String) -> float:
+	var total := 0.0
+	for asset_id: String in GameState.portfolio.holdings:
+		if GameState.market.get_asset(asset_id).asset_class == asset_class:
+			total += GameState.portfolio.holding_value(asset_id)
+	return total
 
 
 ## Rencana gaji tiap Januari: porsi investasi dibagi ke aset yang sudah terbuka.
@@ -239,6 +292,9 @@ func _update_plan(p: Dictionary) -> void:
 			mix = [["RDS", share - 0.1], ["RDPU", 0.1]]
 		if "BSNT" in unlocked:
 			mix = [["RDS", share - 0.15], ["BSNT", 0.05], ["MPGN", 0.05], ["RDPU", 0.05]]
+		if p.has("gold_share") and "EMAS" in unlocked:  # v2a: sebagian porsi investasi ke emas
+			mix.append(["EMAS", share * float(p["gold_share"])])
+			mix[0][1] -= share * float(p["gold_share"])
 		for item: Array in mix:
 			if item[0] in unlocked and item[1] > 0.0:
 				invest[item[0]] = item[1]
@@ -383,6 +439,18 @@ func _monthly_actions(p: Dictionary) -> void:
 		GameState.activities.perform("course")
 	if p["quiz"]:
 		_simulate_quiz()
+	if p.get("quiz_forex", false) and GameState.month == 12:  # sertifikat valas: 8 soal topik valas benar
+		var count := 0
+		for q: Dictionary in GameState.quiz.questions:
+			if q["topic"] == "forex" and count < 8:
+				GameState.quiz.correct_ids[q["id"]] = true
+				count += 1
+	if p.has("seasonal"):
+		_seasonal_actions(float(p["seasonal"]), expenses)
+	if p.has("forex_share"):
+		_forex_actions(float(p["forex_share"]), expenses)
+	if p.has("leverage") and GameState.month >= int(p["unlock_from"]):
+		_leverage_actions(str(p["leverage"]), expenses)
 	if p.get("activities", false):  # aktivitas gratis untuk menjaga kesehatan & kebahagiaan
 		for i in 4:
 			var id := "exercise" if GameState.health <= GameState.happiness else "rest"
@@ -444,6 +512,90 @@ func _rumor_actions(style: String, expenses: float) -> void:
 	var result := GameState.portfolio.buy(rumor["asset"], amount)
 	if result["ok"]:
 		_rumor_position = {"asset": rumor["asset"], "month": rumor["month"], "paid": amount, "units": result["units"]}
+
+
+# --- Instrumen lanjut (v2a langkah 5) -------------------------------------------------
+
+## Pedagang musiman: memegang sawit & kopi saat drift musiman bulan ini positif (> 0,05/tahun), menjual
+## saat negatif. Bulan musim = bulan saat Lanjut ditekan (lihat Market.step). Porsi `share` dari kekayaan.
+func _seasonal_actions(share: float, expenses: float) -> void:
+	var month_of_year := GameState.month % 12
+	for asset_id: String in ["CPO", "KOPI"]:
+		if not GameState.progress.is_asset_unlocked(asset_id):
+			continue
+		var drift := GameState.market.get_asset(asset_id).season_drift(month_of_year)
+		var held := GameState.portfolio.holding_value(asset_id)
+		if drift > 0.05 and held <= 0.0:
+			var amount := int(minf(GameState.net_worth() * share / 2.0, GameState.cash - expenses * 3.0))
+			if amount >= 1_000_000 and GameState.portfolio.buy(asset_id, amount)["ok"]:
+				_season_paid[asset_id] = float(amount)
+		elif drift < 0.0 and held > 0.0:
+			var sold := GameState.portfolio.sell(asset_id, ceili(held))
+			if sold["ok"] and _season_paid.has(asset_id):
+				_season_trades.append(float(sold["proceeds"]) / float(_season_paid[asset_id]) - 1.0)
+				_season_paid.erase(asset_id)
+
+
+## Pemegang dolar: setiap Januari porsi dolar AS diseimbangkan ke `share` dari kekayaan.
+func _forex_actions(share: float, expenses: float) -> void:
+	if GameState.month % 12 != 0 or not GameState.progress.is_asset_unlocked("USDIDR"):
+		return
+	var gap := GameState.net_worth() * share - GameState.portfolio.holding_value("USDIDR")
+	if gap > 1_000_000.0:
+		var amount := int(minf(gap, GameState.cash - expenses * 3.0))
+		if amount >= 1_000_000:
+			GameState.portfolio.buy("USDIDR", amount)
+	elif gap < -1_000_000.0:
+		GameState.portfolio.sell("USDIDR", int(-gap))
+
+
+## Tipe leverage (dibuka paksa di bulan `unlock_from`, termasuk persetujuan peringatan risiko):
+## - gamble  : maks. 2 posisi, aset & arah acak, leverage maksimal, margin 5% kekayaan, ditutup setelah 2 bulan
+## - steady  : long 2x saham BSNT & emas, margin 7,5% kekayaan masing-masing, tambah margin saat margin call
+## - seasonal: long sawit 10x selama drift musiman > 0,05, margin 5% kekayaan, tutup saat musim berbalik / margin call
+func _leverage_actions(style: String, expenses: float) -> void:
+	var lev := GameState.leverage
+	if not lev.is_open():
+		GameState.progress.unlocked_stages.assign([1, 2, 3, 4, 5, 6])
+	if not lev.risk_ack:
+		lev.acknowledge_risk()
+	var spare := GameState.cash - expenses * 3.0
+	match style:
+		"gamble":
+			for p: Dictionary in lev.positions.duplicate():
+				if GameState.month - int(p["opened"]) >= 2:
+					lev.close(int(p["uid"]))
+			if lev.positions.size() < 2 and _rng.randf() < 0.5:
+				var ids := ["BSNT", "NUSA", "EMAS", "MINYAK", "CPO", "KOPI", "USDIDR", "EURIDR", "JPYIDR", "SGDIDR"]
+				var id: String = ids[_rng.randi() % ids.size()]
+				var side := Leverage.SHORT if lev.can_short(id) and _rng.randf() < 0.5 else Leverage.LONG
+				lev.open(id, side, lev.leverage_options(id)[-1], _margin_for(0.05, spare))
+		"steady":
+			for id: String in ["BSNT", "EMAS"]:
+				var p := lev.position_of(id)
+				if p.is_empty():
+					lev.open(id, Leverage.LONG, 2, _margin_for(0.075, spare))
+				elif p["call"]:
+					var top_up := int(float(p["margin"]) * 0.5)
+					if lev.add_margin(int(p["uid"]), top_up)["ok"] == false:
+						lev.close(int(p["uid"]))
+		"seasonal":
+			var drift := GameState.market.get_asset("CPO").season_drift(GameState.month % 12)
+			var p := lev.position_of("CPO")
+			if not p.is_empty() and (drift <= 0.0 or p["call"]):
+				lev.close(int(p["uid"]))
+			elif p.is_empty() and drift > 0.05:
+				lev.open("CPO", Leverage.LONG, 10, _margin_for(0.05, spare))
+
+
+## Margin = porsi kekayaan bersih, dibulatkan ke pilihan margin terdekat di bawahnya, tidak melebihi kas cadangan.
+func _margin_for(share: float, spare: float) -> int:
+	var target := minf(GameState.net_worth() * share, spare)
+	var best := 0
+	for step: int in GameState.leverage.margin_steps():
+		if step <= target:
+			best = step
+	return best
 
 
 ## Tipe pemain proyek sampingan (v1.5d langkah 3): ambil tawaran dengan nilai harapan terbesar
@@ -653,6 +805,7 @@ func _print_summary(persona: String, results: Array[Dictionary], years: int) -> 
 		print("  tahun %d: terima tawaran kredit %d%% | restrukturisasi %d%% | take over KPR %d%%" % [
 			last, share.call("offer_loans"), share.call("restructures"), share.call("refinances")])
 	_print_rumors(results)
+	_print_v2a(results, finals, last)
 	_print_achievements(results)
 	_print_events(results)
 	var freelancers := finals.filter(func(f: Dictionary) -> bool: return f["projects_done"] + f["projects_failed"] > 0)
@@ -670,6 +823,46 @@ func _print_summary(persona: String, results: Array[Dictionary], years: int) -> 
 			defaults.size(), roundi(100.0 * recovered.size() / defaults.size()),
 			Fmt.number(_pct(waits, 0.5), 0) if not waits.is_empty() else "-",
 			defaults.filter(func(r: Dictionary) -> bool: return r["over"]).size()])
+
+
+## Instrumen lanjut (v2a langkah 5): nilai emas/komoditas & valas, transaksi musiman, dan leverage
+## (posisi, likuidasi, untung/rugi, biaya inap, kekurangan yang ditagih ke kas, bangkrut setelah likuidasi).
+func _print_v2a(results: Array[Dictionary], finals: Array, last: int) -> void:
+	var commodity := finals.filter(func(f: Dictionary) -> bool: return f["commodity_value"] > 0.0)
+	var forex := finals.filter(func(f: Dictionary) -> bool: return f["forex_value"] > 0.0)
+	if not commodity.is_empty() or not forex.is_empty():
+		print("  tahun %d: pegang emas/komoditas %d%% (nilai median %s) | pegang valas %d%% (nilai median %s)" % [last,
+			roundi(100.0 * commodity.size() / finals.size()), Fmt.rupiah_short(_median(commodity, "commodity_value")),
+			roundi(100.0 * forex.size() / finals.size()), Fmt.rupiah_short(_median(forex, "forex_value"))])
+	var trades: Array[float] = []
+	for r: Dictionary in results:
+		trades.append_array(r["season_trades"])
+	if not trades.is_empty():
+		var total := 0.0
+		var wins := 0
+		for t: float in trades:
+			total += t
+			wins += 1 if t > 0.0 else 0
+		print("  dagang musiman: %d transaksi (%s/permainan) | imbal hasil rata-rata %s per musim | untung %d%%" % [
+			trades.size(), Fmt.number(float(trades.size()) / results.size(), 1), Fmt.percent(total / trades.size()),
+			roundi(100.0 * wins / trades.size())])
+	var users := results.filter(func(r: Dictionary) -> bool: return int(r["leverage"]["opened"]) > 0)
+	if users.is_empty():
+		return
+	var values := func(key: String) -> Array:
+		var out: Array = users.map(func(r: Dictionary) -> float: return float(r["leverage"][key]))
+		out.sort()
+		return out
+	var liquidated: Array = values.call("liquidated")
+	var shortfall: Array = values.call("shortfall")
+	print("  leverage: posisi dibuka median %d | dilikuidasi median %d (pernah %d%%) | untung/rugi total median %s (p10 %s, p90 %s) | biaya inap median %s | ditagih ke kas pernah %d%% (median %s) | bangkrut setelah likuidasi %d" % [
+		int(_pct(values.call("opened"), 0.5)), int(_pct(liquidated, 0.5)),
+		roundi(100.0 * liquidated.filter(func(v: float) -> bool: return v > 0.0).size() / users.size()),
+		Fmt.signed_rupiah(_pct(values.call("pnl"), 0.5)), Fmt.signed_rupiah(_pct(values.call("pnl"), 0.1)),
+		Fmt.signed_rupiah(_pct(values.call("pnl"), 0.9)), Fmt.rupiah_short(_pct(values.call("financing"), 0.5)),
+		roundi(100.0 * shortfall.filter(func(v: float) -> bool: return v > 0.0).size() / users.size()),
+		Fmt.rupiah_short(_pct(shortfall.filter(func(v: float) -> bool: return v > 0.0), 0.5)),
+		users.filter(func(r: Dictionary) -> bool: return r["lev_bankrupt"]).size()])
 
 
 ## Event Director (penutup v1.5): event per tahun, porsi event buruk, porsi event yang langsung menambah
