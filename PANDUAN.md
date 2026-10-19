@@ -252,7 +252,9 @@ scenes/
   - [x] (2) Kepuasan, penarikan & reputasi
   - [x] (3) Laporan per investor & cerita
   - [x] (4) Penyeimbangan & uji celah
-- [ ] **Penutup v2**: peninjauan kebijakan Google Play untuk leverage, forex, serta konten depresi dan kematian (v2 berakhir di v2c; v2d mini-game trading dihapus)
+- [ ] **Penutup v2**: peninjauan kebijakan Google Play untuk leverage, forex, serta konten depresi dan kematian (v2 berakhir di v2c; v2d mini-game trading dihapus; rancangan `MVP_Cuan_Quest_Revisi3.md` 6.4, hasil `docs/RILIS_PLAY_STORE.md`):
+  - [x] (1) Peninjauan kebijakan & penyesuaian di game
+  - [ ] (2) Draf isian Play Console & teks halaman toko
 
 Rangkuman semua checklist MVP (v1, v1.5, v2, M7) ada di [docs/CHECKLIST_MVP.md](docs/CHECKLIST_MVP.md).
 - [ ] **M7: Export rilis & Play Store** (setelah v2 selesai; tanpa monetisasi)
@@ -400,6 +402,16 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Jeda tawaran ulang:** `record.departed` (id → bulan keluar); `_add_offer` melewati investor yang keluar kurang dari `return_cooldown` bulan. **Tambah setoran** dibatasi `topup.max_multiple` × setoran awal (`initial`).
 - **Fee & energi:** `Fund.management_fee()` dari `management_fee[profil]`; `energy_cost()` = `energy` × ceil(investor / `investors_per_energy`). `UiText.percent_rate()` untuk tarif (mis. 1,25%).
 - **Simulator:** tipe `manajer_konservatif`, `manajer_moderat`, `manajer_agresif`, `manajer_serampangan` (`"quiz_fund"` lulus ujian WMI di bulan 24, `"fund": {"allocation", "careless"}` → `_fund_actions()`), baris `dana kelolaan:` (`_print_fund`: bulan terbuka, dana puncak riil, fee riil vs gaji riil, investor masuk/pergi/perpanjang/selesai, reputasi). `_choice_score` menilai `fund_reputation`, `fund_satisfaction`, dan menghindari `fund_allocation` (panik).
+
+## Kebijakan Google Play (Penutup v2 langkah 1)
+
+Hasil peninjauan lengkap, isian Play Console, dan sumbernya ada di [docs/RILIS_PLAY_STORE.md](docs/RILIS_PLAY_STORE.md). Analogi web: audit kepatuhan sebelum peluncuran (syarat layanan, privasi, label usia), plus uji otomatis yang menjaga agar konten baru tidak melanggarnya diam-diam, seperti *linter* aturan konten di CI.
+
+- **Uji `test_policy`** (scratchpad `refactor/tests_new/test_policy.gd`, 38 pemeriksaan): merek layanan keuangan nyata (broker, bursa kripto, pinjol, bank), kata simulasi judi (kasino, lotre, taruhan), rokok/alkohol/narkoba, dan tautan luar (hanya `healing119.id` & situs lisensi yang boleh) di `data/*.json`, `data/events/*.json`, dan `localization/strings.csv`; event kategori `scam` tidak pernah untung bersih bagi yang ikut (umpan `cash` < `cost`), uang yang langsung cair selalu punya `chain` akibat, dan selalu ada pilihan aman; `binary_option_flex` tanpa `outcomes`; disclaimer, `SUPPORT_MESSAGE` (id & en), `LEV_RISK_BODY`, `FUND_NOTE`; isi `legal.json` `terms`; tanggal "Terakhir diperbarui" di syarat, privasi game, dan `docs/kebijakan-privasi.md` harus sama; izin di `export_presets.cfg` hanya `permissions/vibrate`.
+- **Jika uji ini gagal setelah menambah konten:** jangan longgarkan polanya begitu saja. Merek nyata → ganti nama fiktif. Kata judi/zat → ubah kalimatnya (contoh: "bertaruh harga turun" → "mengambil posisi yang untung jika harga turun"), karena jawaban kuesioner rating IARC bergantung padanya. Mengubah teks legal → samakan tanggal di ketiga tempat.
+- **Pesan dukungan** (`SUPPORT_MESSAGE`): layanan Healing119 Kemenkes, 119 ekstensi 8 / healing119.id (diverifikasi 19 Oktober 2026; cek ulang sebelum rilis). Versi Inggris mengarahkan ke nomor darurat setempat karena pemain bisa di luar Indonesia.
+- **Disclaimer layar judul** (`scenes/title.tscn`, `Disclaimer/Label`): `autowrap_mode = 3` + `size_flags_horizontal = 3` agar teks panjang turun ke baris kedua. Label tanpa *autowrap* di dalam `HBoxContainer` membuat ukuran minimumnya selebar teks, sehingga seluruh panel ikut melebar (seperti `white-space: nowrap` di CSS).
+- **Cek teknis APK/AAB:** `aapt2 dump badging <apk>` (di `%LOCALAPPDATA%\Android\Sdk\build-tools\36.1.0\`) untuk target/min SDK & izin; perataan 16 KB library native bisa dicek dengan `llvm-objdump -p lib.so` (setiap `LOAD` harus `align 2**14`) atau `zipalign -v -c -P 16 4 app.apk`.
 
 ## Warisan & Layar Akhir (v2b langkah 5)
 

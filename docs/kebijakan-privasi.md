@@ -1,6 +1,6 @@
 # Kebijakan Privasi Cuan Quest
 
-_Terakhir diperbarui: 15 Oktober 2026_
+_Terakhir diperbarui: 19 Oktober 2026_
 
 > **Catatan untuk pengembang (hapus sebelum dipublikasikan):**
 > - Ganti `[EMAIL KONTAK]` dan `[NAMA PENGEMBANG]` (juga di `data/legal.json`).
@@ -14,7 +14,7 @@ Cuan Quest ("aplikasi") dikembangkan oleh [NAMA PENGEMBANG]. Halaman ini menjela
 Aplikasi tidak mengumpulkan, mengirim, atau menjual data pribadi. Semua data **hanya disimpan di perangkat Anda**, dalam database lokal milik aplikasi:
 
 - Nama karakter, pilihan avatar, dan progres permainan (slot simpanan).
-- Data pemain yang berlaku untuk semua permainan: soal kuis yang pernah dijawab benar, pencapaian, gelar & bingkai avatar pilihan, petunjuk yang sudah dibaca, dan riwayat permainan.
+- Data pemain yang berlaku untuk semua permainan: soal kuis yang pernah dijawab benar, pencapaian, gelar & bingkai avatar pilihan, petunjuk yang sudah dibaca, riwayat permainan, dan rekor skor warisan.
 - Statistik sesi bermain (waktu mulai, lama, dan jumlah bulan yang dimainkan per sesi), dipakai untuk menampilkan ringkasan sesi di Profil.
 - Pengaturan (suara, getar, bahasa, format angka, info performa).
 
@@ -37,6 +37,8 @@ Anda dapat menghapus semua data kapan saja melalui **Profil > Pengaturan > Reset
 - Isi aplikasi, termasuk saran tokoh, hasil riset, kuis, dan laporan, **bukan saran keuangan, investasi, pajak, atau hukum**.
 - Pajak, bunga, biaya, asuransi, kredit, dan aturan lain **disederhanakan** dan bisa berbeda dari aturan yang berlaku. Periksa informasi terbaru dari sumber resmi (OJK, Bank Indonesia, LPS, Direktorat Jenderal Pajak, BPJS).
 - Nama lembaga resmi disebut hanya untuk edukasi; aplikasi **tidak berafiliasi** dengan lembaga mana pun.
+- Leverage, valas, kripto, komoditas, dan pengelolaan dana orang lain di dunia nyata berisiko tinggi atau wajib berizin; di dalam aplikasi semuanya simulasi yang disederhanakan. Opsi biner hanya muncul sebagai contoh penipuan.
+- Tema penuaan, sakit, kematian karakter (tanpa adegan grafis), dan kesehatan mental disajikan secara edukatif dan **bukan saran medis**. Layanan kesehatan jiwa Kementerian Kesehatan: 119 ekstensi 8 atau healing119.id.
 - Semua uang dan aset di dalam aplikasi bersifat virtual, tidak memiliki nilai nyata, dan tidak dapat ditarik. Semua perusahaan, koin, harga, berita, dan tokoh adalah fiktif.
 
 ## 8. Lisensi pihak ketiga

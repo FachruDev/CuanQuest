@@ -22,9 +22,10 @@ Pedoman ini berlaku untuk semua teks, event, popup, dan layar yang menyentuh **k
 
 Tampil saat status Depresi muncul pertama kali di sebuah permainan, dan tersedia di **Profil > Bantuan**:
 
-> Ini hanya simulasi. Jika kamu sendiri sedang merasa tertekan atau tidak baik-baik saja, kamu tidak sendirian. Bicarakan dengan orang yang kamu percaya, atau temui tenaga profesional seperti psikolog atau dokter di puskesmas. Dalam keadaan darurat, hubungi **119**.
+> Ini hanya simulasi. Jika kamu sendiri sedang merasa tertekan atau tidak baik-baik saja, kamu tidak sendirian. Bicarakan dengan orang yang kamu percaya, atau temui tenaga profesional seperti psikolog atau dokter di puskesmas. Layanan kesehatan jiwa Kementerian Kesehatan bisa dihubungi gratis 24 jam di **119 ekstensi 8** atau **healing119.id**. Dalam keadaan darurat, hubungi **119**.
 
-- **[VERIFIKASI SEBELUM RILIS]** Nomor dan nama layanan kesehatan jiwa resmi yang masih aktif (mis. layanan konseling Kementerian Kesehatan). Nomor 119 adalah layanan gawat darurat medis nasional.
+- **Nomor layanan diverifikasi 19 Oktober 2026 (Penutup v2):** layanan **Healing119** Kementerian Kesehatan (telepon 119 ekstensi 8, situs & WhatsApp lewat healing119.id; gratis, 24 jam, tanpa batas usia; pertolongan pertama psikologis, bukan terapi jangka panjang). Sumber: FAQ Healing119 di situs Kemenkes (kesprimkom.kemkes.go.id) dan infopublik.id. Nomor 119 sendiri adalah layanan gawat darurat medis nasional. **Cek ulang sesaat sebelum rilis** (layanan pemerintah bisa berganti nomor).
+- **Versi bahasa Inggris** tidak menyuruh menelepon 119 saja (di negara lain nomor itu bisa berbeda): pemain diarahkan ke nomor darurat atau layanan krisis di negaranya, lalu layanan Indonesia disebut sebagai tambahan.
 - Pesan ini tidak bisa dimatikan dan tidak memakai bahasa promosi.
 
 ## 3. Daftar cek untuk setiap konten baru
@@ -57,8 +58,14 @@ Sebelum event, teks, atau layar bertema sensitif ditambahkan:
 - Prinsip 1-2: di layar disebut "sedang tidak baik-baik saja", tanpa kata yang menstigma; popup menjelaskan bahwa ini penyederhanaan dan di dunia nyata depresi bisa ditangani tenaga profesional.
 - Prinsip 3: Depresi tidak pernah mengakhiri permainan (aturan kalah karena kebahagiaan 0 dihapus), dan penurunan kesehatannya berhenti di 30 sehingga tidak membawa pemain ke kondisi Kritis dengan sendirinya.
 - Prinsip 4-5: Konseling selalu tersedia saat suasana hati rendah; setiap event Depresi punya pilihan bantuan (`"help": true`) yang menaikkan kebahagiaan, menolak bantuan tidak diberi akibat, dan tidak ada pilihan berisi undian. Event Depresi tampil tenang (`"quiet": true`: lencana hati, tanpa bunyi peringatan dan getar). Semua ini diperiksa `test_content`.
-- Bagian 2: pesan dukungan tampil saat Depresi pertama kali muncul di sebuah permainan dan selalu ada di Profil > Bantuan & Dukungan. Nomor layanan tetap **[VERIFIKASI SEBELUM RILIS]**.
+- Bagian 2: pesan dukungan tampil saat Depresi pertama kali muncul di sebuah permainan dan selalu ada di Profil > Bantuan & Dukungan. Nomor layanan diverifikasi di Penutup v2 (lihat bagian 2).
 
 ## 4. Play Store
 
 Tema kematian (non-grafis) dan kesehatan mental dicantumkan dengan jujur di kuesioner rating konten (IARC) saat rilis (Penutup v2 / M7). Deskripsi aplikasi menyebut bahwa game ini simulasi edukasi.
+
+**Hasil peninjauan Penutup v2 (19 Oktober 2026),** rincian di `docs/RILIS_PLAY_STORE.md`:
+- Kebijakan Google Play tidak mewajibkan nomor layanan krisis, tetapi melarang konten yang mempromosikan menyakiti diri sendiri atau bunuh diri. Penegakannya makin ketat di 2026: sebuah game visual novel terkenal diturunkan dari Play Store pada April 2026 karena penggambaran menyakiti diri. Prinsip 2 pedoman ini (tanpa penggambaran menyakiti diri, tidak pernah) adalah pengaman utamanya dan **tidak boleh dilonggarkan**.
+- Deklarasi **Health apps** di Play Console dijawab "aplikasi tidak menyediakan fitur kesehatan": status kesehatan & Depresi adalah mekanik permainan, bukan layanan kesehatan.
+- Syarat Penggunaan (Profil > Syarat Penggunaan) kini punya bagian "Kesehatan, penuaan, dan kematian": tema disederhanakan, bukan saran atau diagnosis medis, dan menyebut layanan Healing119.
+- `test_policy` (Penutup v2) ikut memeriksa pesan dukungan (id & en) dan memastikan tanda verifikasi di pedoman ini sudah dihapus.

@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 19 Oktober 2026 (v2d mini-game trading dihapus, v2 ditutup setelah v2c; sebelumnya v2c langkah 4: penyeimbangan & uji celah, v2c selesai)
+- **Terakhir diperbarui:** 19 Oktober 2026 (Penutup v2 langkah 1: peninjauan kebijakan Google Play & penyesuaian di game; v2d dihapus, v2 berakhir di v2c)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -22,7 +22,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v2a** | Instrumen lanjut: komoditas, valas, leverage & margin | ✅ 5/5 langkah (ikon kelas menyusul setelah v2) |
 | **v2b** | Siklus hidup penuh: bab, penuaan, kematian, depresi, warisan | ✅ 5/5 langkah (pedoman konten sensitif disetujui) |
 | **v2c** | Mengelola dana investor | ✅ 4/4 langkah (ikon & potret investor opsional menyusul) |
-| **Penutup v2** | Peninjauan kebijakan Google Play (leverage, forex, konten depresi & kematian) | ⬜ |
+| **Penutup v2** | Peninjauan kebijakan Google Play (leverage, forex, konten depresi & kematian) | 🔄 1/2 langkah |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
 
 ---
@@ -600,14 +600,22 @@ Panduan uji di HP: `docs/UJI_AKHIR_V15.md` (tabel performa, baterai, dan pertany
 - ✅ Laporan bulanan per investor (dan rincian investor + laporan tahunan)
 - ✅ Fee dan setor/tarik tidak bisa dieksploitasi (dilusi, reset high-water mark, bolak-balik alokasi, tambah setoran, warisan)
 
-**Penutup v2** (v2 berakhir di v2c; tahap v2d mini-game trading dihapus 19 Oktober 2026)
-- ⬜ Peninjauan kebijakan Google Play untuk leverage, forex, serta konten depresi dan kematian
+**Penutup v2** 🔄 (v2 berakhir di v2c; tahap v2d mini-game trading dihapus 19 Oktober 2026; rancangan: `MVP_Cuan_Quest_Revisi3.md` 6.4; hasil: `docs/RILIS_PLAY_STORE.md`)
+- ✅ **Langkah 1: Peninjauan kebijakan & penyesuaian di game**
+  - ✅ Riset kebijakan Google Play (layanan keuangan, opsi biner, simulasi judi, kesehatan, kekerasan & menyakiti diri, metadata, keluarga, Data safety, deklarasi fitur keuangan & kesehatan) dan regulasi Indonesia (PSE, IGRS, OJK, PP Tunas): tidak ada fitur yang perlu dihapus
+  - ✅ Teknis: target SDK 36, library 64-bit selaras halaman memori 16 KB (termasuk godot-sqlite), izin hanya getar
+  - ✅ Pesan dukungan: layanan Healing119 Kemenkes (119 ekstensi 8 / healing119.id, terverifikasi); versi Inggris ke nomor darurat setempat
+  - ✅ Disclaimer "uang, harga & perusahaan fiktif" (layar judul tidak melebar lagi), Syarat Penggunaan untuk fitur v2 (instrumen berisiko, dana kelolaan, kesehatan & kematian, Kontak OJK 157), Kebijakan Privasi diperbarui
+  - ✅ Teks lama "berakhir di usia 60" (layar judul, petunjuk tujuan) diperbarui
+  - ✅ `test_policy` 38 uji + 1770 uji lama lulus; golden runner identik
+- ⬜ Langkah 2: Draf isian Play Console (rating IARC, Data safety, target audiens, deklarasi) & teks halaman toko (Indonesia & Inggris)
 
 ---
 
 ## M7: Rilis Play Store (setelah v2) ⬜
 
-- ⬜ Export Android rilis (keystore, ikon adaptif; arm64 saja)
+- ⬜ Export Android rilis: **AAB lewat Gradle build** (JDK 17 + Android build template), upload keystore di luar repo, ikon adaptif; arm64 saja (lihat `docs/RILIS_PLAY_STORE.md` bagian 4)
+- ⬜ Uji tertutup **12 penguji selama 14 hari** (akun pengembang pribadi baru), lalu ajukan akses produksi
 - ✅ Layar lisensi pihak ketiga (Godot & godot-sqlite: MIT; SQLite: domain publik; font: OFL), selesai di penutup v1.5
 - ⬜ Isi `[EMAIL KONTAK]` di `data/legal.json` serta `[EMAIL KONTAK]` & `[NAMA PENGEMBANG]` di `docs/kebijakan-privasi.md`
 - ⬜ Kebijakan privasi di URL publik, formulir *Data safety*

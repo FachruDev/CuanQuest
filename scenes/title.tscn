@@ -440,8 +440,10 @@ stretch_mode = 5
 
 [node name="Label" type="Label" parent="Sheet/Margin/VBox/Disclaimer"]
 layout_mode = 2
+size_flags_horizontal = 3
 theme_type_variation = &"DisclaimerLabel"
 text = "DISCLAIMER"
+autowrap_mode = 3
 
 [node name="LoadOverlay" type="Control" parent="."]
 unique_name_in_owner = true

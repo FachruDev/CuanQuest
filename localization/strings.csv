@@ -28,7 +28,7 @@ MONTH_9,September,September
 MONTH_10,Oktober,October
 MONTH_11,November,November
 MONTH_12,Desember,December
-DISCLAIMER,"Simulasi untuk edukasi, bukan saran keuangan. Uang virtual; aturan disederhanakan.","Educational simulation, not financial advice. Virtual money; rules are simplified."
+DISCLAIMER,"Simulasi edukasi, bukan saran keuangan. Uang, harga & perusahaan fiktif; aturan disederhanakan.","Educational simulation, not financial advice. Fictional money, prices & companies; simplified rules."
 CHART_EMPTY,Belum cukup data. Tekan Lanjut.,Not enough data yet. Press Next.
 NAV_HOME,Beranda,Home
 NAV_MARKET,Pasar,Market
@@ -211,7 +211,7 @@ TITLE_LOAD,Muat Game,Load Game
 TITLE_AUTOSAVE_LABEL,SIMPANAN OTOMATIS,AUTOSAVE
 TITLE_NET_WORTH_LABEL,KEKAYAAN,NET WORTH
 TITLE_WELCOME_TITLE,Petualangan barumu dimulai,Your adventure starts here
-TITLE_WELCOME_BODY,"Dari gaji pertama sampai pensiun di usia 60. Atur uangmu, raih cuan.","From your first paycheck to retirement at 60. Manage your money, grow your wealth."
+TITLE_WELCOME_BODY,"Dari gaji pertama sampai masa tua. Atur uangmu, raih cuan.","From your first paycheck to old age. Manage your money, grow your wealth."
 TITLE_LOAD_SUBTITLE,Pilih simpanan manual untuk dilanjutkan,Pick a manual save to continue
 TITLE_LOAD_EMPTY_HINT,Simpan lewat tab Profil di dalam game,Save from the Profile tab in-game
 TITLE_LOAD_NOTE,Game tersimpan otomatis setiap bulan dan saat aplikasi ditutup. Pakai tombol Lanjutkan untuk simpanan terbaru.,The game autosaves every month and when the app closes. Use Continue for the latest save.
@@ -404,7 +404,7 @@ GOAL_MILLIONAIRE_NAME,Kekayaan bersih,Net worth
 GOAL_PROGRESS_VALUE,%s / %s,%s / %s
 GOAL_FREEDOM_NAME,Pendapatan pasif (aturan 4%),Passive income (4% rule)
 GOAL_FREEDOM_VALUE,%s / %s pengeluaran rutin per bulan,%s / %s regular spending per month
-GOAL_HINT,Capai salah satunya untuk menang. Atau bertahan hingga usia pensiun 60 tahun dengan skor warisan setinggi mungkin.,Reach either goal to win. Or survive to retirement at 60 with the highest legacy score you can.
+GOAL_HINT,Capai salah satunya untuk menang. Kamu juga bisa terus bermain sampai masa tua untuk mengejar skor warisan setinggi mungkin.,Reach either goal to win. You can also keep playing into old age and chase the highest legacy score you can.
 PROFILE_STATS_TITLE,Statistik,Statistics
 PROFILE_STAT_PEAK,Kekayaan tertinggi,Peak net worth
 PROFILE_STAT_MONTHS,Bulan bermain,Months played
@@ -1616,7 +1616,7 @@ DEPRESSION_POPUP_TITLE,Sedang Tidak Baik-Baik Saja,Not Doing Okay
 DEPRESSION_POPUP_BODY,"Kebahagiaanmu berada di bawah %d selama %d bulan. Di game ini kondisi tersebut disebut Depresi: energi bulanan berkurang %d, kesehatan turun perlahan, dan kamu sedang tidak ingin nongkrong.","Your happiness has been below %d for %d months. In this game that is called Depression: your monthly energy drops by %d, your health declines slowly, and you don't feel like hanging out."
 DEPRESSION_POPUP_HELP,"Kamu bisa pulih, dan kondisi ini tidak pernah mengakhiri permainan. Konseling di puskesmas (ditanggung BPJS), istirahat yang cukup, dan bercerita ke orang terdekat semuanya membantu. Pilihan Konseling ada di tab Karier. Kamu pulih saat kebahagiaan di atas %d.","You can recover, and this never ends the game. Counseling at the community health center (covered by BPJS), enough rest, and talking to someone close all help. Counseling is in the Career tab. You recover once your happiness is above %d."
 DEPRESSION_POPUP_SIM,"Ini penyederhanaan dalam permainan. Di dunia nyata, depresi adalah kondisi kesehatan yang bisa ditangani tenaga profesional.","This is a simplification for the game. In real life, depression is a health condition that professionals can help with."
-SUPPORT_MESSAGE,"Ini hanya simulasi. Jika kamu sendiri sedang merasa tertekan atau tidak baik-baik saja, kamu tidak sendirian. Bicarakan dengan orang yang kamu percaya, atau temui tenaga profesional seperti psikolog atau dokter di puskesmas. Dalam keadaan darurat, hubungi 119.","This is only a simulation. If you yourself are feeling overwhelmed or not okay, you are not alone. Talk to someone you trust, or see a professional such as a psychologist or a doctor at your community health center. In an emergency, call 119."
+SUPPORT_MESSAGE,"Ini hanya simulasi. Jika kamu sendiri sedang merasa tertekan atau tidak baik-baik saja, kamu tidak sendirian. Bicarakan dengan orang yang kamu percaya, atau temui tenaga profesional seperti psikolog atau dokter di puskesmas. Layanan kesehatan jiwa Kementerian Kesehatan bisa dihubungi gratis 24 jam di 119 ekstensi 8 atau healing119.id. Dalam keadaan darurat, hubungi 119.","This is only a simulation. If you yourself are feeling overwhelmed or not okay, you are not alone. Talk to someone you trust, or see a professional such as a psychologist or a doctor. If you are in danger, contact your local emergency number or a crisis line in your country. In Indonesia: free 24-hour mental health support at 119 ext. 8 or healing119.id, and 119 for emergencies."
 SUPPORT_GAME_INFO,"Di dalam game: jika kebahagiaanmu di bawah %d selama %d bulan, kamu masuk kondisi Depresi. Kondisi ini tidak pernah mengakhiri permainan. Konseling (tab Karier), istirahat, dan bercerita ke orang terdekat membantumu pulih, dan kamu pulih saat kebahagiaan di atas %d.","In the game: if your happiness stays below %d for %d months, you enter Depression. It never ends the game. Counseling (Career tab), rest, and talking to someone close help you recover, and you recover once your happiness is above %d."
 PROFILE_SUPPORT,Bantuan & Dukungan,Help & Support
 HOME_MOOD_HELP,Cari Bantuan,Find Help
