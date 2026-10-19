@@ -489,6 +489,14 @@ static func icon_tile(icon_path: String, variation: StringName, tile_size := 48.
 
 
 ## Peluang seperti "4%" atau "1,5%" (tanpa ",0").
+## Persen tarif hingga 2 desimal tanpa nol di belakang, mis. 0,005 -> "0,5%", 0,0125 -> "1,25%", 0,02 -> "2%".
+static func percent_rate(ratio: float) -> String:
+	var text := Fmt.number(ratio * 100.0, 2)
+	if text.contains(","):
+		text = text.rstrip("0").trim_suffix(",")
+	return text + "%"
+
+
 static func percent_short(ratio: float) -> String:
 	return Fmt.number(ratio * 100.0, 1).trim_suffix(",0") + "%"
 

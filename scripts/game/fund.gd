@@ -11,6 +11,9 @@ extends GameModule
 ## penarikan dana, evaluasi tahunan (fee kinerja di atas high-water mark, tambah setoran, perpanjangan
 ## kontrak), dan reputasi manajer yang membuka investor besar. Langkah 3: riwayat nilai & laporan per investor,
 ## efek event dana kelolaan (data/events/fund.json: reputasi, kepuasan, rujukan investor, pindah alokasi).
+## Langkah 4 (uji celah): biaya beli aset untuk setoran baru & biaya jual untuk pencairan ditanggung investor
+## yang bersangkutan (investor lama tidak ikut menanggung), dan investor yang baru keluar tidak ditawarkan lagi
+## selama return_cooldown bulan (high-water mark tidak bisa direset dengan keluar-masuk).
 ## Memakai RNG sendiri (seed + rng_offset) dan baru bekerja setelah tahap 7 terbuka, jadi permainan tanpa
 ## dana kelolaan tetap sama persis. Analogi web: seperti admin "akun bersama" yang mengatur strategi
 ## uang milik orang lain; setiap pemilik bisa menarik dananya kapan saja.
@@ -63,7 +66,8 @@ func reset() -> void:
 
 func _new_record() -> Dictionary:
 	return {"mgmt_fees": 0.0, "perf_fees": 0.0, "joined": 0, "returned": 0, "left": 0, "ended": 0, "renewed": 0,
-		"topups": 0, "warnings": 0, "offers": 0, "trade_costs": 0.0, "peak_value": 0.0, "month_fee": 0.0}
+		"topups": 0, "warnings": 0, "offers": 0, "trade_costs": 0.0, "peak_value": 0.0, "month_fee": 0.0,
+		"departed": {}}
 
 
 func save_to(d: Dictionary) -> void:
@@ -141,7 +145,7 @@ func investor_value(inv: Dictionary) -> float:
 func _normalize(inv: Dictionary) -> void:
 	var hwm := float(inv.get("hwm", nav))
 	var defaults := {"join_nav": hwm, "peak_nav": maxf(hwm, nav), "year_nav": hwm, "warned": -1, "perf_paid": 0.0,
-		"satisfaction": int(data["satisfaction"]["start"]), "values": []}
+		"satisfaction": int(data["satisfaction"]["start"]), "values": [], "initial": float(inv.get("deposited", 0.0))}
 	for key: String in defaults:
 		if not inv.has(key):
 			inv[key] = defaults[key]
@@ -362,6 +366,29 @@ func _sell_value(asset_id: String, amount: float) -> float:
 	return fee
 
 
+## Perkiraan biaya membeli aset sesuai alokasi untuk setoran `amount` (biaya masuk, ditanggung penyetor).
+func entry_cost(amount: float) -> float:
+	var weights := target_weights()
+	var cost := 0.0
+	for asset_id: String in weights:
+		var asset := gs.market.get_asset(asset_id)
+		cost += amount * float(weights[asset_id]) * (asset.buy_fee + asset.buy_tax)
+	return cost
+
+
+## Perkiraan biaya menjual aset dana secara proporsional senilai `amount` (biaya keluar, ditanggung yang
+## mencairkan). Kas dana tidak dikenai biaya.
+func exit_cost(amount: float) -> float:
+	var total := value()
+	if total <= 0.0:
+		return 0.0
+	var cost := 0.0
+	for asset_id: String in holdings:
+		var asset := gs.market.get_asset(asset_id)
+		cost += amount * holding_value(asset_id) / total * (asset.sell_fee + asset.sell_tax)
+	return cost
+
+
 ## Kas dana minimal `amount` (untuk fee & pencairan): jual semua aset secara proporsional.
 func _raise_cash(amount: float) -> float:
 	var cost := 0.0
@@ -386,13 +413,14 @@ func accept(uid: int) -> Dictionary:
 		return {"ok": false, "error": "FUND_ERR_OFFER"}
 	var amount := float(offer["amount"])
 	var price := current_nav()
+	var units := (amount - entry_cost(amount)) / price  # biaya masuk ditanggung penyetor (langkah 4)
 	cash += amount
 	board.erase(offer)
 	seq += 1
-	investors.append({"uid": seq, "id": offer["id"], "units": amount / price, "deposited": amount,
+	investors.append({"uid": seq, "id": offer["id"], "units": units, "deposited": amount,
 		"joined": gs.month, "contract_end": gs.month + int(data["contract_months"]), "hwm": price, "join_nav": price,
 		"peak_nav": price, "year_nav": price, "satisfaction": int(data["satisfaction"]["start"]), "warned": -1,
-		"perf_paid": 0.0, "values": [amount]})
+		"perf_paid": 0.0, "values": [amount], "initial": amount})
 	record["joined"] = int(record["joined"]) + 1
 	rebalance()
 	gs.changed.emit()
@@ -416,12 +444,15 @@ func return_funds(uid: int, reason := "returned") -> Dictionary:
 		add_reputation(int(cfg["returned_warned"]) if is_warned(inv) else int(cfg["returned"]))
 	elif reason == "left":
 		add_reputation(int(cfg["left"]))
-	var payout := investor_value(inv)
+	var gross := investor_value(inv)
+	var payout := gross - exit_cost(gross)  # biaya keluar ditanggung yang mencairkan (langkah 4)
 	_raise_cash(payout)
 	payout = minf(payout, cash)
 	cash -= payout
 	investors.erase(inv)
 	record[reason] = int(record.get(reason, 0)) + 1
+	var departed: Dictionary = record["departed"]
+	departed[inv["id"]] = gs.month
 	if investors.is_empty():  # sisa "debu" dari pembulatan dibersihkan
 		holdings.clear()
 		cash = 0.0
@@ -463,9 +494,17 @@ func has_happy_investor() -> bool:
 	return investors.any(func(inv: Dictionary) -> bool: return int(inv["satisfaction"]) >= 75)
 
 
-## Energi bulanan yang dipakai mengelola dana (rapat & laporan investor).
+## Energi bulanan yang dipakai mengelola dana (rapat & laporan investor): bertambah tiap investors_per_energy
+## investor (langkah 4), jadi menampung banyak investor ada harganya.
 func energy_cost() -> int:
-	return int(data["energy"]) if is_active() else 0
+	if not is_active():
+		return 0
+	return int(data["energy"]) * ceili(investors.size() / float(data["investors_per_energy"]))
+
+
+## Fee manajemen per tahun menurut profil dana sekarang (langkah 4).
+func management_fee() -> float:
+	return float(data["management_fee"][profile_of()])
 
 
 # --- Alur bulanan (dipanggil GameState.advance_month setelah _start_month) -------------------------------
@@ -482,7 +521,7 @@ func month_tick() -> Dictionary:
 	if investors.is_empty():
 		return report
 	var nav_before := nav
-	var fee := value() * float(data["management_fee"]) / 12.0
+	var fee := value() * management_fee() / 12.0
 	_raise_cash(fee)
 	fee = minf(fee, cash)
 	cash -= fee
@@ -604,9 +643,11 @@ func _anniversary(inv: Dictionary) -> Dictionary:
 			and rng.randf() < float(top_cfg["chance"]):
 		var share: Array = top_cfg["share"]
 		topup = snappedi(roundi(investor_value(inv) * rng.randf_range(float(share[0]), float(share[1]))), 10_000_000)
+		var room := float(inv.get("initial", inv["deposited"])) * float(top_cfg["max_multiple"]) - float(inv["deposited"])
+		topup = mini(topup, maxi(floori(room / 10_000_000.0) * 10_000_000, 0))  # batas total setoran (langkah 4)
 		if topup > 0:
 			cash += topup
-			inv["units"] = float(inv["units"]) + topup / price
+			inv["units"] = float(inv["units"]) + (topup - entry_cost(topup)) / price
 			inv["deposited"] = float(inv["deposited"]) + topup
 			record["topups"] = int(record["topups"]) + 1
 	var notices: Array[Dictionary] = [{"kind": "eval", "id": inv["id"], "return": year_return, "target": target,
@@ -646,6 +687,10 @@ func _refresh_board() -> int:
 func _add_offer(fitting := false, rep_bonus := 0) -> int:
 	var taken: Array = investors.map(func(inv: Dictionary) -> String: return inv["id"])
 	taken.append_array(board.map(func(o: Dictionary) -> String: return o["id"]))
+	var departed: Dictionary = record["departed"]
+	for id: String in departed:  # baru keluar: belum mau kembali (langkah 4)
+		if gs.month - int(departed[id]) < int(data["return_cooldown"]):
+			taken.append(id)
 	var pool := investor_defs.filter(func(d: Dictionary) -> bool:
 		return (not d["id"] in taken and reputation + rep_bonus >= int(d["min_reputation"])
 			and (not fitting or mandate_ok(d["id"]))))

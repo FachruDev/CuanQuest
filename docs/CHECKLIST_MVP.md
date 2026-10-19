@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 19 Oktober 2026 (v2c langkah 3: laporan per investor & cerita)
+- **Terakhir diperbarui:** 19 Oktober 2026 (v2d mini-game trading dihapus, v2 ditutup setelah v2c; sebelumnya v2c langkah 4: penyeimbangan & uji celah, v2c selesai)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -21,8 +21,8 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **Penutup v1.5** | Performa & baterai, playtest, legal | ✅ legal & performa (APK dicoba di HP); playtest berjalan terus lewat Profil > Sesi Bermain |
 | **v2a** | Instrumen lanjut: komoditas, valas, leverage & margin | ✅ 5/5 langkah (ikon kelas menyusul setelah v2) |
 | **v2b** | Siklus hidup penuh: bab, penuaan, kematian, depresi, warisan | ✅ 5/5 langkah (pedoman konten sensitif disetujui) |
-| **v2c** | Mengelola dana investor | 🔄 3/4 langkah |
-| **v2d** | Mini-game trading (opsional) | ⬜ |
+| **v2c** | Mengelola dana investor | ✅ 4/4 langkah (ikon & potret investor opsional menyusul) |
+| **Penutup v2** | Peninjauan kebijakan Google Play (leverage, forex, konten depresi & kematian) | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
 
 ---
@@ -563,7 +563,7 @@ Panduan uji di HP: `docs/UJI_AKHIR_V15.md` (tabel performa, baterai, dan pertany
 - ✅ Konten depresi dan kematian mengikuti pedoman konten sensitif (diperiksa uji otomatis; nomor layanan diverifikasi sebelum rilis)
 - ✅ Skor warisan konsisten dan bisa dibandingkan antar permainan (nilai riil, bobot di file data, riwayat & skor terbaik di Profil)
   
-**v2c: Mengelola dana investor** 🔄 (rancangan: `MVP_Cuan_Quest_Revisi3.md` 6.3.1-6.3.8)
+**v2c: Mengelola dana investor** ✅ (rancangan: `MVP_Cuan_Quest_Revisi3.md` 6.3.1-6.3.8)
 
 *Langkah pengerjaan*
 - ✅ **Langkah 1: Dana kelolaan & investor pertama**
@@ -587,18 +587,20 @@ Panduan uji di HP: `docs/UJI_AKHIR_V15.md` (tabel performa, baterai, dan pertany
   - ✅ 6 event dana kelolaan (kategori baru): untung pasti, godaan dana titipan, investor panik, titipan tanpa kontrak, rujukan, window dressing
   - ✅ Glosarium +10 (total 118); layar akhir: statistik fee & wawasan dana kelolaan
   - ✅ 38 uji laporan & cerita + 1709 uji lama lulus; golden runner identik
-- ⬜ Langkah 4: Penyeimbangan & uji celah
+- ✅ **Langkah 4: Penyeimbangan & uji celah**
+  - ✅ Biaya masuk & keluar ditanggung investor yang menyetor / mencairkan (investor lain tidak terdilusi, uji < 0,05%)
+  - ✅ Investor yang keluar tidak ditawarkan lagi 36 bulan (high-water mark tidak bisa direset); tambah setoran dibatasi 2× setoran awal
+  - ✅ Fee manajemen menurut profil dana (0,5% / 1,25% / 2%), energi +1 tiap 4 investor, reputasi naik lebih lambat
+  - ✅ Simulator: 4 tipe manajer dana (konservatif, moderat, agresif, serampangan) dan ringkasan dana kelolaan; manajer tertib menambah kekayaan seumur hidup ±15-55%, serampangan kehilangan hampir semua investor
+  - ✅ 23 uji celah + 1747 uji lama lulus; golden runner identik
 
 *Kriteria selesai*
 - ✅ Pemain bisa menerima, mengelola, dan kehilangan dana investor (investor menegur lalu pergi; kontrak bisa tidak diperpanjang)
 - ✅ Dana investor terpisah dari dana pribadi di portofolio dan laporan
 - ✅ Laporan bulanan per investor (dan rincian investor + laporan tahunan)
-- ⬜ Fee dan setor/tarik tidak bisa dieksploitasi
+- ✅ Fee dan setor/tarik tidak bisa dieksploitasi (dilusi, reset high-water mark, bolak-balik alokasi, tambah setoran, warisan)
 
-**v2d (opsional): Mini-game trading**
-- ⬜ Sesi 60 detik, dibatasi energi, hasil dibandingkan dengan "kalau hanya ditahan"
-
-**Penutup v2**
+**Penutup v2** (v2 berakhir di v2c; tahap v2d mini-game trading dihapus 19 Oktober 2026)
 - ⬜ Peninjauan kebijakan Google Play untuk leverage, forex, serta konten depresi dan kematian
 
 ---

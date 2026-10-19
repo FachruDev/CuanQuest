@@ -30,6 +30,22 @@ const PERSONAS := {
 	"acak_peduli": {"desc": "Pilihan acak + mencari bantuan saat suasana hati rendah (Konseling, Istirahat, pilihan bantuan event)",
 		"food": "", "housing": "", "lifestyle": 0.05, "emergency": 0.1, "invest": 0.0, "insurance": {}, "choice": "random",
 		"quiz": false, "random_trades": true, "seek_help": true},
+	"manajer_konservatif": {"desc": "Hemat + dana kelolaan 90/10, hanya investor yang mandatnya cocok", "food": "standard",
+		"housing": "kos", "lifestyle": 0.05, "emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"},
+		"choice": "prudent", "quiz": true, "lump_invest": true, "activities": true, "quiz_fund": true,
+		"fund": {"allocation": {"money": 90, "gold": 10}, "careless": false}},
+	"manajer_moderat": {"desc": "Hemat + dana kelolaan 50/40/10, hanya investor yang mandatnya cocok", "food": "standard",
+		"housing": "kos", "lifestyle": 0.05, "emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"},
+		"choice": "prudent", "quiz": true, "lump_invest": true, "activities": true, "quiz_fund": true,
+		"fund": {"allocation": {"money": 50, "stocks": 40, "gold": 10}, "careless": false}},
+	"manajer_agresif": {"desc": "Hemat + dana kelolaan 20/60/20, hanya investor yang mandatnya cocok", "food": "standard",
+		"housing": "kos", "lifestyle": 0.05, "emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"},
+		"choice": "prudent", "quiz": true, "lump_invest": true, "activities": true, "quiz_fund": true,
+		"fund": {"allocation": {"money": 20, "stocks": 60, "commodities": 20}, "careless": false}},
+	"manajer_serampangan": {"desc": "Hemat + dana kelolaan 20/60/20, menerima SEMUA investor (mandat dilanggar)",
+		"food": "standard", "housing": "kos", "lifestyle": 0.05, "emergency": 0.15, "invest": 0.25,
+		"insurance": {"health": "health_basic"}, "choice": "prudent", "quiz": true, "lump_invest": true, "activities": true,
+		"quiz_fund": true, "fund": {"allocation": {"money": 20, "stocks": 60, "commodities": 20}, "careless": true}},
 	"pelajar": {"desc": "Hemat + kuliah & kursus", "food": "standard", "housing": "kos", "lifestyle": 0.05,
 		"emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"}, "choice": "prudent",
 		"quiz": true, "lump_invest": true, "activities": true, "study": true, "courses": true},
@@ -161,6 +177,7 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 	var home_month := -1
 	var default_month := -1  # macet pertama
 	var recovered_month := -1  # skor kredit kembali >= 60 setelah macet pertama
+	var fund_stats := {"month": -1, "fees_real": 0.0, "salary_real": 0.0, "aum_real": 0.0}  # dana kelolaan (v2c)
 	for m in years * 12:
 		if GameState.is_over:
 			break
@@ -171,6 +188,13 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 		GameState.advance_month()
 		_resolve_events(p)  # termasuk wawancara (negosiasi gaji) sebelum tawaran diputuskan
 		_take_offer()
+		var level := GameState.price_level()
+		fund_stats["fees_real"] = float(fund_stats["fees_real"]) + float(GameState.last_report.get("fund_fee", 0)) / level
+		fund_stats["salary_real"] = float(fund_stats["salary_real"]) + float(GameState.last_report.get("salary", 0)) / level
+		if GameState.fund.is_unlocked():
+			if int(fund_stats["month"]) < 0:
+				fund_stats["month"] = GameState.month
+			fund_stats["aum_real"] = maxf(float(fund_stats["aum_real"]), GameState.fund.value() / level)
 		if start_salary == 0 and GameState.career.is_employed():
 			start_salary = roundi(GameState.career.salary / GameState.price_level())
 			first_job_month = GameState.month
@@ -205,7 +229,10 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 		"death_age": int(GameState.end_result.get("age", -1)) if GameState.is_over else -1,
 		"critical_count": GameState.life.critical_count,
 		"mental_count": GameState.mental.count, "mental_months": GameState.mental.months,
-		"legacy": GameState.end_result["legacy"] if GameState.is_over else GameState.legacy.breakdown()}
+		"legacy": GameState.end_result["legacy"] if GameState.is_over else GameState.legacy.breakdown(),
+		"fund": fund_stats.merged({"joined": int(GameState.fund.record["joined"]), "left": int(GameState.fund.record["left"]),
+			"renewed": int(GameState.fund.record["renewed"]), "ended": int(GameState.fund.record["ended"]),
+			"rep": GameState.fund.reputation, "investors": GameState.fund.investors.size()})}
 
 
 func _snapshot(start_salary: int) -> Dictionary:
@@ -449,6 +476,14 @@ func _monthly_actions(p: Dictionary) -> void:
 		GameState.activities.perform("course")
 	if p["quiz"]:
 		_simulate_quiz()
+	if p.get("quiz_fund", false) and GameState.month == 24:  # ujian WMI (v2c): 8 soal Manajemen Investasi benar
+		var passed := 0
+		for q: Dictionary in GameState.quiz.questions:
+			if q["topic"] == "fund" and passed < 8:
+				GameState.quiz.correct_ids[q["id"]] = true
+				passed += 1
+	if p.has("fund"):
+		_fund_actions(p["fund"])
 	if p.get("quiz_forex", false) and GameState.month == 12:  # sertifikat valas: 8 soal topik valas benar
 		var count := 0
 		for q: Dictionary in GameState.quiz.questions:
@@ -667,6 +702,23 @@ func _help_choice(event: Dictionary) -> int:
 	return -1
 
 
+## Manajer dana (v2c langkah 4): pasang alokasi tetap (dan kembalikan setelah event panik), terima tawaran
+## investor yang mandatnya cocok (atau semua tawaran jika `careless`).
+func _fund_actions(cfg: Dictionary) -> void:
+	var fund := GameState.fund
+	if not fund.is_unlocked():
+		return
+	var target: Dictionary = cfg["allocation"]
+	var same := true
+	for id: String in fund.data["baskets"].map(func(b: Dictionary) -> String: return b["id"]):
+		same = same and int(fund.allocation.get(id, 0)) == int(target.get(id, 0))
+	if not same:
+		fund.set_allocation(target)
+	for offer: Dictionary in fund.board.duplicate():
+		if cfg["careless"] or fund.mandate_ok(offer["id"]):
+			fund.accept(int(offer["uid"]))
+
+
 func _pick_choice(event: Dictionary, style: String) -> int:
 	var choices: Array = event["choices"]
 	var affordable: Array[int] = []
@@ -715,7 +767,9 @@ func _choice_score(choice: Dictionary, scam: bool) -> float:
 		+ float(effects.get("offer_raise", 0.0)) * 150.0 + float(effects.get("promote", 0)) * 40.0 \
 		+ float(effects.get("scholarship", 0.0)) * 30.0 + float(effects.get("sponsored_study", 0)) * 20.0 \
 		- float(effects.get("study_delay", 0)) * 3.0 + float(effects.get("credit_score", 0)) * 0.3 \
-		+ float(effects.get("rel", 0.0)) * 0.15  # kedekatan dengan tokoh (v1.5d)
+		+ float(effects.get("rel", 0.0)) * 0.15 \
+		+ float(effects.get("fund_reputation", 0)) + float(effects.get("fund_satisfaction", 0)) * 0.5 \
+		- (10.0 if effects.has("fund_allocation") else 0.0)  # tokoh (v1.5d); dana kelolaan (v2c)
 
 
 ## Nilai uang efek utang (v1.5c langkah 4), dari isian event yang sedang tampil: bunga tawaran kredit
@@ -748,8 +802,10 @@ func _expected_effects(choice: Dictionary) -> Dictionary:
 	for part: Array in parts:
 		var effects: Dictionary = part[1]
 		for key: String in ["health", "happiness", "salary_pct", "unpaid_months", "performance", "skill", "offer_raise", "promote",
-				"scholarship", "sponsored_study", "study_delay", "credit_score"]:
+				"scholarship", "sponsored_study", "study_delay", "credit_score", "fund_reputation", "fund_satisfaction"]:
 			result[key] = float(result.get(key, 0.0)) + part[0] * float(effects.get(key, 0))
+		if effects.has("fund_allocation"):  # dana kelolaan (v2c): panik pindah alokasi
+			result["fund_allocation"] = true
 		result["cash"] = float(result.get("cash", 0.0)) + part[0] * GameState.nominal(effects.get("cash", 0))
 		var rel_total := 0.0  # jumlah perubahan kedekatan semua tokoh
 		for id: String in effects.get("rel", {}):
@@ -779,6 +835,26 @@ func _print_deaths(results: Array[Dictionary]) -> void:
 		results.size(), str(causes) if not causes.is_empty() else "", str(roundi(_pct(ages, 0.5))) if not ages.is_empty() else "-",
 		Fmt.number(mean, 1) if not ages.is_empty() else "-", young,
 		roundi(100.0 * young / results.size()), roundi(100.0 * critical / results.size())])
+
+
+## Dana kelolaan (v2c langkah 4): kapan terbuka, dana puncak (riil), fee riil dibanding gaji riil, investor
+## masuk/pergi/perpanjang/selesai, reputasi akhir. Hanya dicetak jika dana pernah terbuka.
+func _print_fund(results: Array[Dictionary]) -> void:
+	var opened := results.filter(func(r: Dictionary) -> bool: return int(r["fund"]["month"]) >= 0)
+	if opened.is_empty():
+		return
+	var stat := func(key: String) -> float:
+		var values: Array = opened.map(func(r: Dictionary) -> float: return float(r["fund"][key]))
+		values.sort()
+		return _pct(values, 0.5)
+	var share: Array = opened.map(func(r: Dictionary) -> float:
+		return float(r["fund"]["fees_real"]) / maxf(float(r["fund"]["salary_real"]), 1.0))
+	share.sort()
+	print("  dana kelolaan: terbuka %d%% (median tahun %s) | dana puncak riil %s | fee riil total %s (%d%% dari gaji riil) | investor masuk %d, pergi kecewa %d, perpanjang %d, kontrak selesai %d, akhir %d | reputasi akhir %d" % [
+		roundi(100.0 * opened.size() / results.size()), Fmt.number(stat.call("month") / 12.0, 1),
+		Fmt.rupiah_short(stat.call("aum_real")), Fmt.rupiah_short(stat.call("fees_real")), roundi(_pct(share, 0.5) * 100.0),
+		roundi(stat.call("joined")), roundi(stat.call("left")), roundi(stat.call("renewed")), roundi(stat.call("ended")),
+		roundi(stat.call("investors")), roundi(stat.call("rep"))])
 
 
 ## Skor warisan v2 (v2b langkah 5): total median (p10-p90) dan median tiap bagian.
@@ -817,6 +893,7 @@ func _print_summary(persona: String, results: Array[Dictionary], years: int) -> 
 	_print_deaths(results)
 	_print_mental(results)
 	_print_legacy(results)
+	_print_fund(results)
 	print("  bebas finansial: %s | Rp1 miliar: %s" % [
 		_month_stat(results, "freedom_month"), _month_stat(results, "millionaire_month")])
 	var first_jobs: Array = results.map(func(r: Dictionary) -> float: return float(r["first_job_month"]))

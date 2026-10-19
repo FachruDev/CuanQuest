@@ -31,7 +31,7 @@
 		{ "term": "DSR", "definition": "Debt Service Ratio: total cicilan dibagi penghasilan bulanan. Bank biasanya menolak jika lebih dari 30-40%, karena sisa gaji tidak cukup untuk hidup." },
 		{ "term": "Ekuitas", "definition": "Pada posisi leverage: margin ditambah untung/rugi berjalan dikurangi biaya. Inilah sisa uangmu jika posisi ditutup sekarang." },
 		{ "term": "Fee kinerja", "definition": "Bagian keuntungan untuk manajer, hanya dari kenaikan di atas high-water mark. Di game 15%, dihitung di evaluasi tahunan setiap investor." },
-		{ "term": "Fee manajemen", "definition": "Biaya pengelolaan dalam persen per tahun dari nilai dana, dibayar walaupun dana sedang rugi. Di game 1,5% per tahun, dipotong setiap bulan." },
+		{ "term": "Fee manajemen", "definition": "Biaya pengelolaan dalam persen per tahun dari nilai dana, dibayar walaupun dana sedang rugi. Di game 0,5% (dana konservatif) sampai 2% (dana agresif) per tahun, dipotong setiap bulan." },
 		{ "term": "Fee transaksi", "definition": "Biaya yang dibayar setiap kali membeli atau menjual aset. Sering bertransaksi membuat biaya menumpuk." },
 		{ "term": "FLPP", "definition": "Fasilitas Likuiditas Pembiayaan Perumahan: program KPR subsidi pemerintah dengan bunga tetap rendah dan uang muka kecil, untuk rumah pertama masyarakat berpenghasilan rendah." },
 		{ "term": "FOMO", "definition": "Fear Of Missing Out: takut ketinggalan sehingga ikut membeli tanpa analisis, sering kali di harga puncak." },

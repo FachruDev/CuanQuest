@@ -1677,7 +1677,7 @@ FUND_PROFILE,Profil dana,Fund profile
 FUND_REPUTATION,Reputasi manajer,Manager reputation
 FUND_FEE_MONTH,Fee bulan ini,Fee this month
 FUND_FEE_TOTAL,Total fee diterima,Total fees earned
-FUND_ENERGY,Rapat dan laporan untuk investor memakai %d energi setiap bulan selama ada investor.,Investor meetings and reports use %d energy every month while you have investors.
+FUND_ENERGY,Rapat dan laporan untuk investor memakai %d energi setiap bulan (bertambah 1 tiap %d investor).,Investor meetings and reports use %d energy every month (1 more for every %d investors).
 FUND_ALLOCATION,Alokasi Dana,Fund Allocation
 FUND_ALLOCATION_HINT,"Atur porsi tiap keranjang (kelipatan %d%%, total 100%%). Dana diseimbangkan ulang tiap bulan, dan biaya transaksinya dibayar dana.","Set each basket's share (steps of %d%%, 100%% in total). The fund is rebalanced every month, and the trading costs are paid by the fund."
 FUND_BASKET_MONEY,Pasar Uang,Money Market
@@ -1687,7 +1687,7 @@ FUND_BASKET_COMMODITIES,Komoditas,Commodities
 FUND_BASKET_FX,Valas,Forex
 FUND_BASKET_RISK,%s · risiko %s,%s · risk %s
 FUND_BASKET_LOCKED,Belum bisa dipilih: asetnya belum terbuka untukmu.,Not available yet: its assets aren't unlocked for you.
-FUND_ALLOC_TOTAL,Total %d%% · profil %s,Total %d%% · %s profile
+FUND_ALLOC_TOTAL,Total %d%% · profil %s · fee %s/tahun,Total %d%% · %s profile · fee %s/year
 FUND_ALLOC_APPLY,Terapkan Alokasi,Apply Allocation
 FUND_ALLOC_BREACH,Alokasi ini melanggar mandat %s: profil dana jadi lebih berisiko daripada profil mereka.,This allocation breaks the mandate of %s: the fund becomes riskier than their profile.
 FUND_PROFILE_CONSERVATIVE,Konservatif,Conservative
@@ -1707,7 +1707,7 @@ FUND_OFFER_UNTIL,Berlaku sampai %s,Valid until %s
 FUND_OFFER_BREACH,"Profil danamu (%s) lebih berisiko daripada profil investor ini (%s). Jika diterima, mandatnya langsung dilanggar.",Your fund profile (%s) is riskier than this investor's (%s). Accepting means breaking their mandate right away.
 FUND_ACCEPT,Terima,Accept
 FUND_DECLINE,Tolak,Decline
-FUND_NOTE,"Dana investor tidak termasuk kekayaan bersihmu. Kamu menerima fee manajemen %s per tahun dari nilai dana dan fee kinerja %s dari keuntungan di atas puncak sebelumnya (high-water mark). Di dunia nyata, mengelola uang orang lain dengan imbalan wajib berizin OJK.","Investors' money is not part of your net worth. You receive a management fee of %s a year of the fund's value and a %s performance fee on gains above the previous peak (high-water mark). In real life, managing other people's money for a fee requires an OJK licence."
+FUND_NOTE,"Dana investor tidak termasuk kekayaan bersihmu. Kamu menerima fee manajemen per tahun dari nilai dana sesuai profilnya (konservatif %s, moderat %s, agresif %s) dan fee kinerja %s dari keuntungan di atas puncak sebelumnya (high-water mark). Biaya beli dan jual aset saat investor masuk atau keluar ditanggung investor itu sendiri, jadi investor lain tidak dirugikan. Di dunia nyata, mengelola uang orang lain dengan imbalan wajib berizin OJK.","Investors' money is not part of your net worth. You receive a yearly management fee on the fund's value based on its profile (conservative %s, moderate %s, aggressive %s) and a %s performance fee on gains above the previous peak (high-water mark). The cost of buying and selling assets when an investor joins or leaves is paid by that investor, so other investors are not harmed. In real life, managing other people's money for a fee requires an OJK licence."
 FUND_ERR_TOTAL,Total alokasi harus 100%.,The allocation must total 100%.
 FUND_ERR_LOCKED,Keranjang ini belum bisa dipilih.,This basket isn't available yet.
 FUND_ERR_STEP,Alokasi tidak sah.,Invalid allocation.
@@ -1787,3 +1787,4 @@ FUND_DETAIL_CONTRACT,Kontrak sampai,Contract until
 INSIGHT_FUND,"Sebagai manajer dana kelolaan, kamu menerima fee %s dari %d investor; %d kali kontrak diperpanjang dan reputasi akhirmu %d/100.",As a fund manager you earned %s in fees from %d investors; contracts were renewed %d times and your final reputation was %d/100.
 INSIGHT_FUND_LEFT,%d investor menarik dananya karena kecewa. Alokasi yang sesuai mandat dan komunikasi yang jujur membuat investor bertahan.,%d investors withdrew because they were disappointed. An allocation that fits the mandate and honest communication keep investors with you.
 END_STAT_FUND_FEES,Fee dana kelolaan,Managed fund fees
+FUND_PROFILE_FEE,%s · fee %s/tahun,%s · fee %s/year

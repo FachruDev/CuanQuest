@@ -247,12 +247,12 @@ scenes/
   - [x] (3) Kesehatan Kritis & kematian
   - [x] (4) Depresi
   - [x] (5) Warisan, layar akhir & penyeimbangan
-- [ ] **v2c "Mengelola Dana Investor"** (rancangan: `MVP_Cuan_Quest_Revisi3.md` 6.3):
+- [x] **v2c "Mengelola Dana Investor"** (rancangan: `MVP_Cuan_Quest_Revisi3.md` 6.3):
   - [x] (1) Dana kelolaan & investor pertama
   - [x] (2) Kepuasan, penarikan & reputasi
   - [x] (3) Laporan per investor & cerita
-  - [ ] (4) Penyeimbangan & uji celah
-- [ ] **v2d** (opsional, lihat `MVP_Cuan_Quest_Revisi3.md`)
+  - [x] (4) Penyeimbangan & uji celah
+- [ ] **Penutup v2**: peninjauan kebijakan Google Play untuk leverage, forex, serta konten depresi dan kematian (v2 berakhir di v2c; v2d mini-game trading dihapus)
 
 Rangkuman semua checklist MVP (v1, v1.5, v2, M7) ada di [docs/CHECKLIST_MVP.md](docs/CHECKLIST_MVP.md).
 - [ ] **M7: Export rilis & Play Store** (setelah v2 selesai; tanpa monetisasi)
@@ -394,6 +394,12 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Rincian investor:** `fund_popup.gd` `_detail_uid` + `_build_detail()` (PriceChart dari `values`, angka penting, tombol Kembali ke daftar).
 - **Event** `data/events/fund.json` (kategori `fund`, `EVENT_CAT_FUND`): syarat `fund_active`, `fund_falling` (`Fund.fund_drawdown()` ≥ 8%), `fund_happy_investor`; efek di `Fund.apply_effects()`: `fund_reputation`, `fund_satisfaction`, `fund_referral` (`_add_offer(false, referral_reputation)`), `fund_allocation`; isian `{fund_drawdown}` & `{investor}` dari `Fund.event_vars()`.
 - **Layar akhir:** `EndAnalysis` (`INSIGHT_FUND`, `INSIGHT_FUND_LEFT`), statistik `END_STAT_FUND_FEES`. Glosarium 118 istilah.
+
+**Langkah 4: penyeimbangan & uji celah**
+- **Biaya masuk & keluar:** `Fund.entry_cost(amount)` (biaya beli aset sesuai bobot target) dikurangkan dari setoran sebelum dihitung unitnya (`accept`, tambah setoran); `Fund.exit_cost(amount)` (biaya jual proporsional) dikurangkan dari pencairan (`return_funds`). Investor lain tidak menanggung biaya transaksi orang lain.
+- **Jeda tawaran ulang:** `record.departed` (id → bulan keluar); `_add_offer` melewati investor yang keluar kurang dari `return_cooldown` bulan. **Tambah setoran** dibatasi `topup.max_multiple` × setoran awal (`initial`).
+- **Fee & energi:** `Fund.management_fee()` dari `management_fee[profil]`; `energy_cost()` = `energy` × ceil(investor / `investors_per_energy`). `UiText.percent_rate()` untuk tarif (mis. 1,25%).
+- **Simulator:** tipe `manajer_konservatif`, `manajer_moderat`, `manajer_agresif`, `manajer_serampangan` (`"quiz_fund"` lulus ujian WMI di bulan 24, `"fund": {"allocation", "careless"}` → `_fund_actions()`), baris `dana kelolaan:` (`_print_fund`: bulan terbuka, dana puncak riil, fee riil vs gaji riil, investor masuk/pergi/perpanjang/selesai, reputasi). `_choice_score` menilai `fund_reputation`, `fund_satisfaction`, dan menghindari `fund_allocation` (panik).
 
 ## Warisan & Layar Akhir (v2b langkah 5)
 

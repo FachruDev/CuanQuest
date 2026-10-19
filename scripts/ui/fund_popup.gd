@@ -43,8 +43,10 @@ func _build() -> void:
 	_add_allocation()
 	_add_investors()
 	_add_offers()
-	%Rows.add_child(_label(tr("FUND_NOTE") % [UiText.percent_short(float(fund.data["management_fee"])),
-		UiText.percent_short(float(fund.data["performance_fee"]))], &"SmallMutedLabel"))
+	var fees: Dictionary = fund.data["management_fee"]
+	%Rows.add_child(_label(tr("FUND_NOTE") % [UiText.percent_rate(float(fees["conservative"])),
+		UiText.percent_rate(float(fees["moderate"])), UiText.percent_rate(float(fees["aggressive"])),
+		UiText.percent_rate(float(fund.data["performance_fee"]))], &"SmallMutedLabel"))
 
 
 func _rebuild() -> void:
@@ -60,13 +62,15 @@ func _add_summary() -> void:
 	var start := float(fund.data["start_nav"])
 	_value_row(tr("FUND_VALUE"), Fmt.rupiah(fund.value()))
 	_value_row(tr("FUND_NAV"), "%s (%s)" % [Fmt.rupiah(fund.current_nav()), Fmt.percent(fund.current_nav() / start - 1.0)])
-	_value_row(tr("FUND_PROFILE"), UiText.fund_profile(fund.profile_of()))
+	_value_row(tr("FUND_PROFILE"), tr("FUND_PROFILE_FEE") % [UiText.fund_profile(fund.profile_of()),
+		UiText.percent_rate(fund.management_fee())])
 	_value_row(tr("FUND_REPUTATION"), "%d / 100" % fund.reputation)
 	_value_row(tr("FUND_FEE_MONTH"), Fmt.rupiah(fund.record["month_fee"]))
 	_value_row(tr("FUND_FEE_TOTAL"), Fmt.rupiah(fund.record["mgmt_fees"]))
 	_value_row(tr("FUND_PERF_TOTAL"), Fmt.rupiah(fund.record["perf_fees"]))
 	%Rows.add_child(_label(tr("FUND_REPUTATION_HINT"), &"SmallMutedLabel"))
-	%Rows.add_child(_label(tr("FUND_ENERGY") % int(fund.data["energy"]), &"SmallMutedLabel"))
+	%Rows.add_child(_label(tr("FUND_ENERGY") % [maxi(fund.energy_cost(), int(fund.data["energy"])),
+		int(fund.data["investors_per_energy"])], &"SmallMutedLabel"))
 
 
 ## Satu baris per keranjang: nama, isi & risiko, tombol - / + (kelipatan allocation_step).
@@ -102,7 +106,9 @@ func _add_allocation() -> void:
 		row.add_child(value)
 		row.add_child(plus)
 		%Rows.add_child(row)
-	%Rows.add_child(_label(tr("FUND_ALLOC_TOTAL") % [total, UiText.fund_profile(fund.profile_of(_draft))], &"InfoLabel"))
+	var draft_profile := fund.profile_of(_draft)
+	%Rows.add_child(_label(tr("FUND_ALLOC_TOTAL") % [total, UiText.fund_profile(draft_profile),
+		UiText.percent_rate(float(fund.data["management_fee"][draft_profile]))], &"InfoLabel"))
 	var breaches := fund.mandate_breaches(_draft)
 	if not breaches.is_empty():
 		var names: PackedStringArray = []
