@@ -1,5 +1,5 @@
 {
-	"_comment": "Syarat membuka instrumen (GDD 5.5). type: tutorial | emergency_fund | net_worth | level | quiz_topic | research_correct (riset rumor tepat) | credit_score | stage (tahap lain sudah terbuka). desc_key = penjelasan tahap tanpa aset baru (mis. leverage).",
+	"_comment": "Syarat membuka instrumen (GDD 5.5). type: tutorial | emergency_fund | net_worth | level | quiz_topic | research_correct (riset rumor tepat) | credit_score | stage (tahap lain sudah terbuka). desc_key = penjelasan tahap tanpa aset baru (mis. leverage). title_key / body_key (opsional) = teks popup tahap terbuka sendiri (v2c: Dana Kelolaan ada di tab Portofolio, bukan Pasar).",
 	"stages": [
 		{ "stage": 1, "name_key": "STAGE_1", "requirements": [] },
 		{
@@ -38,6 +38,15 @@
 				{ "type": "research_correct", "min": 5 },
 				{ "type": "quiz_topic", "topic": "forex", "correct": 8 },
 				{ "type": "credit_score", "min": 60 }
+			]
+		},
+		{
+			"stage": 7, "name_key": "STAGE_7", "desc_key": "STAGE_7_DESC",
+			"title_key": "UNLOCK_POPUP_TITLE_FEATURE", "body_key": "UNLOCK_POPUP_BODY_FUND",
+			"requirements": [
+				{ "type": "stage", "stage": 4 },
+				{ "type": "net_worth", "min": 1000000000 },
+				{ "type": "quiz_topic", "topic": "fund", "correct": 8 }
 			]
 		}
 	]

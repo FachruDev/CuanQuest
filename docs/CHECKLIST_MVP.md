@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 19 Oktober 2026 (v2b langkah 5: warisan, layar akhir & penyeimbangan; v2b selesai)
+- **Terakhir diperbarui:** 19 Oktober 2026 (v2c langkah 1: dana kelolaan & investor pertama)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -21,7 +21,8 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **Penutup v1.5** | Performa & baterai, playtest, legal | ✅ legal & performa (APK dicoba di HP); playtest berjalan terus lewat Profil > Sesi Bermain |
 | **v2a** | Instrumen lanjut: komoditas, valas, leverage & margin | ✅ 5/5 langkah (ikon kelas menyusul setelah v2) |
 | **v2b** | Siklus hidup penuh: bab, penuaan, kematian, depresi, warisan | ✅ 5/5 langkah (pedoman konten sensitif disetujui) |
-| **v2c-v2d** | Dana investor, mini-game | ⬜ |
+| **v2c** | Mengelola dana investor | 🔄 1/4 langkah |
+| **v2d** | Mini-game trading (opsional) | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
 
 ---
@@ -561,9 +562,27 @@ Panduan uji di HP: `docs/UJI_AKHIR_V15.md` (tabel performa, baterai, dan pertany
 - ✅ Pemain yang menjaga kesehatan hampir tidak pernah meninggal sebelum 60; yang mengabaikannya bisa meninggal muda, selalu dengan peringatan (simulator langkah 3 & 5)
 - ✅ Konten depresi dan kematian mengikuti pedoman konten sensitif (diperiksa uji otomatis; nomor layanan diverifikasi sebelum rilis)
 - ✅ Skor warisan konsisten dan bisa dibandingkan antar permainan (nilai riil, bobot di file data, riwayat & skor terbaik di Profil)
+  
+**v2c: Mengelola dana investor** 🔄 (rancangan: `MVP_Cuan_Quest_Revisi3.md` 6.3.1-6.3.8)
 
-**v2c: Mengelola dana investor**
-- ⬜ Investor dengan target & toleransi risiko, fee + bagi hasil, reputasi
+*Langkah pengerjaan*
+- ✅ **Langkah 1: Dana kelolaan & investor pertama**
+  - ✅ Tahap 7 (tahap 4 + Rp1 miliar + 8 soal kuis baru "Manajemen Investasi" / ujian WMI, 20 soal); popup "Fitur Baru Terbuka!"
+  - ✅ Modul dana kelolaan: 5 keranjang (tanpa kripto & leverage), alokasi kelipatan 10%, profil Konservatif/Moderat/Agresif, NAB per unit, setoran & pengembalian dana, seimbang ulang bulanan (ambang 2 poin)
+  - ✅ Fee manajemen 1,5%/tahun ke kas pribadi (laporan bulanan & tahunan), 1 energi per bulan
+  - ✅ 8 investor fiktif, papan tawaran (RNG tersendiri, tawaran pertama dijamin & cocok profil), mandat & peringatannya, reputasi minimal untuk investor besar
+  - ✅ Kartu Dana Kelolaan di Portofolio, popup Dana Kelolaan, bagian Dana Kelolaan di laporan bulanan
+  - ✅ Dana investor terpisah dari kekayaan bersih, neraca, dan skor warisan
+  - ✅ 60 uji dana kelolaan + 1606 uji lama lulus (termasuk uji semua file data JSON terbaca); golden runner identik
+- ⬜ Langkah 2: Kepuasan, penarikan & reputasi
+- ⬜ Langkah 3: Laporan per investor & cerita
+- ⬜ Langkah 4: Penyeimbangan & uji celah
+
+*Kriteria selesai*
+- 🔄 Pemain bisa menerima, mengelola, dan kehilangan dana investor (menerima, mengelola, mengembalikan ✅; investor pergi sendiri di langkah 2)
+- ✅ Dana investor terpisah dari dana pribadi di portofolio dan laporan
+- ⬜ Laporan bulanan per investor
+- ⬜ Fee dan setor/tarik tidak bisa dieksploitasi
 
 **v2d (opsional): Mini-game trading**
 - ⬜ Sesi 60 detik, dibatasi energi, hasil dibandingkan dengan "kalau hanya ditahan"

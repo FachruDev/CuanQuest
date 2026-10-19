@@ -1664,3 +1664,75 @@ HISTORY_SCORE,usia %d · skor %d,age %d · score %d
 RUNWAY_FOREVER,"Pendapatan pensiun dan sewa sudah menutup pengeluaran rutinmu, jadi tabungan tidak terkuras untuk kebutuhan bulanan.","Your pension and rental income already cover your regular spending, so your savings are not drained by monthly needs."
 RUNWAY_YEARS,"Dengan pengeluaran sekarang, kas dan investasimu cukup sekitar %s tahun lagi (sampai usia ±%d), belum termasuk biaya tak terduga seperti berobat.","At your current spending, your cash and investments will last about %s more years (until about age %d), not counting surprises such as medical costs."
 RUNWAY_LOW,"Agar tidak kehabisan dana di masa tua, pertimbangkan menurunkan pengeluaran (makanan, tempat tinggal, kendaraan) atau menjual aset yang tidak terpakai.","To avoid running out of money in old age, consider lowering your spending (food, housing, vehicles) or selling assets you don't use."
+STAGE_7,Tahap 7: Dana Kelolaan,Stage 7: Managed Fund
+STAGE_7_DESC,"Kelola uang investor sebagai Wakil Manajer Investasi: atur alokasi dana, terima investor, dan dapatkan fee manajemen. Buka kartu Dana Kelolaan di tab Portofolio.","Manage investors' money as an Investment Manager Representative: set the fund's allocation, accept investors, and earn a management fee. Open the Managed Fund card in the Portfolio tab."
+TOPIC_FUND,Manajemen Investasi,Investment Management
+FUND_TITLE,Dana Kelolaan,Managed Fund
+FUND_BODY,"Uang investor disimpan terpisah di bank kustodian. Kamu mengatur alokasinya, mereka menilai hasilnya.","Investors' money is held separately at a custodian bank. You set the allocation, they judge the results."
+FUND_SUBTITLE,Nilai dana %s · NAB %s,Fund value %s · NAV %s
+FUND_SUMMARY,Ringkasan,Summary
+FUND_VALUE,Nilai dana,Fund value
+FUND_NAV,NAB per unit,NAV per unit
+FUND_PROFILE,Profil dana,Fund profile
+FUND_REPUTATION,Reputasi manajer,Manager reputation
+FUND_FEE_MONTH,Fee bulan ini,Fee this month
+FUND_FEE_TOTAL,Total fee diterima,Total fees earned
+FUND_ENERGY,Rapat dan laporan untuk investor memakai %d energi setiap bulan selama ada investor.,Investor meetings and reports use %d energy every month while you have investors.
+FUND_ALLOCATION,Alokasi Dana,Fund Allocation
+FUND_ALLOCATION_HINT,"Atur porsi tiap keranjang (kelipatan %d%%, total 100%%). Dana diseimbangkan ulang tiap bulan, dan biaya transaksinya dibayar dana.","Set each basket's share (steps of %d%%, 100%% in total). The fund is rebalanced every month, and the trading costs are paid by the fund."
+FUND_BASKET_MONEY,Pasar Uang,Money Market
+FUND_BASKET_STOCKS,Saham,Stocks
+FUND_BASKET_GOLD,Emas,Gold
+FUND_BASKET_COMMODITIES,Komoditas,Commodities
+FUND_BASKET_FX,Valas,Forex
+FUND_BASKET_RISK,%s · risiko %s,%s · risk %s
+FUND_BASKET_LOCKED,Belum bisa dipilih: asetnya belum terbuka untukmu.,Not available yet: its assets aren't unlocked for you.
+FUND_ALLOC_TOTAL,Total %d%% · profil %s,Total %d%% · %s profile
+FUND_ALLOC_APPLY,Terapkan Alokasi,Apply Allocation
+FUND_ALLOC_BREACH,Alokasi ini melanggar mandat %s: profil dana jadi lebih berisiko daripada profil mereka.,This allocation breaks the mandate of %s: the fund becomes riskier than their profile.
+FUND_PROFILE_CONSERVATIVE,Konservatif,Conservative
+FUND_PROFILE_MODERATE,Moderat,Moderate
+FUND_PROFILE_AGGRESSIVE,Agresif,Aggressive
+FUND_INVESTORS_TITLE,Investor (%d),Investors (%d)
+FUND_NO_INVESTORS,Belum ada investor. Terima tawaran di bawah untuk mulai mengelola dana.,No investors yet. Accept an offer below to start managing the fund.
+FUND_INV_VALUE,Setoran %s · nilai %s (%s),Deposited %s · value %s (%s)
+FUND_INV_META,Profil %s · target %s per tahun · sejak %s,%s profile · target %s a year · since %s
+FUND_INV_BREACH,Mandat dilanggar: profil dana lebih berisiko daripada profil investor ini.,Mandate breached: the fund is riskier than this investor's profile.
+FUND_RETURN_BUTTON,Kembalikan Dana,Return Funds
+FUND_RETURN_CONFIRM,Ketuk lagi untuk mengembalikan,Tap again to return
+FUND_OFFERS_TITLE,Tawaran Investor,Investor Offers
+FUND_NO_OFFERS,"Belum ada tawaran. Tawaran datang setiap beberapa bulan, dan investor besar muncul saat reputasimu naik.","No offers yet. Offers arrive every few months, and bigger investors appear as your reputation grows."
+FUND_OFFER_TERMS,Setoran %s · profil %s · target %s per tahun · batas turun %s,Deposit %s · %s profile · target %s a year · drawdown limit %s
+FUND_OFFER_UNTIL,Berlaku sampai %s,Valid until %s
+FUND_OFFER_BREACH,"Profil danamu (%s) lebih berisiko daripada profil investor ini (%s). Jika diterima, mandatnya langsung dilanggar.",Your fund profile (%s) is riskier than this investor's (%s). Accepting means breaking their mandate right away.
+FUND_ACCEPT,Terima,Accept
+FUND_DECLINE,Tolak,Decline
+FUND_NOTE,"Dana investor tidak termasuk kekayaan bersihmu. Kamu hanya menerima fee manajemen %s per tahun dari nilai dana. Di dunia nyata, mengelola uang orang lain dengan imbalan wajib berizin OJK.","Investors' money is not part of your net worth. You only receive a management fee of %s a year of the fund's value. In real life, managing other people's money for a fee requires an OJK licence."
+FUND_ERR_TOTAL,Total alokasi harus 100%.,The allocation must total 100%.
+FUND_ERR_LOCKED,Keranjang ini belum bisa dipilih.,This basket isn't available yet.
+FUND_ERR_STEP,Alokasi tidak sah.,Invalid allocation.
+FUND_ERR_OFFER,Tawaran sudah tidak berlaku.,This offer is no longer valid.
+FUND_ERR_INVESTOR,Investor tidak ditemukan.,Investor not found.
+PORT_FUND_TITLE,Dana Kelolaan,Managed Fund
+PORT_FUND_EMPTY,Belum ada investor. Tawaran investor datang lewat kartu ini.,No investors yet. Investor offers arrive through this card.
+PORT_FUND_INVESTORS,Investor,Investors
+PORT_FUND_OFFERS,%d tawaran investor menunggu,%d investor offers waiting
+PORT_FUND_NOTE,"Uang investor disimpan terpisah, jadi tidak masuk kekayaan bersih dan neraca. Fee manajemen masuk kasmu setiap bulan.","Investors' money is kept separately, so it isn't in your net worth or balance sheet. The management fee goes into your cash every month."
+PORT_FUND_OPEN,Kelola Dana,Manage Fund
+TOAST_FUND_ACCEPTED,%s bergabung: setoran %s,%s joined: deposit %s
+TOAST_FUND_RETURNED,Dana %s dikembalikan: %s,%s's money returned: %s
+TOAST_FUND_APPLIED,Alokasi diterapkan (biaya transaksi %s),Allocation applied (trading costs %s)
+TOAST_FUND_OFFERS,Tawaran investor baru di Portofolio,New investor offer in Portfolio
+REPORT_FUND,DANA KELOLAAN,MANAGED FUND
+REPORT_FUND_FEE,Fee dana kelolaan,Managed fund fee
+REPORT_FUND_VALUE,Nilai dana investor,Investors' fund value
+REPORT_FUND_NAV,NAB per unit %s,NAV per unit %s
+REPORT_FUND_INVESTORS,Investor,Investors
+REPORT_FUND_OFFERS,%d tawaran investor baru menunggu di tab Portofolio.,%d new investor offers are waiting in the Portfolio tab.
+ACT_ENERGY_FUND,%d untuk dana kelolaan,%d for the managed fund
+UNLOCK_POPUP_TITLE_FEATURE,Fitur Baru Terbuka!,New Feature Unlocked!
+UNLOCK_POPUP_BODY_FUND,"%s
+
+%s","%s
+
+%s"

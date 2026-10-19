@@ -9,6 +9,7 @@ extends Control
 const END_SCENE := "res://scenes/end_screen.tscn"
 const ANNUAL_POPUP := preload("res://scenes/ui/annual_popup.tscn")
 const LEVERAGE_POPUP := preload("res://scenes/ui/leverage_popup.tscn")
+const FUND_POPUP := preload("res://scenes/ui/fund_popup.tscn")
 const QUIET_ICON := preload("res://assets/icons/badge_retire.svg")  # masa senja & perpisahan (v2b)
 const HEART_ICON := preload("res://assets/icons/heart.svg")  # kesehatan mental (v2b langkah 4)
 
@@ -32,6 +33,7 @@ var _toast_label: Label
 var _toast_tween: Tween
 var _annual_popup: ModalPopup  # laporan tahunan (v1.5d), dibuat lewat kode
 var _leverage_popup: ModalPopup  # buka posisi / tambah margin (v2a), dibuat lewat kode
+var _fund_popup: ModalPopup  # dana kelolaan investor (v2c), dibuat lewat kode
 var _year_button: Button  # "+1 Tahun" di masa pensiun (v2b)
 
 
@@ -63,6 +65,8 @@ func _ready() -> void:
 			_show_toast(tr("TOAST_CRITICAL_ENDED"))
 		if report.has("depression_ended"):  # v2b langkah 4: pulih dari masa sulit
 			_show_toast(tr("TOAST_DEPRESSION_ENDED"))
+		if int(report.get("fund", {}).get("offers", 0)) > 0:  # v2c: tawaran investor baru
+			_show_toast(tr("TOAST_FUND_OFFERS"))
 		if GameState.research.has_rumor():  # rumor pertama (v1.5d): jelaskan riset di tab Pasar
 			_hint("HINT_RUMOR")
 		_enqueue_plan_review())
@@ -130,8 +134,8 @@ func _ready() -> void:
 	%MarketScreen.order_requested.connect(func(asset_id: String) -> void:
 		_enqueue(%OrderPopup.open.bind(asset_id)))
 	GameState.stage_unlocked.connect(func(stage: Dictionary) -> void:
-		_enqueue(_celebrating(%InfoPopup.open.bind(tr("UNLOCK_POPUP_TITLE"),
-			tr("UNLOCK_POPUP_BODY") % [tr(stage["name_key"]), UiText.stage_assets_text(int(stage["stage"]))]))))
+		_enqueue(_celebrating(%InfoPopup.open.bind(tr(stage.get("title_key", "UNLOCK_POPUP_TITLE")),
+			tr(stage.get("body_key", "UNLOCK_POPUP_BODY")) % [tr(stage["name_key"]), UiText.stage_assets_text(int(stage["stage"]))]))))
 	GameState.event_triggered.connect(func(event: Dictionary) -> void:
 		_enqueue(%EventPopup.open.bind(event)))
 	GameState.goal_reached.connect(func(goal: String) -> void:
@@ -174,6 +178,7 @@ func _ready() -> void:
 		_enqueue(_annual_popup.open.bind(GameState.annual.latest())))
 	GameState.achievements_unlocked.connect(_on_achievements_unlocked)
 	_setup_leverage()
+	_setup_fund()
 	GameState.chapter_changed.connect(func(summary: Dictionary) -> void:
 		_enqueue(_celebrating(%InfoPopup.open.bind(tr("CHAPTER_POPUP_TITLE") % tr("CHAPTER_" + str(summary["to"]).to_upper()),
 			_chapter_text(summary)))))
@@ -191,7 +196,7 @@ func _ready() -> void:
 			QUIET_ICON)))
 	for popup: ModalPopup in [%SummaryPopup, %InfoPopup, %EventPopup, %QuizPopup, %GlossaryPopup, %TextPopup,
 			%PlanPopup, %DreamPickerPopup, %DreamPopup, %TradeConfirmPopup, %InsurancePopup, %OrderPopup, %OfferPopup,
-			%LoanPopup, %VehiclePopup, %PropertyPopup, _annual_popup, _leverage_popup]:
+			%LoanPopup, %VehiclePopup, %PropertyPopup, _annual_popup, _leverage_popup, _fund_popup]:
 		popup.closed.connect(_show_next_popup)
 
 	_build_toast()
@@ -357,6 +362,19 @@ func _setup_leverage() -> void:
 			tr(GameState.market.get_asset(result["asset_id"]).name_key)]))
 	_leverage_popup.margin_added.connect(func(_asset_id: String, amount: int) -> void:
 		_show_toast(tr("TOAST_LEV_MARGIN") % Fmt.rupiah(amount)))
+
+
+## Dana kelolaan (v2c langkah 1): popup dari kartu Dana Kelolaan di Portofolio, toast hasil aksinya.
+func _setup_fund() -> void:
+	_fund_popup = FUND_POPUP.instantiate()
+	add_child(_fund_popup)
+	%PortfolioScreen.fund_requested.connect(func() -> void: _enqueue(_fund_popup.open))
+	_fund_popup.accepted.connect(func(investor_name: String, amount: int) -> void:
+		_show_toast(tr("TOAST_FUND_ACCEPTED") % [investor_name, Fmt.rupiah(amount)]))
+	_fund_popup.funds_returned.connect(func(investor_name: String, payout: int) -> void:
+		_show_toast(tr("TOAST_FUND_RETURNED") % [investor_name, Fmt.rupiah(payout)]))
+	_fund_popup.allocation_applied.connect(func(cost: float) -> void:
+		_show_toast(tr("TOAST_FUND_APPLIED") % Fmt.rupiah(cost)))
 
 
 # --- Siklus hidup (v2b) ---------------------------------------------------------------------------

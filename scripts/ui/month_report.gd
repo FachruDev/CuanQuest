@@ -37,6 +37,8 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 			_add_row(box, "REPORT_INCOME_TAX", Fmt.signed_rupiah(-r["income_tax"]), Palette.LOSS)
 	if int(r.get("rent_income", 0)) > 0:
 		_add_row(box, "REPORT_RENT", Fmt.signed_rupiah(r["rent_income"]), Palette.GAIN)
+	if int(r.get("fund_fee", 0)) > 0:  # v2c: fee manajemen dana kelolaan masuk kas pribadi
+		_add_row(box, "REPORT_FUND_FEE", Fmt.signed_rupiah(r["fund_fee"]), Palette.GAIN)
 	if float(r.get("salary_raise", 0.0)) > 0.0:
 		_add_row(box, "REPORT_SALARY_RAISE", Fmt.percent(r["salary_raise"]), Palette.GAIN)
 	if float(r.get("merit_raise", 0.0)) > 0.0:
@@ -101,6 +103,7 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 	_add_orders(box, r)
 	_add_leverage(box, r)
 	_add_costs(box, r)
+	_add_fund(box, r)
 
 	if r.has("inflation_month"):
 		_add_header(box, "REPORT_ECONOMY")
@@ -292,7 +295,8 @@ static func fill_annual(box: VBoxContainer, a: Dictionary) -> void:
 
 	_add_header(box, "ANNUAL_INCOME")
 	var income: Dictionary = a["income"]
-	for row: Array in [["salary", "REPORT_SALARY"], ["pension", "REPORT_PENSION"], ["rent_income", "REPORT_RENT"]]:
+	for row: Array in [["salary", "REPORT_SALARY"], ["pension", "REPORT_PENSION"], ["rent_income", "REPORT_RENT"],
+			["fund_fee", "REPORT_FUND_FEE"]]:
 		if float(income.get(row[0], 0.0)) != 0.0:
 			_add_row(box, row[1], Fmt.rupiah(income[row[0]]), Palette.GAIN)
 	if float(a["projects"]) > 0.0:
@@ -433,6 +437,22 @@ static func signed_color(value: float) -> Color:
 	if value < 0:
 		return Palette.LOSS
 	return Palette.MUTED
+
+
+## Dana kelolaan (v2c): nilai dana investor & NAB bulan ini (terpisah dari investasi pribadi), tawaran baru.
+static func _add_fund(box: VBoxContainer, r: Dictionary) -> void:
+	var fund: Dictionary = r.get("fund", {})
+	if fund.is_empty() or (not fund.has("value") and int(fund.get("offers", 0)) == 0):
+		return
+	_add_header(box, "REPORT_FUND")
+	if fund.has("value"):
+		var ret := float(fund["return"])
+		_add_row(box, "REPORT_FUND_VALUE", Fmt.rupiah(fund["value"]), Palette.INK)
+		_add_row_text(box, TranslationServer.translate("REPORT_FUND_NAV") % Fmt.rupiah(fund["nav"]), Fmt.percent(ret),
+			signed_color(ret))
+		_add_row(box, "REPORT_FUND_INVESTORS", str(int(fund["investors"])), Palette.INK)
+	if int(fund.get("offers", 0)) > 0:
+		_add_text(box, TranslationServer.translate("REPORT_FUND_OFFERS") % int(fund["offers"]), Palette.MUTED)
 
 
 static func _add_header(box: VBoxContainer, key: String) -> void:

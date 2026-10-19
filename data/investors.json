@@ -1,0 +1,50 @@
+{
+	"_comment": [
+		"Investor dana kelolaan (v2c). Semua nama fiktif. profile: conservative | moderate | aggressive (profil dana boleh sama atau lebih rendah; lebih tinggi = melanggar mandat).",
+		"target: imbal hasil per tahun yang diharapkan (nominal, setelah fee). drawdown: penurunan dari puncak nilai investor yang masih bisa diterima (langkah 2). Acuan uji 12 permainan x 20 tahun (fee 1,5%): alokasi konservatif 90/10 ±3,5%/tahun (penurunan terdalam ±2%), moderat 50/40/10 ±5,7% (±18%), agresif 20/60/20 ±7,7% (±30%).",
+		"amount: kisaran setoran dalam Rupiah awal permainan (ikut inflasi), min_reputation: reputasi manajer minimal agar investor ini muncul di papan tawaran.",
+		"name, role, desc: teks lewat tr()."
+	],
+	"investors": [
+		{
+			"id": "sari", "name": "Bu Sari", "role": "Pensiunan guru",
+			"desc": "Menitipkan sebagian uang pensiun. Lebih takut rugi daripada ingin cepat untung.",
+			"profile": "conservative", "target": 0.04, "drawdown": 0.06, "amount": [100000000, 250000000], "min_reputation": 0
+		},
+		{
+			"id": "hendra", "name": "Pak Hendra", "role": "Pemilik toko bangunan",
+			"desc": "Berani ambil risiko demi pertumbuhan, tetapi ingin hasilnya terlihat.",
+			"profile": "aggressive", "target": 0.08, "drawdown": 0.35, "amount": [200000000, 500000000], "min_reputation": 0
+		},
+		{
+			"id": "rahmat", "name": "dr. Rahmat", "role": "Dokter spesialis",
+			"desc": "Sibuk praktik dan ingin uangnya tumbuh stabil tanpa harus memantau setiap hari.",
+			"profile": "moderate", "target": 0.06, "drawdown": 0.2, "amount": [200000000, 450000000], "min_reputation": 0
+		},
+		{
+			"id": "wijaya", "name": "Keluarga Wijaya", "role": "Pengusaha kuliner",
+			"desc": "Menyiapkan dana pendidikan anak dan cucu untuk sepuluh tahun ke depan.",
+			"profile": "moderate", "target": 0.06, "drawdown": 0.2, "amount": [400000000, 1000000000], "min_reputation": 20
+		},
+		{
+			"id": "koperasi", "name": "Koperasi Karyawan Sejahtera", "role": "Koperasi simpan pinjam",
+			"desc": "Mengelola simpanan anggota, jadi keamanan dana adalah yang utama.",
+			"profile": "conservative", "target": 0.04, "drawdown": 0.05, "amount": [600000000, 1500000000], "min_reputation": 30
+		},
+		{
+			"id": "nadia", "name": "Nadia Pratama", "role": "Pendiri startup",
+			"desc": "Baru menjual sebagian saham perusahaannya dan siap menunggu lama demi hasil tinggi.",
+			"profile": "aggressive", "target": 0.085, "drawdown": 0.4, "amount": [500000000, 1200000000], "min_reputation": 30
+		},
+		{
+			"id": "yayasan", "name": "Yayasan Cerdas Bangsa", "role": "Yayasan pendidikan",
+			"desc": "Dana abadi untuk beasiswa: hasilnya dipakai tiap tahun, pokoknya harus terjaga.",
+			"profile": "moderate", "target": 0.055, "drawdown": 0.15, "amount": [1000000000, 2500000000], "min_reputation": 50
+		},
+		{
+			"id": "dapen", "name": "Dana Pensiun Mandala", "role": "Dana pensiun perusahaan",
+			"desc": "Mengelola tabungan pensiun ribuan karyawan dan sangat memperhatikan rekam jejak manajer.",
+			"profile": "conservative", "target": 0.045, "drawdown": 0.06, "amount": [2000000000, 6000000000], "min_reputation": 70
+		}
+	]
+}

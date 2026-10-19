@@ -41,7 +41,7 @@ data/
   properties.json             Properti (v1.5c): harga, sewa, kenaikan harga, biaya beli/jual/rutin, KPR
   jobs.json                   Pekerjaan (bidang, jenjang, syarat, gaji, beban kerja) & aturan lowongan
   education.json              Program kuliah (syarat, lama, biaya, hasil) & beban kuliah
-  quiz.json                   170 soal kuis (9 topik, urutan topik di "topics")
+  quiz.json                   190 soal kuis (10 topik, urutan topik di "topics")
   glossary.json               108 istilah glosarium
   legal.json                  Kebijakan privasi, syarat penggunaan & lisensi pihak ketiga (tampil di game)
   activities.json             7 aktivitas bulanan & aturan energi (Konseling hanya saat suasana hati rendah)
@@ -49,6 +49,8 @@ data/
   life.json                   Siklus hidup (v2b): bab kehidupan, usia pensiun, JHT & Jaminan Pensiun, tabel penuaan, peluang meninggal, batas usia
   mental_health.json          Kesehatan mental (v2b): batas masuk & pulih Depresi, efek, aktivitas yang tidak tersedia
   legacy.json                 Skor warisan v2 (v2b): bobot & skala keenam bagian skor
+  fund.json                   Dana kelolaan (v2c): keranjang aset, alokasi awal, profil, fee, papan tawaran
+  investors.json              8 investor dana kelolaan (v2c): profil risiko, target, batas penurunan, setoran
   risk_profile.json           Kuesioner & 3 profil risiko
   unlocks.json                Syarat membuka tiap tahap instrumen
 localization/strings.csv      Semua teks UI (kolom id & en)
@@ -76,6 +78,7 @@ scripts/
     life.gd                   Siklus hidup (v2b): bab kehidupan, pensiun, JHT & Jaminan Pensiun, penuaan, status Kritis, masa senja, kematian
     mental.gd                 Kesehatan mental (v2b): status Depresi, efek, pemulihan, event bantuan terjadwal
     legacy.gd                 Skor warisan v2 (v2b): rata-rata sepanjang hidup, rincian skor, kekayaan riil bulanan
+    fund.gd                   Dana kelolaan (v2c): alokasi, NAB per unit, investor, fee, papan tawaran
     contracts.gd              Proyek sampingan: papan tawaran, strategi, energi bulanan, hasil, reputasi
     annual.gd                 Laporan tahunan: catatan tahun berjalan, ditutup setiap Januari
     achievements.gd           Pencapaian & kosmetik (data pemain lintas permainan, bukan modul slot save)
@@ -143,6 +146,7 @@ scenes/
 | `life` | `Life` | Siklus hidup: bab, pensiun, JHT & JP, penuaan, status Kritis, masa senja, kematian (v2b) |
 | `mental` | `Mental` | Kesehatan mental: status Depresi, efek, pemulihan, event bantuan (v2b langkah 4) |
 | `legacy` | `Legacy` | Skor warisan v2: catatan rata-rata kesehatan & kebahagiaan, rincian skor, kekayaan riil bulanan (v2b langkah 5) |
+| `fund` | `Fund` | Dana kelolaan investor: alokasi, NAB per unit, setoran & pengembalian, fee, papan tawaran (v2c) |
 
 **Yang tetap di GameState:** profil, `month`, `cash`, `health`, `happiness`, `stats`, `market`, `rng`, signal, `new_game()`, `advance_month()` (orkestrasi bulanan), `apply_effects()`, `to_dict()`/`load_from_dict()`, harga & pajak (`nominal()`, `income_tax()`), dan kondisi menang/kalah.
 
@@ -243,7 +247,12 @@ scenes/
   - [x] (3) Kesehatan Kritis & kematian
   - [x] (4) Depresi
   - [x] (5) Warisan, layar akhir & penyeimbangan
-- [ ] **v2c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
+- [ ] **v2c "Mengelola Dana Investor"** (rancangan: `MVP_Cuan_Quest_Revisi3.md` 6.3):
+  - [x] (1) Dana kelolaan & investor pertama
+  - [ ] (2) Kepuasan, penarikan & reputasi
+  - [ ] (3) Laporan per investor & cerita
+  - [ ] (4) Penyeimbangan & uji celah
+- [ ] **v2d** (opsional, lihat `MVP_Cuan_Quest_Revisi3.md`)
 
 Rangkuman semua checklist MVP (v1, v1.5, v2, M7) ada di [docs/CHECKLIST_MVP.md](docs/CHECKLIST_MVP.md).
 - [ ] **M7: Export rilis & Play Store** (setelah v2 selesai; tanpa monetisasi)
@@ -362,6 +371,17 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Laporan:** `retirement` (bulan pensiun: JHT & JP sekaligus), `retired`, `pension`; `pension` juga masuk pemasukan laporan tahunan. Tombol **+1 Tahun** di samping Lanjut hanya di masa pensiun (`GameState.fast_forward(12)`).
 - **Save lama:** bab dimulai dari usia saat dimuat; saldo JHT diperkirakan dari total gaji, masa iuran dari pengalaman kerja formal.
 - **Pedoman konten sensitif** (`docs/PEDOMAN_KONTEN_SENSITIF.md`) **disetujui** (16 Oktober 2026): langkah 3 (kematian) & 4 (depresi) wajib mengikutinya.
+
+## Dana Kelolaan (v2c langkah 1)
+
+- **Modul `Fund`** (`scripts/game/fund.gd`, `GameState.fund`, data `data/fund.json` & `data/investors.json`, kunci save `fund`, disimpan sebagai salinan). Analogi web: seperti admin "akun bersama" — pemain mengatur strategi (alokasi), tetapi uangnya milik para investor dan dicatat terpisah, seperti tabel database lain yang tidak ikut dijumlahkan ke saldo pengguna.
+- **Buka:** tahap 7 di `data/unlocks.json` (syarat `stage` 4, `net_worth` Rp1 M, `quiz_topic` `fund` 8). Tahap boleh punya `title_key` / `body_key` sendiri untuk popup "tahap terbuka". `Fund.month_tick()` tidak melakukan apa pun sebelum tahap 7 terbuka, jadi RNG-nya (seed + `rng_offset`) tidak tersentuh dan permainan lama identik.
+- **Alokasi:** `allocation` = id keranjang → persen; `allocation_error()` (total 100, kelipatan `allocation_step`, keranjang yang asetnya belum terbuka ditolak), `profile_of()` dari `allocation_risk()` (rata-rata `asset.risk`, tabel `profiles`), `mandate_ok(investor_id)` & `mandate_breaches(alloc)`. `set_allocation()` langsung `rebalance(true)`; `rebalance()` biasa hanya menyentuh aset yang menyimpang > `rebalance_band`. Transaksi dana memakai fee & pajak aset (`buy_fee/buy_tax/sell_fee/sell_tax`) dan dicatat di `record.trade_costs`, tanpa menyentuh kas/statistik pribadi.
+- **Unit & NAB:** `accept(uid)` menambah kas dana dan unit = setoran / `current_nav()`; `return_funds(uid, reason)` menjual aset proporsional (`_raise_cash`) dan membayar unit × NAB; dana kosong dibersihkan. Investor: `{uid, id, units, deposited, joined, hwm, peak, contract_end}` (`hwm`, `peak`, `contract_end` dipakai langkah 2).
+- **Bulanan** (`GameState.advance_month`, setelah `_start_month`): `_refresh_board()` (kedaluwarsa, tawaran baru; yang pertama dijamin & cocok profil), fee manajemen dipotong (`_raise_cash`) ke `gs.cash`, `rebalance()`, `nav_history`. Laporan: `last_report.fund` (`offers`, `value`, `nav`, `return`, `fee`, `investors`) dan `last_report.fund_fee` (pemasukan; `Annual.INCOME_KEYS`). `Fund.energy_cost()` dikurangkan di `Activities.energy_max()`.
+- **Tampilan:** `portfolio_screen.gd` `_build_fund_card()` / `_refresh_fund()` (signal `fund_requested`), `scenes/ui/fund_popup.tscn` + `scripts/ui/fund_popup.gd` (dibuat lewat kode di `main._setup_fund()`, signal `accepted`, `funds_returned`, `allocation_applied` → toast), `MonthReport._add_fund()`, `UiText.fund_profile()`.
+- **Kuis:** topik `fund` (TOPIC_FUND "Manajemen Investasi", 20 soal `w01`-`w20`, jawaban benar tersebar di posisi 0-3).
+- **Kalibrasi target:** uji alokasi 12 permainan × 20 tahun: konservatif 90/10 ±3,5%/tahun, moderat 50/40/10 ±5,7%, agresif 20/60/20 ±7,7% setelah fee; target investor 4-8,5%.
 
 ## Warisan & Layar Akhir (v2b langkah 5)
 

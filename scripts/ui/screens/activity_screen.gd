@@ -108,6 +108,8 @@ func _refresh_energy() -> void:
 		%EnergyTitle.text += " · " + tr("ACT_ENERGY_PROJECTS") % GameState.contracts.month_energy
 	if GameState.life.energy_change() != 0:  # v2b: usia 60+
 		%EnergyTitle.text += " · " + tr("ACT_ENERGY_AGE") % GameState.life.energy_change()
+	if GameState.fund.energy_cost() > 0:  # v2c: rapat & laporan investor dana kelolaan
+		%EnergyTitle.text += " · " + tr("ACT_ENERGY_FUND") % GameState.fund.energy_cost()
 	while %EnergyIcons.get_child_count() < GameState.activities.energy_capacity:
 		var bolt := TextureRect.new()
 		bolt.texture = BOLT_ICON

@@ -41,6 +41,7 @@ func energy_max() -> int:
 		value -= int(gs.education.data["load"]["energy"])
 	value += gs.life.energy_change()  # usia 60+ (v2b)
 	value += gs.mental.energy_change()  # Depresi (v2b langkah 4)
+	value -= gs.fund.energy_cost()  # mengelola dana investor (v2c)
 	return maxi(value, 1)
 
 

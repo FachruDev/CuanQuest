@@ -1,6 +1,8 @@
 extends ScrollContainer
 ## Tab Portofolio (tema "Senja Cuan"): ringkasan kekayaan, grafik net worth, neraca (aset - utang),
-## alokasi aset, daftar kepemilikan, laporan terakhir, riwayat transaksi.
+## alokasi aset, daftar kepemilikan, dana kelolaan investor (v2c), laporan terakhir, riwayat transaksi.
+
+signal fund_requested  # tombol Kelola Dana (v2c)
 
 const TX_SHOWN := 30
 ## Warna per kelas aset untuk grafik alokasi (urutan = urutan legenda).
@@ -18,6 +20,9 @@ const BUY_KINDS := ["buy", "auto", "lev_open"]  # transaksi beli/buka posisi tid
 var _sheet_box: VBoxContainer  # isi kartu Neraca (v1.5c langkah 4)
 var _lev_title: Label  # judul & daftar posisi leverage (v2a), tampil jika ada posisi
 var _lev_list: VBoxContainer
+var _fund_title: Label  # kartu Dana Kelolaan (v2c), tampil setelah tahap 7 terbuka
+var _fund_card: PanelContainer
+var _fund_box: VBoxContainer
 var _render: Dictionary = {}  # kunci data terakhir per bagian (UiText.changed_key)
 
 
@@ -25,6 +30,7 @@ func _ready() -> void:
 	UiText.build_period_buttons(%PeriodRow, %NetWorthChart, 0)
 	_build_sheet_card()
 	_build_leverage_list()
+	_build_fund_card()
 	GameState.changed.connect(_refresh)
 	visibility_changed.connect(_refresh)
 	_refresh()
@@ -59,6 +65,9 @@ func _refresh() -> void:
 	var positions := GameState.leverage.positions
 	if UiText.changed_key(_render, "leverage", base + [positions]):
 		_refresh_leverage()
+	var fund := GameState.fund
+	if UiText.changed_key(_render, "fund", base + [fund.is_unlocked(), fund.investors, fund.board, fund.allocation]):
+		_refresh_fund()
 	if UiText.changed_key(_render, "report", base + [GameState.last_report.get("to_month", -1), GameState.last_report.size()]):
 		MonthReport.fill(%ReportBox, GameState.last_report)
 	var txs := GameState.portfolio.transactions
@@ -108,6 +117,63 @@ func _refresh_leverage() -> void:
 		card.add_child(box)
 		LeverageView.fill_position(box, p, true)
 		_lev_list.add_child(card)
+
+
+## Judul + kartu Dana Kelolaan disisipkan setelah daftar posisi leverage (v2c). Dana investor terpisah dari
+## kekayaan pribadi, jadi kartunya berdiri sendiri (tidak masuk neraca & donat alokasi).
+func _build_fund_card() -> void:
+	var page: VBoxContainer = $VBox
+	var index := page.get_node("Gap4").get_index()
+	_fund_title = _label(tr("PORT_FUND_TITLE"), &"SubSectionLabel")
+	_fund_card = PanelContainer.new()
+	_fund_card.theme_type_variation = &"HomeCard"
+	_fund_box = VBoxContainer.new()
+	_fund_box.add_theme_constant_override("separation", 8)
+	_fund_card.add_child(_fund_box)
+	page.add_child(_fund_title)
+	page.move_child(_fund_title, index)
+	page.add_child(_fund_card)
+	page.move_child(_fund_card, index + 1)
+
+
+func _refresh_fund() -> void:
+	var fund := GameState.fund
+	_fund_title.visible = fund.is_unlocked()
+	_fund_card.visible = fund.is_unlocked()
+	if not fund.is_unlocked():
+		return
+	_clear(_fund_box)
+	if fund.is_active():
+		var start := float(fund.data["start_nav"])
+		_fund_box.add_child(_value_row(tr("FUND_VALUE"), Fmt.rupiah(fund.value())))
+		_fund_box.add_child(_value_row(tr("FUND_NAV"), "%s (%s)" % [Fmt.rupiah(fund.current_nav()),
+			Fmt.percent(fund.current_nav() / start - 1.0)]))
+		_fund_box.add_child(_value_row(tr("PORT_FUND_INVESTORS"), "%d · %s" % [fund.investors.size(),
+			UiText.fund_profile(fund.profile_of())]))
+		_fund_box.add_child(_value_row(tr("FUND_FEE_TOTAL"), Fmt.rupiah(fund.record["mgmt_fees"])))
+	else:
+		var empty := _label(tr("PORT_FUND_EMPTY"), &"MutedLabel")
+		empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_fund_box.add_child(empty)
+	if not fund.board.is_empty():
+		var offers := _label(tr("PORT_FUND_OFFERS") % fund.board.size(), &"InfoLabel")
+		offers.add_theme_color_override("font_color", Palette.GAIN)
+		_fund_box.add_child(offers)
+	var note := _label(tr("PORT_FUND_NOTE"), &"SmallMutedLabel")
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_fund_box.add_child(note)
+	var button := UiText.chunky_button(tr("PORT_FUND_OPEN"), &"PrimaryButton", &"PrimaryButtonLabel", 64.0, 24)
+	button.pressed.connect(func() -> void: fund_requested.emit())
+	_fund_box.add_child(button)
+
+
+func _value_row(name: String, value: String) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	var name_label := _label(name, &"RowLabel")
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(name_label)
+	row.add_child(_label(value, &"RowValueLabel"))
+	return row
 
 
 ## Donat alokasi per kelas aset (kas termasuk) + legenda dengan persentase.

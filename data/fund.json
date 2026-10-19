@@ -1,0 +1,28 @@
+{
+	"_comment": [
+		"Dana kelolaan (v2c): pemain mengelola uang investor (data/investors.json) lewat ALOKASI per keranjang, bukan transaksi satu per satu (scripts/game/fund.gd). Dana investor terpisah dari uang pribadi: tidak masuk kekayaan bersih, neraca, atau skor warisan; hanya fee yang masuk kas pemain.",
+		"baskets: keranjang aset (teks FUND_BASKET_<ID>); aset dalam satu keranjang dibagi sama rata. Keranjang yang asetnya belum terbuka untuk pemain (mis. valas sebelum tahap 5) tidak bisa dipilih. Kripto & leverage sengaja tidak ada (seperti aturan reksa dana).",
+		"allocation_step: kelipatan persen alokasi; default_allocation: alokasi awal (total 100). rebalance_band: dana diseimbangkan ulang tiap bulan bila porsi satu aset menyimpang lebih dari ini (fee transaksi aset dibayar dana).",
+		"profiles: [rata-rata risiko alokasi minimal, id profil] (teks FUND_PROFILE_<ID>), urutan = tingkat risiko. Risiko keranjang = rata-rata risiko asetnya (assets.json).",
+		"start_nav: NAB per unit saat dana pertama kali menerima setoran. management_fee: per tahun dari nilai dana, dipotong tiap bulan ke kas pemain. performance_fee: bagian keuntungan di atas high-water mark (langkah 2). energy: energi bulanan selama ada investor.",
+		"board: tiap bulan peluang chance satu tawaran baru (second_chance tawaran kedua), berlaku expire_months bulan; investor yang sudah ada di dana atau papan tidak ditawarkan lagi. reputation.start: reputasi manajer awal (0-100). rng_offset: RNG tersendiri (seed + offset)."
+	],
+	"baskets": [
+		{ "id": "money", "assets": ["RDPU"] },
+		{ "id": "stocks", "assets": ["BSNT", "MPGN", "NUSA", "BARA"] },
+		{ "id": "gold", "assets": ["EMAS"] },
+		{ "id": "commodities", "assets": ["MINYAK", "CPO", "KOPI"] },
+		{ "id": "fx", "assets": ["USDIDR"] }
+	],
+	"allocation_step": 10,
+	"default_allocation": { "money": 50, "stocks": 40, "gold": 10 },
+	"rebalance_band": 0.02,
+	"profiles": [[0, "conservative"], [2.0, "moderate"], [3.0, "aggressive"]],
+	"start_nav": 1000,
+	"management_fee": 0.015,
+	"performance_fee": 0.15,
+	"energy": 1,
+	"board": { "chance": 0.3, "second_chance": 0.1, "expire_months": 2 },
+	"reputation": { "start": 10 },
+	"rng_offset": 6
+}

@@ -508,6 +508,11 @@ static func times(mult: float) -> String:
 
 ## Efek usia yang sedang berlaku (v2b langkah 2), satu baris per efek; kosong sebelum usia 40.
 ## Termasuk premi asuransi yang naik menurut usia dan polis yang tidak bisa dibeli baru lagi.
+## Nama profil dana kelolaan / investor (v2c): Konservatif, Moderat, Agresif.
+static func fund_profile(id: String) -> String:
+	return _t("FUND_PROFILE_" + id.to_upper())
+
+
 ## Perkiraan dana masa pensiun (v2b langkah 5) untuk popup pensiun & masa senja.
 static func runway_lines() -> PackedStringArray:
 	var info := GameState.life.runway_info()

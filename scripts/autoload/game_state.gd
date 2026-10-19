@@ -117,6 +117,7 @@ var activities := Activities.new(self)
 var life := Life.new(self)
 var mental := Mental.new(self)
 var legacy := Legacy.new(self)
+var fund := Fund.new(self)
 ## Urutan dipakai untuk reset, simpan/muat, dan efek event. Karier sebelum rencana gaji
 ## (rencana awal memakai gaji); pendidikan sebelum aktivitas (energi memakai beban kuliah);
 ## impian sebelum kendaraan (save lama: impian kendaraan yang terwujud menjadi kendaraan). Riset (rumor
@@ -124,7 +125,7 @@ var legacy := Legacy.new(self)
 ## Leverage (v2a) tidak memakai angka acak sama sekali.
 var modules: Array[GameModule] = [progress, career, characters, education, insurance, debt, events, portfolio,
 	research, leverage, contracts, budget, dreams, vehicles, properties, targets, activities, annual, life, mental,
-	legacy]
+	legacy, fund]
 
 var fast_forwarding := false
 var _advancing := false  # di tengah advance_month(): pencapaian diperiksa sekali di akhirnya
@@ -246,6 +247,7 @@ func advance_month() -> void:
 	var from_month := month
 	month += 1
 	var start_report := _start_month()
+	var fund_report := fund.month_tick()  # v2c: tawaran investor, fee manajemen, seimbang ulang dana kelolaan
 	var delayed := events.resolve_delayed()
 	var forced_sales := portfolio.cover_negative_cash()
 	var warnings := _update_danger_counters()
@@ -288,6 +290,9 @@ func advance_month() -> void:
 	})
 	last_report.merge(health_report)
 	last_report.merge(mental_report)
+	if not fund_report.is_empty():
+		last_report["fund"] = fund_report
+		last_report["fund_fee"] = int(fund_report.get("fee", 0))
 	if not rumor_result.is_empty():
 		last_report["rumors"] = [rumor_result]
 	if not leverage_result.is_empty():

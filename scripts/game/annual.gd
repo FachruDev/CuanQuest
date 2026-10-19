@@ -9,7 +9,7 @@ extends GameModule
 
 const MAX_REPORTS := 40
 ## Kunci laporan bulanan yang dijumlahkan: pemasukan & pengeluaran per pos.
-const INCOME_KEYS := ["salary", "pension", "rent_income"]
+const INCOME_KEYS := ["salary", "pension", "rent_income", "fund_fee"]
 const EXPENSE_KEYS := ["income_tax", "food_cost", "housing_cost", "vehicle_cost", "property_cost", "loan_paid",
 	"insurance_premium", "study_fee", "lifestyle_cost"]
 const COST_KEYS := ["trade_fee", "trade_tax", "interest_tax"]
