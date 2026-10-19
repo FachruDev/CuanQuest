@@ -1,6 +1,7 @@
 extends Control
-## Layar akhir (tema "Senja Cuan"): hasil, kartu pemain & skor, statistik, perjalanan karier, neraca
-## akhir, grafik kekayaan seumur hidup, keputusan terbaik/terburuk, dan analisis (GDD 5.11).
+## Layar akhir (tema "Senja Cuan"): hasil, kartu pemain & skor, rincian skor warisan (v2b), statistik,
+## perjalanan karier, neraca akhir, grafik kekayaan riil seumur hidup per bab, keputusan terbaik/terburuk,
+## dan analisis (GDD 5.11).
 
 const TITLE_SCENE := "res://scenes/title.tscn"
 const NEW_GAME_SCENE := "res://scenes/new_game.tscn"
@@ -14,6 +15,8 @@ const RESULT_LOOK := {
 const TREND_UP := preload("res://assets/icons/trend_up.svg")
 const TREND_DOWN := preload("res://assets/icons/trend_down.svg")
 const BULB := preload("res://assets/icons/lightbulb.svg")
+## Gaya batang per bagian skor warisan (lainnya XpBar).
+const LEGACY_BARS := {"health": &"HealthBar", "happiness": &"HappinessBar"}
 
 
 func _ready() -> void:
@@ -47,8 +50,10 @@ func _ready() -> void:
 	%InfoChips.add_child(_chip(GameState.education.level_name(GameState.education.level), &"MoodNeutral"))
 	%InfoChips.add_child(_chip(tr("END_AGE") % int(r["age"]), &"MoodNeutral"))
 	%InfoChips.add_child(_chip(tr("END_PLAYED") % [floori(months / 12.0), months % 12], &"MoodNeutral"))
-	%ScoreLabel.text = tr("END_SCORE") % int(r["score"])
-	%ScoreChip.visible = r["type"] != "lose"  # skor warisan hanya untuk pensiun / menang
+	%ScoreLabel.text = tr("END_SCORE") % int(r["score"])  # skor warisan v2 untuk semua hasil (v2b langkah 5)
+	if r.get("best", false):
+		%ScoreLabel.text += " · " + tr("END_SCORE_BEST")
+	_add_legacy_card(r.get("legacy", {}))
 
 	var s := GameState.stats
 	_add_stat("END_STAT_NET_WORTH", Fmt.rupiah(r["net_worth"]))
@@ -65,7 +70,14 @@ func _ready() -> void:
 	_add_career_log()
 	_add_balance_sheet()
 
-	%LifeChart.set_data(GameState.net_worth_history)
+	%LifeChart.set_data(GameState.legacy.real_history())  # nilai riil, dengan penanda bab (v2b langkah 5)
+	%LifeChart.set_marks(GameState.legacy.chapter_marks().map(func(mark: Array) -> Array:
+		return [mark[0], tr("CHAPTER_" + str(mark[1]).to_upper())]))
+	var chart_note := _label(tr("END_CHART_NOTE"), &"SmallMutedLabel")
+	chart_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var content: VBoxContainer = %StatsGrid.get_parent()
+	content.add_child(chart_note)
+	content.move_child(chart_note, content.get_node("ChartCard").get_index() + 1)
 
 	_add_highlight("END_BEST_TRADE", s["best_trade"], "asset_key")
 	_add_highlight("END_WORST_TRADE", s["worst_trade"], "asset_key")
@@ -79,6 +91,87 @@ func _ready() -> void:
 		Sfx.play("fail" if r["type"] == "lose" else "success")
 	if r["type"] == "lose":
 		Sfx.vibrate(300)
+
+
+## Judul + kartu "Rincian Skor Warisan" tepat setelah kartu pemain (v2b langkah 5): enam bagian skor
+## dengan nilai, poin, dan batangnya, lalu total.
+func _add_legacy_card(score: Dictionary) -> void:
+	if score.is_empty():
+		return
+	var content: VBoxContainer = %StatsGrid.get_parent()
+	var index := content.get_node("PlayerCard").get_index() + 1
+	var gap := Control.new()
+	gap.custom_minimum_size = Vector2(0, 4)
+	var title := _label(tr("LEGACY_TITLE"), &"SubSectionLabel")
+	var card := PanelContainer.new()
+	card.theme_type_variation = &"HomeCard"
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 12)
+	card.add_child(box)
+	for id: String in Legacy.PARTS:
+		box.add_child(_legacy_row(id, score["parts"][id]))
+	var line := Panel.new()
+	line.theme_type_variation = &"Divider"
+	line.custom_minimum_size = Vector2(0, 2)
+	box.add_child(line)
+	var total := HBoxContainer.new()
+	var total_name := _label(tr("LEGACY_TOTAL"), &"AssetNameLabel")
+	total_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	total.add_child(total_name)
+	total.add_child(_label(tr("LEGACY_POINTS") % [int(score["total"]), 1000], &"AssetValueLabel"))
+	box.add_child(total)
+	var note := _label(tr("LEGACY_NOTE"), &"SmallMutedLabel")
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(note)
+	for node: Control in [gap, title, card]:
+		content.add_child(node)
+		content.move_child(node, index)
+		index += 1
+
+
+func _legacy_row(id: String, part: Dictionary) -> VBoxContainer:
+	var row := VBoxContainer.new()
+	row.add_theme_constant_override("separation", 2)
+	var top := HBoxContainer.new()
+	var name_label := _label(tr("LEGACY_" + id.to_upper()), &"AssetNameLabel")
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top.add_child(name_label)
+	top.add_child(_label(tr("LEGACY_POINTS") % [int(part["points"]), int(part["max"])], &"AssetValueLabel"))
+	row.add_child(top)
+	var detail := _label(legacy_detail(id, part["value"]), &"SmallMutedLabel")
+	detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	row.add_child(detail)
+	var bar := ProgressBar.new()
+	bar.theme_type_variation = LEGACY_BARS.get(id, &"XpBar")
+	bar.custom_minimum_size = Vector2(0, 12)
+	bar.show_percentage = false
+	bar.max_value = int(part["max"])
+	bar.value = int(part["points"])
+	row.add_child(bar)
+	return row
+
+
+## Keterangan nilai satu bagian skor warisan (dipakai juga oleh uji).
+static func legacy_detail(id: String, value: Variant) -> String:
+	match id:
+		"wealth":
+			return TranslationServer.translate("LEGACY_WEALTH_DETAIL") % Fmt.rupiah(value)
+		"age":
+			return TranslationServer.translate("LEGACY_AGE_DETAIL") % int(value)
+		"health", "happiness":
+			return TranslationServer.translate("LEGACY_AVG_DETAIL") % roundi(value)
+		"dreams":
+			return TranslationServer.translate("LEGACY_DREAMS_DETAIL") % int(value)
+		"wisdom":
+			var w: Dictionary = value
+			var parts: PackedStringArray = [TranslationServer.translate("LEGACY_SCAMS_DETAIL") % [int(w["scams_avoided"]),
+				int(w["scams_fallen"])]]
+			parts.append(TranslationServer.translate("LEGACY_NO_DEFAULT") if int(w["defaults"]) == 0
+				else TranslationServer.translate("LEGACY_DEFAULTED") % int(w["defaults"]))
+			parts.append(TranslationServer.translate("LEGACY_NEGATIVE_CASH") if w["negative_cash"]
+				else TranslationServer.translate("LEGACY_NO_NEGATIVE_CASH"))
+			return " · ".join(parts)
+	return ""
 
 
 ## Judul + kartu "Perjalanan Karier" sebelum bagian Keputusan Penting.

@@ -42,12 +42,13 @@ data/
   jobs.json                   Pekerjaan (bidang, jenjang, syarat, gaji, beban kerja) & aturan lowongan
   education.json              Program kuliah (syarat, lama, biaya, hasil) & beban kuliah
   quiz.json                   170 soal kuis (9 topik, urutan topik di "topics")
-  glossary.json               106 istilah glosarium
+  glossary.json               108 istilah glosarium
   legal.json                  Kebijakan privasi, syarat penggunaan & lisensi pihak ketiga (tampil di game)
   activities.json             7 aktivitas bulanan & aturan energi (Konseling hanya saat suasana hati rendah)
   leverage.json               Leverage (v2a): kelas & pilihan leverage, fee, biaya inap, batas margin call & likuidasi
   life.json                   Siklus hidup (v2b): bab kehidupan, usia pensiun, JHT & Jaminan Pensiun, tabel penuaan, peluang meninggal, batas usia
   mental_health.json          Kesehatan mental (v2b): batas masuk & pulih Depresi, efek, aktivitas yang tidak tersedia
+  legacy.json                 Skor warisan v2 (v2b): bobot & skala keenam bagian skor
   risk_profile.json           Kuesioner & 3 profil risiko
   unlocks.json                Syarat membuka tiap tahap instrumen
 localization/strings.csv      Semua teks UI (kolom id & en)
@@ -74,6 +75,7 @@ scripts/
     leverage.gd               Posisi leverage & margin: buka/tutup, tambah margin, cek harian, likuidasi
     life.gd                   Siklus hidup (v2b): bab kehidupan, pensiun, JHT & Jaminan Pensiun, penuaan, status Kritis, masa senja, kematian
     mental.gd                 Kesehatan mental (v2b): status Depresi, efek, pemulihan, event bantuan terjadwal
+    legacy.gd                 Skor warisan v2 (v2b): rata-rata sepanjang hidup, rincian skor, kekayaan riil bulanan
     contracts.gd              Proyek sampingan: papan tawaran, strategi, energi bulanan, hasil, reputasi
     annual.gd                 Laporan tahunan: catatan tahun berjalan, ditutup setiap Januari
     achievements.gd           Pencapaian & kosmetik (data pemain lintas permainan, bukan modul slot save)
@@ -140,6 +142,7 @@ scenes/
 | `annual` | `Annual` | Laporan tahunan: catatan tahun berjalan & laporan tahun-tahun lalu (v1.5d) |
 | `life` | `Life` | Siklus hidup: bab, pensiun, JHT & JP, penuaan, status Kritis, masa senja, kematian (v2b) |
 | `mental` | `Mental` | Kesehatan mental: status Depresi, efek, pemulihan, event bantuan (v2b langkah 4) |
+| `legacy` | `Legacy` | Skor warisan v2: catatan rata-rata kesehatan & kebahagiaan, rincian skor, kekayaan riil bulanan (v2b langkah 5) |
 
 **Yang tetap di GameState:** profil, `month`, `cash`, `health`, `happiness`, `stats`, `market`, `rng`, signal, `new_game()`, `advance_month()` (orkestrasi bulanan), `apply_effects()`, `to_dict()`/`load_from_dict()`, harga & pajak (`nominal()`, `income_tax()`), dan kondisi menang/kalah.
 
@@ -234,12 +237,12 @@ scenes/
   - [x] (3) Leverage & margin
   - [x] (4) Peringatan & cerita
   - [x] (5) Penyeimbangan & uji celah
-- [ ] **v2b "Siklus Hidup Penuh"** (pedoman konten sensitif: `docs/PEDOMAN_KONTEN_SENSITIF.md`, disetujui):
+- [x] **v2b "Siklus Hidup Penuh"** (pedoman konten sensitif: `docs/PEDOMAN_KONTEN_SENSITIF.md`, disetujui):
   - [x] (1) Bab kehidupan & pensiun berlanjut
   - [x] (2) Penuaan
   - [x] (3) Kesehatan Kritis & kematian
   - [x] (4) Depresi
-  - [ ] (5) Warisan, layar akhir & penyeimbangan
+  - [x] (5) Warisan, layar akhir & penyeimbangan
 - [ ] **v2c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
 Rangkuman semua checklist MVP (v1, v1.5, v2, M7) ada di [docs/CHECKLIST_MVP.md](docs/CHECKLIST_MVP.md).
@@ -359,6 +362,17 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Laporan:** `retirement` (bulan pensiun: JHT & JP sekaligus), `retired`, `pension`; `pension` juga masuk pemasukan laporan tahunan. Tombol **+1 Tahun** di samping Lanjut hanya di masa pensiun (`GameState.fast_forward(12)`).
 - **Save lama:** bab dimulai dari usia saat dimuat; saldo JHT diperkirakan dari total gaji, masa iuran dari pengalaman kerja formal.
 - **Pedoman konten sensitif** (`docs/PEDOMAN_KONTEN_SENSITIF.md`) **disetujui** (16 Oktober 2026): langkah 3 (kematian) & 4 (depresi) wajib mengikutinya.
+
+## Warisan & Layar Akhir (v2b langkah 5)
+
+- **Modul `Legacy`** (`scripts/game/legacy.gd`, `GameState.legacy`, data `data/legacy.json`, kunci save `legacy`). Analogi web: seperti "health score" akun yang dihitung dari beberapa metrik berbobot dan ditampilkan lengkap dengan rinciannya.
+- **Catatan bulanan:** `GameState.advance_month` memanggil `Legacy.record_month()` setelah kekayaan bersih dihitung (jumlah kesehatan & kebahagiaan akhir bulan + jumlah bulan). `Legacy.real_history()` = `net_worth_history[i] / market.price_levels[i]` (disejajarkan dari belakang; save lama tanpa indeks harga lengkap diperkirakan dengan inflasi merata). `Legacy.begin()` dipanggil setelah `new_game()` dan `load_from_dict()`; save lama memperkirakan rata-rata dari nilai saat dimuat.
+- **Skor:** `Legacy.breakdown()` = `{"total", "parts": {id: {"points", "max", "value"}}}` untuk `PARTS` (`wealth`, `age`, `health`, `happiness`, `dreams`, `wisdom`; teks `LEGACY_<ID>`). Kekayaan riil skala log antara `floor` dan `cap`; usia interpolasi linear tabel `points`; keputusan bijak dari statistik baru `scams_fallen` (dicatat `LifeEvents`) dan `negative_cash_total` (bulan dengan kas minus, dicatat `_update_danger_counters`), plus `scams_avoided` & `loan_defaults`. `GameState.legacy_score()` = `legacy.total()`.
+- **Akhir permainan:** `finish_game()` menyimpan `end_result.score` & `end_result.legacy` (dihitung setelah `end_result` terisi agar alasan `bankrupt` ikut dinilai), menambah `age`, `score`, `score_v: 2` ke riwayat, dan memperbarui `GameState.legacy_best` (data pemain, kunci `legacy_best`; data pemain lama mengambilnya dari riwayat bernilai v2). `end_result.best` = melampaui skor terbaik sebelumnya.
+- **Layar akhir** (`end_screen.gd`): `_add_legacy_card()` (rincian, `legacy_detail()` untuk teks tiap bagian), grafik `LifeChart` memakai `real_history()` + `PriceChart.set_marks()` (garis putus-putus & nama bab, teks yang tidak muat dilewati) dari `Legacy.chapter_marks()`. `GameState.record_extreme()` membandingkan nilai riil (`real` di catatan; catatan lama memakai nilai nominal). `EndAnalysis.weakest_legacy_part()` + `INSIGHT_LEGACY_WEAKEST` / `LEGACY_TIP_<ID>`.
+- **Profil:** baris skor terbaik (`HISTORY_BEST`) di atas riwayat, `HISTORY_SCORE` di setiap riwayat bernilai v2, `PROFILE_LEGACY_NOW` di kartu Perjalanan Hidup.
+- **Perkiraan dana pensiun:** `Life.runway_info()` (`months` = (kas + investasi) / (pengeluaran rutin − JP − sewa bersih), -1 jika tertutup; `low` jika habis sebelum `retirement.runway_warn_age`) dan `UiText.runway_lines()`, dipakai popup pensiun & masa senja.
+- **Penyeimbangan:** `data/life.json` `mortality.base` 70-79 6%, 80-89 15%, 90+ 30% (sebelumnya 4% / 10% / 25%). Simulator: baris `meninggal:` kini memuat usia rata-rata, baris baru `skor warisan:` (median, p10, p90, median tiap bagian). simulator hidup penuh (80 tahun) dengan tabel baru: **pemain hemat yang selalu sehat rata-rata hidup sampai 85,0** (median 85, 120 permainan; sebelumnya 90,6) dan pemain acak 79,5 (120 permainan; sebelumnya 83,1). Dengan 40 permainan (seed sama, jadi ±1-2 tahun): SMA hemat 86,2, pembeli rumah kota 87,4, boros 86,6, spekulan 80,6, SMA acak 79,8. Tetap **tidak ada yang meninggal sebelum usia 60**. Model peluang (200.000 hidup) untuk perbandingan: kesehatan ≥ 70 rata-rata 85,2, kesehatan 40-69 80,3, kesehatan 20-39 74,6, jadi menjaga kesehatan memberi ±5 tahun. Boros yang bangkrut di masa tua berkurang dari 9 menjadi 7 dari 40. Skor warisan median: S1 hemat 833 (p10 776), pembeli rumah kota 834, SMA hemat 806, spekulan 708, acak 636, boros 610 (p10 444 karena sebagian bangkrut), SMA acak 574. Simulator tidak pernah memilih impian (bagian impian 0), jadi pemain sungguhan bisa mendapat hingga 100 poin lagi. **Diperbaiki:** undian masa senja sebelumnya dilewati di setiap bulan pemberitahuan tahunan sehingga peluang sungguhan hanya 11/12 dari yang ditampilkan; kini hanya bulan pemberitahuan pertama yang dilewati (`Life.twilight_since`).
 
 ## Depresi & Kesehatan Mental (v2b langkah 4)
 

@@ -1,0 +1,16 @@
+{
+	"_comment": [
+		"Skor warisan v2 (v2b langkah 5): 0-1000, dihitung saat permainan berakhir (scripts/game/legacy.gd). Semua dalam nilai riil (Rupiah awal permainan) agar bisa dibandingkan antar permainan.",
+		"wealth: kekayaan bersih riil di akhir hidup (termasuk uang pertanggungan untuk ahli waris), skala log: <= floor = 0 poin, >= cap = max poin.",
+		"age: usia di akhir permainan, diinterpolasi linear antar baris points [usia, poin]; lewat baris terakhir tetap max.",
+		"health / happiness: rata-rata kesehatan & kebahagiaan setiap bulan sepanjang hidup (0-100) x max / 100.",
+		"dreams: per_dream poin per impian tercapai, maksimal max.",
+		"wisdom (keputusan bijak): menolak penipuan (per_scam_avoided per penipuan yang ditolak, dikurangi per_scam_fallen per penipuan yang mengena, dibatasi 0..scam_max), no_default jika tidak pernah ada pinjaman macet, no_bankrupt jika kas tidak pernah minus di akhir bulan dan permainan tidak berakhir bangkrut."
+	],
+	"wealth": { "max": 350, "floor": 10000000, "cap": 25000000000 },
+	"age": { "max": 200, "points": [[18, 0], [60, 100], [75, 160], [85, 200]] },
+	"health": { "max": 100 },
+	"happiness": { "max": 100 },
+	"dreams": { "max": 100, "per_dream": 25 },
+	"wisdom": { "max": 150, "per_scam_avoided": 15, "per_scam_fallen": 20, "scam_max": 60, "no_default": 45, "no_bankrupt": 45 }
+}

@@ -430,7 +430,8 @@ func _depression_text(info: Dictionary) -> String:
 ## sekaligus daftar efek usia.
 func _twilight_text(info: Dictionary) -> String:
 	var lines: PackedStringArray = [tr("TWILIGHT_POPUP_BODY") % UiText.percent_short(info["chance"]),
-		tr("TWILIGHT_POPUP_HEALTH"), "", tr("TWILIGHT_POPUP_TIP")]
+		tr("TWILIGHT_POPUP_HEALTH"), "", tr("TWILIGHT_POPUP_TIP"), ""]
+	lines.append_array(UiText.runway_lines())  # v2b langkah 5
 	if info.get("aging", false):
 		lines.append("")
 		lines.append(tr("CHAPTER_AGING"))
@@ -457,6 +458,8 @@ func _retirement_text(info: Dictionary) -> String:
 		lines.append(tr("RETIRE_JP_LUMP") % Fmt.rupiah(info["jp_lump"]))
 	else:
 		lines.append(tr("RETIRE_JP_NONE"))
+	lines.append("")
+	lines.append_array(UiText.runway_lines())  # v2b langkah 5: sampai kapan dana pensiun cukup
 	lines.append("")
 	lines.append(tr("RETIRE_POPUP_TIP"))
 	return "\n".join(lines)

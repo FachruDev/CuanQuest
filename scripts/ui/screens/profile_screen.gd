@@ -380,11 +380,20 @@ func _refresh_sessions() -> void:
 	_sessions_box.add_child(note)
 
 
-## Riwayat permainan selesai: "Nama · hasil" + alasan & lama bermain, kekayaan akhir berwarna.
+## Riwayat permainan selesai: "Nama · hasil" + alasan, lama bermain & skor warisan, kekayaan akhir
+## berwarna. Di atasnya skor warisan terbaik sepanjang masa (v2b langkah 5).
 func _build_history() -> void:
 	if GameState.history.is_empty():
 		%HistoryList.add_child(_label(tr("HISTORY_EMPTY"), &"MutedLabel"))
 		return
+	var best := GameState.legacy_best
+	if not best.is_empty():
+		var best_row := _value_row(tr("HISTORY_BEST"), tr("HISTORY_BEST_VALUE") % [int(best["score"]), best["name"], int(best["age"])])
+		%HistoryList.add_child(best_row)
+		var gap := Panel.new()
+		gap.theme_type_variation = &"Divider"
+		gap.custom_minimum_size = Vector2(0, 2)
+		%HistoryList.add_child(gap)
 	for i in GameState.history.size():
 		var record: Dictionary = GameState.history[i]
 		if i > 0:
@@ -400,8 +409,12 @@ func _build_history() -> void:
 		var title := _label("%s · %s" % [record["name"], tr("END_TITLE_" + str(record["type"]).to_upper())],
 				&"AssetNameLabel")
 		title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		var meta := _label(tr("HISTORY_META") % [tr("END_REASON_SHORT_" + str(record["reason"]).to_upper()),
-				int(record["months"])], &"SmallMutedLabel")
+		var meta_text := tr("HISTORY_META") % [tr("END_REASON_SHORT_" + str(record["reason"]).to_upper()),
+				int(record["months"])]
+		if int(record.get("score_v", 0)) == 2:  # skor warisan v2 (permainan sebelum v2b langkah 5 tidak punya)
+			meta_text += " · " + tr("HISTORY_SCORE") % [int(record["age"]), int(record["score"])]
+		var meta := _label(meta_text, &"SmallMutedLabel")
+		meta.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		texts.add_child(title)
 		texts.add_child(meta)
 		var value := _label(Fmt.rupiah(record["net_worth"]), &"AssetValueLabel")
@@ -518,6 +531,7 @@ func _refresh_life() -> void:
 			name_text += " " + tr("PROFILE_LIFE_NOW")
 		_life_box.add_child(_value_row(tr("PROFILE_LIFE_ROW") % [name_text, range_text],
 			tr("PROFILE_LIFE_START_WORTH") % Fmt.rupiah(entry["worth"])))
+	_life_box.add_child(_value_row(tr("PROFILE_LEGACY_NOW"), tr("LEGACY_POINTS") % [GameState.legacy_score(), 1000]))  # v2b langkah 5
 	if life.retired:
 		_life_box.add_child(_wrap(tr("PROFILE_LIFE_RETIRED") % [Fmt.rupiah(life.retirement_info.get("jht", 0)),
 			Fmt.rupiah(life.pension_payment())], &"SmallMutedLabel"))

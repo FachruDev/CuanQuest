@@ -36,10 +36,13 @@ var reveal := 1.0:
 		queue_redraw()
 
 const LIGHT_TEXT := Color("#8a6e4e")
+const MARK_FONT := 14
 
 var _all: Array[float] = []   # semua data dari pemanggil
 var _long: Array[float] = []  # data jangka panjang (mis. penutupan bulanan) untuk periode "Semua"
 var _data: Array[float] = []  # bagian yang sedang digambar (sesuai periode)
+var _offset := 0  # indeks _all untuk titik pertama _data
+var _marks: Array = []  # penanda tegak [indeks di _all, teks] (mis. pergantian bab di layar akhir, v2b)
 var _reveal_tween: Tween
 
 
@@ -56,6 +59,13 @@ func set_data(values: Array[float]) -> void:
 func set_long_data(values: Array[float]) -> void:
 	_long.assign(values)
 	_apply_period()
+
+
+## Garis tegak dengan teks di bagian atas grafik, mis. pergantian bab kehidupan: [[indeks, teks], ...].
+## Teks yang tidak muat di ruas grafiknya tidak digambar.
+func set_marks(marks: Array) -> void:
+	_marks = marks
+	queue_redraw()
 
 
 ## Periode N bulan butuh N x points_per_period + 1 titik (harga awal + perubahannya).
@@ -89,9 +99,11 @@ func _gui_input(event: InputEvent) -> void:
 func _apply_period() -> void:
 	if period == 0 and not _long.is_empty():
 		_data.assign(_long)
+		_offset = 0
 	else:
 		var count := period * points_per_period + 1 if period > 0 else max_points
 		_data.assign(_all.slice(-count))
+		_offset = _all.size() - _data.size()
 	queue_redraw()  # minta Godot memanggil _draw() di frame berikutnya
 
 
@@ -117,6 +129,7 @@ func _draw() -> void:
 	for i in 5:  # garis bantu horizontal
 		var y := area.position.y + area.size.y * i / 4.0
 		draw_line(Vector2(area.position.x, y), Vector2(area.end.x, y), grid_color)
+	_draw_marks(area, text_color)
 
 	var all_points := PackedVector2Array()
 	for i in _data.size():
@@ -161,3 +174,21 @@ func _draw() -> void:
 			Fmt.rupiah(hi), HORIZONTAL_ALIGNMENT_LEFT, -1, label_size, text_color)
 	draw_string(font, Vector2(area.position.x + 4, lo_y),
 			Fmt.rupiah(lo), HORIZONTAL_ALIGNMENT_LEFT, -1, label_size, text_color)
+
+
+## Penanda tegak putus-putus + teks di awal tiap ruas (tidak digambar jika tidak muat sampai penanda berikutnya).
+func _draw_marks(area: Rect2, text_color: Color) -> void:
+	var font := get_theme_default_font()
+	var xs: Array[float] = []
+	for mark: Array in _marks:
+		var i := int(mark[0]) - _offset
+		xs.append(area.position.x + area.size.x * clampf(float(i) / maxf(_data.size() - 1, 1.0), 0.0, 1.0))
+	for k in _marks.size():
+		var x: float = xs[k]
+		if x > area.position.x + 1.0:
+			draw_dashed_line(Vector2(x, area.position.y), Vector2(x, area.end.y), Color(text_color, 0.45), 2.0, 6.0)
+		var room := (xs[k + 1] if k + 1 < xs.size() else area.end.x) - x - 8.0
+		var text := String(_marks[k][1])
+		if font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, MARK_FONT).x <= room:
+			draw_string(font, Vector2(x + 5, area.position.y + MARK_FONT + 2), text, HORIZONTAL_ALIGNMENT_LEFT, -1,
+				MARK_FONT, text_color)

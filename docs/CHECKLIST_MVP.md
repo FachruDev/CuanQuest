@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 19 Oktober 2026 (v2b langkah 4: Depresi)
+- **Terakhir diperbarui:** 19 Oktober 2026 (v2b langkah 5: warisan, layar akhir & penyeimbangan; v2b selesai)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -20,7 +20,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v1.5d** | Tokoh, riset, kontrak, konten | ✅ 5/5 langkah (aset final menyusul setelah v2) |
 | **Penutup v1.5** | Performa & baterai, playtest, legal | ✅ legal & performa (APK dicoba di HP); playtest berjalan terus lewat Profil > Sesi Bermain |
 | **v2a** | Instrumen lanjut: komoditas, valas, leverage & margin | ✅ 5/5 langkah (ikon kelas menyusul setelah v2) |
-| **v2b** | Siklus hidup penuh: bab, penuaan, kematian, depresi, warisan | 🔄 4/5 langkah (pedoman konten sensitif disetujui) |
+| **v2b** | Siklus hidup penuh: bab, penuaan, kematian, depresi, warisan | ✅ 5/5 langkah (pedoman konten sensitif disetujui) |
 | **v2c-v2d** | Dana investor, mini-game | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
 
@@ -507,7 +507,7 @@ Panduan uji di HP: `docs/UJI_AKHIR_V15.md` (tabel performa, baterai, dan pertany
 - ✅ Margin call dan likuidasi tidak bisa dieksploitasi (satu posisi per aset, kekurangan ditagih ke kas, strategi acak & lindung nilai rugi, simulator 6 tipe pemain)
 - ✅ Peringatan risiko sebelum transaksi leverage pertama
 
-**v2b: Siklus hidup penuh** 🔄 (rancangan: `MVP_Cuan_Quest_Revisi3.md` 6.2.1-6.2.9; pedoman: `docs/PEDOMAN_KONTEN_SENSITIF.md`)
+**v2b: Siklus hidup penuh** ✅ (rancangan: `MVP_Cuan_Quest_Revisi3.md` 6.2.1-6.2.9; pedoman: `docs/PEDOMAN_KONTEN_SENSITIF.md`)
 
 *Langkah pengerjaan*
 - ✅ **Pedoman konten sensitif** disetujui pemilik proyek (16 Oktober 2026); uji kata terlarang berjalan di uji konten
@@ -541,20 +541,26 @@ Panduan uji di HP: `docs/UJI_AKHIR_V15.md` (tabel performa, baterai, dan pertany
   - ✅ Pesan dukungan (119) di popup Depresi pertama & Profil > Bantuan & Dukungan; catatan Beranda + Cari Bantuan; laporan bulanan; analisis akhir
   - ✅ Perbaikan: target bulanan hanya memakai aktivitas yang tersedia
   - ✅ 59 uji Depresi + 1468 uji lama lulus (termasuk uji pedoman untuk event Depresi); golden runner identik saat Depresi dimatikan; simulator hidup penuh + tipe pemain baru `acak_peduli`
-- ⬜ Langkah 5: Warisan, layar akhir & penyeimbangan
+- ✅ **Langkah 5: Warisan, layar akhir & penyeimbangan**
+  - ✅ Skor warisan v2 (`data/legacy.json`): kekayaan riil (350, skala log), usia (200), rata-rata kesehatan & kebahagiaan sepanjang hidup (100 + 100), impian (100), keputusan bijak (150); tampil untuk semua akhir permainan
+  - ✅ Layar akhir: rincian skor, label rekor baru, grafik kekayaan riil dengan penanda bab, keputusan terbaik/terburuk dalam nilai riil, wawasan bagian skor terlemah
+  - ✅ Profil: skor terbaik sepanjang masa, skor & usia di riwayat permainan, perkiraan skor sejauh ini
+  - ✅ Perkiraan dana pensiun di popup pensiun & masa senja (saran jika habis sebelum 90); glosarium +2
+  - ✅ Penyeimbangan: peluang dasar meninggal 70+ dinaikkan (6% / 15% / 30%) agar pemain sehat rata-rata hidup ±85; simulator mencatat usia meninggal rata-rata & skor warisan per tipe pemain
+  - ✅ 74 uji warisan (termasuk satu hidup penuh) + 1529 uji lama lulus; golden runner identik kecuali pemilihan transaksi terburuk (kini riil)
 
 *Daftar fitur*
 - ✅ Bab kehidupan ✅, penuaan ✅, pensiun usia 60 yang berlanjut ✅
 - ✅ Kesehatan & kematian (tabel peluang meninggal), status Kritis dengan peringatan
 - ✅ Depresi dengan pedoman konten sensitif
-- ⬜ Warisan & layar akhir lengkap
+- ✅ Warisan & layar akhir lengkap
 - ✅ Lompat per tahun di masa pensiun
 
 *Kriteria selesai*
-- ⬜ Pemain dapat menyelesaikan satu hidup penuh
-- ✅ Pemain yang menjaga kesehatan hampir tidak pernah meninggal sebelum 60; yang mengabaikannya bisa meninggal muda, selalu dengan peringatan (simulator langkah 3; ditinjau lagi di langkah 5)
+- ✅ Pemain dapat menyelesaikan satu hidup penuh (uji otomatis hidup penuh sampai meninggal dunia)
+- ✅ Pemain yang menjaga kesehatan hampir tidak pernah meninggal sebelum 60; yang mengabaikannya bisa meninggal muda, selalu dengan peringatan (simulator langkah 3 & 5)
 - ✅ Konten depresi dan kematian mengikuti pedoman konten sensitif (diperiksa uji otomatis; nomor layanan diverifikasi sebelum rilis)
-- ⬜ Skor warisan konsisten dan bisa dibandingkan antar permainan
+- ✅ Skor warisan konsisten dan bisa dibandingkan antar permainan (nilai riil, bobot di file data, riwayat & skor terbaik di Profil)
 
 **v2c: Mengelola dana investor**
 - ⬜ Investor dengan target & toleransi risiko, fee + bagi hasil, reputasi

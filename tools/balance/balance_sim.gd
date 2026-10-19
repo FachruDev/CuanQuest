@@ -204,7 +204,8 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 		"died": GameState.is_over and GameState.end_result.get("type", "") == "died",
 		"death_age": int(GameState.end_result.get("age", -1)) if GameState.is_over else -1,
 		"critical_count": GameState.life.critical_count,
-		"mental_count": GameState.mental.count, "mental_months": GameState.mental.months}
+		"mental_count": GameState.mental.count, "mental_months": GameState.mental.months,
+		"legacy": GameState.end_result["legacy"] if GameState.is_over else GameState.legacy.breakdown()}
 
 
 func _snapshot(start_salary: int) -> Dictionary:
@@ -769,11 +770,28 @@ func _print_deaths(results: Array[Dictionary]) -> void:
 		causes[r["reason"]] = causes.get(r["reason"], 0) + 1
 		ages.append(float(r["death_age"]))
 	ages.sort()
+	var mean := 0.0
+	for a: float in ages:
+		mean += a / ages.size()
 	var young := died.filter(func(r: Dictionary) -> bool: return int(r["death_age"]) < 60).size()
 	var critical := results.filter(func(r: Dictionary) -> bool: return int(r["critical_count"]) > 0).size()
-	print("  meninggal: %d/%d %s | usia median %s | sebelum 60: %d (%d%%) | pernah kritis %d%%" % [died.size(), results.size(),
-		str(causes) if not causes.is_empty() else "", str(roundi(_pct(ages, 0.5))) if not ages.is_empty() else "-", young,
+	print("  meninggal: %d/%d %s | usia median %s (rata-rata %s) | sebelum 60: %d (%d%%) | pernah kritis %d%%" % [died.size(),
+		results.size(), str(causes) if not causes.is_empty() else "", str(roundi(_pct(ages, 0.5))) if not ages.is_empty() else "-",
+		Fmt.number(mean, 1) if not ages.is_empty() else "-", young,
 		roundi(100.0 * young / results.size()), roundi(100.0 * critical / results.size())])
+
+
+## Skor warisan v2 (v2b langkah 5): total median (p10-p90) dan median tiap bagian.
+func _print_legacy(results: Array[Dictionary]) -> void:
+	var totals: Array = results.map(func(r: Dictionary) -> float: return float(r["legacy"]["total"]))
+	totals.sort()
+	var parts: PackedStringArray = []
+	for id: String in Legacy.PARTS:
+		var values: Array = results.map(func(r: Dictionary) -> float: return float(r["legacy"]["parts"][id]["points"]))
+		values.sort()
+		parts.append("%s %d" % [id, roundi(_pct(values, 0.5))])
+	print("  skor warisan: median %d (p10 %d, p90 %d) | %s" % [roundi(_pct(totals, 0.5)), roundi(_pct(totals, 0.1)),
+		roundi(_pct(totals, 0.9)), " ".join(parts)])
 
 
 ## Depresi (v2b langkah 4): berapa persen permainan pernah masuk status Depresi, berapa kali, dan
@@ -798,6 +816,7 @@ func _print_summary(persona: String, results: Array[Dictionary], years: int) -> 
 	print("  kalah: %d/%d %s" % [lost.size(), results.size(), str(reasons) if not reasons.is_empty() else ""])
 	_print_deaths(results)
 	_print_mental(results)
+	_print_legacy(results)
 	print("  bebas finansial: %s | Rp1 miliar: %s" % [
 		_month_stat(results, "freedom_month"), _month_stat(results, "millionaire_month")])
 	var first_jobs: Array = results.map(func(r: Dictionary) -> float: return float(r["first_job_month"]))

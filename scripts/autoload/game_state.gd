@@ -116,13 +116,15 @@ var targets := Targets.new(self)
 var activities := Activities.new(self)
 var life := Life.new(self)
 var mental := Mental.new(self)
+var legacy := Legacy.new(self)
 ## Urutan dipakai untuk reset, simpan/muat, dan efek event. Karier sebelum rencana gaji
 ## (rencana awal memakai gaji); pendidikan sebelum aktivitas (energi memakai beban kuliah);
 ## impian sebelum kendaraan (save lama: impian kendaraan yang terwujud menjadi kendaraan). Riset (rumor
 ## pasar) dan proyek sampingan memakai RNG sendiri, jadi urutannya tidak memengaruhi undian modul lain.
 ## Leverage (v2a) tidak memakai angka acak sama sekali.
 var modules: Array[GameModule] = [progress, career, characters, education, insurance, debt, events, portfolio,
-	research, leverage, contracts, budget, dreams, vehicles, properties, targets, activities, annual, life, mental]
+	research, leverage, contracts, budget, dreams, vehicles, properties, targets, activities, annual, life, mental,
+	legacy]
 
 var fast_forwarding := false
 var _advancing := false  # di tengah advance_month(): pencapaian diperiksa sekali di akhirnya
@@ -142,6 +144,7 @@ var sessions := PlaySessions.new()
 var tutorial_done := false
 var hints_seen: Array[String] = []
 var history: Array[Dictionary] = []  # ringkasan permainan sebelumnya (maks 10)
+var legacy_best: Dictionary = {}  # skor warisan v2 tertinggi sepanjang masa (v2b langkah 5): score, name, age, date
 
 
 func _ready() -> void:
@@ -198,6 +201,7 @@ func new_game(profile: Dictionary = {}, seed_value: int = -1) -> void:
 	stats["peak_net_worth"] = net_worth()
 	annual.begin_year()
 	life.begin()  # bab pertama (v2b)
+	legacy.begin()  # catatan skor warisan (v2b langkah 5)
 	last_report = {}
 	is_active = true
 	progress.check_unlocks(false)
@@ -250,6 +254,7 @@ func advance_month() -> void:
 	progress.xp += int(economy["xp_per_month"])
 	var worth := net_worth()
 	net_worth_history.append(worth)
+	legacy.record_month()  # rata-rata kesehatan & kebahagiaan sepanjang hidup (v2b langkah 5)
 	_track_monthly_stats(worth)
 
 	last_report = start_report.merged({
@@ -639,7 +644,8 @@ func _on_changed() -> void:
 
 func player_to_dict() -> Dictionary:
 	return {"version": PLAYER_VERSION, "quiz": quiz.to_dict(), "achievements": achievements.to_dict(),
-		"sessions": sessions.to_dict(), "tutorial_done": tutorial_done, "hints_seen": hints_seen, "history": history}
+		"sessions": sessions.to_dict(), "tutorial_done": tutorial_done, "hints_seen": hints_seen, "history": history,
+		"legacy_best": legacy_best}
 
 
 func player_from_dict(d: Dictionary) -> void:
@@ -649,6 +655,12 @@ func player_from_dict(d: Dictionary) -> void:
 	tutorial_done = d.get("tutorial_done", false)
 	hints_seen.assign(d.get("hints_seen", []))
 	history.assign(d.get("history", []))
+	legacy_best = d.get("legacy_best", {})
+	if legacy_best.is_empty():  # sebelum v2b langkah 5: skor terbaik dari riwayat yang sudah bernilai v2
+		for record: Dictionary in history:
+			if int(record.get("score_v", 0)) == 2 and int(record["score"]) > int(legacy_best.get("score", -1)):
+				legacy_best = {"score": record["score"], "name": record["name"], "age": record.get("age", 0),
+					"date": record["date"]}
 
 
 # --- Simpan / muat (SaveManager memetakannya ke tabel SQLite) -------------------------
@@ -715,6 +727,7 @@ func load_from_dict(d: Dictionary) -> bool:
 		d["market"])
 	events.restore_pending_vars()
 	life.begin()  # save sebelum v2b: bab dimulai sekarang, JHT/JP diperkirakan
+	legacy.begin()  # save sebelum v2b langkah 5: rata-rata diperkirakan
 	run_id += 1
 	is_active = true
 	changed.emit()
@@ -740,16 +753,22 @@ func _new_stats() -> Dictionary:
 		"rent_income": 0, "property_gains": 0, "offer_loans": 0, "restructures": 0, "refinances": 0,
 		"projects_done": 0, "projects_excellent": 0, "projects_revised": 0, "projects_failed": 0, "project_income": 0,
 		"scams_avoided": 0, "mortgages_paid_off": 0, "bear_months_held": 0,
+		"scams_fallen": 0, "negative_cash_total": 0,  # skor warisan: keputusan bijak (v2b langkah 5)
 		"best_trade": {}, "worst_trade": {}, "best_event": {}, "worst_event": {},
 	}
 
 
-## Simpan nilai terbaik/terburuk (mis. transaksi paling untung & paling rugi).
+## Simpan nilai terbaik/terburuk (mis. transaksi paling untung & paling rugi). Dibandingkan dalam
+## nilai riil (v2b langkah 5) agar keputusan di usia tua tidak selalu "terbesar" hanya karena inflasi;
+## catatan lama tanpa "real" dibandingkan dengan nilai nominalnya.
 func record_extreme(best_key: String, worst_key: String, value: float, info: Dictionary) -> void:
-	var record := info.merged({"value": value, "month": month})
-	if value > 0 and (stats[best_key].is_empty() or value > stats[best_key]["value"]):
+	var real := real_value(value)
+	var record := info.merged({"value": value, "real": real, "month": month})
+	var best: Dictionary = stats[best_key]
+	var worst: Dictionary = stats[worst_key]
+	if value > 0 and (best.is_empty() or real > float(best.get("real", best["value"]))):
 		stats[best_key] = record
-	elif value < 0 and (stats[worst_key].is_empty() or value < stats[worst_key]["value"]):
+	elif value < 0 and (worst.is_empty() or real < float(worst.get("real", worst["value"]))):
 		stats[worst_key] = record
 
 
@@ -771,6 +790,8 @@ func _track_monthly_stats(worth: float) -> void:
 func _update_danger_counters() -> Array[String]:
 	var limit := int(economy["end"]["danger_months"])
 	negative_cash_months = negative_cash_months + 1 if cash < 0 else 0
+	if cash < 0:
+		stats["negative_cash_total"] = int(stats["negative_cash_total"]) + 1
 	zero_health_months = zero_health_months + 1 if health <= 0 else 0
 	zero_happiness_months = 0  # v2b langkah 4: kebahagiaan habis tidak lagi mengakhiri permainan (lihat Mental)
 	var warnings: Array[String] = []
@@ -827,9 +848,9 @@ func is_financially_free() -> bool:
 	return passive_income() > 0 and passive_income() >= monthly_spending()
 
 
-## Skor warisan: kekayaan (per Rp1 juta) + kesehatan + kebahagiaan + level x 10.
+## Skor warisan v2 (0-1000, v2b langkah 5): lihat Legacy.breakdown().
 func legacy_score() -> int:
-	return floori(net_worth() / 1_000_000.0) + health + happiness + progress.level() * 10
+	return legacy.total()
 
 
 ## Mengakhiri permainan. `result_type`: win | lose | retired | died (v2b; reason = penyebab:
@@ -839,16 +860,24 @@ func finish_game(result_type: String, reason: String) -> void:
 	events.pending = {}
 	end_result = {
 		"type": result_type, "reason": reason, "month": month, "age": age(),
-		"net_worth": net_worth(), "peak": stats["peak_net_worth"], "score": legacy_score(),
+		"net_worth": net_worth(), "peak": stats["peak_net_worth"],
 	}
 	if result_type == "died":
 		end_result["payout"] = int(life.death.get("payout", 0))
-	history.push_front({
+	var score := legacy.breakdown()  # setelah end_result terisi: alasan "bankrupt" ikut dinilai
+	end_result["score"] = score["total"]
+	end_result["legacy"] = score
+	var record := {
 		"name": player_name, "avatar": avatar, "background": background["id"],
 		"difficulty": difficulty["id"], "type": result_type, "reason": reason,
 		"months": month, "net_worth": net_worth(), "date": int(Time.get_unix_time_from_system()),
-	})
+		"age": age(), "score": score["total"], "score_v": 2,
+	}
+	history.push_front(record)
 	history.resize(mini(history.size(), 10))
+	if int(score["total"]) > int(legacy_best.get("score", -1)):
+		end_result["best"] = not legacy_best.is_empty()  # "rekor baru" hanya jika ada skor sebelumnya
+		legacy_best = {"score": score["total"], "name": player_name, "age": age(), "date": record["date"]}
 	player_changed.emit()
 	changed.emit()
 	emit_later(game_ended, end_result)

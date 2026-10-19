@@ -33,6 +33,10 @@ static func insights(state: Node) -> Array[String]:
 		out.append(_t("INSIGHT_CRITICAL_COUNT") % state.life.critical_count)
 	if state.mental.count > 0:  # v2b langkah 4
 		out.append(_t("INSIGHT_DEPRESSION") % state.mental.count)
+	var weakest := weakest_legacy_part(state.end_result.get("legacy", {}))  # v2b langkah 5
+	if not weakest.is_empty():
+		out.append(_t("INSIGHT_LEGACY_WEAKEST") % [_t("LEGACY_" + str(weakest["id"]).to_upper()), int(weakest["points"]),
+			int(weakest["max"]), _t("LEGACY_TIP_" + str(weakest["id"]).to_upper())])
 
 	if s["scam_loss"] > 0:
 		out.append(_t("INSIGHT_SCAM") % Fmt.rupiah(s["scam_loss"]))
@@ -109,6 +113,22 @@ static func insights(state: Node) -> Array[String]:
 	if out.is_empty():
 		out.append(_t("INSIGHT_DEFAULT"))
 	return out
+
+
+## Bagian skor warisan dengan perolehan terendah (dibanding maksimalnya), jika di bawah 80%:
+## {"id", "points", "max"}, atau {} jika semua bagian sudah baik / belum ada skor.
+static func weakest_legacy_part(score: Dictionary) -> Dictionary:
+	if score.is_empty():
+		return {}
+	var weakest := {}
+	var lowest := 0.8
+	for id: String in Legacy.PARTS:
+		var part: Dictionary = score["parts"][id]
+		var ratio := float(part["points"]) / float(part["max"])
+		if ratio < lowest:
+			lowest = ratio
+			weakest = {"id": id, "points": part["points"], "max": part["max"]}
+	return weakest
 
 
 ## Porsi aset terbesar dari total investasi (0..1).

@@ -508,6 +508,17 @@ static func times(mult: float) -> String:
 
 ## Efek usia yang sedang berlaku (v2b langkah 2), satu baris per efek; kosong sebelum usia 40.
 ## Termasuk premi asuransi yang naik menurut usia dan polis yang tidak bisa dibeli baru lagi.
+## Perkiraan dana masa pensiun (v2b langkah 5) untuk popup pensiun & masa senja.
+static func runway_lines() -> PackedStringArray:
+	var info := GameState.life.runway_info()
+	if int(info["months"]) < 0:
+		return [_t("RUNWAY_FOREVER")]
+	var lines: PackedStringArray = [_t("RUNWAY_YEARS") % [Fmt.number(int(info["months"]) / 12.0, 1), int(info["until_age"])]]
+	if info["low"]:
+		lines.append(_t("RUNWAY_LOW"))
+	return lines
+
+
 static func aging_lines() -> PackedStringArray:
 	var fx := GameState.life.aging_effects()
 	var lines: PackedStringArray = []

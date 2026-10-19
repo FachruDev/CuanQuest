@@ -29,6 +29,7 @@ var critical := false  # status Kritis (kesehatan < critical_below), langkah 3
 var critical_since := -1  # bulan status Kritis dimulai (peringatan tampil setelah laporan bulan itu)
 var critical_count := 0  # berapa kali masuk status Kritis
 var twilight_month := -1  # bulan pemberitahuan masa senja terakhir (usia 70+)
+var twilight_since := -1  # bulan pemberitahuan masa senja pertama (undian mulai bulan berikutnya)
 var death: Dictionary = {}  # {month, age, cause, payout} saat meninggal dunia
 var rng := RandomNumberGenerator.new()  # undian peluang meninggal, terpisah dari RNG utama
 var _legacy := false  # save sebelum v2b: perkiraan JHT/JP dibuat setelah pasar dimuat
@@ -53,6 +54,7 @@ func reset() -> void:
 	critical_since = -1
 	critical_count = 0
 	twilight_month = -1
+	twilight_since = -1
 	death = {}
 	rng.seed = gs.rng.seed + int(data.get("mortality", {}).get("rng_offset", 5))  # GameState.rng sudah di-seed
 	_legacy = false
@@ -63,6 +65,7 @@ func save_to(d: Dictionary) -> void:
 		"jht": jht, "jp_months": jp_months, "jp_real_wage": jp_real_wage, "jp_wage_sum": jp_wage_sum,
 		"pension_real": pension_real, "retirement_info": retirement_info, "critical": critical,
 		"critical_since": critical_since, "critical_count": critical_count, "twilight_month": twilight_month,
+		"twilight_since": twilight_since,
 		"death": death, "life_rng": [str(rng.seed), str(rng.state)]})
 
 
@@ -89,6 +92,7 @@ func load_from(d: Dictionary) -> void:
 	critical_since = int(d.get("critical_since", -1))
 	critical_count = int(d.get("critical_count", 0))
 	twilight_month = int(d.get("twilight_month", -1))
+	twilight_since = int(d.get("twilight_since", twilight_month))  # save sebelum langkah 5: dari pemberitahuan terakhir
 	death = d.get("death", {})
 	if d.has("life_rng"):
 		rng.seed = String(d["life_rng"][0]).to_int()
@@ -159,6 +163,8 @@ func month_start() -> Dictionary:
 	var twilight := gs.age() >= int(data["mortality"]["twilight_age"]) and (gs.month % 12 == 0 or twilight_month < 0)
 	if twilight:  # masa senja: pemberitahuan tahunan (atau saat save lama 70+ pertama dimuat), digabung dengan efek usia
 		twilight_month = gs.month
+		if twilight_since < 0:
+			twilight_since = gs.month
 		var info := {"age": gs.age(), "chance": annual_death_chance(), "aging": aging_notice}
 		report["twilight"] = info
 		gs.queue_after_report(func() -> void: gs.twilight_notice.emit(info))
@@ -202,6 +208,18 @@ func accrue(paid: int) -> void:
 ## JP yang dibayar bulan ini (nominal, ikut inflasi). 0 sebelum pensiun atau jika JP dibayar sekaligus.
 func pension_payment() -> int:
 	return roundi(pension_real * gs.price_level()) if retired else 0
+
+
+## Perkiraan dana masa pensiun (v2b langkah 5): berapa bulan kas + investasi menutup selisih pengeluaran
+## rutin dengan JP & sewa bersih (tanpa imbal hasil & inflasi, yang kira-kira saling menutup). months = -1
+## jika pendapatan pensiun & sewa sudah menutup pengeluaran; low = habis sebelum usia runway_warn_age.
+func runway_info() -> Dictionary:
+	var gap := float(gs.monthly_spending()) - pension_payment() - gs.properties.rent_income()
+	if gap <= 0.0:
+		return {"months": -1, "until_age": -1, "low": false}
+	var months := floori((maxf(gs.cash, 0.0) + gs.portfolio.investments_value()) / gap)
+	var until_age := gs.age() + floori(months / 12.0)
+	return {"months": months, "until_age": until_age, "low": until_age < int(data["retirement"]["runway_warn_age"])}
 
 
 ## Perkiraan JP bulanan jika pensiun dengan masa iuran sekarang (Rupiah hari ini), untuk kartu karier.
@@ -313,7 +331,9 @@ func is_warned() -> bool:
 	var cfg: Dictionary = data["mortality"]
 	if critical and critical_since < gs.month and gs.health < int(cfg["critical_exit"]):
 		return true
-	return gs.age() >= int(cfg["twilight_age"]) and twilight_month >= 0 and twilight_month < gs.month
+	# Masa senja: mulai bulan setelah pemberitahuan PERTAMA. Pemberitahuan tahunan berikutnya tidak menunda
+	# undian (langkah 5), agar peluang sungguhan sama dengan peluang per tahun yang ditampilkan.
+	return gs.age() >= int(cfg["twilight_age"]) and twilight_since >= 0 and twilight_since < gs.month
 
 
 func monthly_death_chance() -> float:

@@ -49,6 +49,10 @@ Sebelum event, teks, atau layar bertema sensitif ditambahkan:
 - Prinsip 7: penyebab ditulis umum ("tutup usia", "setelah masa sakit kritis", "sakit parah yang berkepanjangan"); popup perpisahan dan layar akhir berjudul "Perjalanan Hidup Selesai", tanpa bunyi atau getar, berisi warisan untuk keluarga dan refleksi perjalanan, bukan "GAME OVER".
 - Prinsip 9: popup Kritis dan event perawatan menekankan berobat, asuransi, istirahat, dan dana darurat.
 
+**Sudah diterapkan (v2b langkah 5, layar akhir & skor warisan):**
+- Prinsip 7: layar akhir menyebut usia dan penyebab dengan tenang, lalu menampilkan warisan dan rincian skor sebagai refleksi perjalanan hidup, bukan hukuman. Kata "kalah" tidak dipakai untuk akhir hidup.
+- Prinsip 3-4: Depresi tidak mengurangi skor secara khusus; pengaruhnya hanya lewat rata-rata kebahagiaan seperti kondisi lain, dan mencari bantuan tidak pernah mengurangi poin.
+
 **Sudah diterapkan (v2b langkah 4, depresi):**
 - Prinsip 1-2: di layar disebut "sedang tidak baik-baik saja", tanpa kata yang menstigma; popup menjelaskan bahwa ini penyederhanaan dan di dunia nyata depresi bisa ditangani tenaga profesional.
 - Prinsip 3: Depresi tidak pernah mengakhiri permainan (aturan kalah karena kebahagiaan 0 dihapus), dan penurunan kesehatannya berhenti di 30 sehingga tidak membawa pemain ke kondisi Kritis dengan sendirinya.

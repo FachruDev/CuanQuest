@@ -367,7 +367,7 @@ END_REASON_SHORT_RETIRED,pensiun,retired
 END_AGE,Usia %d,Age %d
 END_PLAYED,Bermain %d tahun %d bulan,Played %d years %d months
 END_TO_TITLE,Menu Utama,Main Menu
-END_SCORE,Skor warisan: %d,Legacy score: %d
+END_SCORE,Skor warisan: %d dari 1000,Legacy score: %d of 1000
 END_STATS,Statistik,Statistics
 END_STAT_NET_WORTH,Kekayaan akhir,Final net worth
 END_STAT_PEAK,Kekayaan tertinggi,Peak net worth
@@ -378,7 +378,7 @@ END_STAT_FEES,Total biaya transaksi,Total transaction fees
 END_STAT_EVENTS,Kejadian dihadapi,Events faced
 END_STAT_QUIZ,Soal kuis dijawab benar,Quiz questions answered correctly
 END_STAT_LEVEL,Level akhir,Final level
-END_CHART,Kekayaan bersih sepanjang hidup,Lifetime net worth
+END_CHART,Kekayaan bersih riil sepanjang hidup,Real net worth over your lifetime
 END_HIGHLIGHTS,Keputusan Penting,Key Decisions
 END_BEST_TRADE,Transaksi terbaik,Best trade
 END_WORST_TRADE,Transaksi terburuk,Worst trade
@@ -1629,3 +1629,38 @@ TOAST_DEPRESSION_ENDED,Kamu mulai pulih. Jaga terus suasana hatimu.,You're start
 ERR_ACTIVITY_MOOD,"Sedang tidak ingin keramaian. Konseling, istirahat, atau bercerita ke orang terdekat lebih membantu saat ini.","You don't feel like crowds right now. Counseling, rest, or talking to someone close helps more at the moment."
 ERR_ACTIVITY_HIDDEN,Aktivitas ini belum tersedia.,This activity isn't available yet.
 INSIGHT_DEPRESSION,"Kamu pernah %d kali melewati masa sulit (Depresi). Kesehatan mental sama pentingnya dengan kesehatan fisik: istirahat, bercerita, dan konseling membantu pulih.","You went through %d hard time(s) (Depression). Mental health matters as much as physical health: rest, talking, and counseling help you recover."
+END_SCORE_BEST,Rekor baru!,New record!
+END_CHART_NOTE,"Nilai riil (harga awal permainan), jadi kenaikan karena inflasi tidak ikut dihitung. Garis putus-putus menandai pergantian bab kehidupan.","Real values (starting prices), so growth from inflation is not counted. Dashed lines mark the change of life chapters."
+LEGACY_TITLE,Rincian Skor Warisan,Legacy Score Breakdown
+LEGACY_WEALTH,Kekayaan riil,Real wealth
+LEGACY_AGE,Usia,Age
+LEGACY_HEALTH,Rata-rata kesehatan,Average health
+LEGACY_HAPPINESS,Rata-rata kebahagiaan,Average happiness
+LEGACY_DREAMS,Impian tercapai,Dreams achieved
+LEGACY_WISDOM,Keputusan bijak,Wise decisions
+LEGACY_POINTS,%d / %d,%d / %d
+LEGACY_TOTAL,Total skor warisan,Total legacy score
+LEGACY_NOTE,Semua bagian memakai nilai riil sehingga skor bisa dibandingkan antar permainan. Riwayat skormu ada di Profil.,"Every part uses real values, so scores can be compared between games. Your score history is in Profile."
+LEGACY_WEALTH_DETAIL,"%s dalam harga awal permainan, termasuk warisan untuk keluarga","%s in starting prices, including the inheritance for your family"
+LEGACY_AGE_DETAIL,%d tahun,%d years
+LEGACY_AVG_DETAIL,Rata-rata %d sepanjang hidup,Average of %d over your lifetime
+LEGACY_DREAMS_DETAIL,%d impian terwujud,%d dreams came true
+LEGACY_SCAMS_DETAIL,"Menolak penipuan %d kali, tertipu %d kali","Refused scams %d times, scammed %d times"
+LEGACY_NO_DEFAULT,tidak pernah macet,never defaulted
+LEGACY_DEFAULTED,pinjaman macet %d kali,defaulted %d times
+LEGACY_NO_NEGATIVE_CASH,kas tidak pernah minus,cash never went negative
+LEGACY_NEGATIVE_CASH,pernah kas minus,cash went negative
+LEGACY_TIP_WEALTH,"Investasi rutin sejak muda, biaya rendah, dan menghindari utang konsumtif paling menentukan kekayaan riil.","Investing regularly from a young age, keeping costs low, and avoiding consumer debt matter most for real wealth."
+LEGACY_TIP_AGE,"Menjaga kesehatan (olahraga, istirahat, berobat tepat waktu) memberi peluang hidup lebih panjang.","Looking after your health (exercise, rest, timely treatment) gives you a better chance of a longer life."
+LEGACY_TIP_HEALTH,"Olahraga rutin, istirahat cukup, dan asuransi kesehatan menjaga rata-rata kesehatan tetap tinggi.","Regular exercise, enough rest, and health insurance keep your average health high."
+LEGACY_TIP_HAPPINESS,"Istirahat, hubungan baik dengan orang terdekat, dan gaya hidup secukupnya menjaga kebahagiaan.","Rest, good relationships with the people close to you, and a modest lifestyle keep you happy."
+LEGACY_TIP_DREAMS,Pilih impian di Beranda dan sisihkan tabungan untuknya agar uangmu punya tujuan.,Pick dreams on the Home screen and set savings aside for them so your money has a purpose.
+LEGACY_TIP_WISDOM,"Tolak tawaran yang terlalu bagus, bayar cicilan tepat waktu, dan siapkan dana darurat agar kas tidak minus.","Refuse offers that are too good to be true, pay installments on time, and keep an emergency fund so your cash never goes negative."
+INSIGHT_LEGACY_WEAKEST,Bagian skor warisan yang paling bisa ditingkatkan: %s (%d dari %d). %s,The part of your legacy score with the most room to grow: %s (%d of %d). %s
+PROFILE_LEGACY_NOW,Perkiraan skor warisan sejauh ini,Legacy score so far (estimate)
+HISTORY_BEST,Skor warisan terbaik,Best legacy score
+HISTORY_BEST_VALUE,"%d · %s, %d th","%d · %s, age %d"
+HISTORY_SCORE,usia %d · skor %d,age %d · score %d
+RUNWAY_FOREVER,"Pendapatan pensiun dan sewa sudah menutup pengeluaran rutinmu, jadi tabungan tidak terkuras untuk kebutuhan bulanan.","Your pension and rental income already cover your regular spending, so your savings are not drained by monthly needs."
+RUNWAY_YEARS,"Dengan pengeluaran sekarang, kas dan investasimu cukup sekitar %s tahun lagi (sampai usia ±%d), belum termasuk biaya tak terduga seperti berobat.","At your current spending, your cash and investments will last about %s more years (until about age %d), not counting surprises such as medical costs."
+RUNWAY_LOW,"Agar tidak kehabisan dana di masa tua, pertimbangkan menurunkan pengeluaran (makanan, tempat tinggal, kendaraan) atau menjual aset yang tidak terpakai.","To avoid running out of money in old age, consider lowering your spending (food, housing, vehicles) or selling assets you don't use."

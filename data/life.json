@@ -3,8 +3,9 @@
 		"Siklus hidup (v2b). chapters: bab kehidupan, berlaku mulai usia from_age (teks CHAPTER_<ID>, CHAPTER_TIP_<ID>).",
 		"retirement: usia pensiun; JHT (Jaminan Hari Tua) = jht_rate x gaji pekerjaan berjenjang/formal (bagian perusahaan; iuran pekerja 2% disederhanakan dengan tidak dipotong), tumbuh jht_return per tahun, cair sekaligus saat pensiun.",
 		"JP (Jaminan Pensiun) bulanan = jp_rate_per_year x tahun iuran x rata-rata upah riil (upah dibatasi jp_wage_cap, Rupiah awal permainan, ikut inflasi). Iuran kurang dari jp_min_years tahun: dibayar sekaligus jp_lump_rate x jumlah upah. Kerja lepas tidak ikut JHT/JP.",
+		"retirement.runway_warn_age (langkah 5): popup pensiun & masa senja menyarankan menurunkan pengeluaran jika tabungan + investasi diperkirakan habis sebelum usia ini.",
 		"max_age: batas usia permainan; mencapainya = tutup usia (selalu setelah pemberitahuan masa senja).",
-		"mortality (langkah 3, docs/PEDOMAN_KONTEN_SENSITIF.md): peluang meninggal per bulan = base (peluang per tahun menurut usia) x health_mult (menurut kesehatan) / 12, diundi dengan RNG tersendiri, HANYA setelah peringatan: status Kritis (kesehatan < critical_below, berakhir saat kesehatan >= critical_exit) atau pemberitahuan masa senja tahunan mulai twilight_age. Kesehatan 0 selama danger_months (economy.json) = meninggal karena sakit parah. Baris 90+ adalah tambahan agar usia 100 tetap langka.",
+		"mortality (langkah 3, docs/PEDOMAN_KONTEN_SENSITIF.md): peluang meninggal per bulan = base (peluang per tahun menurut usia) x health_mult (menurut kesehatan) / 12, diundi dengan RNG tersendiri, HANYA setelah peringatan: status Kritis (kesehatan < critical_below, berakhir saat kesehatan >= critical_exit) atau pemberitahuan masa senja tahunan mulai twilight_age. Kesehatan 0 selama danger_months (economy.json) = meninggal karena sakit parah. Baris 90+ adalah tambahan agar usia 100 tetap langka. Langkah 5 (penyeimbangan): peluang dasar 70-79 dinaikkan 4% -> 6%, 80-89 10% -> 15%, 90+ 25% -> 30% agar pemain yang menjaga kesehatan rata-rata hidup sampai ±85 (sebelumnya ±90); pengali kesehatan tetap.",
 		"aging (langkah 2): tabel [usia mulai, nilai] dan berlaku baris terakhir yang usianya sudah tercapai. energy = perubahan energi maksimal bulanan; health_decline = [usia, poin, tiap N bulan] penurunan kesehatan alami; medical_cost = pengali biaya berobat pada pilihan event \"claim\": \"medical\"; hire_chance = pengali peluang diterima pekerjaan berjenjang. Premi asuransi per usia ada di insurance.json (age_premium)."
 	],
 	"chapters": [
@@ -20,7 +21,8 @@
 		"jp_rate_per_year": 0.01,
 		"jp_min_years": 15,
 		"jp_wage_cap": 10000000,
-		"jp_lump_rate": 0.03
+		"jp_lump_rate": 0.03,
+		"runway_warn_age": 90
 	},
 	"aging": {
 		"energy": [[60, -1], [70, -2]],
@@ -29,7 +31,7 @@
 		"hire_chance": [[50, 0.85], [55, 0.7]]
 	},
 	"mortality": {
-		"base": [[0, 0.0], [40, 0.003], [60, 0.015], [70, 0.04], [80, 0.10], [90, 0.25]],
+		"base": [[0, 0.0], [40, 0.003], [60, 0.015], [70, 0.06], [80, 0.15], [90, 0.30]],
 		"health_mult": [[0, 10], [20, 3], [40, 1], [70, 0.5]],
 		"critical_below": 20,
 		"critical_exit": 30,

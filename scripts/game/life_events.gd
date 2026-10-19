@@ -273,6 +273,7 @@ func resolve(choice_index: int) -> Dictionary:
 		gs.stats["unaffordable_choices"] += 1
 	if event["category"] == "scam" and cash_change < 0:
 		gs.stats["scam_loss"] += -cash_change
+		gs.stats["scams_fallen"] = int(gs.stats["scams_fallen"]) + 1  # skor warisan (v2b langkah 5)
 	# Menolak penipuan (pencapaian Kebal Tipu, v1.5d): pilihan tanpa biaya, tanpa uang masuk/keluar.
 	if event["category"] == "scam" and not event.get("chain_only", false) and not choice.has("cost") \
 			and not choice.has("outcomes") and float(effects.get("cash", 0)) == 0.0 and cash_change >= 0.0:
