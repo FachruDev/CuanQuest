@@ -55,9 +55,31 @@ func add_month(report: Dictionary) -> void:
 		_add(acc["expenses"], key, float(report.get(key, 0)))
 	for key: String in COST_KEYS:
 		acc["costs"] = float(acc["costs"]) + float(report.get(key, 0))
+	_add_fund_month(report.get("fund", {}))
 	acc["invest_gain"] = float(acc["invest_gain"]) + float(report.get("invest_change", 0.0))
 	acc["invest_sum"] = float(acc["invest_sum"]) + gs.portfolio.investments_value()
 	acc["months"] = int(acc["months"]) + 1
+
+
+## Dana kelolaan (v2c langkah 3): pertumbuhan NAB, fee, dan perpindahan investor tahun berjalan. Catatan
+## "fund" baru dibuat saat dana pertama kali aktif, jadi laporan permainan tanpa dana tidak berubah.
+func _add_fund_month(fund: Dictionary) -> void:
+	if not fund.has("value") and not fund.has("notices"):
+		return
+	var f: Dictionary = acc.get("fund", {"growth": 1.0, "months": 0, "mgmt": 0.0, "perf": 0.0, "left": 0, "ended": 0,
+		"renewed": 0, "topups": 0})
+	if fund.has("return"):
+		f["growth"] = float(f["growth"]) * (1.0 + float(fund["return"]))
+		f["months"] = int(f["months"]) + 1
+	f["mgmt"] = float(f["mgmt"]) + float(fund.get("fee", 0))
+	f["perf"] = float(f["perf"]) + float(fund.get("perf_fee", 0))
+	for n: Dictionary in fund.get("notices", []):
+		var kind := str(n["kind"])
+		if kind in ["left", "ended", "renewed"]:
+			f[kind] = int(f[kind]) + 1
+		elif kind == "eval" and int(n.get("topup", 0)) > 0:
+			f["topups"] = int(f["topups"]) + 1
+	acc["fund"] = f
 
 
 func note_achievements(ids: Array[String]) -> void:
@@ -99,6 +121,10 @@ func close_year(year: int) -> Dictionary:
 		"events": int(gs.stats["events"]) - int(acc["events"]),
 		"dreams": dreams, "achievements": acc["achievements"].duplicate(),
 	}
+	if acc.has("fund"):
+		var f: Dictionary = acc["fund"].duplicate()
+		f.merge({"value": gs.fund.value(), "investors": gs.fund.investors.size(), "nav_return": float(f["growth"]) - 1.0})
+		report["fund"] = f
 	reports.append(report)
 	if reports.size() > MAX_REPORTS:
 		reports.pop_front()

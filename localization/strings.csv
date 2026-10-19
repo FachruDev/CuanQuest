@@ -1759,3 +1759,31 @@ FUND_REPUTATION_HINT,"Reputasi naik saat investor puas dan memperpanjang kontrak
 FUND_PERF_TOTAL,Total fee kinerja,Total performance fees
 PORT_FUND_WARNED,%d investor kecewa: buka Kelola Dana,%d investors are unhappy: open Manage Fund
 REPORT_FUND_PERF_FEE,Fee kinerja,Performance fee
+EVENT_CAT_FUND,DANA KELOLAAN,MANAGED FUND
+REPORT_FUND_INVESTOR_ROW,%s (%s) · %s,%s (%s) · %s
+ANNUAL_FUND_VALUE,Nilai dana akhir tahun,Fund value at year end
+ANNUAL_FUND_RETURN,NAB per unit (%d bulan),NAV per unit (%d months)
+ANNUAL_FUND_FEES,Fee yang kamu terima,Fees you earned
+ANNUAL_FUND_MOVES,Investor sekarang %d · memperpanjang %d · pergi karena kecewa %d · kontrak selesai %d,Investors now %d · renewed %d · left disappointed %d · contracts ended %d
+FUND_DETAIL_BUTTON,Rincian,Details
+FUND_BACK,Kembali ke daftar,Back to the list
+FUND_DETAIL_CHART,Nilai investasi tiap bulan,Investment value each month
+FUND_DETAIL_NUMBERS,Angka penting,Key numbers
+FUND_DETAIL_DEPOSITED,Total setoran,Total deposited
+FUND_DETAIL_VALUE,Nilai sekarang,Current value
+FUND_DETAIL_GAIN,Untung/rugi,Gain/loss
+FUND_DETAIL_ANNUAL,Imbal hasil per tahun,Return per year
+FUND_DETAIL_VS,%s (target %s),%s (target %s)
+FUND_DETAIL_DRAWDOWN,Turun dari puncak,Below peak
+FUND_DETAIL_LIMIT,%s (batas %s),%s (limit %s)
+FUND_DETAIL_SAT,Kepuasan,Satisfaction
+FUND_DETAIL_MANDATE,Profil & mandat,Profile & mandate
+FUND_MANDATE_OK,mandat dijaga,mandate respected
+FUND_MANDATE_BREACH,mandat dilanggar,mandate breached
+FUND_DETAIL_PERF,Fee kinerja yang dibayar,Performance fees paid
+FUND_DETAIL_LAST_EVAL,Evaluasi tahunan terakhir,Last annual review
+FUND_DETAIL_JOINED,Bergabung,Joined
+FUND_DETAIL_CONTRACT,Kontrak sampai,Contract until
+INSIGHT_FUND,"Sebagai manajer dana kelolaan, kamu menerima fee %s dari %d investor; %d kali kontrak diperpanjang dan reputasi akhirmu %d/100.",As a fund manager you earned %s in fees from %d investors; contracts were renewed %d times and your final reputation was %d/100.
+INSIGHT_FUND_LEFT,%d investor menarik dananya karena kecewa. Alokasi yang sesuai mandat dan komunikasi yang jujur membuat investor bertahan.,%d investors withdrew because they were disappointed. An allocation that fits the mandate and honest communication keep investors with you.
+END_STAT_FUND_FEES,Fee dana kelolaan,Managed fund fees

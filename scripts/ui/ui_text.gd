@@ -68,7 +68,9 @@ static func event_text(text: String, vars: Dictionary) -> String:
 	for key: String in ["rate_from", "rate_to", "refi_rate"]:  # bunga per tahun (utang, v1.5c)
 		if vars.has(key):
 			result = result.replace("{%s}" % key, Fmt.percent_plain(vars[key]))
-	for key: String in ["property", "loan", "collateral"]:  # nama dari file data
+	if vars.has("fund_drawdown"):  # dana kelolaan (v2c)
+		result = result.replace("{fund_drawdown}", percent_short(vars["fund_drawdown"]))
+	for key: String in ["property", "loan", "collateral", "investor"]:  # nama dari file data
 		if vars.has(key):
 			result = result.replace("{%s}" % key, _t(vars[key]))
 	if vars.has("months"):

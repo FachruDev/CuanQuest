@@ -9,7 +9,8 @@ extends GameModule
 ## masuk kekayaan bersih, neraca, atau skor warisan. Yang masuk kas pemain hanya fee manajemen & fee kinerja.
 ## Langkah 2: kepuasan tiap investor (imbal hasil vs target, penurunan dari puncak, mandat), peringatan lalu
 ## penarikan dana, evaluasi tahunan (fee kinerja di atas high-water mark, tambah setoran, perpanjangan
-## kontrak), dan reputasi manajer yang membuka investor besar.
+## kontrak), dan reputasi manajer yang membuka investor besar. Langkah 3: riwayat nilai & laporan per investor,
+## efek event dana kelolaan (data/events/fund.json: reputasi, kepuasan, rujukan investor, pindah alokasi).
 ## Memakai RNG sendiri (seed + rng_offset) dan baru bekerja setelah tahap 7 terbuka, jadi permainan tanpa
 ## dana kelolaan tetap sama persis. Analogi web: seperti admin "akun bersama" yang mengatur strategi
 ## uang milik orang lain; setiap pemilik bisa menarik dananya kapan saja.
@@ -17,6 +18,7 @@ extends GameModule
 const DATA_PATH := "res://data/fund.json"
 const INVESTORS_PATH := "res://data/investors.json"
 const STAGE := 7  # tahap buka (data/unlocks.json)
+const MAX_VALUES := 600  # riwayat nilai per investor yang disimpan (bulan)
 
 var data: Dictionary = {}  # isi data/fund.json
 var investor_defs: Array = []  # isi data/investors.json
@@ -26,7 +28,8 @@ var cash := 0.0  # kas dana (bukan kas pemain)
 var nav := 0.0  # NAB per unit di akhir bulan terakhir
 ## Investor aktif: [{uid, id, units, deposited, joined, contract_end, hwm (high-water mark NAB), join_nav,
 ## peak_nav (puncak NAB sejak bergabung), year_nav (NAB di evaluasi terakhir), satisfaction, warned (bulan
-## peringatan, -1 = tidak), perf_paid}]
+## peringatan, -1 = tidak), perf_paid, values (nilai investasinya tiap akhir bulan), last_eval (imbal hasil
+## setahun di evaluasi terakhir)}]
 var investors: Array[Dictionary] = []
 ## Tawaran di papan: [{uid, id, amount, expires}]
 var board: Array[Dictionary] = []
@@ -138,7 +141,7 @@ func investor_value(inv: Dictionary) -> float:
 func _normalize(inv: Dictionary) -> void:
 	var hwm := float(inv.get("hwm", nav))
 	var defaults := {"join_nav": hwm, "peak_nav": maxf(hwm, nav), "year_nav": hwm, "warned": -1, "perf_paid": 0.0,
-		"satisfaction": int(data["satisfaction"]["start"])}
+		"satisfaction": int(data["satisfaction"]["start"]), "values": []}
 	for key: String in defaults:
 		if not inv.has(key):
 			inv[key] = defaults[key]
@@ -150,6 +153,13 @@ func investor_annual_return(inv: Dictionary) -> float:
 	if months <= 0:
 		return 0.0
 	return pow(current_nav() / maxf(float(inv["join_nav"]), 0.0001), 12.0 / months) - 1.0
+
+
+## Penurunan NAB dana dari puncak tertingginya (0..1), untuk event investor panik.
+func fund_drawdown() -> float:
+	if not is_active() or nav_history.is_empty():
+		return 0.0
+	return maxf(1.0 - current_nav() / maxf(nav_history.max(), current_nav()), 0.0)
 
 
 ## Penurunan NAB dari puncaknya sejak investor bergabung (0..1).
@@ -382,7 +392,7 @@ func accept(uid: int) -> Dictionary:
 	investors.append({"uid": seq, "id": offer["id"], "units": amount / price, "deposited": amount,
 		"joined": gs.month, "contract_end": gs.month + int(data["contract_months"]), "hwm": price, "join_nav": price,
 		"peak_nav": price, "year_nav": price, "satisfaction": int(data["satisfaction"]["start"]), "warned": -1,
-		"perf_paid": 0.0})
+		"perf_paid": 0.0, "values": [amount]})
 	record["joined"] = int(record["joined"]) + 1
 	rebalance()
 	gs.changed.emit()
@@ -417,6 +427,40 @@ func return_funds(uid: int, reason := "returned") -> Dictionary:
 		cash = 0.0
 	gs.changed.emit()
 	return {"ok": true, "payout": payout, "id": inv["id"]}
+
+
+## Efek event dana kelolaan (langkah 3, data/events/fund.json): fund_reputation (+/- reputasi),
+## fund_satisfaction (+/- kepuasan semua investor), fund_referral (tawaran investor baru dari rujukan,
+## syarat reputasi +20), fund_allocation (alokasi baru, mis. panik pindah ke pasar uang).
+func apply_effects(e: Dictionary) -> void:
+	if e.has("fund_reputation"):
+		add_reputation(int(e["fund_reputation"]))
+	if e.has("fund_satisfaction"):
+		for inv: Dictionary in investors:
+			inv["satisfaction"] = clampi(int(inv["satisfaction"]) + int(e["fund_satisfaction"]), 0, 100)
+	if e.has("fund_referral"):
+		_add_offer(false, int(data["referral_reputation"]))
+	if e.has("fund_allocation"):
+		set_allocation(e["fund_allocation"])
+
+
+## Isian teks event dana kelolaan: {fund_drawdown} (investor panik), {investor} (investor paling puas).
+func event_vars(id: String) -> Dictionary:
+	match id:
+		"fund_panic":
+			return {"fund_drawdown": fund_drawdown()}
+		"fund_referral":
+			var best: Dictionary = {}
+			for inv: Dictionary in investors:
+				if best.is_empty() or int(inv["satisfaction"]) > int(best["satisfaction"]):
+					best = inv
+			return {"investor": def(best["id"])["name"]} if not best.is_empty() else {}
+	return {}
+
+
+## Investor yang sangat puas (syarat event rujukan).
+func has_happy_investor() -> bool:
+	return investors.any(func(inv: Dictionary) -> bool: return int(inv["satisfaction"]) >= 75)
 
 
 ## Energi bulanan yang dipakai mengelola dana (rapat & laporan investor).
@@ -470,7 +514,15 @@ func month_tick() -> Dictionary:
 	nav = current_nav()
 	nav_history.append(nav)
 	record["peak_value"] = maxf(float(record["peak_value"]), value())
-	report.merge({"value": value(), "nav": nav, "return": nav / maxf(nav_before, 0.0001) - 1.0})
+	var detail: Array[Dictionary] = []  # langkah 3: baris per investor di laporan bulanan
+	for inv: Dictionary in investors:
+		var values: Array = inv["values"]
+		values.append(investor_value(inv))
+		if values.size() > MAX_VALUES:
+			values.pop_front()
+		detail.append({"id": inv["id"], "value": investor_value(inv), "return": investor_return(inv),
+			"satisfaction": int(inv["satisfaction"]), "warned": is_warned(inv)})
+	report.merge({"value": value(), "nav": nav, "return": nav / maxf(nav_before, 0.0001) - 1.0, "detail": detail})
 	return report
 
 
@@ -522,6 +574,7 @@ func _anniversary(inv: Dictionary) -> Dictionary:
 	var target := float(d["target"])
 	var year_return := price / maxf(float(inv["year_nav"]), 0.0001) - 1.0
 	inv["year_nav"] = price
+	inv["last_eval"] = year_return
 	var fee := 0
 	if price > float(inv["hwm"]):
 		var amount := float(inv["units"]) * (price - float(inv["hwm"])) * float(data["performance_fee"])
@@ -588,12 +641,14 @@ func _refresh_board() -> int:
 
 
 ## `fitting`: hanya investor yang mandatnya cocok dengan alokasi sekarang (tawaran pertama, agar pemain
-## baru tidak langsung disambut pelanggaran mandat).
-func _add_offer(fitting := false) -> int:
+## baru tidak langsung disambut pelanggaran mandat). `rep_bonus`: rujukan investor puas (event, langkah 3)
+## membuka investor dengan syarat reputasi sedikit di atas reputasimu.
+func _add_offer(fitting := false, rep_bonus := 0) -> int:
 	var taken: Array = investors.map(func(inv: Dictionary) -> String: return inv["id"])
 	taken.append_array(board.map(func(o: Dictionary) -> String: return o["id"]))
 	var pool := investor_defs.filter(func(d: Dictionary) -> bool:
-		return not d["id"] in taken and reputation >= int(d["min_reputation"]) and (not fitting or mandate_ok(d["id"])))
+		return (not d["id"] in taken and reputation + rep_bonus >= int(d["min_reputation"])
+			and (not fitting or mandate_ok(d["id"]))))
 	if pool.is_empty():
 		return 0
 	var d: Dictionary = pool[rng.randi() % pool.size()]

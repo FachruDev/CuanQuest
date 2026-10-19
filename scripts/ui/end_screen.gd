@@ -67,6 +67,9 @@ func _ready() -> void:
 	_add_stat("END_STAT_LEVEL", str(GameState.progress.level()))
 	_add_stat("END_STAT_PROMOTIONS", str(int(s["promotions"])))
 	_add_stat("END_STAT_UNEMPLOYED", str(int(s["months_unemployed"])))
+	var fund_fees := float(GameState.fund.record["mgmt_fees"]) + float(GameState.fund.record["perf_fees"])
+	if fund_fees > 0.0:  # dana kelolaan (v2c)
+		_add_stat("END_STAT_FUND_FEES", Fmt.rupiah(fund_fees))
 	_add_career_log()
 	_add_balance_sheet()
 

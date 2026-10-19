@@ -1,0 +1,84 @@
+{
+	"_comment": "Dana kelolaan (v2c langkah 3): etika & kepercayaan investor. Hanya muncul saat dana punya investor (requires fund_active / fund_falling / fund_happy_investor). Efek khusus: fund_reputation, fund_satisfaction (semua investor), fund_referral, fund_allocation (lihat scripts/game/fund.gd). Format & cara menambah event: docs/PANDUAN_EVENT.md",
+	"events": [
+		{
+			"id": "fund_guarantee", "category": "fund", "weight": 1, "cooldown": 24, "max_times": 2, "requires": "fund_active",
+			"title": "Minta Untung Pasti",
+			"text": "Seorang pengusaha ingin menitipkan {rp:2000000000} ke danamu, asalkan kamu menandatangani surat yang menjamin keuntungan 15% per tahun.",
+			"choices": [
+				{ "label": "Tolak dan jelaskan bahwa imbal hasil tidak bisa dijamin", "effects": { "fund_reputation": 3, "xp": 15 },
+					"result": "Ia kecewa, tetapi kamu menjaga aturan. Menjanjikan imbal hasil pasti dilarang dan sering menjadi awal skema Ponzi." },
+				{ "label": "Tanda tangani saja, nanti juga untung", "effects": { "fund_reputation": -15, "cash": -25000000, "happiness": -5 },
+					"result": "Bagian kepatuhan perusahaan menemukan surat itu. Perusahaan ditegur OJK, kamu didenda {rp:25000000}, dan reputasimu jatuh." }
+			]
+		},
+		{
+			"id": "fund_temptation", "category": "fund", "weight": 1, "cooldown": 36, "max_times": 1, "requires": "fund_active",
+			"context": { "cash_poor": 3 },
+			"title": "Godaan Dana Titipan",
+			"text": "Kebutuhan mendadak membuat kasmu menipis. Seorang kenalan berbisik: \"Pinjam saja dulu dari dana investor, minggu depan juga bisa dikembalikan.\"",
+			"choices": [
+				{ "label": "Tidak. Dana investor bukan uangku", "effects": { "fund_reputation": 2, "xp": 15 },
+					"result": "Benar. Memakai dana investor walau sebentar adalah penggelapan. Pakai dana darurat atau cari pinjaman resmi." },
+				{ "label": "Pinjam sebentar dari dana", "effects": { "fund_reputation": -30, "fund_satisfaction": -30, "cash": -50000000, "happiness": -10 },
+					"result": "Bank kustodian mencatat setiap mutasi dan langsung menahan penarikan tanpa dasar itu. Audit membongkarnya: kamu didenda {rp:50000000}, investor kehilangan kepercayaan, dan reputasimu runtuh." }
+			]
+		},
+		{
+			"id": "fund_panic", "category": "fund", "weight": 3, "cooldown": 12, "requires": "fund_falling",
+			"title": "Investor Panik",
+			"text": "Pasar sedang jatuh dan NAB danamu turun {fund_drawdown} dari puncaknya. Telepon dari para investor tidak berhenti berdering.",
+			"choices": [
+				{ "label": "Telepon satu per satu dan jelaskan strategi dengan jujur", "effects": { "fund_satisfaction": 8, "happiness": -3 },
+					"result": "Butuh waktu dan tenaga, tetapi investor merasa didengar. Mereka ingat bahwa penurunan seperti ini sudah dibahas sejak awal." },
+				{ "label": "Pindahkan semua ke pasar uang agar tidak turun lagi", "effects": { "fund_allocation": { "money": 100 }, "fund_satisfaction": 3 },
+					"result": "Penurunan berhenti, tetapi kerugiannya kini terkunci. Jika pasar pulih, danamu tertinggal dan investor yang ingin tumbuh bisa kecewa. Alokasi bisa diubah lagi di Kelola Dana." },
+				{ "label": "Diam saja, biar laporan bulanan yang bicara", "effects": { "fund_satisfaction": -6 },
+					"result": "Investor merasa ditinggalkan saat paling cemas. Komunikasi yang jujur sama pentingnya dengan strategi." }
+			]
+		},
+		{
+			"id": "fund_friend_cash", "category": "fund", "weight": 1, "cooldown": 24, "max_times": 1, "requires": "fund_active",
+			"character": "bima", "known": true,
+			"title": "Titip Uang Tanpa Kontrak",
+			"text": "Bima ingin kamu mengelola {rp:50000000} miliknya. \"Nggak usah ribet pakai kontrak, transfer saja ke rekeningmu.\"",
+			"choices": [
+				{ "label": "Tolak dengan baik, harus lewat kontrak resmi", "effects": { "rel": { "bima": 3 }, "fund_reputation": 2, "xp": 10 },
+					"result": "Bima sempat bingung, tetapi kamu menjelaskan bahwa uang investor harus tercatat di bank kustodian, terpisah dari uang pribadi. Ia menghargai kejujuranmu." },
+				{ "label": "Terima saja ke rekening pribadi", "outcomes": [
+					{ "chance": 0.5, "effects": { "rel": { "bima": -10 }, "cash": -10000000, "fund_reputation": -5 },
+						"result": "Pasar turun, dan uang Bima tercampur dengan uangmu. Ia menagih penuh, kamu menombok {rp:10000000}, dan pertemanan kalian merenggang." },
+					{ "chance": 0.5, "effects": { "rel": { "bima": -4 }, "fund_reputation": -5 },
+						"result": "Pasar naik, tetapi tanpa catatan resmi kalian berselisih soal bagi hasil. Mencampur uang orang lain dengan uang pribadi selalu berisiko." }
+				] }
+			]
+		},
+		{
+			"id": "fund_referral", "category": "fund", "weight": 1, "cooldown": 18, "requires": "fund_happy_investor",
+			"title": "Investor Merekomendasikanmu",
+			"text": "{investor} puas dengan hasil dana kelolaanmu dan ingin memperkenalkanmu kepada kenalannya.",
+			"choices": [
+				{ "label": "Atur pertemuan", "effects": { "fund_referral": 1, "xp": 10 },
+					"result": "Pertemuan berjalan baik. Tawaran investor baru masuk ke papan Dana Kelolaan, termasuk yang biasanya belum mau melirik manajer seumuranmu." },
+				{ "label": "Nanti dulu, danamu sedang cukup", "effects": {},
+					"result": "Tidak apa-apa. Menerima investor hanya saat kamu siap mengelolanya juga keputusan yang bijak." }
+			]
+		},
+		{
+			"id": "fund_window_dressing", "category": "fund", "weight": 2, "cooldown": 12, "max_times": 3, "month_of_year": 11,
+			"requires": "fund_active",
+			"title": "Memoles Laporan Akhir Tahun",
+			"text": "Menjelang laporan tahunan, rekan kerja menyarankan membeli saham yang sedang naik di hari-hari terakhir agar laporan dana terlihat cantik, lalu menjualnya lagi bulan depan.",
+			"choices": [
+				{ "label": "Tolak, laporan harus mencerminkan strategi sebenarnya", "effects": { "fund_reputation": 2, "xp": 10 },
+					"result": "Laporan apa adanya mungkin kurang cantik, tetapi investor menilai manajer dari kejujuran jangka panjang." },
+				{ "label": "Ikuti sarannya", "outcomes": [
+					{ "chance": 0.6, "effects": { "fund_reputation": -10, "fund_satisfaction": -10 },
+						"result": "Auditor menemukan transaksi akhir tahun yang janggal itu. Praktik window dressing menyesatkan investor dan merusak kepercayaan." },
+					{ "chance": 0.4, "effects": { "fund_reputation": -3 },
+						"result": "Laporan terlihat lebih bagus, tetapi biaya transaksi tambahan ditanggung investor dan kamu tahu hasilnya tidak jujur." }
+				] }
+			]
+		}
+	]
+}

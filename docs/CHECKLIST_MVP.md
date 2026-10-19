@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 19 Oktober 2026 (v2c langkah 2: kepuasan, penarikan & reputasi)
+- **Terakhir diperbarui:** 19 Oktober 2026 (v2c langkah 3: laporan per investor & cerita)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -21,7 +21,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **Penutup v1.5** | Performa & baterai, playtest, legal | ✅ legal & performa (APK dicoba di HP); playtest berjalan terus lewat Profil > Sesi Bermain |
 | **v2a** | Instrumen lanjut: komoditas, valas, leverage & margin | ✅ 5/5 langkah (ikon kelas menyusul setelah v2) |
 | **v2b** | Siklus hidup penuh: bab, penuaan, kematian, depresi, warisan | ✅ 5/5 langkah (pedoman konten sensitif disetujui) |
-| **v2c** | Mengelola dana investor | 🔄 2/4 langkah |
+| **v2c** | Mengelola dana investor | 🔄 3/4 langkah |
 | **v2d** | Mini-game trading (opsional) | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
 
@@ -581,13 +581,18 @@ Panduan uji di HP: `docs/UJI_AKHIR_V15.md` (tabel performa, baterai, dan pertany
   - ✅ Popup "Kabar Dana Kelolaan", baris kabar & fee kinerja di laporan, kartu investor dengan kepuasan & batasnya; lompat waktu berhenti di kabar investor
   - ✅ Kalibrasi 20 permainan × 10 tahun: investor cocok ±95%/tahun bertahan, mandat dilanggar pergi ±9 bulan, dana terlalu hati-hati tidak diperpanjang
   - ✅ 43 uji kepuasan & evaluasi + 1666 uji lama lulus; golden runner identik
-- ⬜ Langkah 3: Laporan per investor & cerita
+- ✅ **Langkah 3: Laporan per investor & cerita**
+  - ✅ Laporan bulanan: baris per investor (nilai, untung/rugi, kepuasan); rincian investor dengan grafik nilai tiap bulan
+  - ✅ Laporan tahunan: bagian Dana Kelolaan (nilai, NAB setahun, fee, perpindahan investor)
+  - ✅ 6 event dana kelolaan (kategori baru): untung pasti, godaan dana titipan, investor panik, titipan tanpa kontrak, rujukan, window dressing
+  - ✅ Glosarium +10 (total 118); layar akhir: statistik fee & wawasan dana kelolaan
+  - ✅ 38 uji laporan & cerita + 1709 uji lama lulus; golden runner identik
 - ⬜ Langkah 4: Penyeimbangan & uji celah
 
 *Kriteria selesai*
 - ✅ Pemain bisa menerima, mengelola, dan kehilangan dana investor (investor menegur lalu pergi; kontrak bisa tidak diperpanjang)
 - ✅ Dana investor terpisah dari dana pribadi di portofolio dan laporan
-- ⬜ Laporan bulanan per investor
+- ✅ Laporan bulanan per investor (dan rincian investor + laporan tahunan)
 - ⬜ Fee dan setor/tarik tidak bisa dieksploitasi
 
 **v2d (opsional): Mini-game trading**

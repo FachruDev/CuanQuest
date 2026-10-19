@@ -6,7 +6,7 @@ extends RefCounted
 ## Cara menambah event: docs/PANDUAN_EVENT.md.
 
 ## Urutan kategori = urutan file dimuat. Kategori baru: tambah di sini + teks EVENT_CAT_<KATEGORI>.
-const CATEGORIES := ["finance", "work", "education", "health", "social", "market", "scam", "property", "debt"]
+const CATEGORIES := ["finance", "work", "education", "health", "social", "market", "scam", "property", "debt", "fund"]
 const DATA_PATH := "res://data/events/%s.json"
 
 var defs: Array = []
@@ -168,4 +168,10 @@ func _requirement_ok(def: Dictionary, state: Node) -> bool:
 			return not state.leverage.calls().is_empty()
 		"depressed":  # status Depresi (v2b): event bantuan, wajib punya pilihan "help"
 			return state.mental.depressed
+		"fund_active":  # dana kelolaan punya investor (v2c)
+			return state.fund.is_active()
+		"fund_falling":  # NAB dana turun >= 8% dari puncaknya (investor panik)
+			return state.fund.is_active() and state.fund.fund_drawdown() >= 0.08
+		"fund_happy_investor":  # ada investor yang sangat puas (rujukan)
+			return state.fund.has_happy_investor()
 	return true

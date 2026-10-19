@@ -332,6 +332,17 @@ static func fill_annual(box: VBoxContainer, a: Dictionary) -> void:
 		_add_row(box, "ANNUAL_INFLATION", Fmt.percent(inflation), Palette.MUTED)
 		_add_text(box, TranslationServer.translate("ANNUAL_NO_INVEST"), Palette.MUTED)
 
+	if a.has("fund"):  # dana kelolaan (v2c langkah 3): terpisah dari investasi pribadi
+		var f: Dictionary = a["fund"]
+		_add_header(box, "REPORT_FUND")
+		_add_row(box, "ANNUAL_FUND_VALUE", Fmt.rupiah(f["value"]), Palette.INK)
+		if int(f["months"]) > 0:
+			_add_row_text(box, TranslationServer.translate("ANNUAL_FUND_RETURN") % int(f["months"]), Fmt.percent(f["nav_return"]),
+				signed_color(f["nav_return"]))
+		_add_row(box, "ANNUAL_FUND_FEES", Fmt.rupiah(float(f["mgmt"]) + float(f["perf"])), Palette.GAIN)
+		_add_text(box, TranslationServer.translate("ANNUAL_FUND_MOVES") % [int(f["investors"]), int(f["renewed"]),
+			int(f["left"]), int(f["ended"])], Palette.MUTED)
+
 	_add_header(box, "ANNUAL_WORTH")
 	var start: float = a["worth_start"]
 	var end: float = a["worth_end"]
@@ -451,6 +462,12 @@ static func _add_fund(box: VBoxContainer, r: Dictionary) -> void:
 		_add_row_text(box, TranslationServer.translate("REPORT_FUND_NAV") % Fmt.rupiah(fund["nav"]), Fmt.percent(ret),
 			signed_color(ret))
 		_add_row(box, "REPORT_FUND_INVESTORS", str(int(fund["investors"])), Palette.INK)
+		for row: Dictionary in fund.get("detail", []):  # langkah 3: laporan per investor
+			var level := Fund.satisfaction_level(int(row["satisfaction"]))
+			_add_row_text(box, "· " + TranslationServer.translate(GameState.fund.def(row["id"]).get("name", "")),
+				TranslationServer.translate("REPORT_FUND_INVESTOR_ROW") % [Fmt.rupiah(row["value"]), Fmt.percent(row["return"]),
+				TranslationServer.translate("FUND_SAT_" + level.to_upper())],
+				Palette.LOSS if row["warned"] else signed_color(row["return"]))
 	if int(fund.get("perf_fee", 0)) > 0:  # langkah 2: fee kinerja di evaluasi tahunan
 		_add_row(box, "REPORT_FUND_PERF_FEE", Fmt.signed_rupiah(fund["perf_fee"]), Palette.GAIN)
 	for n: Dictionary in fund.get("notices", []):

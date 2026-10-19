@@ -31,8 +31,8 @@ data/
   rumors.json                 Rumor pasar (v1.5d): peluang, gerak harga benar/jebakan, riset dasar & mendalam
   contracts.json              Proyek sampingan (v1.5d): 17 proyek, tier & reputasi, 3 strategi, peluang, bayaran
   achievements.json           Pencapaian (v1.5d): 21 pencapaian (syarat sebagai data), gelar, 7 bingkai avatar
-  events/<kategori>.json      120 event hidup per kategori (finance, work, education, health, social,
-                              market, scam, property, debt): syarat, pilihan, efek, tokoh. Cara menambah:
+  events/<kategori>.json      126 event hidup per kategori (finance, work, education, health, social,
+                              market, scam, property, debt, fund): syarat, pilihan, efek, tokoh. Cara menambah:
                               docs/PANDUAN_EVENT.md
   characters.json             Tokoh berulang (v1.5d): Bima, Ibu, Kak Wulan, Bu Ratna, atasan, rekan kerja
   insurance.json              Produk asuransi: premi, tanggungan, masa tunggu
@@ -42,7 +42,7 @@ data/
   jobs.json                   Pekerjaan (bidang, jenjang, syarat, gaji, beban kerja) & aturan lowongan
   education.json              Program kuliah (syarat, lama, biaya, hasil) & beban kuliah
   quiz.json                   190 soal kuis (10 topik, urutan topik di "topics")
-  glossary.json               108 istilah glosarium
+  glossary.json               118 istilah glosarium
   legal.json                  Kebijakan privasi, syarat penggunaan & lisensi pihak ketiga (tampil di game)
   activities.json             7 aktivitas bulanan & aturan energi (Konseling hanya saat suasana hati rendah)
   leverage.json               Leverage (v2a): kelas & pilihan leverage, fee, biaya inap, batas margin call & likuidasi
@@ -250,7 +250,7 @@ scenes/
 - [ ] **v2c "Mengelola Dana Investor"** (rancangan: `MVP_Cuan_Quest_Revisi3.md` 6.3):
   - [x] (1) Dana kelolaan & investor pertama
   - [x] (2) Kepuasan, penarikan & reputasi
-  - [ ] (3) Laporan per investor & cerita
+  - [x] (3) Laporan per investor & cerita
   - [ ] (4) Penyeimbangan & uji celah
 - [ ] **v2d** (opsional, lihat `MVP_Cuan_Quest_Revisi3.md`)
 
@@ -388,6 +388,12 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **`month_tick()`**: setelah fee manajemen, `_anniversary(inv)` untuk investor yang tepat berulang tahun kontrak (fee kinerja di atas `hwm`, nilai `good` / `ok` / `low` / `negative`, tambah setoran, perpanjangan atau `return_funds(..., "ended")`), lalu `_monthly_check(inv)` (kepuasan, teguran `warn`, pergi `left`, tenang `calm`). Kabar = `[{kind, id, ...}]` di `last_report.fund.notices` dan signal `GameState.fund_notice` (lewat `queue_after_report`). `last_report.fund_fee` = fee manajemen + fee kinerja.
 - **Reputasi:** `add_reputation()` (0-100); `return_funds()` memberi efek reputasi sesuai `reason` (`returned`, `left`, `ended`). Semua angka di `data/fund.json` (`satisfaction`, `evaluation`, `reputation`, `topup`, `contract_months`).
 - **Tampilan:** `main._on_fund_notice()` (InfoPopup; `open_warning` + tombol Kelola Dana jika ada `warn`/`left`), `UiText.fund_notice_text()` & `fund_notice_is_bad()`, `MonthReport._add_fund()` (fee kinerja & kabar), kartu investor di `fund_popup.gd`, catatan "investor kecewa" di `portfolio_screen.gd`. `fast_forward` berhenti jika `last_report.fund` punya `notices`.
+
+**Langkah 3: laporan per investor & cerita**
+- **Laporan:** `month_tick()` menambah `values` (nilai investor tiap akhir bulan, maks. `MAX_VALUES`) dan `last_report.fund.detail` (`id`, `value`, `return`, `satisfaction`, `warned`) → baris per investor di `MonthReport._add_fund()`. `Annual._add_fund_month()` membuat catatan `acc.fund` (pertumbuhan NAB, fee, `left`/`ended`/`renewed`/`topups`) hanya setelah dana aktif; `close_year()` menambah `report.fund` → `MonthReport.fill_annual()`.
+- **Rincian investor:** `fund_popup.gd` `_detail_uid` + `_build_detail()` (PriceChart dari `values`, angka penting, tombol Kembali ke daftar).
+- **Event** `data/events/fund.json` (kategori `fund`, `EVENT_CAT_FUND`): syarat `fund_active`, `fund_falling` (`Fund.fund_drawdown()` ≥ 8%), `fund_happy_investor`; efek di `Fund.apply_effects()`: `fund_reputation`, `fund_satisfaction`, `fund_referral` (`_add_offer(false, referral_reputation)`), `fund_allocation`; isian `{fund_drawdown}` & `{investor}` dari `Fund.event_vars()`.
+- **Layar akhir:** `EndAnalysis` (`INSIGHT_FUND`, `INSIGHT_FUND_LEFT`), statistik `END_STAT_FUND_FEES`. Glosarium 118 istilah.
 
 ## Warisan & Layar Akhir (v2b langkah 5)
 

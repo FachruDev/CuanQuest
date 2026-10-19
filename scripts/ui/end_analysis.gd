@@ -106,6 +106,12 @@ static func insights(state: Node) -> Array[String]:
 	if float(s.get("debt_interest", 0.0)) >= 1_000_000:
 		out.append(_t("INSIGHT_DEBT_INTEREST") % [Fmt.rupiah(s["debt_interest"]), Fmt.rupiah(s["borrowed_total"])])
 
+	var fund: Dictionary = state.fund.record  # dana kelolaan (v2c langkah 3)
+	if int(fund["joined"]) > 0:
+		out.append(_t("INSIGHT_FUND") % [Fmt.rupiah(float(fund["mgmt_fees"]) + float(fund["perf_fees"])), int(fund["joined"]),
+			int(fund["renewed"]), state.fund.reputation])
+		if int(fund["left"]) > 0:
+			out.append(_t("INSIGHT_FUND_LEFT") % int(fund["left"]))
 	if state.is_financially_free():
 		out.append(_t("INSIGHT_GOOD_FREEDOM"))
 	if s["total_interest"] > 1_000_000:

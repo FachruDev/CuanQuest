@@ -9,11 +9,13 @@ signal allocation_applied(cost: float)
 
 var _draft: Dictionary = {}  # alokasi yang sedang disusun (belum diterapkan)
 var _confirm_uid := -1  # investor yang tombol "Kembalikan Dana"-nya sudah diketuk sekali
+var _detail_uid := -1  # investor yang sedang dilihat rinciannya (langkah 3), -1 = tampilan utama
 
 
 func open() -> void:
 	_draft = GameState.fund.allocation.duplicate()
 	_confirm_uid = -1
+	_detail_uid = -1
 	%Title.text = tr("FUND_TITLE")
 	%SubtitleHolder.show()
 	%Body.show()
@@ -30,6 +32,11 @@ func open() -> void:
 
 func _build() -> void:
 	var fund := GameState.fund
+	var detail := fund.find_investor(_detail_uid)
+	if not detail.is_empty():
+		_build_detail(detail)
+		return
+	_detail_uid = -1
 	%Subtitle.text = tr("FUND_SUBTITLE") % [Fmt.rupiah(fund.value()), Fmt.rupiah(fund.current_nav())]
 	_clear(%Rows)
 	_add_summary()
@@ -149,8 +156,18 @@ func _add_investors() -> void:
 			box.add_child(warn)
 		var uid := int(inv["uid"])
 		var confirm := _confirm_uid == uid
+		var buttons := HBoxContainer.new()
+		buttons.add_theme_constant_override("separation", 10)
+		var details := UiText.chunky_button(tr("FUND_DETAIL_BUTTON"), &"NeutralButton", &"NeutralButtonLabel", 52.0, 20)
+		details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		details.pressed.connect(func() -> void:
+			_detail_uid = uid
+			_build()
+			%Scroll.scroll_vertical = 0)
+		buttons.add_child(details)
 		var button := UiText.chunky_button(tr("FUND_RETURN_CONFIRM" if confirm else "FUND_RETURN_BUTTON"), &"NeutralButton",
 			&"NeutralButtonLabel", 52.0, 20)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.pressed.connect(func() -> void:
 			if _confirm_uid != uid:  # ketuk dua kali agar tidak terpencet tanpa sengaja
 				_confirm_uid = uid
@@ -161,7 +178,8 @@ func _add_investors() -> void:
 			if result["ok"]:
 				funds_returned.emit(tr(d["name"]), roundi(float(result["payout"])))
 			_rebuild())
-		box.add_child(button)
+		buttons.add_child(button)
+		box.add_child(buttons)
 
 
 func _add_offers() -> void:
@@ -201,6 +219,52 @@ func _add_offers() -> void:
 		row.add_child(accept)
 		row.add_child(decline)
 		box.add_child(row)
+
+
+## Rincian satu investor (langkah 3): grafik nilai investasinya tiap bulan, setoran, untung/rugi, imbal hasil
+## vs target, penurunan vs batas, kepuasan, fee kinerja, evaluasi terakhir, dan kontrak.
+func _build_detail(inv: Dictionary) -> void:
+	var fund := GameState.fund
+	var d := fund.def(inv["id"])
+	%Subtitle.text = "%s · %s" % [tr(d["name"]), tr(d["role"])]
+	_clear(%Rows)
+	var back := UiText.chunky_button(tr("FUND_BACK"), &"NeutralButton", &"NeutralButtonLabel", 52.0, 20)
+	back.pressed.connect(func() -> void:
+		_detail_uid = -1
+		_rebuild())
+	%Rows.add_child(back)
+	%Rows.add_child(_label(tr(d["desc"]), &"SmallMutedLabel"))
+	%Rows.add_child(_label(tr("FUND_DETAIL_CHART"), &"ReportHeaderLabel"))
+	var chart := PriceChart.new()
+	chart.light_style = true
+	chart.max_points = Fund.MAX_VALUES
+	chart.custom_minimum_size = Vector2(0, 170)
+	var series: Array[float] = []
+	series.assign(inv.get("values", []))
+	chart.set_data(series)
+	%Rows.add_child(chart)
+	%Rows.add_child(_label(tr("FUND_DETAIL_NUMBERS"), &"ReportHeaderLabel"))
+	var value := fund.investor_value(inv)
+	var gain := value - float(inv["deposited"])
+	_value_row(tr("FUND_DETAIL_DEPOSITED"), Fmt.rupiah(inv["deposited"]))
+	_value_row(tr("FUND_DETAIL_VALUE"), Fmt.rupiah(value))
+	_value_row(tr("FUND_DETAIL_GAIN"), "%s (%s)" % [Fmt.signed_rupiah(gain), Fmt.percent(fund.investor_return(inv))])
+	_value_row(tr("FUND_DETAIL_ANNUAL"), tr("FUND_DETAIL_VS") % [UiText.percent_short(fund.investor_annual_return(inv)),
+		UiText.percent_short(float(d["target"]))])
+	_value_row(tr("FUND_DETAIL_DRAWDOWN"), tr("FUND_DETAIL_LIMIT") % [UiText.percent_short(fund.investor_drawdown(inv)),
+		UiText.percent_short(float(d["drawdown"]))])
+	var satisfaction := int(inv["satisfaction"])
+	_value_row(tr("FUND_DETAIL_SAT"), "%d/100 · %s" % [satisfaction, tr("FUND_SAT_" + Fund.satisfaction_level(satisfaction).to_upper())])
+	_value_row(tr("FUND_DETAIL_MANDATE"), "%s · %s" % [UiText.fund_profile(d["profile"]),
+		tr("FUND_MANDATE_OK" if fund.mandate_ok(inv["id"]) else "FUND_MANDATE_BREACH")])
+	_value_row(tr("FUND_DETAIL_PERF"), Fmt.rupiah(inv["perf_paid"]))
+	_value_row(tr("FUND_DETAIL_LAST_EVAL"), Fmt.percent(inv["last_eval"]) if inv.has("last_eval") else "-")
+	_value_row(tr("FUND_DETAIL_JOINED"), Fmt.game_date(int(inv["joined"])))
+	_value_row(tr("FUND_DETAIL_CONTRACT"), Fmt.game_date(int(inv["contract_end"])))
+	if fund.is_warned(inv):
+		var warned := _label(tr("FUND_INV_WARNED"), &"SmallMutedLabel")
+		warned.add_theme_color_override("font_color", Palette.LOSS)
+		%Rows.add_child(warned)
 
 
 func _change(id: String, delta: int) -> void:

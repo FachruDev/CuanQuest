@@ -9,7 +9,8 @@
 		"Langkah 2. contract_months: masa kontrak; di ulang tahun kontrak terakhir investor memperpanjang jika kepuasan >= evaluation.renew_min, selain itu dana dikembalikan baik-baik.",
 		"satisfaction (0-100, awal start): tiap bulan + mandate jika mandat dilanggar, + drawdown jika penurunan NAB dari puncak sejak bergabung > separuh batas investor, dan setelah min_months bulan + perf_good jika imbal hasil per tahun sejak bergabung >= target atau + perf_negative jika < 0 (kinerja selebihnya dinilai di evaluasi tahunan). Peringatan saat kepuasan < warn_below, penurunan > warn_drawdown x batas (sempat menurunkan risiko), atau mandat dilanggar; investor yang SUDAH diperingatkan (bulan sebelumnya) menarik seluruh dana bila kepuasan < leave_below atau penurunan > batas. Peringatan hilang saat kepuasan >= recover_above, penurunan < separuh batas, dan mandat terpenuhi.",
 		"evaluation: tiap ulang tahun kontrak, imbal hasil setahun (NAB) >= target: kepuasan + good; >= separuh target: + ok; >= 0: + low; < 0: + negative (jadi dana yang terlalu hati-hati untuk investor agresif juga mengecewakan). Fee kinerja = performance_fee x kenaikan NAB di atas high-water mark x unit investor, dibayar dengan mengurangi unitnya.",
-		"reputation (0-100): start, lalu good_year / ok_year / low_year / negative_year tiap evaluasi, renewed saat perpanjang, left saat investor pergi karena kecewa, returned (returned_warned jika investor sedang kecewa) saat pemain mengembalikan dana. topup: setelah evaluasi bagus dan kepuasan >= min_satisfaction, peluang chance menambah setoran share x nilai investasinya."
+		"reputation (0-100): start, lalu good_year / ok_year / low_year / negative_year tiap evaluasi, renewed saat perpanjang, left saat investor pergi karena kecewa, returned (returned_warned jika investor sedang kecewa) saat pemain mengembalikan dana. topup: setelah evaluasi bagus dan kepuasan >= min_satisfaction, peluang chance menambah setoran share x nilai investasinya.",
+		"Langkah 3. referral_reputation: event rujukan investor (data/events/fund.json, efek fund_referral) membuka tawaran dari investor yang syarat reputasinya hingga sebesar ini di atas reputasimu."
 	],
 	"baskets": [
 		{ "id": "money", "assets": ["RDPU"] },
@@ -34,5 +35,6 @@
 	"reputation": { "start": 10, "good_year": 3, "ok_year": 1, "low_year": 0, "negative_year": -1, "renewed": 5, "left": -8,
 		"returned": -1, "returned_warned": -5 },
 	"topup": { "min_satisfaction": 75, "chance": 0.4, "share": [0.2, 0.5] },
+	"referral_reputation": 20,
 	"rng_offset": 6
 }

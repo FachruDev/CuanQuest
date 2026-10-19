@@ -17,6 +17,7 @@ Analogi web: event adalah *content entry* di CMS; efek adalah *action handler*; 
 | `data/events/scam.json` | Waspada penipuan (beserta rantai lanjutannya) |
 | `data/events/property.json` | Properti: atap bocor, renovasi, penyewa telat bayar (v1.5c) |
 | `data/events/debt.json` | Utang & kredit: tawaran paylater/KTA, penagih utang, masa bunga tetap KPR berakhir (v1.5c) |
+| `data/events/fund.json` | Dana kelolaan (v2c): etika & kepercayaan investor (untung pasti, godaan dana titipan, investor panik, rujukan, window dressing) |
 
 Semua file dimuat oleh `EventManager.load_defs()` (`scripts/core/event_manager.gd`) sesuai urutan `CATEGORIES`. Nilai `"category"` sebuah event **harus sama** dengan nama filenya; jika berbeda, Godot menampilkan peringatan. Kategori baru = tambah file, tambah nama di `CATEGORIES`, dan tambah teks `EVENT_CAT_<KATEGORI>` di `localization/strings.csv`.
 
@@ -91,6 +92,8 @@ Semua file dimuat oleh `EventManager.load_defs()` (`scripts/core/event_manager.g
 | `refinance`, `prepay_part` | Debt | Take over KPR (bunga tetap baru 2 tahun, biaya lewat `cost_var: "fee"`); lunasi sebagian pokok (`cost_var: "prepay"`) |
 | `property_repair` | Properties | Bayar perbaikan sebesar persen nilai properti (mis. `0.006`), cocok untuk efek tertunda |
 | `rent_months`, `tenant_leave` | Properties | Sewa hilang/bertambah N bulan sewa bersih (mis. `-2`); penyewa pergi (properti mencari penyewa baru 1-2 bulan) |
+| `fund_reputation`, `fund_satisfaction` | Fund | Reputasi manajer +/- N (0-100); kepuasan SEMUA investor dana +/- N (v2c) |
+| `fund_referral`, `fund_allocation` | Fund | Tawaran investor baru dari rujukan (syarat reputasi +`referral_reputation`); alokasi dana baru, mis. `{"money": 100}` (v2c) |
 
 **Menambah efek baru:** tentukan modul pemiliknya, tambahkan penanganannya di `apply_effects()` modul itu, lalu catat di tabel ini. Contoh: efek baru untuk asuransi ditulis di `scripts/game/insurance.gd`.
 
@@ -115,6 +118,7 @@ Didefinisikan di `EventManager.requires_met()`. Event yang sudah masuk antrean b
 | `paylater_offer`, `kta_offer` | Tawaran kredit lolos semua syarat bank (pekerjaan, skor, tunggakan, rasio cicilan) dan skor minimal `offer.min_score` (KTA: 60); jumlahnya dari `"offer"` produk di `loans.json` |
 | `low_happiness` | Kebahagiaan di bawah 40 |
 | `has_margin_call` | Ada posisi leverage yang sedang margin call (v2a) |
+| `fund_active`, `fund_falling`, `fund_happy_investor` | Dana kelolaan punya investor; NAB dana turun ≥ 8% dari puncaknya; ada investor dengan kepuasan ≥ 75 (v2c) |
 | `depressed` | Sedang dalam status Depresi (v2b langkah 4, modul Mental). Event ini wajib mengikuti pedoman konten sensitif: `"quiet": true`, minimal satu pilihan `"help": true`, tanpa pilihan yang menurunkan kesehatan/kebahagiaan atau berisi undian (dicek `test_content`) |
 
 **Menambah syarat baru:** tambah satu cabang di `match` dalam `EventManager.requires_met()`.
@@ -134,6 +138,7 @@ Dihitung `GameState.events.context_flags()` (ambang di `economy.json` `event_dir
 | `{advice}` | `Characters.event_vars()`: saran Kak Wulan sesuai kondisi keuangan pemain |
 | `{property}`, `{rent2}` | `Properties.event_vars()`: nama properti yang dituju & sewa bersih 2 bulan |
 | `{loan}`, `{collateral}`, `{arrears}`, `{amount}`, `{installment}`, `{interest}`, `{months}` | `Debt.event_vars()`: pinjaman yang dituju, agunan, tunggakan, tawaran kredit |
+| `{fund_drawdown}`, `{investor}` | `Fund.event_vars()`: penurunan NAB dana dari puncak (investor panik) & nama investor paling puas (rujukan) |
 | `{rate_from}`, `{rate_to}`, `{refi_rate}`, `{pay_from}`, `{pay_to}`, `{pay_refi}`, `{fee}`, `{prepay_amount}`, `{pay_prepaid}` | `Debt.event_vars()`: bunga & cicilan KPR sebelum/sesudah mengambang, take over, pelunasan sebagian |
 
 Isian dihitung sekali saat event mulai tampil dan ikut disimpan, sehingga teks dan efeknya selalu cocok. **Menambah isian baru:** kembalikan nilainya dari `event_vars(id)` di modul pemilik event, lalu tambahkan penggantinya di `UiText.event_text()`.
