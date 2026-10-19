@@ -9,11 +9,15 @@ extends Control
 signal closed
 
 const POP_TIME := 0.22
+## Jarak isi ke scrollbar: tanpa ini angka rata kanan menempel/tertutup scrollbar.
+const SCROLLBAR_GAP := 14
 
 
 func _ready() -> void:
 	hide()
 	visibility_changed.connect(_on_visibility_changed)
+	for scroll: ScrollContainer in find_children("*", "ScrollContainer", true, false):
+		scroll.add_theme_constant_override("scrollbar_h_separation", SCROLLBAR_GAP)
 
 
 func close() -> void:

@@ -27,6 +27,8 @@ const ACTIVITY_ICON_FALLBACK := "res://assets/icons/heart.svg"
 const DIMMED := Color(1, 1, 1, 0.5)
 ## Ikon program kuliah (assets/icons/education/<d3|s1|s2>.svg, cadangan: ikon kursus).
 const EDUCATION_ICON := "res://assets/icons/education/%s.svg"
+## Warna chip status lowongan yang tidak bisa dilamar (alasan dari Career.apply_block_reason).
+const APPLY_STATUS_CHIPS := {"ERR_JOB_APPLIED": &"MoodGold", "ERR_JOB_CURRENT": &"MoodGreen"}
 
 var _job_box: VBoxContainer    # isi kartu Pekerjaan (dibangun ulang saat data berubah)
 var _board_box: VBoxContainer  # daftar lowongan bulan ini
@@ -317,9 +319,7 @@ func _add_promotion() -> void:
 	reqs.add_theme_constant_override("h_separation", 12)
 	reqs.add_theme_constant_override("v_separation", 2)
 	for req: Dictionary in GameState.career.promotion_requirements():
-		var label := _label("%s %s" % ["✓" if req["met"] else "✗", _requirement_text(req, next)], &"ReqLabel")
-		label.add_theme_color_override("font_color", Palette.GAIN if req["met"] else Palette.LOSS)
-		reqs.add_child(label)
+		reqs.add_child(UiText.requirement_row(_requirement_text(req, next), req["met"], false))
 	_job_box.add_child(reqs)
 	if GameState.career.promotion_ready():
 		var ready := _wrap(tr("CAREER_PROMOTION_READY"), &"SmallMutedLabel")
@@ -356,11 +356,9 @@ func _refresh_board() -> void:
 		reqs.add_theme_constant_override("h_separation", 12)
 		reqs.add_theme_constant_override("v_separation", 2)
 		for req: Dictionary in GameState.career.requirements(def):
-			var label := _label("%s %s" % ["✓" if req["met"] else "✗", _requirement_text(req, def)], &"ReqLabel")
-			label.add_theme_color_override("font_color", Palette.GAIN if req["met"] else Palette.LOSS)
-			reqs.add_child(label)
+			reqs.add_child(UiText.requirement_row(_requirement_text(req, def), req["met"], false))
 		if reqs.get_child_count() == 0:
-			reqs.add_child(_label("✓ " + tr("CAREER_NO_REQUIREMENTS"), &"ReqLabel"))
+			reqs.add_child(UiText.requirement_row(tr("CAREER_NO_REQUIREMENTS"), true, false))
 		box.add_child(reqs)
 
 		var footer := HBoxContainer.new()
@@ -378,13 +376,15 @@ func _refresh_board() -> void:
 		spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		footer.add_child(spacer)
 		var reason := GameState.career.apply_block_reason(i)
-		var button := UiText.chunky_button(tr("CAREER_APPLY") if reason == "" else tr(reason + "_SHORT"),
-			&"PrimaryButton" if reason == "" else &"NeutralButton",
-			&"PrimaryButtonLabel" if reason == "" else &"NeutralButtonLabel", 60.0, 20)
-		button.custom_minimum_size.x = 200
-		button.disabled = reason != ""
-		button.pressed.connect(_on_apply.bind(i))
-		footer.add_child(button)
+		if reason == "":
+			var button := UiText.chunky_button(tr("CAREER_APPLY"), &"PrimaryButton", &"PrimaryButtonLabel", 60.0, 20)
+			button.custom_minimum_size.x = 200
+			button.pressed.connect(_on_apply.bind(i))
+			footer.add_child(button)
+		else:  # tidak bisa melamar: cukup chip status (tombol nonaktif bertulisan panjang jadi dua baris)
+			var status := _text_chip(tr(reason + "_SHORT"), APPLY_STATUS_CHIPS.get(reason, &"MoodNeutral"))
+			status.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			footer.add_child(status)
 		box.add_child(footer)
 		_board_box.add_child(card)
 

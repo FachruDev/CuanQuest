@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ui/leverage_popup.gd" id="1_script"]
 [ext_resource type="Theme" path="res://theme/senja_theme.tres" id="2_theme"]
-[ext_resource type="Texture2D" path="res://assets/icons/trend_up.svg" id="3_icon"]
+[ext_resource type="Texture2D" path="res://assets/icons/badge_leverage.svg" id="3_icon"]
 
 [node name="LeveragePopup" type="Control"]
 layout_mode = 3

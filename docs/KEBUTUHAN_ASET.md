@@ -2,7 +2,7 @@
 
 Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang **dibutuhkan**, dan **di file mana** aset itu dipakai. Diperbarui setiap kali sebuah langkah membutuhkan aset baru.
 
-- **Terakhir diperbarui:** 19 Oktober 2026 (Penutup v2 langkah 1: tanpa aset baru; ukuran ikon adaptif & grafis Play Store di bagian M7 diperjelas; v2d dihapus, v2 berakhir di v2c; v2c langkah 4: tanpa aset baru, v2c selesai; ikon lencana Dana Kelolaan & 8 potret investor tetap opsional; v2c langkah 3: tanpa aset baru, rincian investor memakai grafik bawaan dan event dana memakai lencana event biasa; v2c langkah 2: tanpa aset baru, popup kabar investor memakai lencana peringatan dari tema; v2c langkah 1: tanpa aset wajib baru, lencana popup Dana Kelolaan sementara memakai `classes/mutual_fund.svg`, potret investor opsional; v2b langkah 5: tanpa aset baru, rincian skor warisan & grafik riil digambar dengan tema; langkah 4: tanpa aset wajib baru, ikon aktivitas Konseling opsional (sementara `heart.svg`), popup & event Depresi memakai `heart.svg`; langkah 3: tanpa aset wajib baru, popup masa senja & perpisahan serta lencana layar akhir sementara memakai `badge_retire.svg`; langkah 2: tanpa aset wajib baru, popup "Usia N Tahun" memakai lencana bintang, ikon usia opsional; langkah 1: popup bab memakai lencana bintang, ilustrasi bab menyusul; v2a selesai, langkah 5 tanpa aset baru; langkah 4: tanpa aset baru, popup peringatan memakai lencana "!" dari tema; langkah 3: tanpa aset baru, popup leverage memakai ulang `trend_up.svg`; langkah 2: ikon kelas Valas, sementara `arrow_badge.svg`; langkah 1: ikon kelas Komoditas, sementara `trend_line.svg`; penutup v1.5: tanpa aset baru, menu Lisensi memakai ulang `book.svg`; v1.5d langkah 5: tanpa aset baru; langkah 4: 21 lencana pencapaian sementara ikon bintang/gembok, bingkai avatar digambar kode; langkah 3: ikon bidang "Umum"; potret tokoh langkah 1 masih lingkaran berwarna + inisial)
+- **Terakhir diperbarui:** 19 Oktober 2026 (Perbaikan UI kelompok 1: ikon tab Karier `nav_career.svg` dibuat & `nav_activity.svg` dihapus, ikon syarat `req_ok.svg`/`req_no.svg` menggantikan teks [OK]/[ ], popup leverage memakai lencana baru `badge_leverage.svg`, popup tenggat impian terlewat memakai `badge_calendar.svg` di lencana peringatan; Penutup v2 langkah 1: tanpa aset baru; ukuran ikon adaptif & grafis Play Store di bagian M7 diperjelas; v2d dihapus, v2 berakhir di v2c; v2c langkah 4: tanpa aset baru, v2c selesai; ikon lencana Dana Kelolaan & 8 potret investor tetap opsional; v2c langkah 3: tanpa aset baru, rincian investor memakai grafik bawaan dan event dana memakai lencana event biasa; v2c langkah 2: tanpa aset baru, popup kabar investor memakai lencana peringatan dari tema; v2c langkah 1: tanpa aset wajib baru, lencana popup Dana Kelolaan sementara memakai `classes/mutual_fund.svg`, potret investor opsional; v2b langkah 5: tanpa aset baru, rincian skor warisan & grafik riil digambar dengan tema; langkah 4: tanpa aset wajib baru, ikon aktivitas Konseling opsional (sementara `heart.svg`), popup & event Depresi memakai `heart.svg`; langkah 3: tanpa aset wajib baru, popup masa senja & perpisahan serta lencana layar akhir sementara memakai `badge_retire.svg`; langkah 2: tanpa aset wajib baru, popup "Usia N Tahun" memakai lencana bintang, ikon usia opsional; langkah 1: popup bab memakai lencana bintang, ilustrasi bab menyusul; v2a selesai, langkah 5 tanpa aset baru; langkah 4: tanpa aset baru, popup peringatan memakai lencana "!" dari tema; langkah 3: tanpa aset baru, popup leverage memakai ulang `trend_up.svg`; langkah 2: ikon kelas Valas, sementara `arrow_badge.svg`; langkah 1: ikon kelas Komoditas, sementara `trend_line.svg`; penutup v1.5: tanpa aset baru, menu Lisensi memakai ulang `book.svg`; v1.5d langkah 5: tanpa aset baru; langkah 4: 21 lencana pencapaian sementara ikon bintang/gembok, bingkai avatar digambar kode; langkah 3: ikon bidang "Umum"; potret tokoh langkah 1 masih lingkaran berwarna + inisial)
 - **Rencana pembuatan:** pengembang membuat aset setelah **v2 selesai**. Sampai saat itu game memakai aset sementara (🔁), dan daftar di bawah terus diperbarui setiap langkah.
 - **Tanda:** ✅ sudah ada · ⬜ dibutuhkan · 🔁 sementara memakai aset lain atau gambar pengganti sederhana (game tetap jalan)
 - Tabel aset yang sudah ada dibuat otomatis dengan memindai `scenes/`, `scripts/`, `theme/`, dan `data/`.
@@ -14,7 +14,7 @@ Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang
 | **v1 + Redesain "Senja Cuan"** | 79 aset: font, ilustrasi, ikon (dibuat pengembang) | ✅ |
 | **v1.5-0** Giliran bulanan yang hidup | Tidak ada; memakai ulang lencana & ikon (confetti digambar lewat kode) | ✅ |
 | **v1.5a** Realisme ekonomi | Tidak ada; memakai ulang `shield.svg`, `wallet.svg`, `trend_line.svg`, `warning_small.svg` | ✅ |
-| **v1.5b** Pekerjaan & karier | 13 ikon (3 latar pendidikan, 6 bidang kerja, 1 navigasi Karier, 3 program kuliah) + 2 opsional | ⬜ 🔁 |
+| **v1.5b** Pekerjaan & karier | 12 ikon (3 latar pendidikan, 6 bidang kerja, 3 program kuliah) + 2 opsional; ikon navigasi Karier ✅ | ⬜ 🔁 |
 | **v1.5c** Utang, properti, hunian | 3 ikon (lencana popup Pinjaman, Kendaraan, Properti) + 11 ilustrasi Hunian & Kendaraan (latar, 7 tempat tinggal, 3 kendaraan) yang sekarang berupa gambar pengganti sederhana | ⬜ 🔁 |
 | **v1.5d** Tokoh & konten | 6 potret tokoh (sementara inisial berwarna) + 1 ikon bidang "Umum" (proyek sampingan) + 21 lencana pencapaian (sementara bintang/gembok); tema & avatar tambahan setelah v2 | ⬜ 🔁 |
 | **Penutup v1.5** Performa, playtest, legal | Tidak ada; menu Lisensi Pihak Ketiga memakai ulang `book.svg`, info performa & Sesi Bermain hanya teks | ✅ |
@@ -54,7 +54,7 @@ Game sudah jalan memakai aset sementara (🔁). Begitu file baru ditaruh di path
 | `assets/icons/tracks/tech.svg` | Bidang Teknologi (kode `</>`) | `scripts/ui/ui_text.gd` | 🔁 `search.svg` | Otomatis |
 | `assets/icons/tracks/creative.svg` | Bidang Kreatif & Pemasaran (kuas/megafon) | `scripts/ui/ui_text.gd` | 🔁 `lightbulb.svg` | Otomatis |
 | `assets/icons/tracks/gig.svg` | Kerja Lepas (helm/motor) | `scripts/ui/ui_text.gd` | 🔁 `activities/side_job.svg` | Otomatis |
-| `assets/icons/nav_career.svg` | Navigasi tab Karier (koper) | `scenes/main.tscn` (tombol navigasi ke-4) | 🔁 `nav_activity.svg` | Ganti path `nav_activity.svg` di `scenes/main.tscn` (atau minta saya) |
+| `assets/icons/nav_career.svg` ✅ | Navigasi tab Karier (koper) | `scenes/main.tscn` (tombol navigasi ke-4) | Sudah dibuat (perbaikan UI kelompok 1) | Sudah terpasang |
 | `assets/icons/badge_job.svg` (opsional) | Lencana popup Tawaran Kerja (koper + bintang) | `scenes/ui/offer_popup.tscn` | 🔁 `badge_star.svg` | Ganti path di `scenes/ui/offer_popup.tscn` |
 | `assets/icons/education/d3.svg` | Program Kuliah D3 (buku + papan nama) | `scripts/ui/screens/activity_screen.gd` (kartu Pendidikan & Keahlian, tab Karier) | 🔁 `activities/course.svg` | Otomatis (nama file = id program di `data/education.json`) |
 | `assets/icons/education/s1.svg` | Program Kuliah S1 (toga) | `scripts/ui/screens/activity_screen.gd` | 🔁 `activities/course.svg` | Otomatis |
@@ -249,17 +249,18 @@ Ukuran & gaya sama dengan ikon kelas lain di `assets/icons/classes/` (26x26, gar
 
 | File | Dipakai di |
 |:--|:--|
-| `assets/icons/nav_activity.svg` | `scenes/main.tscn` |
+| `assets/icons/nav_career.svg` | `scenes/main.tscn` |
 | `assets/icons/nav_home.svg` | `scenes/main.tscn`<br>`scenes/ui/property_popup.tscn`<br>`scripts/ui/screens/profile_screen.gd` |
 | `assets/icons/nav_market.svg` | `scenes/main.tscn` |
 | `assets/icons/nav_portfolio.svg` | `scenes/main.tscn` |
 | `assets/icons/nav_profile.svg` | `scenes/main.tscn` |
 
-#### Lencana popup (badge) (5)
+#### Lencana popup (badge) (6)
 
 | File | Dipakai di |
 |:--|:--|
-| `assets/icons/badge_calendar.svg` | `scenes/ui/month_summary_popup.tscn` |
+| `assets/icons/badge_calendar.svg` | `scenes/ui/month_summary_popup.tscn`<br>`scripts/ui/dream_popup.gd` (tenggat terlewat) |
+| `assets/icons/badge_leverage.svg` | `scenes/ui/leverage_popup.tscn` |
 | `assets/icons/badge_lose.svg` | `scripts/ui/end_screen.gd` |
 | `assets/icons/badge_retire.svg` | `scripts/ui/end_screen.gd` |
 | `assets/icons/badge_star.svg` | `scenes/ui/dream_picker_popup.tscn`<br>`scenes/ui/info_popup.tscn`<br>`scenes/ui/offer_popup.tscn` |
@@ -273,7 +274,7 @@ Ukuran & gaya sama dengan ikon kelas lain di `assets/icons/classes/` (26x26, gar
 | `assets/icons/background_freelancer.svg` | `scripts/ui/new_game_screen.gd (dinamis: background_%s.svg)` |
 | `assets/icons/background_student.svg` | `scripts/ui/new_game_screen.gd (dinamis: background_%s.svg)` |
 
-#### Ikon UI lainnya (33)
+#### Ikon UI lainnya (35)
 
 | File | Dipakai di |
 |:--|:--|
@@ -296,6 +297,8 @@ Ukuran & gaya sama dengan ikon kelas lain di `assets/icons/classes/` (26x26, gar
 | `assets/icons/plus_badge.svg` | `scenes/title.tscn` |
 | `assets/icons/radio_off.svg` | `scripts/ui/new_game_screen.gd` |
 | `assets/icons/radio_on.svg` | `scripts/ui/new_game_screen.gd` |
+| `assets/icons/req_no.svg` | `scripts/ui/ui_text.gd` (`requirement_row`: syarat belum terpenuhi) |
+| `assets/icons/req_ok.svg` | `scripts/ui/ui_text.gd` (`requirement_row`: syarat terpenuhi) |
 | `assets/icons/save.svg` | `scenes/title.tscn` |
 | `assets/icons/search.svg` | `scenes/ui/glossary_popup.tscn`<br>`scripts/ui/ui_text.gd` |
 | `assets/icons/shield.svg` | `scenes/ui/insurance_popup.tscn`<br>`scenes/ui/text_popup.tscn`<br>`scripts/ui/screens/profile_screen.gd` |

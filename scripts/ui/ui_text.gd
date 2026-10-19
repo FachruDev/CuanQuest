@@ -27,6 +27,9 @@ const TRACK_TILES := {
 	"retail": &"IconTileCoral", "admin": &"IconTileBlue", "finance": &"IconTileGold",
 	"tech": &"IconTilePurple", "creative": &"IconTileMint", "gig": &"IconTileCoral", "general": &"IconTileTeal",
 }
+## Bulatan hijau centang / merah silang di depan setiap baris syarat.
+const REQ_OK_ICON := preload("res://assets/icons/req_ok.svg")
+const REQ_NO_ICON := preload("res://assets/icons/req_no.svg")
 
 static var _money_token: RegEx
 
@@ -173,19 +176,39 @@ static func changes_text(changes: Dictionary) -> String:
 	return " | ".join(parts)
 
 
-## Mengisi `box` dengan satu label per syarat unlock: hijau jika terpenuhi, merah jika belum.
+## Mengisi `box` dengan satu baris per syarat unlock (lihat requirement_row).
 static func fill_requirements(box: VBoxContainer, stage: Dictionary) -> void:
 	for child in box.get_children():
 		box.remove_child(child)
 		child.queue_free()
 	for req: Dictionary in stage["requirements"]:
 		var status := GameState.progress.requirement_status(req)
-		var label := Label.new()
-		label.text = ("%s  %s" % [_t("REQ_DONE") if status["met"] else _t("REQ_TODO"), requirement_text(req, status)])
+		box.add_child(requirement_row(requirement_text(req, status), status["met"]))
+
+
+## Satu baris syarat: ikon centang/silang + teks hijau (terpenuhi) atau merah (belum).
+## `wrap` = teks boleh membungkus (baris penuh); false untuk syarat berderet di HFlowContainer.
+static func requirement_row(text: String, met: bool, wrap := true) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	var icon := TextureRect.new()
+	icon.texture = REQ_OK_ICON if met else REQ_NO_ICON
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.custom_minimum_size = Vector2(16, 22)  # setinggi satu baris teks: ikon sejajar baris pertama
+	icon.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(icon)
+	var label := Label.new()
+	label.text = text
+	label.theme_type_variation = &"ReqLabel"
+	label.add_theme_color_override("font_color", Palette.GAIN if met else Palette.LOSS)
+	if wrap:
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		label.theme_type_variation = &"ReqLabel"
-		label.add_theme_color_override("font_color", Palette.GAIN if status["met"] else Palette.LOSS)
-		box.add_child(label)
+		label.custom_minimum_size.x = 1
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(label)
+	return row
 
 
 ## Button tidak ikut membesar mengikuti anaknya; samakan tingginya dengan isi (teks bisa membungkus).
@@ -328,13 +351,7 @@ static func fill_loan_requirements(box: VBoxContainer, reqs: Array) -> void:
 		box.remove_child(child)
 		child.queue_free()
 	for req: Dictionary in reqs:
-		var label := Label.new()
-		label.text = "%s  %s" % [_t("REQ_DONE") if req["met"] else _t("REQ_TODO"), loan_requirement_text(req)]
-		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		label.custom_minimum_size.x = 1
-		label.theme_type_variation = &"ReqLabel"
-		label.add_theme_color_override("font_color", Palette.GAIN if req["met"] else Palette.LOSS)
-		box.add_child(label)
+		box.add_child(requirement_row(loan_requirement_text(req), req["met"]))
 
 
 static func loan_requirement_text(req: Dictionary) -> String:

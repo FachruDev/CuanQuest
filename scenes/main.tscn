@@ -32,7 +32,7 @@
 [ext_resource type="Texture2D" path="res://assets/icons/nav_home.svg" id="20_nav_home"]
 [ext_resource type="Texture2D" path="res://assets/icons/nav_market.svg" id="21_nav_market"]
 [ext_resource type="Texture2D" path="res://assets/icons/nav_portfolio.svg" id="22_nav_portfolio"]
-[ext_resource type="Texture2D" path="res://assets/icons/nav_activity.svg" id="23_nav_activity"]
+[ext_resource type="Texture2D" path="res://assets/icons/nav_career.svg" id="23_nav_career"]
 [ext_resource type="Texture2D" path="res://assets/icons/nav_profile.svg" id="24_nav_profile"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sheet"]
@@ -516,7 +516,7 @@ custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 size_flags_horizontal = 4
 mouse_filter = 2
-texture = ExtResource("23_nav_activity")
+texture = ExtResource("23_nav_career")
 expand_mode = 1
 stretch_mode = 5
 

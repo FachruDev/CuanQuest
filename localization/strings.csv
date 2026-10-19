@@ -151,8 +151,6 @@ STAGE_1,Tahap 1: Dasar,Stage 1: Basics
 STAGE_2,Tahap 2: Reksa Dana Saham,Stage 2: Equity Funds
 STAGE_3,Tahap 3: Saham & Emas,Stage 3: Stocks & Gold
 STAGE_4,Tahap 4: Kripto & Komoditas,Stage 4: Crypto & Commodities
-REQ_DONE,[OK],[OK]
-REQ_TODO,[  ],[  ]
 REQ_EMERGENCY,Dana darurat %d bulan: %s / %s,Emergency fund %d months: %s / %s
 REQ_NET_WORTH,Kekayaan bersih: %s / %s,Net worth: %s / %s
 REQ_LEVEL,Level: %d / %d,Level: %d / %d

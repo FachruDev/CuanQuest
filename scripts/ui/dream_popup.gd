@@ -3,6 +3,9 @@ extends ModalPopup
 ## - Detail : progres, tenggat, saran setoran, petunjuk instrumen, setor manual, lepaskan.
 ## - Terlewat: tenggat sudah lewat; pemain wajib memilih memperpanjang atau melepas.
 
+const TROPHY_ICON := preload("res://assets/icons/badge_trophy.svg")
+const OVERDUE_ICON := preload("res://assets/icons/badge_calendar.svg")
+
 var _dream_id := ""
 var _release_armed := false  # ketukan pertama "Lepaskan" hanya meminta konfirmasi
 var _release_button: Button
@@ -12,6 +15,7 @@ var _release_button: Button
 func open_detail(dream_id: String) -> void:
 	_dream_id = dream_id
 	_release_armed = false
+	_set_badge(false)
 	_fill_detail()
 	show()
 	_fit_scroll()
@@ -22,6 +26,7 @@ func open_overdue(view: Dictionary) -> void:
 	_dream_id = view["id"]
 	var def: Dictionary = view["def"]
 	var cfg := GameState.dreams.config()
+	_set_badge(true)
 	%Title.text = tr("DREAM_OVERDUE_TITLE")
 	%SubtitleHolder.show()
 	%Subtitle.text = tr(def["name"])
@@ -62,7 +67,12 @@ func _fill_detail() -> void:
 	%Rows.add_child(_progress_bar(view["ratio"]))
 	%Rows.add_child(_label(tr("DREAM_PROGRESS") % [Fmt.rupiah(view["saved"]), Fmt.rupiah(view["cost"])], &"RowValueLabel"))
 	var months_left := int(entry["deadline"]) - GameState.month
-	%Rows.add_child(_label(tr("DREAM_DEADLINE") % [Fmt.game_date(entry["deadline"]), months_left], &"InfoLabel"))
+	if months_left >= 0:
+		%Rows.add_child(_label(tr("DREAM_DEADLINE") % [Fmt.game_date(entry["deadline"]), months_left], &"InfoLabel"))
+	else:
+		var passed := _label(tr("DREAM_DEADLINE_PASSED") % Fmt.game_date(entry["deadline"]), &"InfoLabel")
+		passed.add_theme_color_override("font_color", Palette.LOSS)
+		%Rows.add_child(passed)
 	%Rows.add_child(_label(tr("DREAM_NEEDED") % Fmt.rupiah(GameState.dreams.needed_monthly(entry)), &"InfoLabel"))
 	%Rows.add_child(_label(tr("DREAM_HINT_" + str(def["horizon"]).to_upper()), &"SmallMutedLabel"))
 	if def.has("vehicle"):
@@ -110,6 +120,12 @@ func _on_release() -> void:
 		return
 	GameState.dreams.release(_dream_id)
 	close()
+
+
+## Lencana: piala emas untuk detail impian, kalender di lencana peringatan saat tenggat terlewat.
+func _set_badge(overdue: bool) -> void:
+	$Center/Dialog/BadgeHolder/Badge.theme_type_variation = &"WarningBadgePanel" if overdue else &"BadgeGoldPanel"
+	$Center/Dialog/BadgeHolder/Badge/Icon.texture = OVERDUE_ICON if overdue else TROPHY_ICON
 
 
 ## Area isi di-scroll; tingginya mengikuti isi (dibatasi) setelah label selesai ditata.

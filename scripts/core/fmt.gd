@@ -3,7 +3,7 @@ extends RefCounted
 ## Helper format angka gaya Indonesia: Rp1.234.567 dan +2,35%.
 
 
-## Diatur oleh Settings: true = format ringkas (Rp1,25 jt / Rp3,40 M).
+## Diatur oleh Settings: true = format ringkas (Rp1,25 jt / Rp3,4 M).
 static var compact := false
 
 
@@ -15,7 +15,7 @@ static func rupiah(value: float) -> String:
 	return minus + "Rp" + _group_thousands(absi(n))
 
 
-## Selalu ringkas, apa pun pengaturan: Rp12,50 jt (untuk ruang sempit seperti kartu simpanan).
+## Selalu ringkas, apa pun pengaturan: Rp12,5 jt (untuk ruang sempit seperti kartu simpanan).
 static func rupiah_short(value: float) -> String:
 	var n := roundi(value)
 	if absi(n) < 1_000_000:
@@ -23,13 +23,18 @@ static func rupiah_short(value: float) -> String:
 	return ("-" if n < 0 else "") + "Rp" + _short(absi(n))
 
 
-## 1.250.000 -> "1,25 jt" | 3.400.000.000 -> "3,40 M" (miliar) | ... "T" (triliun)
+## 1.250.000 -> "1,25 jt" | 3.400.000.000 -> "3,4 M" (miliar) | 15.000.000 -> "15 jt" | ... "T" (triliun)
 static func _short(n: int) -> String:
 	if n >= 1_000_000_000_000:
-		return number(n / 1e12) + " T"
+		return _trim_zeros(number(n / 1e12)) + " T"
 	if n >= 1_000_000_000:
-		return number(n / 1e9) + " M"
-	return number(n / 1e6) + " jt"
+		return _trim_zeros(number(n / 1e9)) + " M"
+	return _trim_zeros(number(n / 1e6)) + " jt"
+
+
+## "15,00" -> "15", "3,40" -> "3,4", "1,25" tetap.
+static func _trim_zeros(text: String) -> String:
+	return text.rstrip("0").rstrip(",") if text.contains(",") else text
 
 
 ## Gaya teks cerita: Rp3,1 juta / Rp800 ribu / Rp2 miliar (maks. 2 desimal, nol di belakang dibuang).
@@ -38,10 +43,7 @@ static func rupiah_words(value: float) -> String:
 	var minus := "-" if roundi(value) < 0 else ""
 	for unit: Array in [[1_000_000_000, " miliar"], [1_000_000, " juta"], [1_000, " ribu"]]:
 		if n >= unit[0]:
-			var text := number(n / float(unit[0]), 2)
-			if text.contains(","):
-				text = text.rstrip("0").rstrip(",")
-			return minus + "Rp" + text + unit[1]
+			return minus + "Rp" + _trim_zeros(number(n / float(unit[0]), 2)) + unit[1]
 	return rupiah(value)
 
 

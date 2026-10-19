@@ -1881,6 +1881,7 @@ anti_aliasing_size = 1.0
 default_font = ExtResource("5_fredoka_regular")
 default_font_size = 22
 Label/colors/font_color = Color(0.1686, 0.1294, 0.2784, 1)
+Button/colors/font_disabled_color = Color(0.4314, 0.3529, 0.2706, 0.5)
 SheetPanel/base_type = &"PanelContainer"
 SheetPanel/styles/panel = SubResource("sheet")
 CardPanel/base_type = &"PanelContainer"
