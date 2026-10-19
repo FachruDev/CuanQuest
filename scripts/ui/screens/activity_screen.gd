@@ -20,7 +20,10 @@ const ACTIVITY_ICON := "res://assets/icons/activities/%s.svg"
 const ACTIVITY_TILES := {
 	"side_job": &"IconTileGold", "course": &"IconTileBlue", "self_study": &"IconTileMint",
 	"exercise": &"IconTileCoral", "hangout": &"IconTilePurple", "rest": &"IconTileBlue",
+	"counseling": &"IconTileMint",
 }
+## Cadangan ikon aktivitas yang gambarnya belum ada (mis. Konseling, v2b langkah 4).
+const ACTIVITY_ICON_FALLBACK := "res://assets/icons/heart.svg"
 const DIMMED := Color(1, 1, 1, 0.5)
 ## Ikon program kuliah (assets/icons/education/<d3|s1|s2>.svg, cadangan: ikon kursus).
 const EDUCATION_ICON := "res://assets/icons/education/%s.svg"
@@ -692,7 +695,10 @@ func _build_activities() -> void:
 		row.add_theme_constant_override("separation", 14)
 		margin.add_child(row)
 
-		var tile := UiText.icon_tile(ACTIVITY_ICON % id, ACTIVITY_TILES.get(id, &"IconTileGold"))
+		var icon_path := ACTIVITY_ICON % id
+		if not ResourceLoader.exists(icon_path):
+			icon_path = ACTIVITY_ICON_FALLBACK
+		var tile := UiText.icon_tile(icon_path, ACTIVITY_TILES.get(id, &"IconTileGold"))
 		row.add_child(tile)
 		var text := VBoxContainer.new()
 		text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -731,6 +737,7 @@ func _build_activities() -> void:
 func _refresh_activities() -> void:
 	for def: Dictionary in GameState.activities.defs():
 		var row: Dictionary = _activity_rows[def["id"]]
+		row["button"].visible = GameState.activities.is_shown(def)  # Konseling hanya saat suasana hati rendah (v2b)
 		var cost := GameState.activities.cost(def)
 		row["cost"].text = Fmt.rupiah(cost) if cost > 0 else tr("ACT_FREE")
 		var used: int = GameState.activities.counts.get(def["id"], 0)

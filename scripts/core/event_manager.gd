@@ -166,4 +166,6 @@ func _requirement_ok(def: Dictionary, state: Node) -> bool:
 			return state.career.is_career() and state.career.unpaid_months == 0 and state.career.performance < 70.0
 		"has_margin_call":  # ada posisi leverage yang sedang margin call (v2a)
 			return not state.leverage.calls().is_empty()
+		"depressed":  # status Depresi (v2b): event bantuan, wajib punya pilihan "help"
+			return state.mental.depressed
 	return true

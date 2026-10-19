@@ -94,6 +94,8 @@ func _still_valid(def: Dictionary) -> bool:
 		return gs.debt.scheduled_event_valid(def["id"])
 	if def.get("id", "") in Life.SCHEDULED_EVENTS:
 		return gs.life.scheduled_event_valid(def["id"])
+	if def.get("id", "") in Mental.SCHEDULED_EVENTS:
+		return gs.mental.scheduled_event_valid(def["id"])
 	return catalog.requires_met(def, gs)
 
 
@@ -137,6 +139,7 @@ func roll() -> void:
 	queue.append_array(gs.career.scheduled_events())  # wawancara / PHK / promosi, juga di luar jatah
 	queue.append_array(gs.debt.scheduled_events())  # penagih utang / bunga KPR mengambang, juga di luar jatah
 	queue.append_array(gs.life.scheduled_events())  # perawatan saat status Kritis dimulai (v2b), di luar jatah
+	queue.append_array(gs.mental.scheduled_events())  # tawaran bantuan saat Depresi dimulai (v2b), di luar jatah
 
 	var context := context_flags()
 	var picked := 0

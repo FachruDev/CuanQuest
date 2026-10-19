@@ -2,7 +2,7 @@
 
 Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang **dibutuhkan**, dan **di file mana** aset itu dipakai. Diperbarui setiap kali sebuah langkah membutuhkan aset baru.
 
-- **Terakhir diperbarui:** 16 Oktober 2026 (v2b langkah 3: tanpa aset wajib baru, popup masa senja & perpisahan serta lencana layar akhir sementara memakai `badge_retire.svg`; langkah 2: tanpa aset wajib baru, popup "Usia N Tahun" memakai lencana bintang, ikon usia opsional; langkah 1: popup bab memakai lencana bintang, ilustrasi bab menyusul; v2a selesai, langkah 5 tanpa aset baru; langkah 4: tanpa aset baru, popup peringatan memakai lencana "!" dari tema; langkah 3: tanpa aset baru, popup leverage memakai ulang `trend_up.svg`; langkah 2: ikon kelas Valas, sementara `arrow_badge.svg`; langkah 1: ikon kelas Komoditas, sementara `trend_line.svg`; penutup v1.5: tanpa aset baru, menu Lisensi memakai ulang `book.svg`; v1.5d langkah 5: tanpa aset baru; langkah 4: 21 lencana pencapaian sementara ikon bintang/gembok, bingkai avatar digambar kode; langkah 3: ikon bidang "Umum"; potret tokoh langkah 1 masih lingkaran berwarna + inisial)
+- **Terakhir diperbarui:** 19 Oktober 2026 (v2b langkah 4: tanpa aset wajib baru, ikon aktivitas Konseling opsional (sementara `heart.svg`), popup & event Depresi memakai `heart.svg`; langkah 3: tanpa aset wajib baru, popup masa senja & perpisahan serta lencana layar akhir sementara memakai `badge_retire.svg`; langkah 2: tanpa aset wajib baru, popup "Usia N Tahun" memakai lencana bintang, ikon usia opsional; langkah 1: popup bab memakai lencana bintang, ilustrasi bab menyusul; v2a selesai, langkah 5 tanpa aset baru; langkah 4: tanpa aset baru, popup peringatan memakai lencana "!" dari tema; langkah 3: tanpa aset baru, popup leverage memakai ulang `trend_up.svg`; langkah 2: ikon kelas Valas, sementara `arrow_badge.svg`; langkah 1: ikon kelas Komoditas, sementara `trend_line.svg`; penutup v1.5: tanpa aset baru, menu Lisensi memakai ulang `book.svg`; v1.5d langkah 5: tanpa aset baru; langkah 4: 21 lencana pencapaian sementara ikon bintang/gembok, bingkai avatar digambar kode; langkah 3: ikon bidang "Umum"; potret tokoh langkah 1 masih lingkaran berwarna + inisial)
 - **Rencana pembuatan:** pengembang membuat aset setelah **v2 selesai**. Sampai saat itu game memakai aset sementara (🔁), dan daftar di bawah terus diperbarui setiap langkah.
 - **Tanda:** ✅ sudah ada · ⬜ dibutuhkan · 🔁 sementara memakai aset lain atau gambar pengganti sederhana (game tetap jalan)
 - Tabel aset yang sudah ada dibuat otomatis dengan memindai `scenes/`, `scripts/`, `theme/`, dan `data/`.
@@ -19,7 +19,7 @@ Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang
 | **v1.5d** Tokoh & konten | 6 potret tokoh (sementara inisial berwarna) + 1 ikon bidang "Umum" (proyek sampingan) + 21 lencana pencapaian (sementara bintang/gembok); tema & avatar tambahan setelah v2 | ⬜ 🔁 |
 | **Penutup v1.5** Performa, playtest, legal | Tidak ada; menu Lisensi Pihak Ketiga memakai ulang `book.svg`, info performa & Sesi Bermain hanya teks | ✅ |
 | **v2a** Instrumen lanjut | 2 ikon kelas: Komoditas (sementara `trend_line.svg`) & Valas (sementara `arrow_badge.svg`) + 8 ikon per aset opsional | ⬜ 🔁 |
-| **v2b** Siklus hidup penuh | 4 ilustrasi bab kehidupan + 1 ikon usia + 1 lencana akhir hidup (semua opsional; sementara memakai lencana bintang / pensiun) | ⬜ 🔁 |
+| **v2b** Siklus hidup penuh | 4 ilustrasi bab kehidupan + 1 ikon usia + 1 lencana akhir hidup + 1 ikon aktivitas Konseling (semua opsional; sementara memakai lencana bintang / pensiun / hati) | ⬜ 🔁 |
 | **v2c-v2d** | (belum ada) | ⬜ (rencana) |
 | **M7** Rilis Play Store | Ikon aplikasi adaptif, grafis & screenshot Play Store | ⬜ (rencana) |
 
@@ -180,6 +180,7 @@ Ukuran & gaya sama dengan ikon kelas lain di `assets/icons/classes/` (26x26, gar
 |:--|:--|:--|:--|
 | `assets/illustrations/chapters/early.svg`, `build.svg`, `peak.svg`, `retire.svg` (opsional, mis. 624x260) | Ilustrasi bab kehidupan: lulus & kerja pertama, keluarga muda & rumah, puncak karier, masa pensiun | Popup "Bab Baru" & kartu Perjalanan Hidup (`main.gd` `chapter_changed`, `profile_screen.gd`) | Popup memakai lencana bintang `badge_star.svg`, tanpa ilustrasi 🔁 |
 | `assets/icons/aging.svg` (opsional, gaya ikon lencana popup) | Ikon pertambahan usia (mis. jam pasir atau kue ulang tahun) | Popup "Usia N Tahun" (`main.gd` `aging_changed`, v2b langkah 2) | Lencana bintang `badge_star.svg` 🔁 |
+| `assets/icons/activities/counseling.svg` (opsional, gaya ikon aktivitas) | Ikon aktivitas Konseling (mis. dua balon percakapan atau tangan menggenggam hati), lembut dan tidak klinis | Daftar aktivitas tab Karier (`activity_screen.gd`, dinamis `activities/%s.svg`, v2b langkah 4) | Ikon hati `heart.svg` (`ACTIVITY_ICON_FALLBACK`) 🔁 |
 | `assets/icons/badge_life.svg` (opsional, gaya lencana layar akhir) | Lencana akhir hidup yang tenang (mis. lentera atau setangkai bunga), tanpa kesan sedih berlebihan | Popup masa senja & perpisahan (`main.gd` `QUIET_ICON`), layar akhir jenis `died` (`end_screen.gd` `RESULT_LOOK`) | Lencana pensiun `badge_retire.svg` 🔁 |
 
 ## M7: Rilis Play Store ⬜ (rencana)
@@ -275,7 +276,7 @@ Ukuran & gaya sama dengan ikon kelas lain di `assets/icons/classes/` (26x26, gar
 | `assets/icons/chevron_right.svg` | `scenes/ui/save_slot_button.tscn`<br>`scripts/ui/screens/profile_screen.gd` |
 | `assets/icons/close.svg` | `scenes/title.tscn`<br>`scenes/ui/glossary_popup.tscn` |
 | `assets/icons/folder.svg` | `scenes/title.tscn`<br>`scripts/ui/ui_text.gd` |
-| `assets/icons/heart.svg` | `scenes/screens/home_screen.tscn` |
+| `assets/icons/heart.svg` | `scenes/screens/home_screen.tscn`<br>`scripts/ui/main.gd` (popup Depresi)<br>`scripts/ui/event_popup.gd` (event `quiet`)<br>`scripts/ui/screens/activity_screen.gd` (cadangan ikon aktivitas)<br>`scripts/ui/screens/profile_screen.gd` (Bantuan & Dukungan) |
 | `assets/icons/info.svg` | `scenes/new_game.tscn`<br>`scenes/title.tscn` |
 | `assets/icons/lightbulb.svg` | `scenes/tutorial.tscn`<br>`scripts/ui/end_screen.gd`<br>`scripts/ui/screens/profile_screen.gd`<br>`scripts/ui/ui_text.gd` |
 | `assets/icons/lock.svg` | `scripts/ui/title_screen.gd` |

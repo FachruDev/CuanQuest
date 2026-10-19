@@ -30,8 +30,9 @@ func roll() -> Array[Dictionary]:
 	var cap := int(cfg["stat_cap"])
 	var bonus := int(cfg["stat_bonus"])
 	var pool: Array[Dictionary] = [{"type": "invest", "goal": float(gs.nominal(cfg["invest_amount"], 50_000)), "param": ""}]
-	var activities := gs.activities.defs().filter(func(def: Dictionary) -> bool:
-		return int(def["energy"]) <= gs.activities.energy_capacity)
+	var activities := gs.activities.defs().filter(func(def: Dictionary) -> bool:  # hanya yang tersedia (v2b langkah 4)
+		return (int(def["energy"]) <= gs.activities.energy_capacity and gs.activities.is_shown(def)
+			and not gs.mental.activity_blocked(def["id"])))
 	if not activities.is_empty():
 		var def: Dictionary = activities[gs.rng.randi() % activities.size()]
 		pool.append({"type": "activity", "goal": 1.0, "param": def["id"]})

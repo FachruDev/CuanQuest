@@ -27,6 +27,9 @@ const PERSONAS := {
 		"emergency": 0.05, "invest": 0.0, "insurance": {}, "choice": "gambler", "quiz": true, "speculate": true},
 	"acak": {"desc": "Pilihan acak", "food": "", "housing": "", "lifestyle": 0.05, "emergency": 0.1,
 		"invest": 0.0, "insurance": {}, "choice": "random", "quiz": false, "random_trades": true},
+	"acak_peduli": {"desc": "Pilihan acak + mencari bantuan saat suasana hati rendah (Konseling, Istirahat, pilihan bantuan event)",
+		"food": "", "housing": "", "lifestyle": 0.05, "emergency": 0.1, "invest": 0.0, "insurance": {}, "choice": "random",
+		"quiz": false, "random_trades": true, "seek_help": true},
 	"pelajar": {"desc": "Hemat + kuliah & kursus", "food": "standard", "housing": "kos", "lifestyle": 0.05,
 		"emergency": 0.15, "invest": 0.25, "insurance": {"health": "health_basic"}, "choice": "prudent",
 		"quiz": true, "lump_invest": true, "activities": true, "study": true, "courses": true},
@@ -200,7 +203,8 @@ func _play(persona: String, seed_value: int, years: int, difficulty: String, bac
 		"lev_bankrupt": GameState.is_over and int(GameState.leverage.record["liquidated"]) > 0,
 		"died": GameState.is_over and GameState.end_result.get("type", "") == "died",
 		"death_age": int(GameState.end_result.get("age", -1)) if GameState.is_over else -1,
-		"critical_count": GameState.life.critical_count}
+		"critical_count": GameState.life.critical_count,
+		"mental_count": GameState.mental.count, "mental_months": GameState.mental.months}
 
 
 func _snapshot(start_salary: int) -> Dictionary:
@@ -456,6 +460,10 @@ func _monthly_actions(p: Dictionary) -> void:
 		_forex_actions(float(p["forex_share"]), expenses)
 	if p.has("leverage") and GameState.month >= int(p["unlock_from"]):
 		_leverage_actions(str(p["leverage"]), expenses)
+	if p.get("seek_help", false) and GameState.mental.help_visible():  # v2b langkah 4: Konseling lalu Istirahat
+		GameState.activities.perform("counseling")
+		for i in 2:
+			GameState.activities.perform("rest")
 	if p.get("activities", false):  # aktivitas gratis untuk menjaga kesehatan & kebahagiaan
 		for i in 4:
 			var id := "exercise" if GameState.health <= GameState.happiness else "rest"
@@ -639,13 +647,23 @@ func _resolve_events(p: Dictionary) -> void:
 		guard += 1
 		var event: Dictionary = GameState.events.pending
 		var worth_before := GameState.net_worth()
-		GameState.events.resolve(_pick_choice(event, p["choice"]))
+		var index := _help_choice(event) if p.get("seek_help", false) else -1
+		GameState.events.resolve(index if index >= 0 else _pick_choice(event, p["choice"]))
 		var change := (GameState.net_worth() - worth_before) / GameState.price_level()  # rupiah awal permainan
 		var kind := "bad" if event.get("bad", false) else "good"
 		_event_stats[kind] += 1
 		_event_stats[kind + "_cash"] += change
 		if change > 0.0:
 			_event_stats["positive"] += 1
+
+
+## Pilihan bantuan pertama yang terjangkau ("help": true di event Depresi), atau -1.
+func _help_choice(event: Dictionary) -> int:
+	var choices: Array = event["choices"]
+	for i in choices.size():
+		if choices[i].get("help", false) and GameState.events.can_choose(choices[i]):
+			return i
+	return -1
 
 
 func _pick_choice(event: Dictionary, style: String) -> int:
@@ -758,6 +776,19 @@ func _print_deaths(results: Array[Dictionary]) -> void:
 		roundi(100.0 * young / results.size()), roundi(100.0 * critical / results.size())])
 
 
+## Depresi (v2b langkah 4): berapa persen permainan pernah masuk status Depresi, berapa kali, dan
+## berapa bulan total (median di antara yang pernah).
+func _print_mental(results: Array[Dictionary]) -> void:
+	var hit := results.filter(func(r: Dictionary) -> bool: return int(r["mental_count"]) > 0)
+	var counts: Array = hit.map(func(r: Dictionary) -> float: return float(r["mental_count"]))
+	var months: Array = hit.map(func(r: Dictionary) -> float: return float(r["mental_months"]))
+	counts.sort()
+	months.sort()
+	print("  depresi: pernah %d%% | kali median %s | bulan total median %s (maks %s)" % [roundi(100.0 * hit.size() / results.size()),
+		str(roundi(_pct(counts, 0.5))) if not hit.is_empty() else "-", str(roundi(_pct(months, 0.5))) if not hit.is_empty() else "-",
+		str(roundi(months.back())) if not hit.is_empty() else "-"])
+
+
 func _print_summary(persona: String, results: Array[Dictionary], years: int) -> void:
 	var lost := results.filter(func(r: Dictionary) -> bool: return r["over"] and not r["died"])
 	var reasons := {}
@@ -766,6 +797,7 @@ func _print_summary(persona: String, results: Array[Dictionary], years: int) -> 
 	print("\n== %s (%s) ==" % [persona, PERSONAS[persona]["desc"]])
 	print("  kalah: %d/%d %s" % [lost.size(), results.size(), str(reasons) if not reasons.is_empty() else ""])
 	_print_deaths(results)
+	_print_mental(results)
 	print("  bebas finansial: %s | Rp1 miliar: %s" % [
 		_month_stat(results, "freedom_month"), _month_stat(results, "millionaire_month")])
 	var first_jobs: Array = results.map(func(r: Dictionary) -> float: return float(r["first_job_month"]))

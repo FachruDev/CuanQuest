@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 16 Oktober 2026 (v2b langkah 3: kesehatan Kritis & kematian)
+- **Terakhir diperbarui:** 19 Oktober 2026 (v2b langkah 4: Depresi)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -20,7 +20,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v1.5d** | Tokoh, riset, kontrak, konten | ✅ 5/5 langkah (aset final menyusul setelah v2) |
 | **Penutup v1.5** | Performa & baterai, playtest, legal | ✅ legal & performa (APK dicoba di HP); playtest berjalan terus lewat Profil > Sesi Bermain |
 | **v2a** | Instrumen lanjut: komoditas, valas, leverage & margin | ✅ 5/5 langkah (ikon kelas menyusul setelah v2) |
-| **v2b** | Siklus hidup penuh: bab, penuaan, kematian, depresi, warisan | 🔄 3/5 langkah (pedoman konten sensitif disetujui) |
+| **v2b** | Siklus hidup penuh: bab, penuaan, kematian, depresi, warisan | 🔄 4/5 langkah (pedoman konten sensitif disetujui) |
 | **v2c-v2d** | Dana investor, mini-game | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
 
@@ -534,20 +534,26 @@ Panduan uji di HP: `docs/UJI_AKHIR_V15.md` (tabel performa, baterai, dan pertany
   - ✅ Asuransi jiwa berjangka membayar ahli waris (warisan), berakhir di usia 70; lompat 1 tahun berhenti di peringatan Kritis & masa senja
   - ✅ Popup perpisahan & layar akhir yang tenang (tanpa "kalah"/"GAME OVER"), penyebab umum & warisan, analisis akhir baru; glosarium +2
   - ✅ 61 uji kematian + 1405 uji lama lulus; golden runner identik; simulator hidup penuh 80 tahun
-- ⬜ Langkah 4: Depresi
+- ✅ **Langkah 4: Depresi**
+  - ✅ Status Depresi (`data/mental_health.json`): kebahagiaan < 20 selama 2 bulan, pulih saat > 40 selama 1 bulan; tidak pernah mengakhiri permainan (aturan kalah karena kebahagiaan 0 dihapus)
+  - ✅ Efek: energi −2, kesehatan −1/bulan (berhenti di 30), Nongkrong tidak tersedia
+  - ✅ Aktivitas Konseling (tampil saat kebahagiaan < 40 atau Depresi); event bantuan terjadwal + 3 event selama Depresi (puskesmas, Bima, Ibu), semuanya tenang dan selalu punya pilihan bantuan tanpa hukuman
+  - ✅ Pesan dukungan (119) di popup Depresi pertama & Profil > Bantuan & Dukungan; catatan Beranda + Cari Bantuan; laporan bulanan; analisis akhir
+  - ✅ Perbaikan: target bulanan hanya memakai aktivitas yang tersedia
+  - ✅ 59 uji Depresi + 1468 uji lama lulus (termasuk uji pedoman untuk event Depresi); golden runner identik saat Depresi dimatikan; simulator hidup penuh + tipe pemain baru `acak_peduli`
 - ⬜ Langkah 5: Warisan, layar akhir & penyeimbangan
 
 *Daftar fitur*
 - ✅ Bab kehidupan ✅, penuaan ✅, pensiun usia 60 yang berlanjut ✅
 - ✅ Kesehatan & kematian (tabel peluang meninggal), status Kritis dengan peringatan
-- ⬜ Depresi dengan pedoman konten sensitif
+- ✅ Depresi dengan pedoman konten sensitif
 - ⬜ Warisan & layar akhir lengkap
 - ✅ Lompat per tahun di masa pensiun
 
 *Kriteria selesai*
 - ⬜ Pemain dapat menyelesaikan satu hidup penuh
 - ✅ Pemain yang menjaga kesehatan hampir tidak pernah meninggal sebelum 60; yang mengabaikannya bisa meninggal muda, selalu dengan peringatan (simulator langkah 3; ditinjau lagi di langkah 5)
-- 🔄 Konten depresi dan kematian mengikuti pedoman konten sensitif (kematian ✅, depresi di langkah 4)
+- ✅ Konten depresi dan kematian mengikuti pedoman konten sensitif (diperiksa uji otomatis; nomor layanan diverifikasi sebelum rilis)
 - ⬜ Skor warisan konsisten dan bisa dibandingkan antar permainan
 
 **v2c: Mengelola dana investor**

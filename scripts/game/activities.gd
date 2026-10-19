@@ -40,6 +40,7 @@ func energy_max() -> int:
 	if not gs.education.study.is_empty() and int(gs.education.study["paid_month"]) == gs.month:  # kuliah bulan ini
 		value -= int(gs.education.data["load"]["energy"])
 	value += gs.life.energy_change()  # usia 60+ (v2b)
+	value += gs.mental.energy_change()  # Depresi (v2b langkah 4)
 	return maxi(value, 1)
 
 
@@ -47,10 +48,20 @@ func defs() -> Array:
 	return data.get("activities", [])
 
 
+## Aktivitas yang sedang ditampilkan: "show_when": "low_mood" (mis. Konseling) hanya saat suasana hati
+## rendah atau Depresi (v2b langkah 4).
+func is_shown(def: Dictionary) -> bool:
+	return def.get("show_when", "") != "low_mood" or gs.mental.help_visible()
+
+
 ## "" jika aktivitas bisa dilakukan, atau key pesan error.
 func block_reason(def: Dictionary) -> String:
 	if gs.is_over or gs.events.has_pending():
 		return "ERR_ACTIVITY_BUSY"
+	if not is_shown(def):
+		return "ERR_ACTIVITY_HIDDEN"
+	if gs.mental.activity_blocked(def["id"]):
+		return "ERR_ACTIVITY_MOOD"
 	if energy < int(def["energy"]):
 		return "ERR_NO_ENERGY"
 	if counts.get(def["id"], 0) >= int(def.get("max_per_month", 1)):

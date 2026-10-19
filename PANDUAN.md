@@ -31,7 +31,7 @@ data/
   rumors.json                 Rumor pasar (v1.5d): peluang, gerak harga benar/jebakan, riset dasar & mendalam
   contracts.json              Proyek sampingan (v1.5d): 17 proyek, tier & reputasi, 3 strategi, peluang, bayaran
   achievements.json           Pencapaian (v1.5d): 21 pencapaian (syarat sebagai data), gelar, 7 bingkai avatar
-  events/<kategori>.json      116 event hidup per kategori (finance, work, education, health, social,
+  events/<kategori>.json      120 event hidup per kategori (finance, work, education, health, social,
                               market, scam, property, debt): syarat, pilihan, efek, tokoh. Cara menambah:
                               docs/PANDUAN_EVENT.md
   characters.json             Tokoh berulang (v1.5d): Bima, Ibu, Kak Wulan, Bu Ratna, atasan, rekan kerja
@@ -44,9 +44,10 @@ data/
   quiz.json                   170 soal kuis (9 topik, urutan topik di "topics")
   glossary.json               106 istilah glosarium
   legal.json                  Kebijakan privasi, syarat penggunaan & lisensi pihak ketiga (tampil di game)
-  activities.json             6 aktivitas bulanan & aturan energi
+  activities.json             7 aktivitas bulanan & aturan energi (Konseling hanya saat suasana hati rendah)
   leverage.json               Leverage (v2a): kelas & pilihan leverage, fee, biaya inap, batas margin call & likuidasi
   life.json                   Siklus hidup (v2b): bab kehidupan, usia pensiun, JHT & Jaminan Pensiun, tabel penuaan, peluang meninggal, batas usia
+  mental_health.json          Kesehatan mental (v2b): batas masuk & pulih Depresi, efek, aktivitas yang tidak tersedia
   risk_profile.json           Kuesioner & 3 profil risiko
   unlocks.json                Syarat membuka tiap tahap instrumen
 localization/strings.csv      Semua teks UI (kolom id & en)
@@ -72,6 +73,7 @@ scripts/
     research.gd               Rumor pasar & riset: rumor benar/jebakan, penilaian riset, rekam jejak
     leverage.gd               Posisi leverage & margin: buka/tutup, tambah margin, cek harian, likuidasi
     life.gd                   Siklus hidup (v2b): bab kehidupan, pensiun, JHT & Jaminan Pensiun, penuaan, status Kritis, masa senja, kematian
+    mental.gd                 Kesehatan mental (v2b): status Depresi, efek, pemulihan, event bantuan terjadwal
     contracts.gd              Proyek sampingan: papan tawaran, strategi, energi bulanan, hasil, reputasi
     annual.gd                 Laporan tahunan: catatan tahun berjalan, ditutup setiap Januari
     achievements.gd           Pencapaian & kosmetik (data pemain lintas permainan, bukan modul slot save)
@@ -136,6 +138,8 @@ scenes/
 | `research` | `Research` | Rumor pasar, riset dasar & mendalam, rekam jejak riset (v1.5d) |
 | `contracts` | `Contracts` | Proyek sampingan: papan tawaran, strategi, hasil, reputasi (v1.5d) |
 | `annual` | `Annual` | Laporan tahunan: catatan tahun berjalan & laporan tahun-tahun lalu (v1.5d) |
+| `life` | `Life` | Siklus hidup: bab, pensiun, JHT & JP, penuaan, status Kritis, masa senja, kematian (v2b) |
+| `mental` | `Mental` | Kesehatan mental: status Depresi, efek, pemulihan, event bantuan (v2b langkah 4) |
 
 **Yang tetap di GameState:** profil, `month`, `cash`, `health`, `happiness`, `stats`, `market`, `rng`, signal, `new_game()`, `advance_month()` (orkestrasi bulanan), `apply_effects()`, `to_dict()`/`load_from_dict()`, harga & pajak (`nominal()`, `income_tax()`), dan kondisi menang/kalah.
 
@@ -234,7 +238,7 @@ scenes/
   - [x] (1) Bab kehidupan & pensiun berlanjut
   - [x] (2) Penuaan
   - [x] (3) Kesehatan Kritis & kematian
-  - [ ] (4) Depresi
+  - [x] (4) Depresi
   - [ ] (5) Warisan, layar akhir & penyeimbangan
 - [ ] **v2c/d** (lihat `MVP_Cuan_Quest_Revisi3.md`)
 
@@ -355,6 +359,18 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Laporan:** `retirement` (bulan pensiun: JHT & JP sekaligus), `retired`, `pension`; `pension` juga masuk pemasukan laporan tahunan. Tombol **+1 Tahun** di samping Lanjut hanya di masa pensiun (`GameState.fast_forward(12)`).
 - **Save lama:** bab dimulai dari usia saat dimuat; saldo JHT diperkirakan dari total gaji, masa iuran dari pengalaman kerja formal.
 - **Pedoman konten sensitif** (`docs/PEDOMAN_KONTEN_SENSITIF.md`) **disetujui** (16 Oktober 2026): langkah 3 (kematian) & 4 (depresi) wajib mengikutinya.
+
+## Depresi & Kesehatan Mental (v2b langkah 4)
+
+- **Modul `Mental`** (`scripts/game/mental.gd`, `GameState.mental`, data `data/mental_health.json`, kunci save `mental`). Analogi web: seperti status akun "perlu perhatian" yang membuka menu bantuan khusus dan otomatis hilang setelah kondisinya membaik beberapa waktu.
+- **Alur bulanan:** setelah kondisi bulan dihitung (dan hanya jika pemain tidak meninggal bulan itu), `GameState.advance_month` memanggil `Mental.month_check()`. Kebahagiaan < `enter_below` selama `enter_months` bulan memulai Depresi (laporan `depression_started` + `depressed`, signal `depression_started(info)` lewat `queue_after_report`, `info.first` = pesan dukungan belum pernah tampil); selama Depresi laporan `depressed`; kebahagiaan > `exit_above` selama `exit_months` bulan mengakhirinya (`depression_ended`). Kebahagiaan rendah tanpa Depresi menghasilkan laporan `low_mood`.
+- **Efek:** `Mental.energy_change()` ditambahkan ke `Activities.energy_max()`; `Mental.health_drain()` dikurangkan di baris kesehatan `_start_month()` dan berhenti di `health_floor` (30). `Mental.activity_blocked(id)` (daftar `blocked_activities`) membuat `Activities.block_reason()` mengembalikan `ERR_ACTIVITY_MOOD`.
+- **Tidak pernah mengakhiri permainan:** `zero_happiness_months` selalu 0, peringatan kebahagiaan 0 dan cabang kalahnya di `_check_end()` dihapus. `END_REASON_HAPPINESS` tetap ada untuk riwayat permainan lama.
+- **Bantuan:** aktivitas dengan `"show_when": "low_mood"` (Konseling) hanya tampil saat `Mental.help_visible()` (kebahagiaan < `help_visible_below` atau Depresi; `Activities.is_shown()`, alasan `ERR_ACTIVITY_HIDDEN`). Target bulanan hanya memilih aktivitas yang tampil dan tidak diblokir. Event terjadwal `Mental.SCHEDULED_EVENTS` = `mental_support` (di bulan Depresi dimulai); event acak bersyarat `"requires": "depressed"`: `mental_clinic`, `mental_bima`, `mental_ibu`. Pilihan bantuan ditandai `"help": true`; event Depresi ditandai `"quiet": true` (EventPopup: lencana hati, tanpa bunyi peringatan & getar).
+- **Tampilan:** popup Depresi `InfoPopup.open_quiet()` dengan ikon hati (`main._depression_text()`: arti di game, cara pulih, penjelasan simulasi, dan `SUPPORT_MESSAGE` pada kemunculan pertama); catatan suasana hati + tombol Cari Bantuan di kartu Kondisi Beranda (`_refresh_mood_note()`); baris laporan bulanan; menu **Profil > Bantuan & Dukungan** (`SUPPORT_MESSAGE` + `SUPPORT_GAME_INFO`, angka dari data); `EndAnalysis` menyebut jumlah masa sulit. `fast_forward` berhenti saat Depresi dimulai.
+- **Pedoman:** `test_content` memeriksa semua event Depresi tenang (`quiet`), punya pilihan bantuan yang menaikkan kebahagiaan, dan tidak ada pilihan yang menurunkan kesehatan/kebahagiaan atau berisi undian; uji kata terlarang tetap berjalan.
+- **Simulator:** baris `depresi:` (persentase permainan yang pernah Depresi, berapa kali, total bulan); tipe pemain `acak_peduli` = acak + Konseling & Istirahat saat suasana hati rendah dan memilih pilihan bantuan event.
+- **Penyeimbangan:** simulator hidup penuh (40 permainan × 80 tahun): S1 hemat, SMA hemat, S1 acak, boros, dan pembeli rumah kota tidak pernah masuk Depresi dan hasilnya identik dengan langkah 3. Pemain SMA acak (tanpa aktivitas, pilihan acak) 30% pernah Depresi, median sekali dengan total 15 bulan (maks. 30); usia meninggal median 83 (sebelumnya 82) dan tidak ada yang kalah karena Depresi. Tipe baru `acak_peduli` (acak + Konseling & Istirahat saat kebahagiaan < 40 dan memilih pilihan bantuan) tidak pernah masuk Depresi (SMA: pernah kritis 3%, sebelumnya 13%; bangkrut 4/40 vs 2/40, masih dalam rentang undian karena urutan acaknya berbeda). Uji terpisah 40 permainan yang dimulai dalam status Depresi: pemain yang mencari bantuan pulih dalam median 3 bulan (maks. 4) dan kesehatannya justru naik, sedangkan pemain pasif butuh median 15 bulan (SMA) / 10 bulan (S1) dengan kesehatan turun ±8-12 poin (berhenti di 30). Angka tidak diubah: manfaat bantuan terasa jelas, dan berdiam diri membuat masa sulit berlarut tanpa pernah mengakhiri permainan.
 
 ## Kesehatan Kritis & Kematian (v2b langkah 3)
 

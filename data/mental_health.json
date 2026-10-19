@@ -1,0 +1,16 @@
+{
+	"_comment": [
+		"Kesehatan mental (v2b langkah 4). Wajib mengikuti docs/PEDOMAN_KONTEN_SENSITIF.md (semua prinsipnya): bahasa netral, bantuan selalu tersedia dan tidak dihukum, dan Depresi TIDAK PERNAH mengakhiri permainan.",
+		"Status Depresi ('sedang tidak baik-baik saja') dimulai saat kebahagiaan < enter_below selama enter_months bulan berturut-turut, dan pulih saat kebahagiaan > exit_above selama exit_months bulan berturut-turut.",
+		"Selama Depresi: energi maksimal + effects.energy, kesehatan + effects.health per bulan (penurunan ini berhenti di health_floor, jadi Depresi tidak pernah membawa pemain ke kondisi kritis dengan sendirinya), dan aktivitas di blocked_activities tidak tersedia.",
+		"Bantuan: aktivitas dengan \"show_when\": \"low_mood\" (activities.json, mis. Konseling) tampil saat kebahagiaan < help_visible_below atau sedang Depresi; event mental_support dijadwalkan di bulan Depresi dimulai; event bertanda \"requires\": \"depressed\" hanya muncul selama Depresi dan wajib punya pilihan \"help\": true yang tidak merugikan (dicek test_content)."
+	],
+	"enter_below": 20,
+	"enter_months": 2,
+	"exit_above": 40,
+	"exit_months": 1,
+	"effects": { "energy": -2, "health": -1 },
+	"health_floor": 30,
+	"blocked_activities": ["hangout"],
+	"help_visible_below": 40
+}

@@ -51,6 +51,8 @@ signal aging_changed(age: int)
 signal critical_started(info: Dictionary)
 ## Pemberitahuan masa senja tahunan mulai usia 70 (v2b langkah 3): {age, chance, aging}.
 signal twilight_notice(info: Dictionary)
+## Status Depresi dimulai (v2b langkah 4): {first, happiness}; first = pesan dukungan tampil pertama kali.
+signal depression_started(info: Dictionary)
 
 ## Versi slot save. Naik ke 2 di v1.5 (pasar harian); save lama ditolak, tanpa migrasi.
 const SAVE_VERSION := 3
@@ -113,13 +115,14 @@ var properties := Properties.new(self)
 var targets := Targets.new(self)
 var activities := Activities.new(self)
 var life := Life.new(self)
+var mental := Mental.new(self)
 ## Urutan dipakai untuk reset, simpan/muat, dan efek event. Karier sebelum rencana gaji
 ## (rencana awal memakai gaji); pendidikan sebelum aktivitas (energi memakai beban kuliah);
 ## impian sebelum kendaraan (save lama: impian kendaraan yang terwujud menjadi kendaraan). Riset (rumor
 ## pasar) dan proyek sampingan memakai RNG sendiri, jadi urutannya tidak memengaruhi undian modul lain.
 ## Leverage (v2a) tidak memakai angka acak sama sekali.
 var modules: Array[GameModule] = [progress, career, characters, education, insurance, debt, events, portfolio,
-	research, leverage, contracts, budget, dreams, vehicles, properties, targets, activities, annual, life]
+	research, leverage, contracts, budget, dreams, vehicles, properties, targets, activities, annual, life, mental]
 
 var fast_forwarding := false
 var _advancing := false  # di tengah advance_month(): pencapaian diperiksa sekali di akhirnya
@@ -243,6 +246,7 @@ func advance_month() -> void:
 	var forced_sales := portfolio.cover_negative_cash()
 	var warnings := _update_danger_counters()
 	var health_report := life.check_health()  # v2b: undian peluang meninggal (setelah peringatan) & status Kritis
+	var mental_report := mental.month_check() if life.death.is_empty() else {}  # v2b: status Depresi & pemulihan
 	progress.xp += int(economy["xp_per_month"])
 	var worth := net_worth()
 	net_worth_history.append(worth)
@@ -278,6 +282,7 @@ func advance_month() -> void:
 		"erosion": idle_money * month_inflation,
 	})
 	last_report.merge(health_report)
+	last_report.merge(mental_report)
 	if not rumor_result.is_empty():
 		last_report["rumors"] = [rumor_result]
 	if not leverage_result.is_empty():
@@ -344,8 +349,9 @@ func _start_month() -> Dictionary:
 	if food_id == "luxury" or housing["id"] == "apartment":
 		stats["luxury_months"] += 1
 	var aging_health := life.health_decline()  # penurunan kesehatan alami karena usia (v2b)
-	health = clampi(health + int(food["health"]) + int(housing["health"]) + _drift("health", health, working) - aging_health,
-		0, 100)
+	var mental_drain := mental.health_drain()  # Depresi: kesehatan turun perlahan, berhenti di batas aman (v2b)
+	health = clampi(health + int(food["health"]) + int(housing["health"]) + _drift("health", health, working) - aging_health
+		- mental_drain, 0, 100)
 	happiness = clampi(happiness + int(food["happiness"]) + int(housing["happiness"]) + vehicles.happiness()
 		+ _drift("happiness", happiness, working), 0, 100)
 	var debt_report := debt.pay_installments()  # kewajiban utang sebelum premi, kuliah, dan rencana gaji
@@ -766,14 +772,12 @@ func _update_danger_counters() -> Array[String]:
 	var limit := int(economy["end"]["danger_months"])
 	negative_cash_months = negative_cash_months + 1 if cash < 0 else 0
 	zero_health_months = zero_health_months + 1 if health <= 0 else 0
-	zero_happiness_months = zero_happiness_months + 1 if happiness <= 0 else 0
+	zero_happiness_months = 0  # v2b langkah 4: kebahagiaan habis tidak lagi mengakhiri permainan (lihat Mental)
 	var warnings: Array[String] = []
 	if negative_cash_months > 0:
 		warnings.append(tr("WARN_BANKRUPT") % [negative_cash_months, limit])
 	if zero_health_months > 0:
 		warnings.append(tr("WARN_HEALTH") % [zero_health_months, limit])
-	if zero_happiness_months > 0:
-		warnings.append(tr("WARN_HAPPINESS") % [zero_happiness_months, limit])
 	return warnings
 
 
@@ -789,8 +793,6 @@ func _check_end() -> bool:
 	elif zero_health_months >= limit:
 		life.die("illness")
 		finish_game("died", "illness")
-	elif zero_happiness_months >= limit:
-		finish_game("lose", "happiness")
 	elif age() >= int(life.data["max_age"]):
 		life.die("old_age")
 		finish_game("died", "old_age")
@@ -871,7 +873,8 @@ func fast_forward(months: int) -> void:
 		var interrupted: bool = is_over or events.has_pending() \
 				or goals_reached.size() != goals_before or progress.unlocked_stages.size() != stages_before \
 				or not last_report["warnings"].is_empty() or not last_report["forced_sales"].is_empty() \
-				or last_report.has("critical_started") or last_report.has("twilight")  # v2b: peringatan kesehatan & usia
+				or last_report.has("critical_started") or last_report.has("twilight") \
+				or last_report.has("depression_started")  # v2b: peringatan kesehatan, usia & kesehatan mental
 		if interrupted:
 			break
 	fast_forwarding = false

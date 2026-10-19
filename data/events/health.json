@@ -107,6 +107,24 @@
 				{ "label": "Rawat jalan dan istirahat total di rumah", "cost": 2000000, "claim": "medical", "effects": { "health": 12, "happiness": -3 }, "result": "Kondisimu perlahan membaik, tetapi masih perlu dijaga dengan ketat: istirahat, makan teratur, dan kontrol rutin." },
 				{ "label": "Tunda berobat", "effects": { "health": -5, "happiness": -4 }, "result": "Kondisimu belum membaik. Berobat lebih awal biasanya lebih murah dan lebih aman daripada menunda." }
 			]
+		},
+		{
+			"id": "mental_support", "quiet": true, "chain_only": true, "category": "health", "weight": 1,
+			"title": "Sedang Tidak Baik-Baik Saja", "text": "Beberapa minggu terakhir kamu merasa hampa, sulit tidur, dan kehilangan minat pada hal-hal yang biasanya kamu sukai. Kamu tidak harus melewatinya sendirian.",
+			"choices": [
+				{ "label": "Konseling dengan psikolog di puskesmas", "cost": 300000, "claim": "medical", "help": true, "effects": { "happiness": 10, "health": 2, "xp": 10 }, "result": "Psikolog mendengarkan tanpa menghakimi dan membantumu menyusun langkah kecil untuk pulih. Mencari bantuan adalah langkah yang berani." },
+				{ "label": "Bercerita ke orang terdekat", "help": true, "effects": { "happiness": 7 }, "result": "Bercerita membuat bebanmu terasa lebih ringan. Kamu tidak sendirian." },
+				{ "label": "Ambil waktu istirahat sebulan", "help": true, "effects": { "happiness": 8, "health": 3, "unpaid_months": 1 }, "result": "Istirahat tanpa tekanan memberi ruang untuk pulih (jika bekerja, kamu mengambil cuti tanpa gaji sebulan). Kesehatan mental sama pentingnya dengan kesehatan fisik." },
+				{ "label": "Belum siap bercerita", "effects": {}, "result": "Tidak apa-apa. Bantuan tetap tersedia kapan pun kamu siap: pilihan Konseling ada di tab Karier." }
+			]
+		},
+		{
+			"id": "mental_clinic", "quiet": true, "category": "health", "weight": 2, "cooldown": 4, "requires": "depressed",
+			"title": "Layanan Konseling Puskesmas", "text": "Puskesmas di dekat rumahmu membuka layanan konseling kesehatan jiwa. Peserta BPJS Kesehatan tidak perlu membayar biaya konsultasi.",
+			"choices": [
+				{ "label": "Daftar konseling", "help": true, "effects": { "happiness": 8, "health": 2 }, "result": "Konseling rutin membantumu memahami perasaanmu dan pulih selangkah demi selangkah." },
+				{ "label": "Nanti dulu", "effects": {}, "result": "Layanan itu tetap ada kapan pun kamu membutuhkannya." }
+			]
 		}
 	]
 }

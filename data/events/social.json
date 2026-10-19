@@ -236,6 +236,22 @@
 				{ "label": "Isi satu sesi saja", "effects": { "happiness": 3, "xp": 10 }, "result": "Satu sesi singkat tetap bermanfaat bagi mereka." },
 				{ "label": "Tolak dulu", "effects": {}, "result": "Tidak apa-apa. Lain kali mungkin kamu punya lebih banyak waktu." }
 			]
+		},
+		{
+			"id": "mental_bima", "quiet": true, "category": "social", "weight": 3, "cooldown": 6, "requires": "depressed", "character": "bima", "known": true,
+			"title": "Bima Mengajak Bertemu", "text": "Bima menyadari kamu jarang membalas pesan. Ia mengajak bertemu sebentar, sekadar mengobrol sambil minum kopi.",
+			"choices": [
+				{ "label": "Terima ajakannya dan ceritakan perasaanmu", "help": true, "effects": { "happiness": 7, "rel": { "bima": 5 } }, "result": "Bima mendengarkan tanpa menyela. Kadang yang kita butuhkan hanyalah didengarkan." },
+				{ "label": "Bilang sedang butuh waktu sendiri", "effects": {}, "result": "Bima mengerti. Ia bilang akan selalu ada kapan pun kamu siap bercerita." }
+			]
+		},
+		{
+			"id": "mental_ibu", "quiet": true, "category": "social", "weight": 3, "cooldown": 6, "requires": "depressed", "character": "ibu",
+			"title": "Telepon dari Ibu", "text": "Ibu menelepon dan mendengar suaramu yang terdengar lelah. Ibu bertanya apakah kamu baik-baik saja.",
+			"choices": [
+				{ "label": "Ceritakan apa yang sedang kamu rasakan", "help": true, "effects": { "happiness": 7, "rel": { "ibu": 5 } }, "result": "Ibu mendengarkan dengan sabar dan mengingatkan bahwa kamu tidak harus kuat sendirian." },
+				{ "label": "Bilang semuanya baik-baik saja", "effects": {}, "result": "Ibu tetap mendoakanmu. Kapan pun kamu siap, bercerita kepada keluarga bisa sangat membantu." }
+			]
 		}
 	]
 }

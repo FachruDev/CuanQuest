@@ -64,9 +64,10 @@ Semua file dimuat oleh `EventManager.load_defs()` (`scripts/core/event_manager.g
 | `critical` | - | Penyakit kritis: asuransi jiwa membayar uang pertanggungan |
 | `character` | - | Tokoh event (id di `data/characters.json`): wajah, nama, dan kedekatannya tampil di popup (v1.5d). Tokoh kantor (`boss`, `coworker`) hanya muncul saat bekerja kantoran, kecuali di event lanjutan |
 | `known` | - | `true` = hanya muncul jika tokohnya sudah pernah ditemui |
+| `quiet` | - | `true` = tampil tenang: lencana hati, tanpa bunyi peringatan & getar (wajib untuk event Depresi, v2b langkah 4) |
 | `min_rel`, `max_rel` | - | Batas kedekatan dengan tokoh event (0-100), mis. `"min_rel": 65` untuk rekomendasi kerja |
 
-**Pilihan (`choices`):** `label`, `result`, lalu salah satu dari `effects` atau `outcomes` (`[{chance, effects, result}]`, peluangnya dijumlah 1). Opsional: `cost` (dibayar di muka; pilihan nonaktif jika kas kurang), `cost_vehicle` (persen nilai pasar kendaraan utama, mis. biaya perbaikan), `cost_property` (persen nilai pasar properti yang dituju event, mis. `0.004` = 0,4%), `cost_var` (biaya = angka dari isian event, mis. `"arrears"` untuk tunggakan atau `"fee"` untuk biaya take over KPR), `claim` (`medical` / `vehicle`, biaya ditanggung asuransi aktif). Biaya pilihan `"claim": "medical"` otomatis dikali pengali usia (`data/life.json` `aging.medical_cost`, mis. ×2 mulai usia 60), jadi tulis harganya untuk orang muda.
+**Pilihan (`choices`):** `label`, `result`, lalu salah satu dari `effects` atau `outcomes` (`[{chance, effects, result}]`, peluangnya dijumlah 1). Opsional: `cost` (dibayar di muka; pilihan nonaktif jika kas kurang), `cost_vehicle` (persen nilai pasar kendaraan utama, mis. biaya perbaikan), `cost_property` (persen nilai pasar properti yang dituju event, mis. `0.004` = 0,4%), `cost_var` (biaya = angka dari isian event, mis. `"arrears"` untuk tunggakan atau `"fee"` untuk biaya take over KPR), `claim` (`medical` / `vehicle`, biaya ditanggung asuransi aktif), `help` (`true` = pilihan mencari bantuan; event Depresi wajib punya minimal satu, dan pilihan ini wajib menaikkan kebahagiaan). Biaya pilihan `"claim": "medical"` otomatis dikali pengali usia (`data/life.json` `aging.medical_cost`, mis. ×2 mulai usia 60), jadi tulis harganya untuk orang muda.
 
 ## Efek (`effects`) dan modul yang menjalankannya
 
@@ -114,6 +115,7 @@ Didefinisikan di `EventManager.requires_met()`. Event yang sudah masuk antrean b
 | `paylater_offer`, `kta_offer` | Tawaran kredit lolos semua syarat bank (pekerjaan, skor, tunggakan, rasio cicilan) dan skor minimal `offer.min_score` (KTA: 60); jumlahnya dari `"offer"` produk di `loans.json` |
 | `low_happiness` | Kebahagiaan di bawah 40 |
 | `has_margin_call` | Ada posisi leverage yang sedang margin call (v2a) |
+| `depressed` | Sedang dalam status Depresi (v2b langkah 4, modul Mental). Event ini wajib mengikuti pedoman konten sensitif: `"quiet": true`, minimal satu pilihan `"help": true`, tanpa pilihan yang menurunkan kesehatan/kebahagiaan atau berisi undian (dicek `test_content`) |
 
 **Menambah syarat baru:** tambah satu cabang di `match` dalam `EventManager.requires_met()`.
 
@@ -159,6 +161,8 @@ Event yang waktunya ditentukan oleh logika game (bukan undian) ditandai `"chain_
 `Debt.scheduled_events()` (v1.5c, tanpa undian sehingga tidak mengubah urutan acak permainan): **Penagih Utang Datang** / **Surat Peringatan Terakhir** saat pinjaman tanpa / dengan agunan menunggak 2 bulan (sebulan sebelum macet), dan **Masa Bunga Tetap KPR Berakhir** sebulan sebelum bunga KPR mengambang (varian `kpr_rate_reset` dengan pilihan take over jika syarat bank lain terpenuhi, `kpr_rate_reset_basic` tanpa take over). Daftarnya di `Debt.SCHEDULED_EVENTS`.
 
 `Life.scheduled_events()` (v2b langkah 3): **Perawatan Kondisi Kritis** (`critical_care`) di bulan status Kritis dimulai. Teks bertema sakit kritis dan kematian wajib mengikuti `docs/PEDOMAN_KONTEN_SENSITIF.md` (bahasa tenang, penyebab umum, selalu ada pilihan berobat).
+
+`Mental.scheduled_events()` (v2b langkah 4): **Sedang Tidak Baik-Baik Saja** (`mental_support`) di bulan status Depresi dimulai: konseling, bercerita, istirahat, atau belum siap bercerita (tanpa akibat). Daftarnya di `Mental.SCHEDULED_EVENTS`.
 
 ## Sebelum selesai
 

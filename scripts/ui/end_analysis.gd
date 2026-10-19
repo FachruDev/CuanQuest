@@ -31,6 +31,8 @@ static func insights(state: Node) -> Array[String]:
 			out.append(_t("INSIGHT_NO_LIFE_COVER") % int(state.end_result["age"]))
 	if state.life.critical_count > 0 and state.end_result.get("reason", "") != "critical":
 		out.append(_t("INSIGHT_CRITICAL_COUNT") % state.life.critical_count)
+	if state.mental.count > 0:  # v2b langkah 4
+		out.append(_t("INSIGHT_DEPRESSION") % state.mental.count)
 
 	if s["scam_loss"] > 0:
 		out.append(_t("INSIGHT_SCAM") % Fmt.rupiah(s["scam_loss"]))

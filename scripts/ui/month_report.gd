@@ -151,6 +151,14 @@ static func fill(box: VBoxContainer, r: Dictionary, with_net_worth := true) -> v
 		_add_text(box, TranslationServer.translate("REPORT_CRITICAL") % [UiText.percent_short(chance), exit] if chance > 0.0
 			else TranslationServer.translate("REPORT_CRITICAL_YOUNG") % exit, Palette.LOSS)
 	_add_row(box, "STAT_HAPPINESS", "%+d" % r["happiness_delta"], signed_color(r["happiness_delta"]))
+	if r.has("depressed"):  # v2b langkah 4: status Depresi (bahasa netral, pedoman konten sensitif)
+		var mental_cfg: Dictionary = GameState.mental.data
+		_add_text(box, TranslationServer.translate("REPORT_DEPRESSED") % [-int(mental_cfg["effects"]["energy"]),
+			int(mental_cfg["exit_above"])], Palette.INK)
+	elif r.has("low_mood"):
+		_add_text(box, TranslationServer.translate("REPORT_LOW_MOOD"), Palette.MUTED)
+	if r.get("depression_ended", false):
+		_add_text(box, TranslationServer.translate("REPORT_DEPRESSION_ENDED"), Palette.GAIN)
 
 	if with_net_worth:
 		var after: float = r["net_worth_after"]

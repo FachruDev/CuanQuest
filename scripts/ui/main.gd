@@ -10,6 +10,7 @@ const END_SCENE := "res://scenes/end_screen.tscn"
 const ANNUAL_POPUP := preload("res://scenes/ui/annual_popup.tscn")
 const LEVERAGE_POPUP := preload("res://scenes/ui/leverage_popup.tscn")
 const QUIET_ICON := preload("res://assets/icons/badge_retire.svg")  # masa senja & perpisahan (v2b)
+const HEART_ICON := preload("res://assets/icons/heart.svg")  # kesehatan mental (v2b langkah 4)
 
 ## Petunjuk kontekstual saat tab dibuka pertama kali (index tab -> key teks).
 const TAB_HINTS := {1: "HINT_MARKET", 2: "HINT_PORTFOLIO", 3: "HINT_ACTIVITY", 4: "HINT_PROFILE"}
@@ -60,6 +61,8 @@ func _ready() -> void:
 		_enqueue_leverage_alert(report)
 		if report.has("critical_ended"):  # v2b: pulih dari kondisi kritis
 			_show_toast(tr("TOAST_CRITICAL_ENDED"))
+		if report.has("depression_ended"):  # v2b langkah 4: pulih dari masa sulit
+			_show_toast(tr("TOAST_DEPRESSION_ENDED"))
 		if GameState.research.has_rumor():  # rumor pertama (v1.5d): jelaskan riset di tab Pasar
 			_hint("HINT_RUMOR")
 		_enqueue_plan_review())
@@ -181,6 +184,8 @@ func _ready() -> void:
 	GameState.critical_started.connect(func(info: Dictionary) -> void:
 		_enqueue(%InfoPopup.open_warning.bind(tr("CRITICAL_POPUP_TITLE"), _critical_text(info), "", Callable(),
 			tr("CRITICAL_POPUP_OK"))))
+	GameState.depression_started.connect(func(info: Dictionary) -> void:
+		_enqueue(%InfoPopup.open_quiet.bind(tr("DEPRESSION_POPUP_TITLE"), _depression_text(info), "", HEART_ICON)))
 	GameState.twilight_notice.connect(func(info: Dictionary) -> void:
 		_enqueue(%InfoPopup.open_quiet.bind(tr("TWILIGHT_POPUP_TITLE") % int(info["age"]), _twilight_text(info), "",
 			QUIET_ICON)))
@@ -404,6 +409,20 @@ func _critical_text(info: Dictionary) -> String:
 		lines.append(tr("CRITICAL_POPUP_YOUNG") % int(GameState.economy["end"]["danger_months"]))
 	lines.append("")
 	lines.append(tr("CRITICAL_POPUP_TIP") % int(GameState.life.data["mortality"]["critical_exit"]))
+	return "\n".join(lines)
+
+
+## Status Depresi dimulai (v2b langkah 4, pedoman konten sensitif): apa artinya di game, bahwa kamu
+## bisa pulih dan bantuan apa yang tersedia, penjelasan bahwa ini simulasi, dan pesan dukungan untuk
+## pemain sungguhan saat pertama kali muncul di permainan ini (tidak bisa dimatikan).
+func _depression_text(info: Dictionary) -> String:
+	var cfg: Dictionary = GameState.mental.data
+	var lines: PackedStringArray = [
+		tr("DEPRESSION_POPUP_BODY") % [int(cfg["enter_below"]), int(cfg["enter_months"]), -int(cfg["effects"]["energy"])],
+		"", tr("DEPRESSION_POPUP_HELP") % int(cfg["exit_above"]), "", tr("DEPRESSION_POPUP_SIM")]
+	if info.get("first", false):
+		lines.append("")
+		lines.append(tr("SUPPORT_MESSAGE"))
 	return "\n".join(lines)
 
 

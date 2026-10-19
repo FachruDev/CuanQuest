@@ -203,6 +203,10 @@ func _build_menu() -> void:
 		func() -> void: glossary_requested.emit())
 	_add_menu_row("PROFILE_TUTORIAL", "res://assets/icons/lightbulb.svg", &"IconTileGold",
 		_leave_to.bind(TUTORIAL_SCENE))
+	_add_menu_row("PROFILE_SUPPORT", "res://assets/icons/heart.svg", &"IconTileMint", func() -> void:  # v2b langkah 4
+		var cfg: Dictionary = GameState.mental.data
+		text_requested.emit(tr("PROFILE_SUPPORT"), tr("SUPPORT_MESSAGE") + "\n\n" + tr("SUPPORT_GAME_INFO") % [
+			int(cfg["enter_below"]), int(cfg["enter_months"]), int(cfg["exit_above"])]))
 	_add_menu_row("SETTINGS_PRIVACY", "res://assets/icons/shield.svg", &"IconTileInk", _show_legal.bind("privacy"))
 	_add_menu_row("SETTINGS_TERMS", "res://assets/icons/news.svg", &"IconTileInk", _show_legal.bind("terms"))
 	_add_menu_row("SETTINGS_LICENSES", "res://assets/icons/book.svg", &"IconTileInk", _show_legal.bind("licenses"))

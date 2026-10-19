@@ -41,13 +41,19 @@ Sebelum event, teks, atau layar bertema sensitif ditambahkan:
 **Uji otomatis:** uji konten memeriksa data event & teks terhadap daftar kata terlarang (mis. "bunuh diri", "mengakhiri hidup", "menyakiti diri", "gila", "lemah mental") dan memastikan event bertema depresi selalu punya pilihan mencari bantuan.
 
 **Sudah diterapkan (v2b langkah 2):**
-- Pemeriksaan kata terlarang berjalan di `test_content` untuk semua file `data/*.json`, `data/events/*.json`, dan `localization/strings.csv`. Pemeriksaan "event depresi selalu punya pilihan bantuan" ditambahkan di langkah 4.
+- Pemeriksaan kata terlarang berjalan di `test_content` untuk semua file `data/*.json`, `data/events/*.json`, dan `localization/strings.csv`. Pemeriksaan "event depresi selalu punya pilihan bantuan" ditambahkan di langkah 4 (sudah berjalan).
 - Prinsip 8: Ibu memakai `"until_player_age": 55` di `data/characters.json`. Semua event Ibu, termasuk lanjutan cerita, berhenti muncul saat pemain berusia 55, tanpa diceritakan alasannya. Ibu tetap tercatat di Profil > Orang Terdekat.
 
 **Sudah diterapkan (v2b langkah 3, kematian):**
 - Prinsip 6: peluang meninggal hanya diundi setelah peringatan Kritis (bulan sebelumnya) atau pemberitahuan masa senja; uji otomatis memaksa peluang sangat besar dan memastikan tidak ada kematian tanpa peringatan. Kesehatan 0 diperingatkan setiap bulan dengan menyebut risikonya.
 - Prinsip 7: penyebab ditulis umum ("tutup usia", "setelah masa sakit kritis", "sakit parah yang berkepanjangan"); popup perpisahan dan layar akhir berjudul "Perjalanan Hidup Selesai", tanpa bunyi atau getar, berisi warisan untuk keluarga dan refleksi perjalanan, bukan "GAME OVER".
 - Prinsip 9: popup Kritis dan event perawatan menekankan berobat, asuransi, istirahat, dan dana darurat.
+
+**Sudah diterapkan (v2b langkah 4, depresi):**
+- Prinsip 1-2: di layar disebut "sedang tidak baik-baik saja", tanpa kata yang menstigma; popup menjelaskan bahwa ini penyederhanaan dan di dunia nyata depresi bisa ditangani tenaga profesional.
+- Prinsip 3: Depresi tidak pernah mengakhiri permainan (aturan kalah karena kebahagiaan 0 dihapus), dan penurunan kesehatannya berhenti di 30 sehingga tidak membawa pemain ke kondisi Kritis dengan sendirinya.
+- Prinsip 4-5: Konseling selalu tersedia saat suasana hati rendah; setiap event Depresi punya pilihan bantuan (`"help": true`) yang menaikkan kebahagiaan, menolak bantuan tidak diberi akibat, dan tidak ada pilihan berisi undian. Event Depresi tampil tenang (`"quiet": true`: lencana hati, tanpa bunyi peringatan dan getar). Semua ini diperiksa `test_content`.
+- Bagian 2: pesan dukungan tampil saat Depresi pertama kali muncul di sebuah permainan dan selalu ada di Profil > Bantuan & Dukungan. Nomor layanan tetap **[VERIFIKASI SEBELUM RILIS]**.
 
 ## 4. Play Store
 

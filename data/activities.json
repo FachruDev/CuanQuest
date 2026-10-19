@@ -4,6 +4,7 @@
 		"Energi maksimal = base_energy, +1 jika kesehatan >= health_bonus_at, -1 jika kesehatan < health_penalty_below (minimal 1).",
 		"effects memakai format yang sama dengan event (cash, cash_salary, health, happiness, xp, salary_pct, skill).",
 		"cooldown_months (opsional, v1.5b langkah 3): jeda bulan sebelum aktivitas bisa diambil lagi, mis. satu kursus butuh waktu.",
+		"show_when \"low_mood\" (v2b langkah 4): hanya tampil saat kebahagiaan rendah atau Depresi (data/mental_health.json). Nongkrong tidak tersedia selama Depresi (blocked_activities).",
 		"Teks ditampilkan lewat tr() sehingga bisa diterjemahkan nanti."
 	],
 	"base_energy": 3,
@@ -34,6 +35,11 @@
 			"id": "hangout", "name": "Nongkrong dengan Teman", "desc": "Jaga hubungan sosial dan semangat hidup.",
 			"energy": 1, "cost": 300000, "max_per_month": 2,
 			"effects": { "happiness": 5 }
+		},
+		{
+			"id": "counseling", "name": "Konseling", "desc": "Bicara dengan psikolog di puskesmas tentang apa yang sedang kamu rasakan. Peserta BPJS tidak membayar biaya konsultasi, cukup ongkos jalan. Muncul saat suasana hatimu sedang buruk.",
+			"energy": 1, "cost": 50000, "max_per_month": 1, "show_when": "low_mood",
+			"effects": { "happiness": 6, "health": 1, "xp": 5 }
 		},
 		{
 			"id": "rest", "name": "Istirahat Total", "desc": "Tidur cukup dan rebahan tanpa rasa bersalah.",

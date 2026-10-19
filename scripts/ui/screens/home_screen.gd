@@ -32,6 +32,8 @@ var _debt_box: VBoxContainer           # isi kartu Utang & Kredit (v1.5c)
 var _vehicle_box: VBoxContainer        # isi kartu Kendaraan (v1.5c langkah 2)
 var _property_box: VBoxContainer       # isi kartu Properti (v1.5c langkah 3)
 var _workload_label: Label             # catatan beban kerja di kartu Kondisi
+var _mood_box: HBoxContainer           # catatan suasana hati rendah / Depresi + Cari Bantuan (v2b langkah 4)
+var _mood_label: Label
 var _scene: HomeScene                  # ilustrasi hunian & kendaraan (v1.5c langkah 4)
 var _lev_alert: PanelContainer         # spanduk margin call (v2a langkah 4)
 var _lev_alert_label: Label
@@ -51,6 +53,7 @@ func _ready() -> void:
 	_build_critical_alert()
 	_workload_label = _wrap_label("", &"SmallMutedLabel")  # kenapa kondisi berubah tiap bulan
 	$VBox/WellbeingCard/VBox.add_child(_workload_label)
+	_build_mood_note()
 	GameState.changed.connect(_refresh)
 	visibility_changed.connect(_refresh)  # tab tersembunyi tidak diperbarui (penutup v1.5)
 	_refresh()
@@ -63,6 +66,7 @@ func _refresh() -> void:
 	_refresh_critical_alert()
 	%HealthBar.value = GameState.health
 	%HappinessBar.value = GameState.happiness
+	_refresh_mood_note()
 	%HealthValue.text = "%d / 100" % GameState.health
 	%HappinessValue.text = "%d / 100" % GameState.happiness
 
@@ -685,6 +689,33 @@ func _refresh_targets() -> void:
 	var cfg := GameState.targets.config()
 	_targets_box.add_child(_wrap_label(tr("TARGETS_REWARD") % [int(cfg["reward_happiness"]), int(cfg["reward_xp"])],
 		&"SmallMutedLabel"))
+
+
+## Di kartu Kondisi, di atas catatan beban kerja: tampil saat kebahagiaan sangat rendah atau Depresi,
+## dengan tombol Cari Bantuan yang membuka tab Karier (Konseling, Istirahat Total).
+func _build_mood_note() -> void:
+	_mood_box = HBoxContainer.new()
+	_mood_box.add_theme_constant_override("separation", 10)
+	_mood_label = _wrap_label("", &"InfoLabel")
+	_mood_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var help := UiText.chunky_button(tr("HOME_MOOD_HELP"), &"NeutralButton", &"NeutralButtonLabel", 52.0, 22)
+	help.custom_minimum_size.x = 160
+	help.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	help.pressed.connect(func() -> void: career_requested.emit())
+	_mood_box.add_child(_mood_label)
+	_mood_box.add_child(help)
+	$VBox/WellbeingCard/VBox.add_child(_mood_box)
+	$VBox/WellbeingCard/VBox.move_child(_mood_box, _workload_label.get_index())
+
+
+func _refresh_mood_note() -> void:
+	var mental := GameState.mental
+	var low := GameState.happiness < int(mental.data["enter_below"])
+	_mood_box.visible = mental.depressed or low
+	if mental.depressed:
+		_mood_label.text = tr("HOME_DEPRESSED") % [-int(mental.data["effects"]["energy"]), int(mental.data["exit_above"])]
+	elif low:
+		_mood_label.text = tr("HOME_LOW_MOOD")
 
 
 func _wrap_label(text: String, variation: StringName) -> Label:
