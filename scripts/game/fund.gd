@@ -6,7 +6,10 @@ extends GameModule
 ## bulan. Setiap investor memegang unit penyertaan: setoran / NAB per unit, pencairan = unit x NAB.
 ##
 ## Dana investor TERPISAH dari uang pribadi (seperti disimpan di bank kustodian): kas & aset dana tidak
-## masuk kekayaan bersih, neraca, atau skor warisan. Yang masuk kas pemain hanya fee manajemen.
+## masuk kekayaan bersih, neraca, atau skor warisan. Yang masuk kas pemain hanya fee manajemen & fee kinerja.
+## Langkah 2: kepuasan tiap investor (imbal hasil vs target, penurunan dari puncak, mandat), peringatan lalu
+## penarikan dana, evaluasi tahunan (fee kinerja di atas high-water mark, tambah setoran, perpanjangan
+## kontrak), dan reputasi manajer yang membuka investor besar.
 ## Memakai RNG sendiri (seed + rng_offset) dan baru bekerja setelah tahap 7 terbuka, jadi permainan tanpa
 ## dana kelolaan tetap sama persis. Analogi web: seperti admin "akun bersama" yang mengatur strategi
 ## uang milik orang lain; setiap pemilik bisa menarik dananya kapan saja.
@@ -14,7 +17,6 @@ extends GameModule
 const DATA_PATH := "res://data/fund.json"
 const INVESTORS_PATH := "res://data/investors.json"
 const STAGE := 7  # tahap buka (data/unlocks.json)
-const CONTRACT_MONTHS := 36  # masa kontrak (evaluasi & perpanjangan di langkah 2)
 
 var data: Dictionary = {}  # isi data/fund.json
 var investor_defs: Array = []  # isi data/investors.json
@@ -22,7 +24,9 @@ var allocation: Dictionary = {}  # id keranjang -> persen (total 100)
 var holdings: Dictionary = {}  # asset_id -> unit milik dana
 var cash := 0.0  # kas dana (bukan kas pemain)
 var nav := 0.0  # NAB per unit di akhir bulan terakhir
-## Investor aktif: [{uid, id, units, deposited, joined, hwm, peak, contract_end}]
+## Investor aktif: [{uid, id, units, deposited, joined, contract_end, hwm (high-water mark NAB), join_nav,
+## peak_nav (puncak NAB sejak bergabung), year_nav (NAB di evaluasi terakhir), satisfaction, warned (bulan
+## peringatan, -1 = tidak), perf_paid}]
 var investors: Array[Dictionary] = []
 ## Tawaran di papan: [{uid, id, amount, expires}]
 var board: Array[Dictionary] = []
@@ -55,8 +59,8 @@ func reset() -> void:
 
 
 func _new_record() -> Dictionary:
-	return {"mgmt_fees": 0.0, "perf_fees": 0.0, "joined": 0, "returned": 0, "left": 0, "offers": 0,
-		"trade_costs": 0.0, "peak_value": 0.0, "month_fee": 0.0}
+	return {"mgmt_fees": 0.0, "perf_fees": 0.0, "joined": 0, "returned": 0, "left": 0, "ended": 0, "renewed": 0,
+		"topups": 0, "warnings": 0, "offers": 0, "trade_costs": 0.0, "peak_value": 0.0, "month_fee": 0.0}
 
 
 func save_to(d: Dictionary) -> void:
@@ -80,6 +84,8 @@ func load_from(d: Dictionary) -> void:
 	cash = float(f["cash"])
 	nav = float(f["nav"])
 	investors.assign(f["investors"])
+	for inv: Dictionary in investors:
+		_normalize(inv)
 	board.assign(f["board"])
 	reputation = int(f["reputation"])
 	record = _new_record().merged(f["record"], true)
@@ -126,6 +132,48 @@ func current_nav() -> float:
 
 func investor_value(inv: Dictionary) -> float:
 	return float(inv["units"]) * current_nav()
+
+
+## Investor dari save langkah 1 belum punya kolom kepuasan & NAB acuan: diisi bawaan.
+func _normalize(inv: Dictionary) -> void:
+	var hwm := float(inv.get("hwm", nav))
+	var defaults := {"join_nav": hwm, "peak_nav": maxf(hwm, nav), "year_nav": hwm, "warned": -1, "perf_paid": 0.0,
+		"satisfaction": int(data["satisfaction"]["start"])}
+	for key: String in defaults:
+		if not inv.has(key):
+			inv[key] = defaults[key]
+
+
+## Imbal hasil per tahun sejak bergabung, dari NAB (tidak terpengaruh tambah setoran maupun fee kinerja).
+func investor_annual_return(inv: Dictionary) -> float:
+	var months := gs.month - int(inv["joined"])
+	if months <= 0:
+		return 0.0
+	return pow(current_nav() / maxf(float(inv["join_nav"]), 0.0001), 12.0 / months) - 1.0
+
+
+## Penurunan NAB dari puncaknya sejak investor bergabung (0..1).
+func investor_drawdown(inv: Dictionary) -> float:
+	return maxf(1.0 - current_nav() / maxf(float(inv["peak_nav"]), 0.0001), 0.0)
+
+
+func is_warned(inv: Dictionary) -> bool:
+	return int(inv["warned"]) >= 0
+
+
+## very_happy | happy | doubtful | disappointed (teks FUND_SAT_<ID>).
+static func satisfaction_level(value: int) -> String:
+	if value >= 75:
+		return "very_happy"
+	if value >= 50:
+		return "happy"
+	if value >= 35:
+		return "doubtful"
+	return "disappointed"
+
+
+func add_reputation(delta: int) -> void:
+	reputation = clampi(reputation + delta, 0, 100)
 
 
 ## Imbal hasil investor sejak bergabung (nilai sekarang dibanding total setoran).
@@ -332,7 +380,9 @@ func accept(uid: int) -> Dictionary:
 	board.erase(offer)
 	seq += 1
 	investors.append({"uid": seq, "id": offer["id"], "units": amount / price, "deposited": amount,
-		"joined": gs.month, "hwm": price, "peak": amount, "contract_end": gs.month + CONTRACT_MONTHS})
+		"joined": gs.month, "contract_end": gs.month + int(data["contract_months"]), "hwm": price, "join_nav": price,
+		"peak_nav": price, "year_nav": price, "satisfaction": int(data["satisfaction"]["start"]), "warned": -1,
+		"perf_paid": 0.0})
 	record["joined"] = int(record["joined"]) + 1
 	rebalance()
 	gs.changed.emit()
@@ -344,12 +394,18 @@ func decline(uid: int) -> void:
 	gs.changed.emit()
 
 
-## Kembalikan seluruh dana seorang investor (oleh pemain: "returned"; investor pergi: "left", langkah 2).
-## Aset dana dijual proporsional; investor menerima unit x NAB. -> {ok, payout}
+## Kembalikan seluruh dana seorang investor. `reason`: returned (oleh pemain; reputasi turun sedikit, lebih
+## banyak jika investor sedang kecewa) | left (investor pergi karena kecewa; reputasi turun) | ended (kontrak
+## selesai baik-baik). Aset dana dijual proporsional; investor menerima unit x NAB. -> {ok, payout}
 func return_funds(uid: int, reason := "returned") -> Dictionary:
 	var inv := find_investor(uid)
 	if inv.is_empty():
 		return {"ok": false, "error": "FUND_ERR_INVESTOR"}
+	var cfg: Dictionary = data["reputation"]
+	if reason == "returned":
+		add_reputation(int(cfg["returned_warned"]) if is_warned(inv) else int(cfg["returned"]))
+	elif reason == "left":
+		add_reputation(int(cfg["left"]))
 	var payout := investor_value(inv)
 	_raise_cash(payout)
 	payout = minf(payout, cash)
@@ -370,7 +426,9 @@ func energy_cost() -> int:
 
 # --- Alur bulanan (dipanggil GameState.advance_month setelah _start_month) -------------------------------
 
-## Papan tawaran diperbarui, fee manajemen dipotong ke kas pemain, dana diseimbangkan ulang, NAB dicatat.
+## Papan tawaran diperbarui, fee manajemen dipotong ke kas pemain, lalu evaluasi tahunan (ulang tahun
+## kontrak) dan pemeriksaan kepuasan bulanan tiap investor, dana diseimbangkan ulang, NAB dicatat.
+## Kabar penting (peringatan, investor pergi, evaluasi) dikirim setelah laporan (signal fund_notice).
 ## Mengembalikan bahan laporan ({} jika tahap 7 belum terbuka).
 func month_tick() -> Dictionary:
 	if not is_unlocked():
@@ -388,15 +446,128 @@ func month_tick() -> Dictionary:
 	gs.cash += paid
 	record["mgmt_fees"] = float(record["mgmt_fees"]) + paid
 	record["month_fee"] = paid
+	var price := current_nav()
+	for inv: Dictionary in investors:
+		inv["peak_nav"] = maxf(float(inv["peak_nav"]), price)
+	var notices: Array[Dictionary] = []
+	var perf_fee := 0
+	for inv: Dictionary in investors.duplicate():
+		var months := gs.month - int(inv["joined"])
+		if months > 0 and months % 12 == 0:
+			var result := _anniversary(inv)
+			perf_fee += int(result["perf_fee"])
+			notices.append_array(result["notices"])
+	for inv: Dictionary in investors.duplicate():
+		if not find_investor(int(inv["uid"])).is_empty():  # kontrak yang baru selesai tidak diperiksa lagi
+			notices.append_array(_monthly_check(inv))
 	rebalance()
+	report.merge({"fee": paid, "perf_fee": perf_fee, "investors": investors.size()})
+	if not notices.is_empty():
+		report["notices"] = notices
+		gs.queue_after_report(func() -> void: gs.fund_notice.emit(notices))
+	if investors.is_empty():
+		return report
 	nav = current_nav()
 	nav_history.append(nav)
 	record["peak_value"] = maxf(float(record["peak_value"]), value())
-	for inv: Dictionary in investors:
-		inv["peak"] = maxf(float(inv["peak"]), investor_value(inv))
-	report.merge({"value": value(), "nav": nav, "return": nav / maxf(nav_before, 0.0001) - 1.0, "fee": paid,
-		"investors": investors.size()})
+	report.merge({"value": value(), "nav": nav, "return": nav / maxf(nav_before, 0.0001) - 1.0})
 	return report
+
+
+## Kepuasan bulan ini, lalu peringatan (pertama kali) atau penarikan dana (sudah diperingatkan sebelumnya).
+## Mengembalikan kabar untuk popup & laporan.
+func _monthly_check(inv: Dictionary) -> Array[Dictionary]:
+	var cfg: Dictionary = data["satisfaction"]
+	var d := def(inv["id"])
+	var tolerance := float(d["drawdown"])
+	var target := float(d["target"])
+	var mandate := mandate_ok(inv["id"])
+	var drawdown := investor_drawdown(inv)
+	var annual := investor_annual_return(inv)
+	var delta := 0
+	if not mandate:
+		delta += int(cfg["mandate"])
+	if drawdown > tolerance / 2.0:
+		delta += int(cfg["drawdown"])
+	if gs.month - int(inv["joined"]) >= int(cfg["min_months"]):
+		if annual >= target:
+			delta += int(cfg["perf_good"])
+		elif annual < 0.0:
+			delta += int(cfg["perf_negative"])
+	inv["satisfaction"] = clampi(int(inv["satisfaction"]) + delta, 0, 100)
+	var satisfaction := int(inv["satisfaction"])
+	var reason := "mandate" if not mandate else ("drawdown" if drawdown > tolerance / 2.0 else "performance")
+	var info := {"id": inv["id"], "reason": reason, "drawdown": drawdown, "tolerance": tolerance, "annual": annual,
+		"target": target, "profile": d["profile"]}
+	var unhappy := satisfaction < int(cfg["leave_below"]) or drawdown > tolerance
+	if is_warned(inv) and int(inv["warned"]) < gs.month and unhappy:
+		var result := return_funds(int(inv["uid"]), "left")
+		return [info.merged({"kind": "left", "payout": result["payout"]})]
+	var near_limit := drawdown > tolerance * float(cfg["warn_drawdown"])  # sempat menurunkan risiko sebelum batas
+	if not is_warned(inv) and (satisfaction < int(cfg["warn_below"]) or near_limit or not mandate):
+		inv["warned"] = gs.month
+		record["warnings"] = int(record["warnings"]) + 1
+		return [info.merged({"kind": "warn"})]
+	if is_warned(inv) and satisfaction >= int(cfg["recover_above"]) and drawdown < tolerance / 2.0 and mandate:
+		inv["warned"] = -1
+		return [info.merged({"kind": "calm"})]
+	return []
+
+
+## Ulang tahun kontrak: fee kinerja di atas high-water mark, evaluasi setahun (kepuasan & reputasi), tambah
+## setoran bila puas, lalu perpanjangan atau akhir kontrak. -> {perf_fee, notices}
+func _anniversary(inv: Dictionary) -> Dictionary:
+	var price := current_nav()
+	var d := def(inv["id"])
+	var target := float(d["target"])
+	var year_return := price / maxf(float(inv["year_nav"]), 0.0001) - 1.0
+	inv["year_nav"] = price
+	var fee := 0
+	if price > float(inv["hwm"]):
+		var amount := float(inv["units"]) * (price - float(inv["hwm"])) * float(data["performance_fee"])
+		_raise_cash(amount)
+		amount = minf(amount, cash)
+		cash -= amount
+		inv["units"] = float(inv["units"]) - amount / price
+		inv["hwm"] = price
+		fee = roundi(amount)
+		gs.cash += fee
+		inv["perf_paid"] = float(inv["perf_paid"]) + fee
+		record["perf_fees"] = float(record["perf_fees"]) + fee
+	var eval_cfg: Dictionary = data["evaluation"]
+	var rep_cfg: Dictionary = data["reputation"]
+	var grade := "negative"
+	if year_return >= target:
+		grade = "good"
+	elif year_return >= target / 2.0:
+		grade = "ok"
+	elif year_return >= 0.0:
+		grade = "low"
+	inv["satisfaction"] = clampi(int(inv["satisfaction"]) + int(eval_cfg[grade]), 0, 100)
+	add_reputation(int(rep_cfg[grade + "_year"]))
+	var topup := 0
+	var top_cfg: Dictionary = data["topup"]
+	if grade == "good" and int(inv["satisfaction"]) >= int(top_cfg["min_satisfaction"]) \
+			and rng.randf() < float(top_cfg["chance"]):
+		var share: Array = top_cfg["share"]
+		topup = snappedi(roundi(investor_value(inv) * rng.randf_range(float(share[0]), float(share[1]))), 10_000_000)
+		if topup > 0:
+			cash += topup
+			inv["units"] = float(inv["units"]) + topup / price
+			inv["deposited"] = float(inv["deposited"]) + topup
+			record["topups"] = int(record["topups"]) + 1
+	var notices: Array[Dictionary] = [{"kind": "eval", "id": inv["id"], "return": year_return, "target": target,
+		"grade": grade, "perf_fee": fee, "topup": topup}]
+	if gs.month >= int(inv["contract_end"]):
+		if int(inv["satisfaction"]) >= int(eval_cfg["renew_min"]):
+			inv["contract_end"] = int(inv["contract_end"]) + int(data["contract_months"])
+			add_reputation(int(rep_cfg["renewed"]))
+			record["renewed"] = int(record["renewed"]) + 1
+			notices.append({"kind": "renewed", "id": inv["id"]})
+		else:
+			var result := return_funds(int(inv["uid"]), "ended")
+			notices.append({"kind": "ended", "id": inv["id"], "payout": result["payout"]})
+	return {"perf_fee": fee, "notices": notices}
 
 
 ## Tawaran kedaluwarsa dihapus, lalu 0-2 tawaran baru (tawaran pertama dijamin setelah tahap 7 terbuka dan

@@ -442,7 +442,7 @@ static func signed_color(value: float) -> Color:
 ## Dana kelolaan (v2c): nilai dana investor & NAB bulan ini (terpisah dari investasi pribadi), tawaran baru.
 static func _add_fund(box: VBoxContainer, r: Dictionary) -> void:
 	var fund: Dictionary = r.get("fund", {})
-	if fund.is_empty() or (not fund.has("value") and int(fund.get("offers", 0)) == 0):
+	if fund.is_empty() or (not fund.has("value") and int(fund.get("offers", 0)) == 0 and not fund.has("notices")):
 		return
 	_add_header(box, "REPORT_FUND")
 	if fund.has("value"):
@@ -451,6 +451,10 @@ static func _add_fund(box: VBoxContainer, r: Dictionary) -> void:
 		_add_row_text(box, TranslationServer.translate("REPORT_FUND_NAV") % Fmt.rupiah(fund["nav"]), Fmt.percent(ret),
 			signed_color(ret))
 		_add_row(box, "REPORT_FUND_INVESTORS", str(int(fund["investors"])), Palette.INK)
+	if int(fund.get("perf_fee", 0)) > 0:  # langkah 2: fee kinerja di evaluasi tahunan
+		_add_row(box, "REPORT_FUND_PERF_FEE", Fmt.signed_rupiah(fund["perf_fee"]), Palette.GAIN)
+	for n: Dictionary in fund.get("notices", []):
+		_add_text(box, UiText.fund_notice_text(n), Palette.LOSS if UiText.fund_notice_is_bad(n) else Palette.INK)
 	if int(fund.get("offers", 0)) > 0:
 		_add_text(box, TranslationServer.translate("REPORT_FUND_OFFERS") % int(fund["offers"]), Palette.MUTED)
 

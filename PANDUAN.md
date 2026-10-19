@@ -249,7 +249,7 @@ scenes/
   - [x] (5) Warisan, layar akhir & penyeimbangan
 - [ ] **v2c "Mengelola Dana Investor"** (rancangan: `MVP_Cuan_Quest_Revisi3.md` 6.3):
   - [x] (1) Dana kelolaan & investor pertama
-  - [ ] (2) Kepuasan, penarikan & reputasi
+  - [x] (2) Kepuasan, penarikan & reputasi
   - [ ] (3) Laporan per investor & cerita
   - [ ] (4) Penyeimbangan & uji celah
 - [ ] **v2d** (opsional, lihat `MVP_Cuan_Quest_Revisi3.md`)
@@ -382,6 +382,12 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Tampilan:** `portfolio_screen.gd` `_build_fund_card()` / `_refresh_fund()` (signal `fund_requested`), `scenes/ui/fund_popup.tscn` + `scripts/ui/fund_popup.gd` (dibuat lewat kode di `main._setup_fund()`, signal `accepted`, `funds_returned`, `allocation_applied` → toast), `MonthReport._add_fund()`, `UiText.fund_profile()`.
 - **Kuis:** topik `fund` (TOPIC_FUND "Manajemen Investasi", 20 soal `w01`-`w20`, jawaban benar tersebar di posisi 0-3).
 - **Kalibrasi target:** uji alokasi 12 permainan × 20 tahun: konservatif 90/10 ±3,5%/tahun, moderat 50/40/10 ±5,7%, agresif 20/60/20 ±7,7% setelah fee; target investor 4-8,5%.
+
+**Langkah 2: kepuasan, penarikan & reputasi**
+- **Kolom investor baru:** `join_nav`, `peak_nav`, `year_nav`, `hwm`, `satisfaction`, `warned` (bulan teguran, -1), `perf_paid`; save langkah 1 diisi bawaan lewat `Fund._normalize()`. `investor_annual_return()` & `investor_drawdown()` memakai NAB (tidak terpengaruh tambah setoran / fee kinerja).
+- **`month_tick()`**: setelah fee manajemen, `_anniversary(inv)` untuk investor yang tepat berulang tahun kontrak (fee kinerja di atas `hwm`, nilai `good` / `ok` / `low` / `negative`, tambah setoran, perpanjangan atau `return_funds(..., "ended")`), lalu `_monthly_check(inv)` (kepuasan, teguran `warn`, pergi `left`, tenang `calm`). Kabar = `[{kind, id, ...}]` di `last_report.fund.notices` dan signal `GameState.fund_notice` (lewat `queue_after_report`). `last_report.fund_fee` = fee manajemen + fee kinerja.
+- **Reputasi:** `add_reputation()` (0-100); `return_funds()` memberi efek reputasi sesuai `reason` (`returned`, `left`, `ended`). Semua angka di `data/fund.json` (`satisfaction`, `evaluation`, `reputation`, `topup`, `contract_months`).
+- **Tampilan:** `main._on_fund_notice()` (InfoPopup; `open_warning` + tombol Kelola Dana jika ada `warn`/`left`), `UiText.fund_notice_text()` & `fund_notice_is_bad()`, `MonthReport._add_fund()` (fee kinerja & kabar), kartu investor di `fund_popup.gd`, catatan "investor kecewa" di `portfolio_screen.gd`. `fast_forward` berhenti jika `last_report.fund` punya `notices`.
 
 ## Warisan & Layar Akhir (v2b langkah 5)
 

@@ -1696,7 +1696,7 @@ FUND_PROFILE_AGGRESSIVE,Agresif,Aggressive
 FUND_INVESTORS_TITLE,Investor (%d),Investors (%d)
 FUND_NO_INVESTORS,Belum ada investor. Terima tawaran di bawah untuk mulai mengelola dana.,No investors yet. Accept an offer below to start managing the fund.
 FUND_INV_VALUE,Setoran %s · nilai %s (%s),Deposited %s · value %s (%s)
-FUND_INV_META,Profil %s · target %s per tahun · sejak %s,%s profile · target %s a year · since %s
+FUND_INV_META,Profil %s · sejak %s · kontrak sampai %s,%s profile · since %s · contract until %s
 FUND_INV_BREACH,Mandat dilanggar: profil dana lebih berisiko daripada profil investor ini.,Mandate breached: the fund is riskier than this investor's profile.
 FUND_RETURN_BUTTON,Kembalikan Dana,Return Funds
 FUND_RETURN_CONFIRM,Ketuk lagi untuk mengembalikan,Tap again to return
@@ -1707,7 +1707,7 @@ FUND_OFFER_UNTIL,Berlaku sampai %s,Valid until %s
 FUND_OFFER_BREACH,"Profil danamu (%s) lebih berisiko daripada profil investor ini (%s). Jika diterima, mandatnya langsung dilanggar.",Your fund profile (%s) is riskier than this investor's (%s). Accepting means breaking their mandate right away.
 FUND_ACCEPT,Terima,Accept
 FUND_DECLINE,Tolak,Decline
-FUND_NOTE,"Dana investor tidak termasuk kekayaan bersihmu. Kamu hanya menerima fee manajemen %s per tahun dari nilai dana. Di dunia nyata, mengelola uang orang lain dengan imbalan wajib berizin OJK.","Investors' money is not part of your net worth. You only receive a management fee of %s a year of the fund's value. In real life, managing other people's money for a fee requires an OJK licence."
+FUND_NOTE,"Dana investor tidak termasuk kekayaan bersihmu. Kamu menerima fee manajemen %s per tahun dari nilai dana dan fee kinerja %s dari keuntungan di atas puncak sebelumnya (high-water mark). Di dunia nyata, mengelola uang orang lain dengan imbalan wajib berizin OJK.","Investors' money is not part of your net worth. You receive a management fee of %s a year of the fund's value and a %s performance fee on gains above the previous peak (high-water mark). In real life, managing other people's money for a fee requires an OJK licence."
 FUND_ERR_TOTAL,Total alokasi harus 100%.,The allocation must total 100%.
 FUND_ERR_LOCKED,Keranjang ini belum bisa dipilih.,This basket isn't available yet.
 FUND_ERR_STEP,Alokasi tidak sah.,Invalid allocation.
@@ -1736,3 +1736,26 @@ UNLOCK_POPUP_BODY_FUND,"%s
 %s","%s
 
 %s"
+FUND_NOTICE_TITLE,Kabar Dana Kelolaan,Managed Fund News
+FUND_WARN_MANDATE,"%s menulis surat: profil dana sekarang lebih berisiko daripada mandatnya (%s). Ia meminta alokasi dikembalikan sesuai kesepakatan, atau ia akan menarik dananya.","%s wrote a letter: the fund is now riskier than their mandate (%s). They ask for the allocation to be restored as agreed, or they will withdraw their money."
+FUND_WARN_DRAWDOWN,"%s menelepon: nilai dananya turun %s dari puncak, padahal batas yang ia sepakati %s. Jika tidak membaik, ia akan menarik dananya.","%s called: their money is down %s from its peak, and the limit they agreed to is %s. If it doesn't improve, they will withdraw."
+FUND_WARN_PERFORMANCE,"%s kecewa: imbal hasilnya %s per tahun, jauh dari target %s. Jika tidak membaik, ia akan menarik dananya.","%s is disappointed: their return is %s a year, far from the %s target. If it doesn't improve, they will withdraw."
+FUND_LEFT,%s menarik seluruh dananya (%s). Reputasimu turun.,%s withdrew all of their money (%s). Your reputation fell.
+FUND_CALM,%s kembali tenang dan tidak jadi menarik dananya.,%s has calmed down and will keep their money in the fund.
+FUND_ENDED,Kontrak %s selesai dan dananya dikembalikan (%s).,%s's contract has ended and their money was returned (%s).
+FUND_RENEWED,%s memperpanjang kontrak 3 tahun lagi. Reputasimu naik.,%s renewed their contract for 3 more years. Your reputation rose.
+FUND_EVAL,Evaluasi tahunan %s: imbal hasil setahun %s (target %s).,%s's annual review: %s over the year (target %s).
+FUND_EVAL_FEE,Fee kinerja %s masuk kasmu.,A %s performance fee went into your cash.
+FUND_EVAL_TOPUP,Ia puas dan menambah setoran %s.,They are pleased and added %s.
+FUND_NOTICE_TIP,"Investor bertahan jika mandatnya dijaga dan hasilnya sesuai harapan. Pasar memang naik turun, jadi pilih investor yang profil risikonya cocok dengan alokasimu.","Investors stay when their mandate is respected and results meet expectations. Markets go up and down, so choose investors whose risk profile matches your allocation."
+FUND_SAT_VERY_HAPPY,sangat puas,very satisfied
+FUND_SAT_HAPPY,puas,satisfied
+FUND_SAT_DOUBTFUL,ragu,doubtful
+FUND_SAT_DISAPPOINTED,kecewa,disappointed
+FUND_INV_SAT,Kepuasan %d/100 · %s,Satisfaction %d/100 · %s
+FUND_INV_WARNED,Sudah menegur: ia akan menarik dana jika keadaan tidak membaik.,Has complained: they will withdraw if things don't improve.
+FUND_INV_PERF,Imbal hasil %s per tahun (target %s) · turun %s dari puncak (batas %s),Return %s a year (target %s) · %s below peak (limit %s)
+FUND_REPUTATION_HINT,"Reputasi naik saat investor puas dan memperpanjang kontrak, dan turun saat investor pergi karena kecewa. Investor besar baru menawarkan dana saat reputasimu cukup.","Reputation rises when investors are satisfied and renew, and falls when they leave disappointed. Bigger investors only make offers once your reputation is high enough."
+FUND_PERF_TOTAL,Total fee kinerja,Total performance fees
+PORT_FUND_WARNED,%d investor kecewa: buka Kelola Dana,%d investors are unhappy: open Manage Fund
+REPORT_FUND_PERF_FEE,Fee kinerja,Performance fee

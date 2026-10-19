@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 19 Oktober 2026 (v2c langkah 1: dana kelolaan & investor pertama)
+- **Terakhir diperbarui:** 19 Oktober 2026 (v2c langkah 2: kepuasan, penarikan & reputasi)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -21,7 +21,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **Penutup v1.5** | Performa & baterai, playtest, legal | ✅ legal & performa (APK dicoba di HP); playtest berjalan terus lewat Profil > Sesi Bermain |
 | **v2a** | Instrumen lanjut: komoditas, valas, leverage & margin | ✅ 5/5 langkah (ikon kelas menyusul setelah v2) |
 | **v2b** | Siklus hidup penuh: bab, penuaan, kematian, depresi, warisan | ✅ 5/5 langkah (pedoman konten sensitif disetujui) |
-| **v2c** | Mengelola dana investor | 🔄 1/4 langkah |
+| **v2c** | Mengelola dana investor | 🔄 2/4 langkah |
 | **v2d** | Mini-game trading (opsional) | ⬜ |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
 
@@ -574,12 +574,18 @@ Panduan uji di HP: `docs/UJI_AKHIR_V15.md` (tabel performa, baterai, dan pertany
   - ✅ Kartu Dana Kelolaan di Portofolio, popup Dana Kelolaan, bagian Dana Kelolaan di laporan bulanan
   - ✅ Dana investor terpisah dari kekayaan bersih, neraca, dan skor warisan
   - ✅ 60 uji dana kelolaan + 1606 uji lama lulus (termasuk uji semua file data JSON terbaca); golden runner identik
-- ⬜ Langkah 2: Kepuasan, penarikan & reputasi
+- ✅ **Langkah 2: Kepuasan, penarikan & reputasi**
+  - ✅ Kepuasan investor 0-100 (mandat, penurunan dari puncak, imbal hasil vs target); teguran dulu, lalu menarik seluruh dana
+  - ✅ Evaluasi tahunan: fee kinerja 15% di atas high-water mark, nilai setahun 4 tingkat, tambah setoran, perpanjangan / akhir kontrak 3 tahun
+  - ✅ Reputasi manajer naik turun (evaluasi, perpanjangan, investor pergi, pengembalian dana) dan membuka investor besar
+  - ✅ Popup "Kabar Dana Kelolaan", baris kabar & fee kinerja di laporan, kartu investor dengan kepuasan & batasnya; lompat waktu berhenti di kabar investor
+  - ✅ Kalibrasi 20 permainan × 10 tahun: investor cocok ±95%/tahun bertahan, mandat dilanggar pergi ±9 bulan, dana terlalu hati-hati tidak diperpanjang
+  - ✅ 43 uji kepuasan & evaluasi + 1666 uji lama lulus; golden runner identik
 - ⬜ Langkah 3: Laporan per investor & cerita
 - ⬜ Langkah 4: Penyeimbangan & uji celah
 
 *Kriteria selesai*
-- 🔄 Pemain bisa menerima, mengelola, dan kehilangan dana investor (menerima, mengelola, mengembalikan ✅; investor pergi sendiri di langkah 2)
+- ✅ Pemain bisa menerima, mengelola, dan kehilangan dana investor (investor menegur lalu pergi; kontrak bisa tidak diperpanjang)
 - ✅ Dana investor terpisah dari dana pribadi di portofolio dan laporan
 - ⬜ Laporan bulanan per investor
 - ⬜ Fee dan setor/tarik tidak bisa dieksploitasi

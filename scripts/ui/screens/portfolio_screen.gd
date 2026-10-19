@@ -66,7 +66,8 @@ func _refresh() -> void:
 	if UiText.changed_key(_render, "leverage", base + [positions]):
 		_refresh_leverage()
 	var fund := GameState.fund
-	if UiText.changed_key(_render, "fund", base + [fund.is_unlocked(), fund.investors, fund.board, fund.allocation]):
+	if UiText.changed_key(_render, "fund", base + [fund.is_unlocked(), fund.investors, fund.board, fund.allocation,
+			fund.reputation]):
 		_refresh_fund()
 	if UiText.changed_key(_render, "report", base + [GameState.last_report.get("to_month", -1), GameState.last_report.size()]):
 		MonthReport.fill(%ReportBox, GameState.last_report)
@@ -155,6 +156,11 @@ func _refresh_fund() -> void:
 		var empty := _label(tr("PORT_FUND_EMPTY"), &"MutedLabel")
 		empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		_fund_box.add_child(empty)
+	var warned := fund.investors.filter(func(inv: Dictionary) -> bool: return fund.is_warned(inv)).size()
+	if warned > 0:  # langkah 2: investor yang sudah menegur
+		var unhappy := _label(tr("PORT_FUND_WARNED") % warned, &"InfoLabel")
+		unhappy.add_theme_color_override("font_color", Palette.LOSS)
+		_fund_box.add_child(unhappy)
 	if not fund.board.is_empty():
 		var offers := _label(tr("PORT_FUND_OFFERS") % fund.board.size(), &"InfoLabel")
 		offers.add_theme_color_override("font_color", Palette.GAIN)

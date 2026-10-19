@@ -508,6 +508,40 @@ static func times(mult: float) -> String:
 
 ## Efek usia yang sedang berlaku (v2b langkah 2), satu baris per efek; kosong sebelum usia 40.
 ## Termasuk premi asuransi yang naik menurut usia dan polis yang tidak bisa dibeli baru lagi.
+## Kalimat satu kabar dana kelolaan (v2c langkah 2) untuk popup "Kabar Dana Kelolaan" & laporan bulanan.
+static func fund_notice_text(n: Dictionary) -> String:
+	var name := _t(GameState.fund.def(n["id"])["name"])
+	match str(n["kind"]):
+		"warn":
+			match str(n["reason"]):
+				"mandate":
+					return _t("FUND_WARN_MANDATE") % [name, fund_profile(n["profile"])]
+				"drawdown":
+					return _t("FUND_WARN_DRAWDOWN") % [name, percent_short(n["drawdown"]), percent_short(n["tolerance"])]
+			return _t("FUND_WARN_PERFORMANCE") % [name, percent_short(n["annual"]), percent_short(n["target"])]
+		"left":
+			return _t("FUND_LEFT") % [name, Fmt.rupiah(n["payout"])]
+		"calm":
+			return _t("FUND_CALM") % name
+		"ended":
+			return _t("FUND_ENDED") % [name, Fmt.rupiah(n["payout"])]
+		"renewed":
+			return _t("FUND_RENEWED") % name
+		"eval":
+			var text := _t("FUND_EVAL") % [name, Fmt.percent(n["return"]), percent_short(n["target"])]
+			if int(n["perf_fee"]) > 0:
+				text += " " + _t("FUND_EVAL_FEE") % Fmt.rupiah(n["perf_fee"])
+			if int(n["topup"]) > 0:
+				text += " " + _t("FUND_EVAL_TOPUP") % Fmt.rupiah(n["topup"])
+			return text
+	return ""
+
+
+## Kabar dana kelolaan yang buruk (peringatan atau investor pergi) tampil sebagai peringatan merah.
+static func fund_notice_is_bad(n: Dictionary) -> bool:
+	return str(n["kind"]) in ["warn", "left"]
+
+
 ## Nama profil dana kelolaan / investor (v2c): Konservatif, Moderat, Agresif.
 static func fund_profile(id: String) -> String:
 	return _t("FUND_PROFILE_" + id.to_upper())

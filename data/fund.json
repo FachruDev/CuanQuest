@@ -5,7 +5,11 @@
 		"allocation_step: kelipatan persen alokasi; default_allocation: alokasi awal (total 100). rebalance_band: dana diseimbangkan ulang tiap bulan bila porsi satu aset menyimpang lebih dari ini (fee transaksi aset dibayar dana).",
 		"profiles: [rata-rata risiko alokasi minimal, id profil] (teks FUND_PROFILE_<ID>), urutan = tingkat risiko. Risiko keranjang = rata-rata risiko asetnya (assets.json).",
 		"start_nav: NAB per unit saat dana pertama kali menerima setoran. management_fee: per tahun dari nilai dana, dipotong tiap bulan ke kas pemain. performance_fee: bagian keuntungan di atas high-water mark (langkah 2). energy: energi bulanan selama ada investor.",
-		"board: tiap bulan peluang chance satu tawaran baru (second_chance tawaran kedua), berlaku expire_months bulan; investor yang sudah ada di dana atau papan tidak ditawarkan lagi. reputation.start: reputasi manajer awal (0-100). rng_offset: RNG tersendiri (seed + offset)."
+		"board: tiap bulan peluang chance satu tawaran baru (second_chance tawaran kedua), berlaku expire_months bulan; investor yang sudah ada di dana atau papan tidak ditawarkan lagi. rng_offset: RNG tersendiri (seed + offset).",
+		"Langkah 2. contract_months: masa kontrak; di ulang tahun kontrak terakhir investor memperpanjang jika kepuasan >= evaluation.renew_min, selain itu dana dikembalikan baik-baik.",
+		"satisfaction (0-100, awal start): tiap bulan + mandate jika mandat dilanggar, + drawdown jika penurunan NAB dari puncak sejak bergabung > separuh batas investor, dan setelah min_months bulan + perf_good jika imbal hasil per tahun sejak bergabung >= target atau + perf_negative jika < 0 (kinerja selebihnya dinilai di evaluasi tahunan). Peringatan saat kepuasan < warn_below, penurunan > warn_drawdown x batas (sempat menurunkan risiko), atau mandat dilanggar; investor yang SUDAH diperingatkan (bulan sebelumnya) menarik seluruh dana bila kepuasan < leave_below atau penurunan > batas. Peringatan hilang saat kepuasan >= recover_above, penurunan < separuh batas, dan mandat terpenuhi.",
+		"evaluation: tiap ulang tahun kontrak, imbal hasil setahun (NAB) >= target: kepuasan + good; >= separuh target: + ok; >= 0: + low; < 0: + negative (jadi dana yang terlalu hati-hati untuk investor agresif juga mengecewakan). Fee kinerja = performance_fee x kenaikan NAB di atas high-water mark x unit investor, dibayar dengan mengurangi unitnya.",
+		"reputation (0-100): start, lalu good_year / ok_year / low_year / negative_year tiap evaluasi, renewed saat perpanjang, left saat investor pergi karena kecewa, returned (returned_warned jika investor sedang kecewa) saat pemain mengembalikan dana. topup: setelah evaluasi bagus dan kepuasan >= min_satisfaction, peluang chance menambah setoran share x nilai investasinya."
 	],
 	"baskets": [
 		{ "id": "money", "assets": ["RDPU"] },
@@ -23,6 +27,12 @@
 	"performance_fee": 0.15,
 	"energy": 1,
 	"board": { "chance": 0.3, "second_chance": 0.1, "expire_months": 2 },
-	"reputation": { "start": 10 },
+	"contract_months": 36,
+	"satisfaction": { "start": 60, "min_months": 6, "mandate": -5, "drawdown": -1, "perf_good": 1, "perf_negative": -1,
+		"warn_below": 35, "warn_drawdown": 0.75, "leave_below": 20, "recover_above": 50 },
+	"evaluation": { "good": 8, "ok": 2, "low": -8, "negative": -8, "renew_min": 45 },
+	"reputation": { "start": 10, "good_year": 3, "ok_year": 1, "low_year": 0, "negative_year": -1, "renewed": 5, "left": -8,
+		"returned": -1, "returned_warned": -5 },
+	"topup": { "min_satisfaction": 75, "chance": 0.4, "share": [0.2, 0.5] },
 	"rng_offset": 6
 }

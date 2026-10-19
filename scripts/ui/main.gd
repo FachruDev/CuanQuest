@@ -375,6 +375,22 @@ func _setup_fund() -> void:
 		_show_toast(tr("TOAST_FUND_RETURNED") % [investor_name, Fmt.rupiah(payout)]))
 	_fund_popup.allocation_applied.connect(func(cost: float) -> void:
 		_show_toast(tr("TOAST_FUND_APPLIED") % Fmt.rupiah(cost)))
+	GameState.fund_notice.connect(_on_fund_notice)
+
+
+## Kabar investor bulan ini (v2c langkah 2) dalam satu popup; peringatan & investor pergi = popup merah.
+func _on_fund_notice(notices: Array) -> void:
+	var lines: PackedStringArray = []
+	var bad := false
+	for n: Dictionary in notices:
+		lines.append(UiText.fund_notice_text(n))
+		bad = bad or UiText.fund_notice_is_bad(n)
+	if bad:
+		lines.append(tr("FUND_NOTICE_TIP"))
+		_enqueue(%InfoPopup.open_warning.bind(tr("FUND_NOTICE_TITLE"), "\n\n".join(lines), tr("PORT_FUND_OPEN"),
+			func() -> void: _enqueue(_fund_popup.open), tr("BTN_CLOSE")))
+	else:
+		_enqueue(%InfoPopup.open.bind(tr("FUND_NOTICE_TITLE"), "\n\n".join(lines)))
 
 
 # --- Siklus hidup (v2b) ---------------------------------------------------------------------------

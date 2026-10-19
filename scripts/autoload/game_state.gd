@@ -53,6 +53,8 @@ signal critical_started(info: Dictionary)
 signal twilight_notice(info: Dictionary)
 ## Status Depresi dimulai (v2b langkah 4): {first, happiness}; first = pesan dukungan tampil pertama kali.
 signal depression_started(info: Dictionary)
+## Dana kelolaan (v2c langkah 2): kabar investor bulan ini (peringatan, pergi, evaluasi tahunan, perpanjangan).
+signal fund_notice(notices: Array)
 
 ## Versi slot save. Naik ke 2 di v1.5 (pasar harian); save lama ditolak, tanpa migrasi.
 const SAVE_VERSION := 3
@@ -292,7 +294,7 @@ func advance_month() -> void:
 	last_report.merge(mental_report)
 	if not fund_report.is_empty():
 		last_report["fund"] = fund_report
-		last_report["fund_fee"] = int(fund_report.get("fee", 0))
+		last_report["fund_fee"] = int(fund_report.get("fee", 0)) + int(fund_report.get("perf_fee", 0))
 	if not rumor_result.is_empty():
 		last_report["rumors"] = [rumor_result]
 	if not leverage_result.is_empty():
@@ -908,7 +910,7 @@ func fast_forward(months: int) -> void:
 				or goals_reached.size() != goals_before or progress.unlocked_stages.size() != stages_before \
 				or not last_report["warnings"].is_empty() or not last_report["forced_sales"].is_empty() \
 				or last_report.has("critical_started") or last_report.has("twilight") \
-				or last_report.has("depression_started")  # v2b: peringatan kesehatan, usia & kesehatan mental
+				or last_report.has("depression_started") 				or last_report.get("fund", {}).has("notices")  # v2b: kesehatan, usia & mental; v2c: kabar investor
 		if interrupted:
 			break
 	fast_forwarding = false

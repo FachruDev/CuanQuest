@@ -36,7 +36,8 @@ func _build() -> void:
 	_add_allocation()
 	_add_investors()
 	_add_offers()
-	%Rows.add_child(_label(tr("FUND_NOTE") % UiText.percent_short(float(fund.data["management_fee"])), &"SmallMutedLabel"))
+	%Rows.add_child(_label(tr("FUND_NOTE") % [UiText.percent_short(float(fund.data["management_fee"])),
+		UiText.percent_short(float(fund.data["performance_fee"]))], &"SmallMutedLabel"))
 
 
 func _rebuild() -> void:
@@ -56,6 +57,8 @@ func _add_summary() -> void:
 	_value_row(tr("FUND_REPUTATION"), "%d / 100" % fund.reputation)
 	_value_row(tr("FUND_FEE_MONTH"), Fmt.rupiah(fund.record["month_fee"]))
 	_value_row(tr("FUND_FEE_TOTAL"), Fmt.rupiah(fund.record["mgmt_fees"]))
+	_value_row(tr("FUND_PERF_TOTAL"), Fmt.rupiah(fund.record["perf_fees"]))
+	%Rows.add_child(_label(tr("FUND_REPUTATION_HINT"), &"SmallMutedLabel"))
 	%Rows.add_child(_label(tr("FUND_ENERGY") % int(fund.data["energy"]), &"SmallMutedLabel"))
 
 
@@ -125,8 +128,21 @@ func _add_investors() -> void:
 		box.add_child(_label("%s · %s" % [tr(d["name"]), tr(d["role"])], &"AssetNameLabel"))
 		box.add_child(_label(tr("FUND_INV_VALUE") % [Fmt.rupiah(inv["deposited"]), Fmt.rupiah(fund.investor_value(inv)),
 			Fmt.percent(fund.investor_return(inv))], &"InfoLabel"))
-		box.add_child(_label(tr("FUND_INV_META") % [UiText.fund_profile(d["profile"]), UiText.percent_short(float(d["target"])),
-			Fmt.game_date(int(inv["joined"]))], &"SmallMutedLabel"))
+		var satisfaction := int(inv["satisfaction"])
+		var sat := _label(tr("FUND_INV_SAT") % [satisfaction, tr("FUND_SAT_" + Fund.satisfaction_level(satisfaction).to_upper())],
+			&"InfoLabel")
+		sat.add_theme_color_override("font_color", Palette.GAIN if satisfaction >= 50 else (Palette.INK if satisfaction >= 35
+			else Palette.LOSS))
+		box.add_child(sat)
+		box.add_child(_label(tr("FUND_INV_PERF") % [UiText.percent_short(fund.investor_annual_return(inv)),
+			UiText.percent_short(float(d["target"])), UiText.percent_short(fund.investor_drawdown(inv)),
+			UiText.percent_short(float(d["drawdown"]))], &"SmallMutedLabel"))
+		box.add_child(_label(tr("FUND_INV_META") % [UiText.fund_profile(d["profile"]), Fmt.game_date(int(inv["joined"])),
+			Fmt.game_date(int(inv["contract_end"]))], &"SmallMutedLabel"))
+		if fund.is_warned(inv):
+			var warned := _label(tr("FUND_INV_WARNED"), &"SmallMutedLabel")
+			warned.add_theme_color_override("font_color", Palette.LOSS)
+			box.add_child(warned)
 		if not fund.mandate_ok(inv["id"]):
 			var warn := _label(tr("FUND_INV_BREACH"), &"SmallMutedLabel")
 			warn.add_theme_color_override("font_color", Palette.LOSS)
