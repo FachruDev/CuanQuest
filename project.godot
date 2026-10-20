@@ -12,7 +12,7 @@ config_version=5
 
 config/name="Cuan Quest"
 run/main_scene="res://scenes/title.tscn"
-config/features=PackedStringArray("4.7", "Mobile")
+config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 boot_splash/bg_color=Color(0.99215686, 0.8901961, 0.7490196, 1)
 boot_splash/image="res://assets/branding/boot_splash.png"
@@ -24,6 +24,7 @@ GameState="*res://scripts/autoload/game_state.gd"
 AdService="*res://scripts/autoload/ad_service.gd"
 SaveManager="*res://scripts/autoload/save_manager.gd"
 Sfx="*res://scripts/autoload/sfx.gd"
+TouchScroll="*res://scripts/autoload/touch_scroll.gd"
 
 [display]
 
@@ -49,6 +50,6 @@ locale/translations=PackedStringArray("res://localization/strings.id.translation
 
 [rendering]
 
-rendering_device/driver.windows="d3d12"
-renderer/rendering_method="mobile"
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
 textures/vram_compression/import_etc2_astc=true
