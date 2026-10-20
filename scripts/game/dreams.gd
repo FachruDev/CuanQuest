@@ -70,8 +70,8 @@ func can_add() -> bool:
 	return active().size() < int(config()["max_active"])
 
 
-## Impian yang bisa dipilih: belum dipilih/terwujud, usia sudah cukup, dan kendaraannya (untuk
-## impian kendaraan) belum dimiliki.
+## Impian yang bisa dipilih: belum dipilih/terwujud, usia sudah cukup, dan (untuk impian kendaraan)
+## belum punya kendaraan jenis itu (motor / mobil).
 func available() -> Array:
 	var taken := {}
 	for entry: Dictionary in entries:
@@ -79,7 +79,7 @@ func available() -> Array:
 			taken[entry["id"]] = true
 	return defs.filter(func(def: Dictionary) -> bool:
 		return not taken.has(def["id"]) and gs.age() >= int(def.get("min_age", 0)) \
-			and not gs.vehicles.owns(def.get("vehicle", "")))
+			and not gs.vehicles.owns_category(gs.vehicles.category_of(def.get("vehicle", ""))))
 
 
 ## Setoran per bulan yang dibutuhkan agar impian tercapai tepat waktu.

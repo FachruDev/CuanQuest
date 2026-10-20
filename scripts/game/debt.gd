@@ -18,8 +18,8 @@ var data: Dictionary = {}  # isi data/loans.json
 ## Pinjaman aktif: [{id, product, principal, balance, rate, months_total, months_left, start_month,
 ## arrears, missed, interest_paid, collateral, fixed_until, float_spread}]. balance = sisa pokok;
 ## rate = bunga per tahun (dikunci saat cair); arrears = tunggakan + denda (Rupiah); missed = bulan
-## menunggak berturut-turut; collateral = agunan {"type": "vehicle", "id": "motor"} /
-## {"type": "property", "id": uid} atau {} (tanpa agunan); fixed_until = bulan mulai bunga mengambang
+## menunggak berturut-turut; collateral = agunan {"type": "vehicle", "id": uid} /
+## {"type": "property", "id": uid} atau {} (tanpa agunan; uid = nomor unit di modul pemiliknya); fixed_until = bulan mulai bunga mengambang
 ## (-1 = tetap sampai lunas), float_spread = tambahan di atas suku bunga BI saat mengambang.
 var loans: Array[Dictionary] = []
 var credit_score := 60  # 0-100, lihat loans.json "credit"
@@ -174,7 +174,7 @@ func event_vars(id: String) -> Dictionary:
 			var collateral: Dictionary = loan["collateral"]
 			match collateral.get("type", ""):
 				"vehicle":
-					vars["collateral"] = gs.vehicles.def(collateral["id"]).get("name", "")
+					vars["collateral"] = gs.vehicles.def(gs.vehicles.find(int(collateral["id"])).get("id", "")).get("name", "")
 				"property":
 					vars["collateral"] = gs.properties.def(gs.properties.find(int(collateral["id"])).get("id", "")).get("name", "")
 			return vars
@@ -583,7 +583,7 @@ func _default(loan: Dictionary) -> Dictionary:
 func _seize(collateral: Dictionary) -> Dictionary:
 	match collateral.get("type", ""):
 		"vehicle":
-			return gs.vehicles.seize(collateral["id"])
+			return gs.vehicles.seize(int(collateral["id"]))
 		"property":
 			return gs.properties.seize(int(collateral["id"]))
 	return {"name": "", "value": 0}

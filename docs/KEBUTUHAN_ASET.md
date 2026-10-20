@@ -2,7 +2,7 @@
 
 Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang **dibutuhkan**, dan **di file mana** aset itu dipakai. Diperbarui setiap kali sebuah langkah membutuhkan aset baru.
 
-- **Terakhir diperbarui:** 19 Oktober 2026 (Perbaikan UI kelompok 1: ikon tab Karier `nav_career.svg` dibuat & `nav_activity.svg` dihapus, ikon syarat `req_ok.svg`/`req_no.svg` menggantikan teks [OK]/[ ], popup leverage memakai lencana baru `badge_leverage.svg`, popup tenggat impian terlewat memakai `badge_calendar.svg` di lencana peringatan; Penutup v2 langkah 1: tanpa aset baru; ukuran ikon adaptif & grafis Play Store di bagian M7 diperjelas; v2d dihapus, v2 berakhir di v2c; v2c langkah 4: tanpa aset baru, v2c selesai; ikon lencana Dana Kelolaan & 8 potret investor tetap opsional; v2c langkah 3: tanpa aset baru, rincian investor memakai grafik bawaan dan event dana memakai lencana event biasa; v2c langkah 2: tanpa aset baru, popup kabar investor memakai lencana peringatan dari tema; v2c langkah 1: tanpa aset wajib baru, lencana popup Dana Kelolaan sementara memakai `classes/mutual_fund.svg`, potret investor opsional; v2b langkah 5: tanpa aset baru, rincian skor warisan & grafik riil digambar dengan tema; langkah 4: tanpa aset wajib baru, ikon aktivitas Konseling opsional (sementara `heart.svg`), popup & event Depresi memakai `heart.svg`; langkah 3: tanpa aset wajib baru, popup masa senja & perpisahan serta lencana layar akhir sementara memakai `badge_retire.svg`; langkah 2: tanpa aset wajib baru, popup "Usia N Tahun" memakai lencana bintang, ikon usia opsional; langkah 1: popup bab memakai lencana bintang, ilustrasi bab menyusul; v2a selesai, langkah 5 tanpa aset baru; langkah 4: tanpa aset baru, popup peringatan memakai lencana "!" dari tema; langkah 3: tanpa aset baru, popup leverage memakai ulang `trend_up.svg`; langkah 2: ikon kelas Valas, sementara `arrow_badge.svg`; langkah 1: ikon kelas Komoditas, sementara `trend_line.svg`; penutup v1.5: tanpa aset baru, menu Lisensi memakai ulang `book.svg`; v1.5d langkah 5: tanpa aset baru; langkah 4: 21 lencana pencapaian sementara ikon bintang/gembok, bingkai avatar digambar kode; langkah 3: ikon bidang "Umum"; potret tokoh langkah 1 masih lingkaran berwarna + inisial)
+- **Terakhir diperbarui:** 20 Oktober 2026 (Tambahan v2 Garasi & Pilihan Kendaraan: 8 ilustrasi kendaraan per model, opsional, sementara memakai gambar jenisnya `vehicle/motor.svg` / `vehicle/car.svg`; popup showroom memakai lencana Kendaraan yang sudah ada; 19 Oktober 2026: Perbaikan UI kelompok 1: ikon tab Karier `nav_career.svg` dibuat & `nav_activity.svg` dihapus, ikon syarat `req_ok.svg`/`req_no.svg` menggantikan teks [OK]/[ ], popup leverage memakai lencana baru `badge_leverage.svg`, popup tenggat impian terlewat memakai `badge_calendar.svg` di lencana peringatan; Penutup v2 langkah 1: tanpa aset baru; ukuran ikon adaptif & grafis Play Store di bagian M7 diperjelas; v2d dihapus, v2 berakhir di v2c; v2c langkah 4: tanpa aset baru, v2c selesai; ikon lencana Dana Kelolaan & 8 potret investor tetap opsional; v2c langkah 3: tanpa aset baru, rincian investor memakai grafik bawaan dan event dana memakai lencana event biasa; v2c langkah 2: tanpa aset baru, popup kabar investor memakai lencana peringatan dari tema; v2c langkah 1: tanpa aset wajib baru, lencana popup Dana Kelolaan sementara memakai `classes/mutual_fund.svg`, potret investor opsional; v2b langkah 5: tanpa aset baru, rincian skor warisan & grafik riil digambar dengan tema; langkah 4: tanpa aset wajib baru, ikon aktivitas Konseling opsional (sementara `heart.svg`), popup & event Depresi memakai `heart.svg`; langkah 3: tanpa aset wajib baru, popup masa senja & perpisahan serta lencana layar akhir sementara memakai `badge_retire.svg`; langkah 2: tanpa aset wajib baru, popup "Usia N Tahun" memakai lencana bintang, ikon usia opsional; langkah 1: popup bab memakai lencana bintang, ilustrasi bab menyusul; v2a selesai, langkah 5 tanpa aset baru; langkah 4: tanpa aset baru, popup peringatan memakai lencana "!" dari tema; langkah 3: tanpa aset baru, popup leverage memakai ulang `trend_up.svg`; langkah 2: ikon kelas Valas, sementara `arrow_badge.svg`; langkah 1: ikon kelas Komoditas, sementara `trend_line.svg`; penutup v1.5: tanpa aset baru, menu Lisensi memakai ulang `book.svg`; v1.5d langkah 5: tanpa aset baru; langkah 4: 21 lencana pencapaian sementara ikon bintang/gembok, bingkai avatar digambar kode; langkah 3: ikon bidang "Umum"; potret tokoh langkah 1 masih lingkaran berwarna + inisial)
 - **Rencana pembuatan:** pengembang membuat aset setelah **v2 selesai**. Sampai saat itu game memakai aset sementara (🔁), dan daftar di bawah terus diperbarui setiap langkah.
 - **Tanda:** ✅ sudah ada · ⬜ dibutuhkan · 🔁 sementara memakai aset lain atau gambar pengganti sederhana (game tetap jalan)
 - Tabel aset yang sudah ada dibuat otomatis dengan memindai `scenes/`, `scripts/`, `theme/`, dan `data/`.
@@ -21,6 +21,7 @@ Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang
 | **v2a** Instrumen lanjut | 2 ikon kelas: Komoditas (sementara `trend_line.svg`) & Valas (sementara `arrow_badge.svg`) + 8 ikon per aset opsional | ⬜ 🔁 |
 | **v2b** Siklus hidup penuh | 4 ilustrasi bab kehidupan + 1 ikon usia + 1 lencana akhir hidup + 1 ikon aktivitas Konseling (semua opsional; sementara memakai lencana bintang / pensiun / hati) | ⬜ 🔁 |
 | **v2c** Dana investor | 1 ikon lencana Dana Kelolaan + 8 potret investor (opsional; sementara ikon reksa dana & teks saja) | ⬜ 🔁 |
+| **Tambahan v2** Garasi & pilihan kendaraan | 8 ilustrasi kendaraan per model (opsional; sementara memakai gambar jenisnya `motor.svg` / `car.svg`) | ⬜ 🔁 |
 | **M7** Rilis Play Store | Ikon aplikasi adaptif, grafis & screenshot Play Store | ⬜ (rencana) |
 
 ## Aturan Umum
@@ -189,6 +190,23 @@ Ukuran & gaya sama dengan ikon kelas lain di `assets/icons/classes/` (26x26, gar
 |:--|:--|:--|:--|
 | `assets/icons/fund.svg` (opsional, gaya ikon lencana popup) | Ikon dana kelolaan (mis. tumpukan koin di dalam brankas atau map dokumen dengan grafik) | Lencana popup Dana Kelolaan (`scenes/ui/fund_popup.tscn`, v2c langkah 1) | Ikon kelas reksa dana `classes/mutual_fund.svg` 🔁 |
 | `assets/portraits/investors/<id>.png` (opsional, 8 file, gaya potret tokoh) | Potret investor: `sari`, `hendra`, `rahmat`, `wijaya`, `koperasi` (logo koperasi), `nadia`, `yayasan` (logo yayasan), `dapen` (logo dana pensiun) | Kartu investor & tawaran di popup Dana Kelolaan (rencana langkah 3) | Teks nama saja 🔁 |
+
+## Tambahan v2: Garasi & Pilihan Kendaraan ⬜ 🔁 (opsional)
+
+Lapisan kendaraan di ilustrasi **Hunian & Kendaraan** (Beranda) menampilkan **kendaraan utama** (yang termahal). Gaya & kanvas sama dengan `vehicle/motor.svg` dan `vehicle/car.svg`: **624 x 260**, kendaraan di sisi kanan bawah, latar transparan (ditumpuk di atas `home/bg.svg` dan gambar tempat tinggal). Nama file = id model di `data/vehicles.json`; selama file belum ada, game memakai gambar jenisnya (`HomeScene.vehicle_fallback_id()`).
+
+| File | Isi | Sementara |
+|:--|:--|:--|
+| `assets/illustrations/vehicle/motor_used.svg` | Motor matic bekas (catnya sedikit kusam, ada goresan) | `motor.svg` 🔁 |
+| `assets/illustrations/vehicle/motor_ev.svg` | Motor listrik (bodi ramping, tanpa knalpot, lampu LED) | `motor.svg` 🔁 |
+| `assets/illustrations/vehicle/motor_sport.svg` | Motor sport 250 cc (fairing, posisi duduk menunduk) | `motor.svg` 🔁 |
+| `assets/illustrations/vehicle/car_used.svg` | Mobil keluarga bekas (model lebih tua, cat kusam) | `car.svg` 🔁 |
+| `assets/illustrations/vehicle/car_city.svg` | Mobil kecil 5 penumpang (hatchback) | `car.svg` 🔁 |
+| `assets/illustrations/vehicle/car_suv.svg` | SUV tinggi dan kekar | `car.svg` 🔁 |
+| `assets/illustrations/vehicle/car_ev.svg` | Mobil listrik (gril tertutup, garis modern) | `car.svg` 🔁 |
+| `assets/illustrations/vehicle/car_luxury.svg` | Sedan mewah panjang | `car.svg` 🔁 |
+
+Tanpa merek atau logo nyata. Jika ingin satu gambar dipakai beberapa model, isi `"art"` di model tersebut (mis. `"art": "car"`).
 
 ## M7: Rilis Play Store ⬜ (rencana)
 

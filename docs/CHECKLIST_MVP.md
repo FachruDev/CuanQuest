@@ -2,7 +2,7 @@
 
 Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah selesai.
 
-- **Terakhir diperbarui:** 19 Oktober 2026 (Penutup v2 langkah 1: peninjauan kebijakan Google Play & penyesuaian di game; v2d dihapus, v2 berakhir di v2c)
+- **Terakhir diperbarui:** 20 Oktober 2026 (Tambahan v2: Garasi & Pilihan Kendaraan; sebelumnya Penutup v2 langkah 1: peninjauan kebijakan Google Play & penyesuaian di game; v2d dihapus, v2 berakhir di v2c)
 - **Sumber:** GDD bagian 11 (v1) dan `MVP_Cuan_Quest_Revisi3.md` (v1.5, v2, M7)
 - **Tanda:** ✅ selesai · 🔄 sebagian · ⬜ belum
 
@@ -22,6 +22,7 @@ Rangkuman semua checklist dalam satu tempat. Diperbarui setiap kali satu langkah
 | **v2a** | Instrumen lanjut: komoditas, valas, leverage & margin | ✅ 5/5 langkah (ikon kelas menyusul setelah v2) |
 | **v2b** | Siklus hidup penuh: bab, penuaan, kematian, depresi, warisan | ✅ 5/5 langkah (pedoman konten sensitif disetujui) |
 | **v2c** | Mengelola dana investor | ✅ 4/4 langkah (ikon & potret investor opsional menyusul) |
+| **Tambahan v2** | Garasi & pilihan kendaraan (10 model, beberapa kendaraan, pajak progresif) | ✅ (ilustrasi per model opsional menyusul) |
 | **Penutup v2** | Peninjauan kebijakan Google Play (leverage, forex, konten depresi & kematian) | 🔄 1/2 langkah |
 | **M7** | Rilis Play Store (setelah v2) | ⬜ |
 
@@ -599,6 +600,17 @@ Panduan uji di HP: `docs/UJI_AKHIR_V15.md` (tabel performa, baterai, dan pertany
 - ✅ Dana investor terpisah dari dana pribadi di portofolio dan laporan
 - ✅ Laporan bulanan per investor (dan rincian investor + laporan tahunan)
 - ✅ Fee dan setor/tarik tidak bisa dieksploitasi (dilusi, reset high-water mark, bolak-balik alokasi, tambah setoran, warisan)
+
+**Tambahan v2: Garasi & Pilihan Kendaraan** ✅ (permintaan pengembang 20 Oktober 2026; rancangan: `MVP_Cuan_Quest_Revisi3.md` 6.5)
+- ✅ 10 model kendaraan: 4 motor (bekas, matic 125 cc, listrik, sport 250 cc) & 6 mobil (bekas, kota/LCGC, keluarga 7 penumpang, SUV, listrik, sedan mewah), tanpa merek nyata
+- ✅ Bisa punya beberapa kendaraan, termasuk model yang sama, sampai 6 (garasi penuh); setiap unit dijual satu per satu
+- ✅ Kebahagiaan hanya dari kendaraan terbaik per jenis; pajak progresif +0,5%/tahun per urutan untuk kendaraan ke-2 dst di jenis yang sama
+- ✅ Kendaraan bekas hanya tunai; kredit tetap maksimal satu Kredit Motor & satu Kredit Mobil berjalan; agunan per unit
+- ✅ Showroom di kartu Kendaraan (Beranda), dana impian Motor/Mobil berlaku untuk model apa pun di jenis yang sama, save lama otomatis diberi nomor unit
+- ✅ Simulator: tipe `kolektor_kendaraan` (kekayaan riil tahun 45 −41% dibanding hemat) & `pengendara_bekas` (lebih kaya dari pengendara kredit baru)
+- ✅ Istilah glosarium baru: Pajak progresif kendaraan (119 istilah)
+- ✅ `test_garage` 76 uji + 1808 uji lama lulus; golden runner identik
+- 🔁 Ilustrasi per model opsional (sementara gambar motor/mobil yang sudah ada)
 
 **Penutup v2** 🔄 (v2 berakhir di v2c; tahap v2d mini-game trading dihapus 19 Oktober 2026; rancangan: `MVP_Cuan_Quest_Revisi3.md` 6.4; hasil: `docs/RILIS_PLAY_STORE.md`)
 - ✅ **Langkah 1: Peninjauan kebijakan & penyesuaian di game**

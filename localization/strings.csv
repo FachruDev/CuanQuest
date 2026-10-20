@@ -887,7 +887,6 @@ PLAN_VEHICLE,Biaya kendaraan,Vehicle costs
 PLAN_VEHICLE_NOTE,"Bensin, servis, dan pajak. Rincian di kartu Kendaraan di Beranda.","Fuel, servicing, and tax. Details in the Vehicles card on Home."
 VEHICLE_TITLE,Kendaraan,Vehicles
 VEHICLE_EMPTY,"Belum punya kendaraan. Kendaraan membuat hidup lebih nyaman, tapi nilainya terus turun dan ada biaya bensin, servis, dan pajak tiap bulan.","No vehicle yet. A vehicle makes life more comfortable, but its value keeps falling and fuel, servicing, and tax cost money every month."
-VEHICLE_BUY_BUTTON,Beli %s · %s,Buy %s · %s
 VEHICLE_ROW_SUB,Biaya %s/bln · kebahagiaan %+d/bln,Costs %s/mo · happiness %+d/mo
 VEHICLE_ROW_LOAN,cicilan %s/bln,installment %s/mo
 VEHICLE_BUY_TITLE,Beli %s,Buy %s
@@ -918,7 +917,6 @@ VEHICLE_TOTAL_VALUE,%s (+%s),%s (+%s)
 VEHICLE_TIP,"Tip: membeli tunai lewat Impian bebas bunga dan dirayakan. Kredit membuatmu memakai kendaraan sekarang, tapi harganya jadi lebih mahal dan impiannya ditutup tanpa hadiah.","Tip: buying in cash through a Dream costs no interest and gets celebrated. Credit lets you use the vehicle now, but it ends up costing more and the dream closes without a reward."
 VEHICLE_BUY_CASH,Beli tunai (%s),Buy in cash (%s)
 VEHICLE_BUY_CREDIT,Ambil kredit · DP %s,Take credit · down payment %s
-VEHICLE_REQ_NOT_OWNED,Belum punya kendaraan jenis ini,You don't own this type of vehicle yet
 VEHICLE_REQ_CASH,Kas + dana impian cukup untuk %s (sekarang %s),Cash + dream fund covers %s (now %s)
 VEHICLE_VALUE_PILL,Nilai sekarang %s,Worth %s now
 VEHICLE_DETAIL_BODY,Dibeli %s seharga %s.,Bought in %s for %s.
@@ -936,7 +934,7 @@ TOAST_VEHICLE_SOLD,%s terjual: %s masuk ke kas.,%s sold: %s added to cash.
 REPORT_VEHICLE,Biaya kendaraan,Vehicle costs
 REPORT_VEHICLE_DEPRECIATION,Nilai kendaraanmu turun %s bulan ini (penyusutan).,Your vehicles lost %s in value this month (depreciation).
 REPORT_LOAN_SEIZED,%s macet: %s ditarik dan dilelang %s untuk menutup utang %s.,%s defaulted: the %s was repossessed and auctioned for %s to cover %s of debt.
-DREAM_VEHICLE_HINT,"Ingin memakainya sekarang? Beli kredit lewat kartu Kendaraan di Beranda: dana yang terkumpul menjadi uang muka, tapi kamu membayar bunga dan impian ini ditutup tanpa hadiah.","Want it now? Buy on credit from the Vehicles card on Home: the saved fund becomes the down payment, but you pay interest and this dream closes without a reward."
+DREAM_VEHICLE_HINT,"Dana impian ini bisa dipakai untuk model apa pun di jenis yang sama (lihat showroom di kartu Kendaraan, Beranda). Ingin memakainya sekarang? Beli kredit: dana yang terkumpul menjadi uang muka, tapi kamu membayar bunga dan impian ini ditutup tanpa hadiah.","This dream fund works for any model of the same type (see the showroom in the Vehicles card on Home). Want it now? Buy on credit: the saved fund becomes the down payment, but you pay interest and this dream closes without a reward."
 INSIGHT_VEHICLE_SEIZED,Kendaraanmu ditarik %d kali karena kredit macet. Pastikan cicilan kendaraan tetap terjangkau walau penghasilan turun.,Your vehicle was repossessed %d times after loan defaults. Keep vehicle installments affordable even if your income drops.
 INSIGHT_VEHICLE_COST,"Kendaraan menghabiskan biaya rutin %s selama permainan, belum termasuk nilainya yang terus turun. Kendaraan memudahkan hidup, tapi bukan investasi.","Vehicles cost %s in running costs over the game, not counting their falling value. Vehicles make life easier, but they aren't investments."
 HOUSING_KONTRAKAN,Kontrakan,Rented House
@@ -1041,9 +1039,9 @@ Cicilan ditarik otomatis setiap awal bulan. Telat bayar menurunkan skor kredit, 
 Installments are charged automatically at the start of each month. Late payments lower your credit score, and 3 missed months in a row put the loan in default."
 HINT_VEHICLE,"Kendaraan menambah kebahagiaan, tapi nilainya menyusut setiap tahun dan ada biaya rutin: bensin, servis, dan pajak.
 
-Membeli tunai (misalnya lewat Impian) lebih murah daripada kredit, karena kredit menambah bunga di atas nilai yang terus turun.","A vehicle adds happiness, but it loses value every year and has running costs: fuel, servicing, and tax.
+Kamu boleh punya beberapa kendaraan, tapi kebahagiaan hanya dihitung dari motor terbaik dan mobil terbaik, dan kendaraan kedua di jenis yang sama kena pajak progresif. Membeli tunai (misalnya lewat Impian) lebih murah daripada kredit, karena kredit menambah bunga di atas nilai yang terus turun.","A vehicle adds happiness, but it loses value every year and has running costs: fuel, servicing, and tax.
 
-Buying with cash (for example through a Dream) is cheaper than credit, because credit adds interest on top of a shrinking value."
+You can own several vehicles, but happiness only counts your best motorbike and best car, and a second vehicle of the same type pays progressive tax. Buying with cash (for example through a Dream) is cheaper than credit, because credit adds interest on top of a shrinking value."
 HINT_PROPERTY,"Membeli rumah butuh lebih dari harganya: BPHTB + notaris 6% dibayar tunai, lalu PBB & perawatan setiap bulan. Bunga KPR biasanya hanya tetap 3 tahun, setelah itu mengambang.
 
 Menyewa bukan berarti buang uang: bandingkan sewa dengan cicilan, biaya kepemilikan, dan hasil investasi dari uang mukanya.","Buying a home costs more than its price: 6% transfer tax + notary paid in cash, then property tax & upkeep every month. Mortgage rates are usually fixed for only 3 years, then float.
@@ -1786,3 +1784,21 @@ INSIGHT_FUND,"Sebagai manajer dana kelolaan, kamu menerima fee %s dari %d invest
 INSIGHT_FUND_LEFT,%d investor menarik dananya karena kecewa. Alokasi yang sesuai mandat dan komunikasi yang jujur membuat investor bertahan.,%d investors withdrew because they were disappointed. An allocation that fits the mandate and honest communication keep investors with you.
 END_STAT_FUND_FEES,Fee dana kelolaan,Managed fund fees
 FUND_PROFILE_FEE,%s · fee %s/tahun,%s · fee %s/year
+VEHICLE_MARKET_BUTTON,Lihat kendaraan dijual,Browse vehicles
+VEHICLE_MARKET_TITLE,Showroom Kendaraan,Vehicle Showroom
+VEHICLE_MARKET_PILL,Garasi %d/%d,Garage %d/%d
+VEHICLE_MARKET_BODY,Pilih kendaraan untuk melihat biaya kepemilikan dan pilihan kredit.,Pick a vehicle to see its cost of ownership and credit options.
+VEHICLE_MARKET_ROW,Biaya %s/bln · susut %d%%/thn · kebahagiaan %+d,Costs %s/mo · loses %d%%/yr · happiness %+d
+VEHICLE_MARKET_USED,"Bekas, hanya tunai","Used, cash only"
+VEHICLE_MARKET_FULL,Garasi penuh (%d kendaraan). Jual salah satu kendaraan untuk membeli yang baru.,Your garage is full (%d vehicles). Sell one to buy another.
+VEHICLE_MARKET_NOTE,"Kebahagiaan hanya dihitung dari kendaraan terbaik per jenis (motor terbaik dan mobil terbaik), jadi punya dua mobil tidak membuat dua kali bahagia. Kendaraan kedua dan seterusnya di jenis yang sama kena pajak progresif, dan setiap kendaraan tetap menyusut serta butuh biaya rutin.","Happiness only counts your best vehicle of each type (best motorbike and best car), so two cars don't make you twice as happy. A second or later vehicle of the same type pays progressive tax, and every vehicle still loses value and has running costs."
+VEHICLE_PRICE_USED,Harga %s,Price %s
+VEHICLE_CASH_ONLY,Kendaraan bekas hanya bisa dibeli tunai.,Used vehicles can only be bought in cash.
+VEHICLE_PROGRESSIVE,Pajak progresif (+%s/thn),Progressive tax (+%s/yr)
+VEHICLE_PROGRESSIVE_NOTE,Ini %s ke-%d milikmu: pajak tahunannya bertambah %s dari nilai kendaraan (pajak progresif). Sudah termasuk di biaya rutin.,This would be your %s no. %d: its annual tax rises by %s of its value (progressive tax). Already included in the running costs.
+VEHICLE_HAPPINESS_SHARED,"Kamu sudah punya %s (kebahagiaan %+d). Yang dihitung hanya kendaraan terbaik per jenis, jadi tambahan kebahagiaannya %+d per bulan.","You already own a %s (happiness %+d). Only your best vehicle of each type counts, so this adds %+d happiness per month."
+VEHICLE_HAPPINESS_COUNTED,dari %s,from %s
+VEHICLE_ROW_SUB_SHARED,Biaya %s/bln · kebahagiaan dari kendaraan lain,Costs %s/mo · happiness comes from another vehicle
+VEHICLE_REQ_GARAGE,Garasi masih muat (%d dari %d kendaraan),Garage has room (%d of %d vehicles)
+VEHICLE_GARAGE,Garasi: %d dari %d kendaraan,Garage: %d of %d vehicles
+HOME_SCENE_MORE,%s +%d,%s +%d

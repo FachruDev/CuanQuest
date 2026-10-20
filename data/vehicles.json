@@ -1,23 +1,71 @@
 {
 	"_comment": [
-		"Kendaraan (v1.5c langkah 2): aset yang nilainya menyusut, punya biaya rutin, dan menambah kebahagiaan. Uang = harga awal permainan (ikut indeks harga).",
+		"Kendaraan (v1.5c langkah 2; garasi & pilihan model: tambahan v2, 20 Oktober 2026): aset yang nilainya menyusut, punya biaya rutin, dan menambah kebahagiaan. Uang = harga awal permainan (ikut indeks harga).",
 		"Nilai pasar = harga baru hari ini x (1 - depreciation)^usia (tahun), minimal min_value_ratio. Dijual ke dealer: sell_ratio x nilai pasar.",
-		"running_cost = bensin, servis, pajak per bulan (dikali expense_mult tingkat kesulitan). happiness = kebahagiaan per bulan selama dimiliki.",
-		"loan = produk kredit di loans.json. dream = id impian di dreams.json yang menghasilkan kendaraan ini saat terwujud (harganya disamakan).",
+		"running_cost = bensin, servis, pajak per bulan (dikali expense_mult tingkat kesulitan). happiness = kebahagiaan per bulan; hanya kendaraan terbaik per jenis (category) yang dihitung.",
+		"max_owned = isi garasi maksimal. progressive_tax = tambahan pajak per tahun (x nilai pasar) untuk kendaraan ke-2, ke-3, ... per jenis (ke-n membayar (n-1) x progressive_tax), urut tanggal beli.",
+		"used = kendaraan bekas (ditandai di showroom). loan = produk kredit di loans.json (\"\" = hanya tunai, mis. kendaraan bekas). dream = id impian di dreams.json yang menghasilkan model ini saat terwujud; dana impian bisa dipakai untuk model lain di jenis yang sama.",
+		"art = gambar Beranda assets/illustrations/vehicle/<art>.svg (bawaan: id model, lalu id jenis). Nama dibuat umum tanpa merek nyata.",
 		"Teks ditulis langsung dalam bahasa Indonesia dan ditampilkan lewat tr()."
 	],
 	"sell_ratio": 0.9,
 	"min_value_ratio": 0.15,
+	"max_owned": 6,
+	"progressive_tax": 0.005,
+	"categories": [
+		{ "id": "motor", "name": "Motor" },
+		{ "id": "car", "name": "Mobil" }
+	],
 	"vehicles": [
 		{
-			"id": "motor", "name": "Motor", "dream": "motor", "loan": "motor_loan",
+			"id": "motor_used", "category": "motor", "name": "Motor Bekas", "used": true, "loan": "",
+			"desc": "Motor matic bekas berumur 5 tahun. Murah dan nilainya turun pelan, tapi lebih sering masuk bengkel dan hanya bisa dibeli tunai.",
+			"price": 12000000, "depreciation": 0.08, "running_cost": 450000, "happiness": 1
+		},
+		{
+			"id": "motor", "category": "motor", "name": "Motor Matic 125 cc", "dream": "motor", "loan": "motor_loan",
 			"desc": "Motor 125 cc untuk ke kantor dan sehari-hari. Hemat bensin, tapi tetap ada servis rutin dan pajak tahunan.",
 			"price": 28000000, "depreciation": 0.12, "running_cost": 400000, "happiness": 1
 		},
 		{
-			"id": "car", "name": "Mobil", "dream": "car", "loan": "car_loan",
+			"id": "motor_ev", "category": "motor", "name": "Motor Listrik", "loan": "motor_loan",
+			"desc": "Motor listrik untuk dalam kota. Biaya cas dan pajaknya rendah, tapi nilainya turun lebih cepat karena baterai menua.",
+			"price": 30000000, "depreciation": 0.15, "running_cost": 200000, "happiness": 1
+		},
+		{
+			"id": "motor_sport", "category": "motor", "name": "Motor Sport 250 cc", "loan": "motor_loan",
+			"desc": "Motor sport bertenaga besar. Seru untuk touring akhir pekan, tapi bensin, ban, dan servisnya mahal.",
+			"price": 70000000, "depreciation": 0.13, "running_cost": 800000, "happiness": 2
+		},
+		{
+			"id": "car_used", "category": "car", "name": "Mobil Bekas", "used": true, "loan": "",
+			"desc": "Mobil keluarga bekas berumur 7 tahun. Harganya separuh mobil baru dan penyusutannya pelan, tapi biaya perbaikannya besar dan hanya bisa dibeli tunai.",
+			"price": 110000000, "depreciation": 0.07, "running_cost": 2500000, "happiness": 1
+		},
+		{
+			"id": "car_city", "category": "car", "name": "Mobil Kota (LCGC)", "loan": "car_loan",
+			"desc": "Mobil kecil 5 penumpang yang irit bensin. Cukup untuk keluarga kecil di kota.",
+			"price": 165000000, "depreciation": 0.10, "running_cost": 1500000, "happiness": 2
+		},
+		{
+			"id": "car", "category": "car", "name": "Mobil Keluarga 7 Penumpang", "dream": "car", "loan": "car_loan",
 			"desc": "Mobil keluarga 7 penumpang. Nyaman saat hujan dan bepergian, tapi bensin, tol, parkir, servis, dan pajaknya besar.",
 			"price": 250000000, "depreciation": 0.10, "running_cost": 2000000, "happiness": 2
+		},
+		{
+			"id": "car_suv", "category": "car", "name": "SUV", "loan": "car_loan",
+			"desc": "Mobil tinggi yang tangguh untuk jalan rusak dan banjir. Lega dan bergengsi, tapi boros bensin dan pajaknya tinggi.",
+			"price": 480000000, "depreciation": 0.11, "running_cost": 3000000, "happiness": 3
+		},
+		{
+			"id": "car_ev", "category": "car", "name": "Mobil Listrik", "loan": "car_loan",
+			"desc": "Mobil listrik yang senyap. Biaya cas dan pajaknya jauh lebih murah dari bensin, tapi harga barunya tinggi dan nilainya turun cepat.",
+			"price": 550000000, "depreciation": 0.15, "running_cost": 1000000, "happiness": 3
+		},
+		{
+			"id": "car_luxury", "category": "car", "name": "Sedan Mewah", "loan": "car_loan",
+			"desc": "Sedan premium dengan kabin mewah. Membuat bangga, tapi nilainya anjlok cepat dan servis, pajak, serta asuransinya sangat mahal.",
+			"price": 1500000000, "depreciation": 0.15, "running_cost": 7000000, "happiness": 4
 		}
 	]
 }

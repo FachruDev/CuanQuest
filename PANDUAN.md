@@ -37,7 +37,7 @@ data/
   characters.json             Tokoh berulang (v1.5d): Bima, Ibu, Kak Wulan, Bu Ratna, atasan, rekan kerja
   insurance.json              Produk asuransi: premi, tanggungan, masa tunggu
   loans.json                  Pinjaman (v1.5c): KTA, kredit motor/mobil, KPR & KPR subsidi, denda, skor kredit
-  vehicles.json               Kendaraan (v1.5c): harga, penyusutan, biaya rutin, kebahagiaan, produk kredit
+  vehicles.json               Kendaraan (v1.5c; garasi: tambahan v2): 10 model per jenis, harga, penyusutan, biaya rutin, kebahagiaan, produk kredit, isi garasi, pajak progresif
   properties.json             Properti (v1.5c): harga, sewa, kenaikan harga, biaya beli/jual/rutin, KPR
   jobs.json                   Pekerjaan (bidang, jenjang, syarat, gaji, beban kerja) & aturan lowongan
   education.json              Program kuliah (syarat, lama, biaya, hasil) & beban kuliah
@@ -252,6 +252,7 @@ scenes/
   - [x] (2) Kepuasan, penarikan & reputasi
   - [x] (3) Laporan per investor & cerita
   - [x] (4) Penyeimbangan & uji celah
+- [x] **Tambahan v2 "Garasi & Pilihan Kendaraan"** (rancangan: `MVP_Cuan_Quest_Revisi3.md` 6.5): 10 model, beberapa kendaraan, pajak progresif, showroom
 - [ ] **Penutup v2**: peninjauan kebijakan Google Play untuk leverage, forex, serta konten depresi dan kematian (v2 berakhir di v2c; v2d mini-game trading dihapus; rancangan `MVP_Cuan_Quest_Revisi3.md` 6.4, hasil `docs/RILIS_PLAY_STORE.md`):
   - [x] (1) Peninjauan kebijakan & penyesuaian di game
   - [ ] (2) Draf isian Play Console & teks halaman toko
@@ -402,6 +403,27 @@ Setiap bulan `Market.step()` menjalankan (sejak v1.5-0 harga bergerak **harian**
 - **Jeda tawaran ulang:** `record.departed` (id → bulan keluar); `_add_offer` melewati investor yang keluar kurang dari `return_cooldown` bulan. **Tambah setoran** dibatasi `topup.max_multiple` × setoran awal (`initial`).
 - **Fee & energi:** `Fund.management_fee()` dari `management_fee[profil]`; `energy_cost()` = `energy` × ceil(investor / `investors_per_energy`). `UiText.percent_rate()` untuk tarif (mis. 1,25%).
 - **Simulator:** tipe `manajer_konservatif`, `manajer_moderat`, `manajer_agresif`, `manajer_serampangan` (`"quiz_fund"` lulus ujian WMI di bulan 24, `"fund": {"allocation", "careless"}` → `_fund_actions()`), baris `dana kelolaan:` (`_print_fund`: bulan terbuka, dana puncak riil, fee riil vs gaji riil, investor masuk/pergi/perpanjang/selesai, reputasi). `_choice_score` menilai `fund_reputation`, `fund_satisfaction`, dan menghindari `fund_allocation` (panik).
+
+## Garasi & Pilihan Kendaraan (tambahan v2)
+
+Memperluas "Kendaraan (v1.5c langkah 2)": dari 2 kendaraan (maksimal satu per jenis) menjadi 10 model dan beberapa unit. Analogi web: dari satu kolom `vehicle_id` di tabel pengguna menjadi tabel `vehicles` sendiri dengan `id` per baris (seperti `order_items`), jadi dua barang yang sama tetap bisa dijual satu per satu.
+
+- **Data** (`data/vehicles.json`): setiap model punya `category` (`motor` / `car`, daftar di `categories`), `used` (bekas), `loan` (`""` = hanya tunai), `dream` (impian yang menghasilkan model ini), dan opsional `art` (nama gambar). `max_owned` = isi garasi (6), `progressive_tax` = tambahan pajak per tahun per urutan (0,005). Model lama `motor` & `car` tetap memakai id dan angka yang sama.
+- **Unit:** `owned` = `[{uid, id, since, paid, loan_id}]`, `uid_seq` disimpan sebagai `vehicle_seq`. Fungsi yang menerima unit memakai `uid` (`find`, `sell_quote`, `sell`, `seize`); fungsi model memakai id (`owns`, `price`, `buy_quote`, `buy` → `{ok, uid}`, `new_cost`, `happiness_gain`). Agunan kredit = `{"type": "vehicle", "id": uid}` (`Debt._seize` & isian event `{collateral}` mencari lewat nomor unit).
+- **Aturan:** `happiness()` = jumlah `best_in(jenis)` (kebahagiaan tertinggi, seri = yang dibeli lebih dulu). `cost_of(unit)` = `base_cost(model)` + `progressive_tax(nilai, order_of(unit))`; `order_of` = urutan per jenis menurut bulan beli lalu nomor unit, jadi menjual unit pertama memajukan urutan. `buy_quote` punya syarat `garage` (garasi belum penuh) dan menolak kredit untuk model tanpa `loan` (syarat `loan_allowed`).
+- **Impian:** `dream_of(model)` = impian aktif yang kendaraannya satu jenis, jadi dana Motor Baru bisa dipakai membeli motor apa pun. `dreams.available()` menyembunyikan impian kendaraan jika sudah punya kendaraan jenis itu (`owns_category`).
+- **Save lama:** unit tanpa `uid` diberi nomor urut di `Vehicles.load_from()`, dan agunan pinjamannya (`"id": "motor"`) diubah ke nomor unit. Ini bisa dilakukan karena `Debt` dimuat lebih dulu (urutan `GameState.modules`).
+- **UI:** `HomeScreen` sinyal `vehicle_market_requested` & `vehicle_detail_requested(uid)`; `VehiclePopup.open_market()` (showroom), `open_buy(id)` (tombol "Kembali ke daftar" bila dari showroom), `open_detail(uid)`. `HomeScene.vehicle_art_id()` → gambar model, `vehicle_fallback_id()` → gambar jenis; `caption()` menampilkan dua kendaraan termahal + jumlah sisanya (`HOME_SCENE_MORE`).
+- **Simulator:** tipe `kolektor_kendaraan` & `pengendara_bekas` memakai daftar `"garage": [[model, "cash"|"credit", gaji riil minimal?], ...]` → `_garage_actions()` (satu pembelian per bulan, kredit DP 30% dengan tenor terpendek yang lolos rasio cicilan). Baris kendaraan di ringkasan kini memuat jumlah kendaraan dan kebahagiaan kendaraan.
+
+| Tipe pemain (S1, Normal, 40 permainan x 45 tahun) | Bebas finansial | Kekayaan riil tahun 45 | Kendaraan |
+|:--|:--|--:|:--|
+| Hemat (tanpa kendaraan) | 100%, median tahun 12,6 | Rp15,59 M | - |
+| Pengendara (motor matic & mobil keluarga baru, kredit) | 100%, tahun 20,3 | Rp11,66 M | 2 kendaraan, kebahagiaan +3/bln; biaya rutin total Rp2,9 M, bunga Rp61 jt |
+| Pengendara bekas (motor & mobil bekas, tunai) | 100%, tahun 19,1 | Rp12,89 M | 2 kendaraan, +2/bln; biaya rutin Rp3,66 M, tanpa bunga |
+| Kolektor kendaraan (motor sport tunai, SUV kredit, motor listrik tunai, ...) | 100%, tahun 22,8 | Rp9,14 M | median 3 kendaraan, +5/bln; biaya rutin Rp4,8 M, premi Rp429 jt, bunga Rp133 jt; 3% pernah ditarik |
+
+- **Uji:** `test_garage` (76 pemeriksaan): data model & istilah glosarium baru **Pajak progresif kendaraan** (glosarium 119 istilah), unit & nomor, kebahagiaan per jenis, pajak progresif & urutan, garasi penuh, bekas & batas kredit, agunan per unit, impian per jenis, save & save lama, laporan bulanan, dan UI showroom/popup/Beranda.
 
 ## Kebijakan Google Play (Penutup v2 langkah 1)
 

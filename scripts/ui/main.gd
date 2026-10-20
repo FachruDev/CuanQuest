@@ -106,11 +106,11 @@ func _ready() -> void:
 		_show_toast(tr("TOAST_LOAN") % [tr(loan_name), Fmt.rupiah(amount)]))
 	%LoanPopup.loan_paid_off.connect(func(loan_name: String) -> void:
 		_show_toast(tr("TOAST_LOAN_PAID") % tr(loan_name)))
-	%HomeScreen.vehicle_buy_requested.connect(func(vehicle_id: String) -> void:
+	%HomeScreen.vehicle_market_requested.connect(func() -> void:
 		_hint("HINT_VEHICLE")
-		_enqueue(%VehiclePopup.open_buy.bind(vehicle_id)))
-	%HomeScreen.vehicle_detail_requested.connect(func(vehicle_id: String) -> void:
-		_enqueue(%VehiclePopup.open_detail.bind(vehicle_id)))
+		_enqueue(%VehiclePopup.open_market))
+	%HomeScreen.vehicle_detail_requested.connect(func(uid: int) -> void:
+		_enqueue(%VehiclePopup.open_detail.bind(uid)))
 	%VehiclePopup.vehicle_bought.connect(func(vehicle_name: String) -> void:
 		_show_toast(tr("TOAST_VEHICLE_BOUGHT") % tr(vehicle_name))
 		_enqueue_plan_review())

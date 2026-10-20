@@ -14,9 +14,9 @@ signal leverage_alert_requested(asset_id: String)
 ## Kartu Utang & Kredit (v1.5c): ajukan pinjaman baru / buka rincian pinjaman.
 signal loan_requested(product_id: String)
 signal loan_detail_requested(loan_id: int)
-## Kartu Kendaraan (v1.5c langkah 2): beli kendaraan / buka rincian kendaraan yang dimiliki.
-signal vehicle_buy_requested(vehicle_id: String)
-signal vehicle_detail_requested(vehicle_id: String)
+## Kartu Kendaraan (v1.5c langkah 2; showroom: tambahan v2): buka showroom / rincian satu unit kendaraan.
+signal vehicle_market_requested
+signal vehicle_detail_requested(uid: int)
 ## Kartu Properti (v1.5c langkah 3): daftar properti untuk dibeli / rincian properti yang dimiliki.
 signal property_market_requested
 signal property_detail_requested(uid: int)
@@ -446,8 +446,8 @@ func _refresh_insurance() -> void:
 	_insurance_box.add_child(button)
 
 
-## Kartu Kendaraan: kendaraan yang dimiliki (ketuk untuk rincian & jual) dan tombol beli untuk
-## kendaraan yang belum dimiliki.
+## Kartu Kendaraan: kendaraan yang dimiliki (ketuk untuk rincian & jual), isi garasi, dan tombol ke
+## showroom (semua model).
 func _refresh_vehicles() -> void:
 	_clear(_vehicle_box)
 	var vehicles := GameState.vehicles
@@ -455,23 +455,23 @@ func _refresh_vehicles() -> void:
 		_vehicle_box.add_child(_wrap_label(tr("VEHICLE_EMPTY"), &"SmallMutedLabel"))
 	for entry: Dictionary in vehicles.owned:
 		_vehicle_box.add_child(_vehicle_row(entry))
-	for def: Dictionary in vehicles.defs():
-		if vehicles.owns(def["id"]):
-			continue
-		var button := UiText.chunky_button(tr("VEHICLE_BUY_BUTTON") % [tr(def["name"]),
-			Fmt.rupiah_short(vehicles.price(def["id"]))], &"NeutralButton", &"NeutralButtonLabel", 68.0)
-		button.pressed.connect(vehicle_buy_requested.emit.bind(def["id"]))
-		_vehicle_box.add_child(button)
+	if vehicles.has_any():
+		_vehicle_box.add_child(_wrap_label(tr("VEHICLE_GARAGE") % [vehicles.owned.size(), vehicles.max_owned()],
+			&"SmallMutedLabel"))
+	var button := UiText.chunky_button(tr("VEHICLE_MARKET_BUTTON"), &"NeutralButton", &"NeutralButtonLabel", 68.0)
+	button.pressed.connect(vehicle_market_requested.emit)
+	_vehicle_box.add_child(button)
 
 
-## Satu kendaraan: nama & nilai pasar, biaya rutin, kebahagiaan, dan cicilan jika masih kredit.
+## Satu kendaraan: nama & nilai pasar, biaya rutin (termasuk pajak progresif), kebahagiaan (atau
+## keterangan bahwa kebahagiaan dihitung dari kendaraan lain), dan cicilan jika masih kredit.
 func _vehicle_row(entry: Dictionary) -> Button:
 	var vehicles := GameState.vehicles
 	var def := vehicles.def(entry["id"])
 	var button := Button.new()
 	button.theme_type_variation = &"AssetRowButton"
 	button.custom_minimum_size = Vector2(0, 88)
-	button.pressed.connect(vehicle_detail_requested.emit.bind(entry["id"]))
+	button.pressed.connect(vehicle_detail_requested.emit.bind(int(entry["uid"])))
 	var box := VBoxContainer.new()
 	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	box.offset_left = 16
@@ -489,7 +489,8 @@ func _vehicle_row(entry: Dictionary) -> Button:
 	value.autowrap_mode = TextServer.AUTOWRAP_OFF
 	top.add_child(value)
 	box.add_child(top)
-	var sub := tr("VEHICLE_ROW_SUB") % [Fmt.rupiah_short(vehicles.cost_of(entry["id"])), int(def["happiness"])]
+	var sub := tr("VEHICLE_ROW_SUB") % [Fmt.rupiah_short(vehicles.cost_of(entry)), int(def["happiness"])] \
+		if vehicles.counts_happiness(entry) else tr("VEHICLE_ROW_SUB_SHARED") % Fmt.rupiah_short(vehicles.cost_of(entry))
 	var loan := vehicles.loan_of(entry)
 	if not loan.is_empty():
 		sub += " · " + tr("VEHICLE_ROW_LOAN") % Fmt.rupiah_short(GameState.debt.installment(loan))

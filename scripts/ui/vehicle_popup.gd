@@ -1,7 +1,10 @@
 extends ModalPopup
-## Popup "Kendaraan" (v1.5c langkah 2), dua mode:
-## - open_buy(id): biaya kepemilikan, pilih Tunai / Kredit (uang muka & tenor), rincian & syarat ✓/✗.
-## - open_detail(id): nilai sekarang, penyusutan, biaya rutin, kredit berjalan, dan jual ke dealer.
+## Popup "Kendaraan" (v1.5c langkah 2; showroom & garasi: tambahan v2), tiga mode:
+## - open_market(): showroom, semua model per jenis (motor, mobil) dengan harga, biaya rutin, penyusutan,
+##   dan kebahagiaan; ketuk untuk membeli.
+## - open_buy(id): biaya kepemilikan (termasuk pajak progresif & kebahagiaan yang benar-benar bertambah),
+##   pilih Tunai / Kredit (uang muka & tenor), rincian & syarat ✓/✗.
+## - open_detail(uid): nilai sekarang, penyusutan, biaya rutin, kredit berjalan, dan jual ke dealer.
 ## Angka diambil dari GameState.vehicles.buy_quote() / sell_quote(), sama dengan yang dijalankan.
 
 signal vehicle_bought(name: String)
@@ -9,7 +12,9 @@ signal vehicle_sold(name: String, net: int)
 
 const MAX_ROWS_HEIGHT := 560.0
 
-var _id := ""
+var _id := ""   # model yang sedang dilihat di mode beli
+var _uid := -1  # unit yang sedang dilihat di mode rincian
+var _from_market := false
 var _method := "cash"  # "cash" | "credit"
 var _dp_index := 0
 var _tenor := 0
@@ -19,22 +24,97 @@ var _reqs_box: VBoxContainer
 var _action: Button
 
 
+# --- Showroom ----------------------------------------------------------------------------
+
+func open_market() -> void:
+	var vehicles := GameState.vehicles
+	%Title.text = tr("VEHICLE_MARKET_TITLE")
+	%SubtitleHolder.show()
+	%Subtitle.text = tr("VEHICLE_MARKET_PILL") % [vehicles.owned.size(), vehicles.max_owned()]
+	%Body.show()
+	%Body.text = tr("VEHICLE_MARKET_BODY")
+	_reset_rows()
+	if vehicles.is_full():
+		var full := _label(tr("VEHICLE_MARKET_FULL") % vehicles.max_owned(), &"SmallMutedLabel")
+		full.add_theme_color_override("font_color", Palette.LOSS)
+		%Rows.add_child(full)
+	for c: Dictionary in vehicles.categories():
+		%Rows.add_child(_label(tr(c["name"]), &"ReportHeaderLabel"))
+		for d: Dictionary in vehicles.defs():
+			if d["category"] == c["id"]:
+				%Rows.add_child(_market_row(d))
+	%Rows.add_child(_label(tr("VEHICLE_MARKET_NOTE"), &"SmallMutedLabel"))
+	_clear(%Buttons)
+	_add_close_button()
+	_show()
+
+
+func _market_row(d: Dictionary) -> Button:
+	var vehicles := GameState.vehicles
+	var button := Button.new()
+	button.theme_type_variation = &"AssetRowButton"
+	button.custom_minimum_size = Vector2(0, 88)
+	button.pressed.connect(func() -> void:
+		_from_market = true
+		_show_buy(d["id"]))
+	var box := VBoxContainer.new()
+	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	box.offset_left = 16
+	box.offset_right = -16
+	box.offset_top = 10
+	box.offset_bottom = -10
+	box.add_theme_constant_override("separation", 4)
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var top := HBoxContainer.new()
+	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var name_label := _label(tr(d["name"]), &"AssetNameLabel")
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	top.add_child(name_label)
+	var price := _label(Fmt.rupiah_short(vehicles.price(d["id"])), &"AssetValueLabel")
+	price.autowrap_mode = TextServer.AUTOWRAP_OFF
+	price.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	top.add_child(price)
+	box.add_child(top)
+	var sub := tr("VEHICLE_MARKET_ROW") % [Fmt.rupiah_short(vehicles.base_cost(d["id"])),
+		roundi(float(d["depreciation"]) * 100.0), int(d["happiness"])]
+	if d.get("used", false):
+		sub = tr("VEHICLE_MARKET_USED") + " · " + sub
+	var sub_label := _label(sub, &"AssetSubLabel")
+	sub_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(sub_label)
+	button.add_child(box)
+	UiText.fit_to_content(button, box, 20.0)
+	return button
+
+
+# --- Membeli -----------------------------------------------------------------------------
+
 func open_buy(id: String) -> void:
+	_from_market = false
+	_show_buy(id)
+
+
+func _show_buy(id: String) -> void:
 	var vehicles := GameState.vehicles
 	var def := vehicles.def(id)
 	_id = id
 	_method = "cash"
 	_dp_index = 0
-	_tenor = GameState.debt.tenor_options(_loan_product())[0]
+	_tenor = GameState.debt.tenor_options(_loan_product())[0] if vehicles.credit_allowed(id) else 0
 	%Title.text = tr("VEHICLE_BUY_TITLE") % tr(def["name"])
 	%SubtitleHolder.show()
-	%Subtitle.text = tr("VEHICLE_PRICE") % Fmt.rupiah(vehicles.price(id))
+	%Subtitle.text = (tr("VEHICLE_PRICE_USED") if def.get("used", false) else tr("VEHICLE_PRICE")) % Fmt.rupiah(vehicles.price(id))
 	%Body.show()
 	%Body.text = tr(def["desc"])
 	_clear(%Buttons)
 	_action = UiText.chunky_button("", &"PrimaryButton", &"PrimaryButtonLabel", 80.0, 28)
 	_action.pressed.connect(_on_buy)
 	%Buttons.add_child(_action)
+	if _from_market:
+		var back := UiText.chunky_button(tr("PROPERTY_BACK"), &"NeutralButton", &"NeutralButtonLabel", 64.0, 24)
+		back.pressed.connect(open_market)
+		%Buttons.add_child(back)
 	_add_close_button()
 	_build_buy()
 	_show()
@@ -44,35 +124,48 @@ func open_buy(id: String) -> void:
 func _build_buy() -> void:
 	var vehicles := GameState.vehicles
 	var def := vehicles.def(_id)
+	var category := vehicles.category_of(_id)
 	_reset_rows()
 	%Rows.add_child(_label(tr("VEHICLE_OWNERSHIP"), &"ReportHeaderLabel"))
-	_info_row(tr("VEHICLE_RUNNING_COST"), tr("VEHICLE_PER_MONTH") % Fmt.rupiah(vehicles.cost_of(_id)), Palette.LOSS)
+	_info_row(tr("VEHICLE_RUNNING_COST"), tr("VEHICLE_PER_MONTH") % Fmt.rupiah(vehicles.new_cost(_id)), Palette.LOSS)
 	_info_row(tr("VEHICLE_DEPRECIATION"), tr("VEHICLE_PER_YEAR") % roundi(float(def["depreciation"]) * 100.0), Palette.LOSS)
-	_info_row(tr("VEHICLE_HAPPINESS"), "%+d" % int(def["happiness"]), Palette.GAIN)
+	var gain := vehicles.happiness_gain(_id)
+	_info_row(tr("VEHICLE_HAPPINESS"), "%+d" % gain, Palette.GAIN if gain > 0 else Palette.MUTED)
 	var insurance := GameState.insurance.products_in("vehicle")
 	if not insurance.is_empty():
 		var premium := roundi(vehicles.price(_id) * float(insurance[0]["premium_rate"]) / 12.0 / 1000.0) * 1000
 		_info_row(tr("VEHICLE_INSURANCE"), tr("VEHICLE_PER_MONTH") % Fmt.rupiah(premium), Palette.MUTED)
 	%Rows.add_child(_label(tr("VEHICLE_OWNERSHIP_NOTE"), &"SmallMutedLabel"))
+	var order := vehicles.count_in(category) + 1
+	if vehicles.progressive_rate(order) > 0.0:
+		%Rows.add_child(_label(tr("VEHICLE_PROGRESSIVE_NOTE") % [tr(vehicles.category_name(category)), order,
+			UiText.percent_rate(vehicles.progressive_rate(order))], &"SmallMutedLabel"))
+	if gain < int(def["happiness"]):
+		var best := vehicles.best_in(category)
+		%Rows.add_child(_label(tr("VEHICLE_HAPPINESS_SHARED") % [tr(vehicles.def(best["id"])["name"]),
+			int(vehicles.def(best["id"])["happiness"]), gain], &"SmallMutedLabel"))
 	var dream := vehicles.dream_of(_id)
 	if not dream.is_empty() and float(dream["saved"]) >= 1000.0:
 		%Rows.add_child(_label(tr("VEHICLE_DREAM_FUND") % [tr(GameState.dreams.find_def(dream["id"])["name"]),
 			Fmt.rupiah(dream["saved"])], &"SmallMutedLabel"))
 
 	%Rows.add_child(_label(tr("VEHICLE_PAYMENT"), &"ReportHeaderLabel"))
-	var method_row := HBoxContainer.new()
-	method_row.add_theme_constant_override("separation", 8)
-	var group := ButtonGroup.new()
-	for method: String in ["cash", "credit"]:
-		var button := _segment(tr("VEHICLE_METHOD_" + method.to_upper()), group, method == _method)
-		button.toggled.connect(func(on: bool) -> void:
-			if on and _method != method:
-				_method = method
-				if method == "credit":
-					_tenor = _affordable_tenor()
-				_build_buy())
-		method_row.add_child(button)
-	%Rows.add_child(method_row)
+	if not vehicles.credit_allowed(_id):
+		%Rows.add_child(_label(tr("VEHICLE_CASH_ONLY"), &"SmallMutedLabel"))
+	else:
+		var method_row := HBoxContainer.new()
+		method_row.add_theme_constant_override("separation", 8)
+		var group := ButtonGroup.new()
+		for method: String in ["cash", "credit"]:
+			var button := _segment(tr("VEHICLE_METHOD_" + method.to_upper()), group, method == _method)
+			button.toggled.connect(func(on: bool) -> void:
+				if on and _method != method:
+					_method = method
+					if method == "credit":
+						_tenor = _affordable_tenor()
+					_build_buy())
+			method_row.add_child(button)
+		%Rows.add_child(method_row)
 
 	if _method == "credit":
 		var prod := _loan_product()
@@ -135,14 +228,16 @@ func _refresh_buy() -> void:
 	_set_enabled(_action, q["ok"])
 
 
-func open_detail(id: String) -> void:
+# --- Rincian & menjual -------------------------------------------------------------------
+
+func open_detail(uid: int) -> void:
 	var vehicles := GameState.vehicles
-	var entry := vehicles.find(id)
+	var entry := vehicles.find(uid)
 	if entry.is_empty():
 		close()  # sudah dijual / ditarik sebelum popup sempat tampil
 		return
-	_id = id
-	var def := vehicles.def(id)
+	_uid = uid
+	var def := vehicles.def(entry["id"])
 	var market_value := vehicles.value(entry)
 	%Title.text = tr(def["name"])
 	%SubtitleHolder.show()
@@ -153,8 +248,17 @@ func open_detail(id: String) -> void:
 	_info_row(tr("VEHICLE_ROW_VALUE"), Fmt.rupiah(market_value))
 	var drop := int(entry["paid"]) - market_value
 	_info_row(tr("VEHICLE_ROW_DROP"), Fmt.signed_rupiah(-drop), Palette.LOSS if drop > 0 else Palette.GAIN)
-	_info_row(tr("VEHICLE_RUNNING_COST"), tr("VEHICLE_PER_MONTH") % Fmt.rupiah(vehicles.cost_of(id)), Palette.LOSS)
-	_info_row(tr("VEHICLE_HAPPINESS"), "%+d" % int(def["happiness"]), Palette.GAIN)
+	_info_row(tr("VEHICLE_RUNNING_COST"), tr("VEHICLE_PER_MONTH") % Fmt.rupiah(vehicles.cost_of(entry)), Palette.LOSS)
+	var order := vehicles.order_of(entry)
+	var tax := vehicles.progressive_tax(market_value, order)
+	if tax > 0:
+		_info_row(tr("VEHICLE_PROGRESSIVE") % UiText.percent_rate(vehicles.progressive_rate(order)),
+			tr("VEHICLE_PER_MONTH") % Fmt.rupiah(tax), Palette.LOSS)
+	if vehicles.counts_happiness(entry):
+		_info_row(tr("VEHICLE_HAPPINESS"), "%+d" % int(def["happiness"]), Palette.GAIN)
+	else:
+		var best := vehicles.best_in(vehicles.category_of(entry["id"]))
+		_info_row(tr("VEHICLE_HAPPINESS"), tr("VEHICLE_HAPPINESS_COUNTED") % tr(vehicles.def(best["id"])["name"]), Palette.MUTED)
 	%Rows.add_child(_label(tr("VEHICLE_DROP_NOTE") % roundi(float(def["depreciation"]) * 100.0), &"SmallMutedLabel"))
 	var loan := vehicles.loan_of(entry)
 	if not loan.is_empty():
@@ -165,7 +269,7 @@ func open_detail(id: String) -> void:
 			status.add_theme_color_override("font_color", Palette.LOSS)
 		%Rows.add_child(status)
 
-	var q := vehicles.sell_quote(id)
+	var q := vehicles.sell_quote(uid)
 	%Rows.add_child(_label(tr("VEHICLE_SELL"), &"ReportHeaderLabel"))
 	_info_row(tr("VEHICLE_ROW_SELL_PRICE") % roundi(float(vehicles.data["sell_ratio"]) * 100.0), Fmt.rupiah(q["proceeds"]))
 	if int(q["payoff"]) > 0:
@@ -223,9 +327,12 @@ func _on_buy() -> void:
 
 
 func _on_sell() -> void:
-	var name: String = GameState.vehicles.def(_id)["name"]
-	var net: int = GameState.vehicles.sell_quote(_id)["net"]
-	if GameState.vehicles.sell(_id):
+	var entry := GameState.vehicles.find(_uid)
+	if entry.is_empty():
+		return
+	var name: String = GameState.vehicles.def(entry["id"])["name"]
+	var net: int = GameState.vehicles.sell_quote(_uid)["net"]
+	if GameState.vehicles.sell(_uid):
 		Sfx.play("coin")
 		vehicle_sold.emit(name, net)
 		close()

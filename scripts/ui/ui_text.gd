@@ -368,8 +368,8 @@ static func loan_requirement_text(req: Dictionary) -> String:
 			return _t("LOAN_REQ_LIMIT") % Fmt.rupiah(req["need"])
 		"dsr":
 			return _t("LOAN_REQ_DSR") % roundi(float(req["need"]) * 100.0)
-		"not_owned":
-			return _t("VEHICLE_REQ_NOT_OWNED")
+		"garage":
+			return _t("VEHICLE_REQ_GARAGE") % [int(req["have"]), int(req["need"])]
 		"loan_allowed":
 			return _t("LOAN_REQ_ALLOWED")
 		"max_salary":
