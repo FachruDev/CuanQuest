@@ -13,6 +13,7 @@ extends RefCounted
 ##   {"meter": {title, value, ratio, low, left, right, note}}  meteran (mis. dana pensiun)
 ##   {"help": true}                         kartu bantuan kesehatan jiwa (pedoman konten sensitif)
 ##   {"note": teks, "icon": path}           catatan kecil berikon
+##   {"image": path, "height": px}          ilustrasi lebar bersudut bulat (mis. bab kehidupan); dilewati jika file tidak ada
 ## Analogi web: seperti renderer "rich text" sederhana berbasis JSON, agar teks panjang tidak menjadi
 ## satu dinding paragraf rata tengah.
 
@@ -94,6 +95,8 @@ static func _block(b: Dictionary) -> Control:
 		return _meter(b["meter"])
 	if b.has("help"):
 		return _help()
+	if b.has("image"):
+		return _image(b["image"], float(b.get("height", 168)))
 	if b.has("note"):
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 10)
@@ -255,6 +258,38 @@ static func _help() -> PanelContainer:
 	box.add_child(body)
 	card.add_child(box)
 	return card
+
+
+## Ilustrasi selebar popup: gambar dipotong mengikuti sudut bulat, bingkai tinta digambar di atasnya.
+static func _image(path: String, height: float) -> Control:
+	if not ResourceLoader.exists(path):
+		return null
+	var frame := PanelContainer.new()
+	var shape := StyleBoxFlat.new()
+	shape.bg_color = Palette.INK
+	shape.set_corner_radius_all(18)
+	shape.anti_aliasing_size = 1.0
+	frame.add_theme_stylebox_override("panel", shape)
+	frame.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var art := TextureRect.new()
+	art.texture = load(path)
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	art.custom_minimum_size = Vector2(0, height)
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_child(art)
+	var border := Panel.new()
+	var line := StyleBoxFlat.new()
+	line.draw_center = false
+	line.border_color = Palette.INK
+	line.set_border_width_all(3)
+	line.set_corner_radius_all(18)
+	line.anti_aliasing_size = 1.0
+	border.add_theme_stylebox_override("panel", line)
+	border.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_child(border)
+	return frame
 
 
 static func _icon(texture: Texture2D, size: Vector2) -> TextureRect:

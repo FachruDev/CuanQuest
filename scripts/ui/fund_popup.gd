@@ -17,6 +17,7 @@ var _tab_buttons: Array[Button] = []
 const BASKET_COLORS := {"money": Color("#00907c"), "stocks": Color("#d45a3c"), "gold": Color("#c2810f"),
 	"commodities": Color("#8360d1"), "fx": Color("#4a6fb0")}
 const WARNING_ICON := preload("res://assets/icons/warning_small.svg")
+const PORTRAIT := "res://assets/illustrations/investors/%s.svg"  # potret investor (aset opsional)
 const INVESTOR_COLORS: Array[Color] = [Color("#c7841a"), Color("#4a6fb0"), Color("#23877b"), Color("#e0644a"),
 	Color("#7a4fb0")]
 
@@ -395,11 +396,35 @@ func _add_offers() -> void:
 		box.add_child(row)
 
 
-## Kepala kartu investor: lingkaran inisial berwarna, nama, dan keterangan.
+## Kepala kartu investor: potret (assets/illustrations/investors/<id>.svg; cadangan: lingkaran inisial
+## berwarna), nama, dan keterangan.
 func _person(d: Dictionary, sub: String) -> HBoxContainer:
 	var head := HBoxContainer.new()
 	head.add_theme_constant_override("separation", 12)
 	var person_name := tr(d["name"])
+	var portrait := PORTRAIT % d.get("id", "")
+	if ResourceLoader.exists(portrait):
+		var image := TextureRect.new()
+		image.texture = load(portrait)
+		image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		image.custom_minimum_size = Vector2(56, 56)
+		image.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		image.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		head.add_child(image)
+	else:
+		head.add_child(_initial_circle(person_name))
+	var texts := VBoxContainer.new()
+	texts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	texts.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	texts.add_theme_constant_override("separation", 0)
+	texts.add_child(_label(person_name, &"AssetNameLabel"))
+	texts.add_child(_label(sub, &"SmallMutedLabel"))
+	head.add_child(texts)
+	return head
+
+
+func _initial_circle(person_name: String) -> Control:
 	var words := person_name.split(" ", false)
 	var initial := words[-1].substr(0, 1).to_upper() if not words.is_empty() else "?"
 	var color: Color = INVESTOR_COLORS[absi(hash(person_name)) % INVESTOR_COLORS.size()]
@@ -413,15 +438,7 @@ func _person(d: Dictionary, sub: String) -> HBoxContainer:
 		var text_size := font.get_string_size(initial, HORIZONTAL_ALIGNMENT_LEFT, -1, 22)
 		circle.draw_string(font, Vector2(24.0 - text_size.x / 2.0, 24.0 + font.get_ascent(22) / 2.0 - 2.0), initial,
 			HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color.WHITE))
-	head.add_child(circle)
-	var texts := VBoxContainer.new()
-	texts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	texts.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	texts.add_theme_constant_override("separation", 0)
-	texts.add_child(_label(person_name, &"AssetNameLabel"))
-	texts.add_child(_label(sub, &"SmallMutedLabel"))
-	head.add_child(texts)
-	return head
+	return circle
 
 
 func _chip(text: String, variation: StringName, label_variation: StringName = &"") -> PanelContainer:

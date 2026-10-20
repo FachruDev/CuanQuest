@@ -447,6 +447,7 @@ func _chapter_blocks(summary: Dictionary) -> Array:
 	var job_id: String = end["job_id"]
 	var gained := float(end["worth"]) >= float(start["worth"])
 	var blocks: Array = [
+		{"image": "res://assets/illustrations/chapters/%s.svg" % summary["to"]},  # ilustrasi bab baru (aset opsional)
 		{"lead": tr("CHAPTER_DONE") % [tr("CHAPTER_" + str(summary["from"]).to_upper()), ages[0], int(end["age"]) - 1]},
 		{"rows": [
 			[tr("CHAPTER_ROW_WORTH"), "%s → %s" % [Fmt.rupiah_short(start["worth"]), Fmt.rupiah_short(end["worth"])],

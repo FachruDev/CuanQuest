@@ -23,6 +23,7 @@ const LEGAL_PATH := "res://data/legal.json"
 const CHEVRON := preload("res://assets/icons/chevron_right.svg")
 const LOCK := preload("res://assets/icons/lock.svg")
 const HEADER_ART := preload("res://assets/illustrations/topbar_bg.svg")
+const CHAPTER_ART := "res://assets/illustrations/chapters/%s.svg"  # ilustrasi bab kehidupan (aset opsional)
 const GRAY := preload("res://theme/grayscale.gdshader")
 const HISTORY_CHIPS := {"win": &"MoodGreen", "retired": &"MoodGold", "died": &"MoodNeutral", "lose": &"MoodRed"}
 const LOG_DOTS := {"promoted": Palette.GOLD, "graduated": Palette.TEAL, "laid_off": Palette.LOSS,
@@ -48,6 +49,7 @@ var _xp_label: Label
 var _goal_box: GridContainer
 var _life_side: Label
 var _life_box: VBoxContainer
+var _life_art: TextureRect  # sampul kartu Perjalanan Hidup: ilustrasi bab yang sedang dijalani (aset opsional)
 var _stats_grid: GridContainer
 var _power_label: Label
 var _risk_desc: Label
@@ -146,7 +148,7 @@ func _build_summary() -> void:
 	page.add_child(_wrap(tr("GOAL_HINT"), &"SmallMutedLabel"))
 
 	_life_side = _title(page, tr("PROFILE_LIFE_TITLE"))
-	_life_box = _card(page, &"HomeCard", 12)
+	_life_box = _life_card(page)
 
 	_title(page, tr("PROFILE_STATS_TITLE"))
 	_stats_grid = GridContainer.new()
@@ -343,6 +345,10 @@ func _refresh_life() -> void:
 			"ages": ("%d–%d" % ages if ages[1] >= 0 else "%d+" % ages[0]),
 			"state": "done" if i < current_index else ("now" if i == current_index else "todo")})
 	_life_side.text = tr("PROFILE_LIFE_CHAPTER") % [current_index + 1, chapters.size()]
+	var art_path := CHAPTER_ART % current
+	_life_art.visible = ResourceLoader.exists(art_path)
+	if _life_art.visible:
+		_life_art.texture = load(art_path)
 	var track := ChapterTrack.new()
 	track.set_chapters(items, GameState.age())
 	_life_box.add_child(track)
@@ -1070,6 +1076,43 @@ func _title(page: Container, text: String) -> Label:
 	row.add_child(side)
 	page.add_child(row)
 	return side
+
+
+## Kartu Perjalanan Hidup: sampul ilustrasi bab menempel ke tepi kartu (dipotong sudut bulat seperti kartu
+## pemain), lalu isi kartu dengan jarak tepi biasa.
+func _life_card(page: Container) -> VBoxContainer:
+	var card := PanelContainer.new()
+	card.theme_type_variation = &"HomeCard"
+	var style := card.get_theme_stylebox("panel", &"HomeCard").duplicate() as StyleBoxFlat
+	var pad := Vector4(20, 18, 20, 18)
+	if style:
+		pad = Vector4(style.content_margin_left, style.content_margin_top, style.content_margin_right, style.content_margin_bottom)
+		style.content_margin_left = 3
+		style.content_margin_right = 3
+		style.content_margin_top = 3
+		style.content_margin_bottom = 3
+		card.add_theme_stylebox_override("panel", style)
+	card.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW
+	var stack := VBoxContainer.new()
+	stack.add_theme_constant_override("separation", 0)
+	_life_art = TextureRect.new()
+	_life_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_life_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	_life_art.custom_minimum_size = Vector2(0, 168)
+	_life_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stack.add_child(_life_art)
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", int(pad.x) - 3)
+	margin.add_theme_constant_override("margin_top", int(pad.y) - 3)
+	margin.add_theme_constant_override("margin_right", int(pad.z) - 3)
+	margin.add_theme_constant_override("margin_bottom", int(pad.w) - 3)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 12)
+	margin.add_child(box)
+	stack.add_child(margin)
+	card.add_child(stack)
+	page.add_child(card)
+	return box
 
 
 func _card(page: Container, variation: StringName, separation: int) -> VBoxContainer:
