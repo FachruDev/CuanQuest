@@ -381,6 +381,20 @@ static func loan_requirement_text(req: Dictionary) -> String:
 	return ""
 
 
+## Chip status properti untuk kartu (Beranda v2): [teks, variasi chip]. Dijual mengalahkan pemakaian.
+static func property_chip(entry: Dictionary) -> Array:
+	if int(entry["selling_left"]) > 0:
+		return [_t("PROPERTY_CHIP_SELLING"), &"MoodGold"]
+	match entry["use"]:
+		"live":
+			return [_t("PROPERTY_USE_LIVE"), &"MoodGreen"]
+		"rent":
+			if int(entry["vacant_left"]) > 0:
+				return [_t("PROPERTY_CHIP_VACANT"), &"MoodGold"]
+			return [_t("PROPERTY_CHIP_RENTED"), &"MoodGreen"]
+	return [_t("PROPERTY_USE_EMPTY"), &"MoodRed"]
+
+
 ## Status pemakaian properti (v1.5c): dihuni, disewakan (sewa & sisa kontrak), mencari penyewa,
 ## kosong, ditambah status dijual.
 static func property_status(entry: Dictionary) -> String:

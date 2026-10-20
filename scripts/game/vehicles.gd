@@ -363,7 +363,7 @@ func sell_quote(uid: int) -> Dictionary:
 	var loan := loan_of(entry)
 	var payoff := 0 if loan.is_empty() else int(gs.debt.payoff_quote(loan)["total"])
 	return {"value": market_value, "proceeds": proceeds, "payoff": payoff, "net": proceeds - payoff,
-		"ok": gs.cash + proceeds >= payoff}
+		"ok": proceeds >= payoff or gs.cash + proceeds >= payoff}  # hasil jual menutup kredit: selalu boleh
 
 
 func sell(uid: int) -> bool:
@@ -376,7 +376,7 @@ func sell(uid: int) -> bool:
 	gs.cash += int(q["proceeds"])
 	var loan := loan_of(entry)
 	if not loan.is_empty():
-		gs.debt.pay_off(int(loan["id"]))
+		gs.debt.pay_off(int(loan["id"]), true)  # dilunasi dari hasil jual walau kas sempat minus
 	owned.erase(entry)
 	gs.stats["vehicles_sold"] += 1
 	gs.changed.emit()

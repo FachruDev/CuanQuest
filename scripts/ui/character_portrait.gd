@@ -1,15 +1,21 @@
 class_name CharacterPortrait
 extends Control
-## Potret tokoh berulang (v1.5d): assets/illustrations/characters/<id>.svg jika ada, selain itu
-## lingkaran berwarna (warna dari data/characters.json) dengan inisial nama tokoh.
+## Potret tokoh berulang (v1.5d): assets/illustrations/characters/<potret>.svg jika ada (tokoh kantor:
+## potret sesuai namanya, lihat Characters.portrait_of), selain itu lingkaran berwarna (warna dari
+## data/characters.json) dengan inisial nama tokoh.
 
 const TEXTURE_PATH := "res://assets/illustrations/characters/%s.svg"
 
 var character_id := "":
 	set(value):
 		character_id = value
-		var path := TEXTURE_PATH % value
-		_texture = load(path) if value != "" and ResourceLoader.exists(path) else null
+		_texture = null
+		if value != "":
+			for name in [GameState.characters.portrait_of(value), value]:
+				var path := TEXTURE_PATH % name
+				if ResourceLoader.exists(path):
+					_texture = load(path)
+					break
 		queue_redraw()
 
 var _texture: Texture2D

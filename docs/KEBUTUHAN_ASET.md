@@ -2,7 +2,7 @@
 
 Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang **dibutuhkan**, dan **di file mana** aset itu dipakai. Diperbarui setiap kali sebuah langkah membutuhkan aset baru.
 
-- **Terakhir diperbarui:** 20 Oktober 2026 (Tambahan v2 Garasi & Pilihan Kendaraan: 8 ilustrasi kendaraan per model, opsional, sementara memakai gambar jenisnya `vehicle/motor.svg` / `vehicle/car.svg`; popup showroom memakai lencana Kendaraan yang sudah ada; 19 Oktober 2026: Perbaikan UI kelompok 1: ikon tab Karier `nav_career.svg` dibuat & `nav_activity.svg` dihapus, ikon syarat `req_ok.svg`/`req_no.svg` menggantikan teks [OK]/[ ], popup leverage memakai lencana baru `badge_leverage.svg`, popup tenggat impian terlewat memakai `badge_calendar.svg` di lencana peringatan; Penutup v2 langkah 1: tanpa aset baru; ukuran ikon adaptif & grafis Play Store di bagian M7 diperjelas; v2d dihapus, v2 berakhir di v2c; v2c langkah 4: tanpa aset baru, v2c selesai; ikon lencana Dana Kelolaan & 8 potret investor tetap opsional; v2c langkah 3: tanpa aset baru, rincian investor memakai grafik bawaan dan event dana memakai lencana event biasa; v2c langkah 2: tanpa aset baru, popup kabar investor memakai lencana peringatan dari tema; v2c langkah 1: tanpa aset wajib baru, lencana popup Dana Kelolaan sementara memakai `classes/mutual_fund.svg`, potret investor opsional; v2b langkah 5: tanpa aset baru, rincian skor warisan & grafik riil digambar dengan tema; langkah 4: tanpa aset wajib baru, ikon aktivitas Konseling opsional (sementara `heart.svg`), popup & event Depresi memakai `heart.svg`; langkah 3: tanpa aset wajib baru, popup masa senja & perpisahan serta lencana layar akhir sementara memakai `badge_retire.svg`; langkah 2: tanpa aset wajib baru, popup "Usia N Tahun" memakai lencana bintang, ikon usia opsional; langkah 1: popup bab memakai lencana bintang, ilustrasi bab menyusul; v2a selesai, langkah 5 tanpa aset baru; langkah 4: tanpa aset baru, popup peringatan memakai lencana "!" dari tema; langkah 3: tanpa aset baru, popup leverage memakai ulang `trend_up.svg`; langkah 2: ikon kelas Valas, sementara `arrow_badge.svg`; langkah 1: ikon kelas Komoditas, sementara `trend_line.svg`; penutup v1.5: tanpa aset baru, menu Lisensi memakai ulang `book.svg`; v1.5d langkah 5: tanpa aset baru; langkah 4: 21 lencana pencapaian sementara ikon bintang/gembok, bingkai avatar digambar kode; langkah 3: ikon bidang "Umum"; potret tokoh langkah 1 masih lingkaran berwarna + inisial)
+- **Terakhir diperbarui:** 20 Oktober 2026 (Beranda v2 & menu Rumah & Kendaraan: 22 ilustrasi adegan hunian & kendaraan bergaya latar anime senja dibuat ulang/baru (termasuk `studio`, `land`, 8 model kendaraan, `thumb_bg`), 12 potret tokoh anime (tokoh kantor 4 varian atasan & 4 varian rekan kerja, dipilih sesuai nama), 12 ikon impian `icons/dreams/<id>.svg`, `target_open.svg`; Tambahan v2 Garasi & Pilihan Kendaraan: 8 ilustrasi kendaraan per model, opsional, sementara memakai gambar jenisnya `vehicle/motor.svg` / `vehicle/car.svg`; popup showroom memakai lencana Kendaraan yang sudah ada; 19 Oktober 2026: Perbaikan UI kelompok 1: ikon tab Karier `nav_career.svg` dibuat & `nav_activity.svg` dihapus, ikon syarat `req_ok.svg`/`req_no.svg` menggantikan teks [OK]/[ ], popup leverage memakai lencana baru `badge_leverage.svg`, popup tenggat impian terlewat memakai `badge_calendar.svg` di lencana peringatan; Penutup v2 langkah 1: tanpa aset baru; ukuran ikon adaptif & grafis Play Store di bagian M7 diperjelas; v2d dihapus, v2 berakhir di v2c; v2c langkah 4: tanpa aset baru, v2c selesai; ikon lencana Dana Kelolaan & 8 potret investor tetap opsional; v2c langkah 3: tanpa aset baru, rincian investor memakai grafik bawaan dan event dana memakai lencana event biasa; v2c langkah 2: tanpa aset baru, popup kabar investor memakai lencana peringatan dari tema; v2c langkah 1: tanpa aset wajib baru, lencana popup Dana Kelolaan sementara memakai `classes/mutual_fund.svg`, potret investor opsional; v2b langkah 5: tanpa aset baru, rincian skor warisan & grafik riil digambar dengan tema; langkah 4: tanpa aset wajib baru, ikon aktivitas Konseling opsional (sementara `heart.svg`), popup & event Depresi memakai `heart.svg`; langkah 3: tanpa aset wajib baru, popup masa senja & perpisahan serta lencana layar akhir sementara memakai `badge_retire.svg`; langkah 2: tanpa aset wajib baru, popup "Usia N Tahun" memakai lencana bintang, ikon usia opsional; langkah 1: popup bab memakai lencana bintang, ilustrasi bab menyusul; v2a selesai, langkah 5 tanpa aset baru; langkah 4: tanpa aset baru, popup peringatan memakai lencana "!" dari tema; langkah 3: tanpa aset baru, popup leverage memakai ulang `trend_up.svg`; langkah 2: ikon kelas Valas, sementara `arrow_badge.svg`; langkah 1: ikon kelas Komoditas, sementara `trend_line.svg`; penutup v1.5: tanpa aset baru, menu Lisensi memakai ulang `book.svg`; v1.5d langkah 5: tanpa aset baru; langkah 4: 21 lencana pencapaian sementara ikon bintang/gembok, bingkai avatar digambar kode; langkah 3: ikon bidang "Umum"; potret tokoh langkah 1 masih lingkaran berwarna + inisial)
 - **Rencana pembuatan:** pengembang membuat aset setelah **v2 selesai**. Sampai saat itu game memakai aset sementara (🔁), dan daftar di bawah terus diperbarui setiap langkah.
 - **Tanda:** ✅ sudah ada · ⬜ dibutuhkan · 🔁 sementara memakai aset lain atau gambar pengganti sederhana (game tetap jalan)
 - Tabel aset yang sudah ada dibuat otomatis dengan memindai `scenes/`, `scripts/`, `theme/`, dan `data/`.
@@ -15,13 +15,13 @@ Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang
 | **v1.5-0** Giliran bulanan yang hidup | Tidak ada; memakai ulang lencana & ikon (confetti digambar lewat kode) | ✅ |
 | **v1.5a** Realisme ekonomi | Tidak ada; memakai ulang `shield.svg`, `wallet.svg`, `trend_line.svg`, `warning_small.svg` | ✅ |
 | **v1.5b** Pekerjaan & karier | 12 ikon (3 latar pendidikan, 6 bidang kerja, 3 program kuliah) + 2 opsional; ikon navigasi Karier ✅ | ⬜ 🔁 |
-| **v1.5c** Utang, properti, hunian | 3 ikon (lencana popup Pinjaman, Kendaraan, Properti) + 11 ilustrasi Hunian & Kendaraan (latar, 7 tempat tinggal, 3 kendaraan) yang sekarang berupa gambar pengganti sederhana | ⬜ 🔁 |
-| **v1.5d** Tokoh & konten | 6 potret tokoh (sementara inisial berwarna) + 1 ikon bidang "Umum" (proyek sampingan) + 21 lencana pencapaian (sementara bintang/gembok); tema & avatar tambahan setelah v2 | ⬜ 🔁 |
+| **v1.5c** Utang, properti, hunian | 3 ikon (lencana popup Pinjaman, Kendaraan, Properti) masih 🔁; ilustrasi Hunian & Kendaraan ✅ (Beranda v2) | ⬜ 🔁 |
+| **v1.5d** Tokoh & konten | Potret tokoh ✅ (12 file, Beranda v2) + 1 ikon bidang "Umum" (proyek sampingan) + 21 lencana pencapaian (sementara bintang/gembok); tema & avatar tambahan setelah v2 | ⬜ 🔁 |
 | **Penutup v1.5** Performa, playtest, legal | Tidak ada; menu Lisensi Pihak Ketiga memakai ulang `book.svg`, info performa & Sesi Bermain hanya teks | ✅ |
 | **v2a** Instrumen lanjut | 2 ikon kelas: Komoditas (sementara `trend_line.svg`) & Valas (sementara `arrow_badge.svg`) + 8 ikon per aset opsional | ⬜ 🔁 |
 | **v2b** Siklus hidup penuh | 4 ilustrasi bab kehidupan + 1 ikon usia + 1 lencana akhir hidup + 1 ikon aktivitas Konseling (semua opsional; sementara memakai lencana bintang / pensiun / hati) | ⬜ 🔁 |
 | **v2c** Dana investor | 1 ikon lencana Dana Kelolaan + 8 potret investor (opsional; sementara ikon reksa dana & teks saja) | ⬜ 🔁 |
-| **Tambahan v2** Garasi & pilihan kendaraan | 8 ilustrasi kendaraan per model (opsional; sementara memakai gambar jenisnya `motor.svg` / `car.svg`) | ⬜ 🔁 |
+| **Tambahan v2** Garasi & pilihan kendaraan | 8 ilustrasi kendaraan per model | ✅ |
 | **M7** Rilis Play Store | Ikon aplikasi adaptif, grafis & screenshot Play Store | ⬜ (rencana) |
 
 ## Aturan Umum
@@ -74,24 +74,26 @@ Game sudah jalan memakai aset sementara (🔁). Begitu file baru ditaruh di path
 | `assets/icons/vehicle.svg` | Lencana popup Kendaraan (motor/mobil + kunci) | `scenes/ui/vehicle_popup.tscn` (popup beli kendaraan & rincian/jual, dari kartu Kendaraan di Beranda) | 🔁 `activities/side_job.svg` | Ganti path `activities/side_job.svg` di `scenes/ui/vehicle_popup.tscn` (atau minta saya) |
 | `assets/icons/property.svg` | Lencana popup Properti (rumah + kunci/papan "dijual") | `scenes/ui/property_popup.tscn` (daftar properti, beli tunai/KPR, rincian/jual, dari kartu Properti di Beranda) | 🔁 `nav_home.svg` | Ganti path `nav_home.svg` di `scenes/ui/property_popup.tscn` (atau minta saya) |
 
-**Ilustrasi Hunian & Kendaraan (langkah 4), sekarang gambar pengganti sederhana:**
+**Ilustrasi Hunian & Kendaraan (langkah 4) ✅ — dibuat ulang bergaya latar anime senja (Beranda v2):**
 
-Dipakai kartu **Hunian & Kendaraan** di Beranda (`scripts/ui/home_scene.gd`, dipasang oleh `scripts/ui/screens/home_screen.gd`). Tiga lapis ditumpuk: latar → tempat tinggal → kendaraan. **Aturan kanvas:** semua file **624 x 260** (rasio 2,4 : 1), latar penuh dengan sudut membulat 18, lapisan lain **transparan**; tempat tinggal di sisi kiri-tengah (x 40-410) berdiri di garis tanah y ±218; kendaraan di sisi kanan (x 400-610) dengan roda di y ±246. Gaya "Senja Cuan": garis tinta `#2B2147` tebal 4, bayangan tinta bergeser 6-8 px ke bawah. **Cara memasang: timpa file dengan nama yang sama** (impor SVG skala 2.0 seperti ilustrasi lain), tanpa mengubah kode.
+Dipakai kartu **Hunian & Kendaraan** di Beranda (`scripts/ui/home_scene.gd`, dipasang oleh `scripts/ui/screens/home_screen.gd`). Tiga lapis ditumpuk: latar → tempat tinggal → kendaraan. **Aturan kanvas:** semua file **624 x 260** (rasio 2,4 : 1), latar penuh dengan sudut membulat 18, lapisan lain **transparan**; tempat tinggal di sisi kiri-tengah (x 40-410) berdiri di garis tanah y ±218; kendaraan di sisi kanan (x 400-610) dengan roda di y ±246. Gaya "Senja Cuan" ala latar anime: garis tinta `#2B2147` tebal 3, cel-shading (sisi kiri gelap, cahaya senja dari kanan), jendela menyala, pantulan kaca miring, kabel listrik & siluet kota di latar. Kartu kecil (menu Rumah & Kendaraan, showroom, daftar properti) memotong lapisan yang sama di atas `home/thumb_bg.svg` (`ArtThumb`, `HomeScene.HOME_CROP` / `VEHICLE_CROP`). **Cara mengganti: timpa file dengan nama yang sama** (impor SVG skala 2.0 seperti ilustrasi lain), tanpa mengubah kode.
 
 | File | Isi | Kapan tampil | Status |
 |:--|:--|:--|:--|
-| `assets/illustrations/home/bg.svg` | Latar: langit senja, matahari, awan, bukit, rumput, trotoar | Selalu | 🔁 pengganti |
-| `assets/illustrations/home/family.svg` | Rumah keluarga (menumpang) | Tempat tinggal Menumpang | 🔁 pengganti |
-| `assets/illustrations/home/kos.svg` | Bangunan kos 2 lantai, deretan pintu kamar, toren air | Kos | 🔁 pengganti |
-| `assets/illustrations/home/kontrakan.svg` | Rumah petak 3 unit berderet, unit tengah milik pemain | Kontrakan | 🔁 pengganti |
-| `assets/illustrations/home/apartment.svg` | Menara apartemen | Apartemen sewa; juga Apartemen Studio milik sendiri | 🔁 pengganti |
-| `assets/illustrations/home/subsidi.svg` | Rumah tipe 36 kecil berpagar | Menghuni Rumah Subsidi | 🔁 pengganti |
-| `assets/illustrations/home/house45.svg` | Rumah tipe 45 dengan carport | Menghuni Rumah Tipe 45 | 🔁 pengganti |
-| `assets/illustrations/home/house90.svg` | Rumah besar 2 lantai dengan balkon & pohon | Menghuni Rumah Besar | 🔁 pengganti |
-| `assets/illustrations/home/studio.svg` (opsional) | Apartemen studio milik sendiri (beda dari apartemen sewa) | Menghuni Apartemen Studio | ⬜ (sementara memakai `apartment.svg`) |
-| `assets/illustrations/vehicle/walk.svg` | Halte bus + bangku (jalan kaki & angkutan umum) | Belum punya kendaraan | 🔁 pengganti |
-| `assets/illustrations/vehicle/motor.svg` | Motor matic | Kendaraan utama motor | 🔁 pengganti |
-| `assets/illustrations/vehicle/car.svg` | Mobil keluarga | Kendaraan utama mobil (punya mobil & motor = mobil) | 🔁 pengganti |
+| `assets/illustrations/home/bg.svg` | Latar: langit senja, matahari, awan, bukit, rumput, trotoar | Selalu | ✅ |
+| `assets/illustrations/home/family.svg` | Rumah keluarga (menumpang) | Tempat tinggal Menumpang | ✅ |
+| `assets/illustrations/home/kos.svg` | Bangunan kos 2 lantai, deretan pintu kamar, toren air | Kos | ✅ |
+| `assets/illustrations/home/kontrakan.svg` | Rumah petak 3 unit berderet, unit tengah milik pemain | Kontrakan | ✅ |
+| `assets/illustrations/home/apartment.svg` | Menara apartemen | Apartemen sewa; juga Apartemen Studio milik sendiri | ✅ |
+| `assets/illustrations/home/subsidi.svg` | Rumah tipe 36 kecil berpagar | Menghuni Rumah Subsidi | ✅ |
+| `assets/illustrations/home/house45.svg` | Rumah tipe 45 dengan carport | Menghuni Rumah Tipe 45 | ✅ |
+| `assets/illustrations/home/house90.svg` | Rumah besar 2 lantai dengan balkon & pohon | Menghuni Rumah Besar | ✅ |
+| `assets/illustrations/home/studio.svg` | Apartemen studio milik sendiri (fasad hijau mint, balkon bertanaman) | Menghuni Apartemen Studio | ✅ |
+| `assets/illustrations/home/land.svg` | Tanah kavling berpatok dengan papan "dijual" | Kartu Tanah Kavling (menu Rumah & Kendaraan, daftar properti) | ✅ |
+| `assets/illustrations/home/thumb_bg.svg` | Latar polos (langit, rumput, trotoar) untuk potongan kartu kecil | `scripts/ui/art_thumb.gd` | ✅ |
+| `assets/illustrations/vehicle/walk.svg` | Halte bus + bangku (jalan kaki & angkutan umum) | Belum punya kendaraan | ✅ |
+| `assets/illustrations/vehicle/motor.svg` | Motor matic | Kendaraan utama motor | ✅ |
+| `assets/illustrations/vehicle/car.svg` | Mobil keluarga | Kendaraan utama mobil (punya mobil & motor = mobil) | ✅ |
 
 Nama file = id di data: tempat tinggal sewa memakai id `housing` di `data/economy.json`, rumah sendiri memakai id properti di `data/properties.json`, kendaraan memakai id di `data/vehicles.json`. Properti baru tanpa gambar memakai gambar pengganti di `HOME_FALLBACK` (`scripts/ui/home_scene.gd`).
 
@@ -103,18 +105,18 @@ Nama file = id di data: tempat tinggal sewa memakai id `housing` di `data/econom
 
 ## v1.5d: Tokoh, Riset, Kontrak, Konten ⬜
 
-**Sudah dipakai (langkah 1), sementara lingkaran berwarna + inisial nama (digambar kode):**
+**Potret tokoh ✅ (Beranda v2), gaya sama dengan avatar pemain:**
 
-Dipakai `scripts/ui/character_portrait.gd` di popup event (baris tokoh di bawah judul) dan kartu **Orang Terdekat** di tab Profil. Potret **bulat**, kanvas persegi 256 x 256 (lingkaran penuh, garis tinta `#2B2147`), gaya sama dengan avatar pemain. **Cara memasang: otomatis** begitu file ada (nama file = id tokoh di `data/characters.json`).
+Dipakai `scripts/ui/character_portrait.gd` di popup event (baris tokoh di bawah judul) dan kartu **Orang Terdekat** di tab Profil. Potret **bulat**, kanvas persegi 256 x 256 (lingkaran penuh, garis tinta `#2B2147`), gaya sama dengan avatar pemain. Nama file = id tokoh di `data/characters.json`; tokoh kantor memakai `"portraits"` yang sejajar dengan `"names"` (Bu Diana -> `boss_f`, dst.), lewat `Characters.portrait_of`. Tanpa file: lingkaran berwarna + inisial.
 
 | File | Tokoh | Kesan visual | Sementara |
 |:--|:--|:--|:--|
-| `assets/illustrations/characters/bima.svg` | Bima, sahabat | Pria muda santai, kaos & topi terbalik, ceria-impulsif | 🔁 lingkaran oranye "B" |
-| `assets/illustrations/characters/ibu.svg` | Ibu | Ibu paruh baya berkerudung, hangat | 🔁 lingkaran teal "I" |
-| `assets/illustrations/characters/wulan.svg` | Kak Wulan, mentor keuangan | Wanita ±30 tahun, blazer, rapi & percaya diri | 🔁 lingkaran biru "W" |
-| `assets/illustrations/characters/ratna.svg` | Bu Ratna, tetangga | Ibu-ibu ramah berdaster, suka bercerita | 🔁 lingkaran ungu "R" |
-| `assets/illustrations/characters/boss.svg` | Atasan (nama berganti per perusahaan, pria/wanita) | Netral gender, kemeja kantor & kacamata | 🔁 lingkaran tinta + inisial nama |
-| `assets/illustrations/characters/coworker.svg` | Rekan kerja (nama berganti per perusahaan) | Netral gender, kartu identitas karyawan | 🔁 lingkaran emas + inisial nama |
+| `assets/illustrations/characters/bima.svg` | Bima, sahabat | Pria muda santai, kaos & topi terbalik, ceria-impulsif | ✅ |
+| `assets/illustrations/characters/ibu.svg` | Ibu | Ibu paruh baya berkerudung, hangat | ✅ |
+| `assets/illustrations/characters/wulan.svg` | Kak Wulan, mentor keuangan | Wanita ±30 tahun, blazer, rapi & percaya diri | ✅ |
+| `assets/illustrations/characters/ratna.svg` | Bu Ratna, tetangga | Ibu-ibu ramah berdaster, suka bercerita | ✅ |
+| `assets/illustrations/characters/boss_m.svg`, `boss_f.svg`, `boss_m2.svg`, `boss_f2.svg` | Atasan (Pak Hendra/Gunawan, Bu Diana/Retno, Pak Yusuf, Bu Melati) | Kemeja & dasi berkacamata; blazer marun berkacamata; batik beruban berkumis; blazer & kerudung biru | ✅ |
+| `assets/illustrations/characters/coworker_f.svg`, `coworker_m.svg`, `coworker_f2.svg`, `coworker_m2.svg` | Rekan kerja (Mega/Putri, Fajar, Tiara, Rizky/Galih) | Semua memakai kartu identitas karyawan | ✅ |
 
 **Langkah 3 (proyek sampingan), sementara memakai ikon lain:**
 
@@ -191,22 +193,29 @@ Ukuran & gaya sama dengan ikon kelas lain di `assets/icons/classes/` (26x26, gar
 | `assets/icons/fund.svg` (opsional, gaya ikon lencana popup) | Ikon dana kelolaan (mis. tumpukan koin di dalam brankas atau map dokumen dengan grafik) | Lencana popup Dana Kelolaan (`scenes/ui/fund_popup.tscn`, v2c langkah 1) | Ikon kelas reksa dana `classes/mutual_fund.svg` 🔁 |
 | `assets/portraits/investors/<id>.png` (opsional, 8 file, gaya potret tokoh) | Potret investor: `sari`, `hendra`, `rahmat`, `wijaya`, `koperasi` (logo koperasi), `nadia`, `yayasan` (logo yayasan), `dapen` (logo dana pensiun) | Kartu investor & tawaran di popup Dana Kelolaan (rencana langkah 3) | Teks nama saja 🔁 |
 
-## Tambahan v2: Garasi & Pilihan Kendaraan ⬜ 🔁 (opsional)
+## Tambahan v2: Garasi & Pilihan Kendaraan ✅
 
 Lapisan kendaraan di ilustrasi **Hunian & Kendaraan** (Beranda) menampilkan **kendaraan utama** (yang termahal). Gaya & kanvas sama dengan `vehicle/motor.svg` dan `vehicle/car.svg`: **624 x 260**, kendaraan di sisi kanan bawah, latar transparan (ditumpuk di atas `home/bg.svg` dan gambar tempat tinggal). Nama file = id model di `data/vehicles.json`; selama file belum ada, game memakai gambar jenisnya (`HomeScene.vehicle_fallback_id()`).
 
 | File | Isi | Sementara |
 |:--|:--|:--|
-| `assets/illustrations/vehicle/motor_used.svg` | Motor matic bekas (catnya sedikit kusam, ada goresan) | `motor.svg` 🔁 |
-| `assets/illustrations/vehicle/motor_ev.svg` | Motor listrik (bodi ramping, tanpa knalpot, lampu LED) | `motor.svg` 🔁 |
-| `assets/illustrations/vehicle/motor_sport.svg` | Motor sport 250 cc (fairing, posisi duduk menunduk) | `motor.svg` 🔁 |
-| `assets/illustrations/vehicle/car_used.svg` | Mobil keluarga bekas (model lebih tua, cat kusam) | `car.svg` 🔁 |
-| `assets/illustrations/vehicle/car_city.svg` | Mobil kecil 5 penumpang (hatchback) | `car.svg` 🔁 |
-| `assets/illustrations/vehicle/car_suv.svg` | SUV tinggi dan kekar | `car.svg` 🔁 |
-| `assets/illustrations/vehicle/car_ev.svg` | Mobil listrik (gril tertutup, garis modern) | `car.svg` 🔁 |
-| `assets/illustrations/vehicle/car_luxury.svg` | Sedan mewah panjang | `car.svg` 🔁 |
+| `assets/illustrations/vehicle/motor_used.svg` | Motor matic bekas (catnya sedikit kusam, ada goresan) | ✅ |
+| `assets/illustrations/vehicle/motor_ev.svg` | Motor listrik (bodi ramping, tanpa knalpot, lampu LED) | ✅ |
+| `assets/illustrations/vehicle/motor_sport.svg` | Motor sport 250 cc (fairing, posisi duduk menunduk) | ✅ |
+| `assets/illustrations/vehicle/car_used.svg` | Mobil keluarga bekas (model lebih tua, cat kusam) | ✅ |
+| `assets/illustrations/vehicle/car_city.svg` | Mobil kecil 5 penumpang (hatchback) | ✅ |
+| `assets/illustrations/vehicle/car_suv.svg` | SUV tinggi dan kekar | ✅ |
+| `assets/illustrations/vehicle/car_ev.svg` | Mobil listrik (gril tertutup, garis modern) | ✅ |
+| `assets/illustrations/vehicle/car_luxury.svg` | Sedan mewah panjang | ✅ |
 
 Tanpa merek atau logo nyata. Jika ingin satu gambar dipakai beberapa model, isi `"art"` di model tersebut (mis. `"art": "car"`).
+
+## Beranda v2: Ikon Impian & Target ✅
+
+| File | Isi | Dipakai di |
+|:--|:--|:--|
+| `assets/icons/dreams/<id>.svg` (12 file: phone, laptop, bali, motor, umrah, japan, business, wedding, house_dp, masters, car, early_retire) | Ikon garis per impian (nama file = id di `data/dreams.json`) | Kartu Impian di Beranda (`home_screen.gd`, cadangan `badge_star.svg`) |
+| `assets/icons/target_open.svg` | Lingkaran kosong target yang masih berjalan | Kartu Target Bulan Ini (selesai/gagal memakai `req_ok.svg`/`req_no.svg`) |
 
 ## M7: Rilis Play Store ⬜ (rencana)
 

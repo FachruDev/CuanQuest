@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://scenes/screens/profile_screen.tscn" id="5_profile"]
 [ext_resource type="PackedScene" path="res://scenes/ui/month_summary_popup.tscn" id="6_popup"]
 [ext_resource type="PackedScene" path="res://scenes/screens/activity_screen.tscn" id="7_activity"]
+[ext_resource type="PackedScene" path="res://scenes/screens/assets_screen.tscn" id="40_assets"]
 [ext_resource type="PackedScene" path="res://scenes/ui/info_popup.tscn" id="8_info"]
 [ext_resource type="PackedScene" path="res://scenes/ui/event_popup.tscn" id="9_event"]
 [ext_resource type="PackedScene" path="res://scenes/ui/quiz_popup.tscn" id="10_quiz"]
@@ -314,6 +315,11 @@ visible = false
 layout_mode = 2
 
 [node name="ProfileScreen" parent="Sheet/Content" instance=ExtResource("5_profile")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="AssetsScreen" parent="Sheet/Content" instance=ExtResource("40_assets")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2

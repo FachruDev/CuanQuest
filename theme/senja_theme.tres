@@ -1877,6 +1877,86 @@ corner_radius_bottom_right = 26
 corner_radius_bottom_left = 26
 anti_aliasing_size = 1.0
 
+[sub_resource type="StyleBoxFlat" id="hero_card"]
+content_margin_left = 14.0
+content_margin_top = 14.0
+content_margin_right = 14.0
+content_margin_bottom = 14.0
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.9333, 0.8667, 0.7608, 1)
+corner_radius_top_left = 26
+corner_radius_top_right = 26
+corner_radius_bottom_right = 26
+corner_radius_bottom_left = 26
+anti_aliasing_size = 1.0
+
+[sub_resource type="StyleBoxFlat" id="action_card"]
+content_margin_left = 20.0
+content_margin_top = 18.0
+content_margin_right = 20.0
+content_margin_bottom = 18.0
+bg_color = Color(1, 0.9569, 0.8745, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.949, 0.7686, 0.4275, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+anti_aliasing_size = 1.0
+
+[sub_resource type="StyleBoxFlat" id="alert_card"]
+content_margin_left = 16.0
+content_margin_top = 14.0
+content_margin_right = 16.0
+content_margin_bottom = 14.0
+bg_color = Color(0.9922, 0.9216, 0.8941, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.949, 0.7216, 0.651, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+anti_aliasing_size = 1.0
+
+[sub_resource type="StyleBoxFlat" id="tip_banner"]
+content_margin_left = 14.0
+content_margin_top = 10.0
+content_margin_right = 14.0
+content_margin_bottom = 10.0
+bg_color = Color(1, 0.9569, 0.8745, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.949, 0.7686, 0.4275, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+anti_aliasing_size = 1.0
+
+[sub_resource type="StyleBoxFlat" id="thumb_frame"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.9922, 0.8902, 0.749, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+anti_aliasing_size = 1.0
+
 [resource]
 default_font = ExtResource("5_fredoka_regular")
 default_font_size = 22
@@ -2742,3 +2822,13 @@ ScoreLabel/base_type = &"Label"
 ScoreLabel/colors/font_color = Color(0.1686, 0.1294, 0.2784, 1)
 ScoreLabel/fonts/font = ExtResource("6_fredoka_bold")
 ScoreLabel/font_sizes/font_size = 18
+HeroCard/base_type = &"PanelContainer"
+HeroCard/styles/panel = SubResource("hero_card")
+ActionCard/base_type = &"PanelContainer"
+ActionCard/styles/panel = SubResource("action_card")
+AlertCard/base_type = &"PanelContainer"
+AlertCard/styles/panel = SubResource("alert_card")
+TipBanner/base_type = &"PanelContainer"
+TipBanner/styles/panel = SubResource("tip_banner")
+ThumbFrame/base_type = &"PanelContainer"
+ThumbFrame/styles/panel = SubResource("thumb_frame")

@@ -103,6 +103,20 @@ func name_of(id: String) -> String:
 	return names[posmod(hash(work_company + ":" + id), names.size())]
 
 
+## Nama file potret (assets/illustrations/characters/<nama>.svg). Tokoh kantor memakai potret yang
+## sejajar dengan namanya ("portraits" di characters.json, mis. Bu Diana -> boss_f); tokoh lain id-nya.
+func portrait_of(id: String) -> String:
+	var d := def(id)
+	if not d.get("work", false) or not d.has("portraits"):
+		return id
+	_sync_work()
+	if work_company == "":
+		return id
+	var portraits: Array = d["portraits"]
+	var names: Array = d["names"]
+	return portraits[posmod(hash(work_company + ":" + id), names.size()) % portraits.size()]
+
+
 func rel_of(id: String) -> int:
 	_sync_work()
 	return int(rel.get(id, 50))

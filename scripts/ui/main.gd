@@ -106,20 +106,26 @@ func _ready() -> void:
 		_show_toast(tr("TOAST_LOAN") % [tr(loan_name), Fmt.rupiah(amount)]))
 	%LoanPopup.loan_paid_off.connect(func(loan_name: String) -> void:
 		_show_toast(tr("TOAST_LOAN_PAID") % tr(loan_name)))
-	%HomeScreen.vehicle_market_requested.connect(func() -> void:
+	# Menu Rumah & Kendaraan (Beranda v2): dibuka dari Beranda, popup-nya tetap lewat antrean di sini.
+	%HomeScreen.assets_requested.connect(_show_assets)
+	%AssetsScreen.back_requested.connect(_show_screen.bind(0))
+	%AssetsScreen.vehicle_sell_requested.connect(_confirm_vehicle_sale)
+	%AssetsScreen.property_sell_requested.connect(_confirm_property_listing)
+	%AssetsScreen.moved_in.connect(_check_first_home)
+	%AssetsScreen.vehicle_market_requested.connect(func() -> void:
 		_hint("HINT_VEHICLE")
 		_enqueue(%VehiclePopup.open_market))
-	%HomeScreen.vehicle_detail_requested.connect(func(uid: int) -> void:
+	%AssetsScreen.vehicle_detail_requested.connect(func(uid: int) -> void:
 		_enqueue(%VehiclePopup.open_detail.bind(uid)))
 	%VehiclePopup.vehicle_bought.connect(func(vehicle_name: String) -> void:
 		_show_toast(tr("TOAST_VEHICLE_BOUGHT") % tr(vehicle_name))
 		_enqueue_plan_review())
 	%VehiclePopup.vehicle_sold.connect(func(vehicle_name: String, net: int) -> void:
 		_show_toast(tr("TOAST_VEHICLE_SOLD") % [tr(vehicle_name), Fmt.rupiah(net)]))
-	%HomeScreen.property_market_requested.connect(func() -> void:
+	%AssetsScreen.property_market_requested.connect(func() -> void:
 		_hint("HINT_PROPERTY")
 		_enqueue(%PropertyPopup.open_market))
-	%HomeScreen.property_detail_requested.connect(func(uid: int) -> void:
+	%AssetsScreen.property_detail_requested.connect(func(uid: int) -> void:
 		_enqueue(%PropertyPopup.open_detail.bind(uid)))
 	%PropertyPopup.property_bought.connect(func(property_name: String) -> void:
 		_show_toast(tr("TOAST_PROPERTY_BOUGHT") % tr(property_name))
@@ -224,6 +230,7 @@ func _ready() -> void:
 
 func _show_screen(index: int) -> void:
 	_nav_buttons[index].button_pressed = true  # lewat ButtonGroup: tombol lain otomatis lepas
+	%AssetsScreen.hide()
 	for i in _screens.size():
 		_screens[i].visible = i == index
 	if TAB_HINTS.has(index) and GameState.consume_hint(TAB_HINTS[index]):
@@ -568,6 +575,72 @@ func _confirm_enroll(program_id: String) -> void:
 	_enqueue(%InfoPopup.open.bind(tr(option["def"]["name"]), body, tr("EDU_ENROLL_CONFIRM"), func() -> void:
 		if GameState.education.enroll(program_id)["ok"]:
 			_show_toast(tr("TOAST_ENROLLED") % tr(option["def"]["name"])), tr("BTN_CANCEL")))
+
+
+## Menu Rumah & Kendaraan menggantikan isi Beranda (tab Beranda tetap aktif di navigasi bawah).
+func _show_assets(tab: String) -> void:
+	for screen in _screens:
+		screen.hide()
+	%AssetsScreen.show()
+	%AssetsScreen.open(tab)
+
+
+## Konfirmasi jual kendaraan ke dealer: nilai pasar, harga jual, pelunasan kredit, diterima bersih.
+func _confirm_vehicle_sale(uid: int) -> void:
+	var vehicles := GameState.vehicles
+	var entry := vehicles.find(uid)
+	if entry.is_empty():
+		return
+	var vehicle_name := tr(vehicles.def(entry["id"])["name"])
+	var q := vehicles.sell_quote(uid)
+	var lines: PackedStringArray = [
+		"%s: %s" % [tr("VEHICLE_ROW_VALUE"), Fmt.rupiah(q["value"])],
+		"%s: %s" % [tr("VEHICLE_ROW_SELL_PRICE") % roundi(float(vehicles.data["sell_ratio"]) * 100.0), Fmt.rupiah(q["proceeds"])],
+	]
+	if int(q["payoff"]) > 0:
+		lines.append("%s: %s" % [tr("VEHICLE_ROW_PAYOFF"), Fmt.signed_rupiah(-q["payoff"])])
+	lines.append("%s: %s" % [tr("VEHICLE_ROW_NET"), Fmt.signed_rupiah(q["net"])])
+	var title := tr("ASSETS_SELL_TITLE") % vehicle_name
+	if not q["ok"]:
+		lines.append("")
+		lines.append(tr("VEHICLE_SELL_NO_CASH") % Fmt.rupiah(GameState.cash))
+		_enqueue(%InfoPopup.open_warning.bind(title, "\n".join(lines)))
+		return
+	_enqueue(%InfoPopup.open.bind(title, "\n".join(lines), tr("ASSETS_SELL_CONFIRM"), func() -> void:
+		var net: int = GameState.vehicles.sell_quote(uid)["net"]
+		if GameState.vehicles.sell(uid):
+			Sfx.play("coin")
+			_show_toast(tr("TOAST_VEHICLE_SOLD") % [vehicle_name, Fmt.rupiah(net)]), tr("BTN_CANCEL")))
+
+
+## Konfirmasi pasang iklan jual properti: harga hari ini dikurangi pajak, komisi agen, dan pelunasan KPR.
+func _confirm_property_listing(uid: int) -> void:
+	var properties := GameState.properties
+	var entry := properties.find(uid)
+	if entry.is_empty():
+		return
+	var property_name := tr(properties.def(entry["id"])["name"])
+	var q := properties.sell_quote(entry)
+	var lines: PackedStringArray = [
+		"%s: %s" % [tr("PROPERTY_ROW_SELL_PRICE"), Fmt.rupiah(q["price"])],
+		"%s: %s" % [tr("PROPERTY_ROW_SELL_TAX") % Fmt.percent_plain(properties.data["sell_tax"]), Fmt.signed_rupiah(-q["tax"])],
+		"%s: %s" % [tr("PROPERTY_ROW_SELL_FEE") % Fmt.percent_plain(properties.data["sell_fee"]), Fmt.signed_rupiah(-q["fee"])],
+	]
+	if int(q["payoff"]) > 0:
+		lines.append("%s: %s" % [tr("VEHICLE_ROW_PAYOFF"), Fmt.signed_rupiah(-q["payoff"])])
+	lines.append("%s: %s" % [tr("VEHICLE_ROW_NET"), Fmt.signed_rupiah(q["net"])])
+	lines.append("")
+	lines.append(tr("PROPERTY_SELL_NOTE") % [int(properties.data["sell_months"][0]), int(properties.data["sell_months"][1])])
+	var title := tr("ASSETS_LIST_TITLE") % property_name
+	if not q["ok"]:
+		lines.append("")
+		lines.append(tr("PROPERTY_SELL_LOCKED") % Fmt.game_date(properties.sellable_from(entry)) if q["locked"]
+			else tr("VEHICLE_SELL_NO_CASH") % Fmt.rupiah(GameState.cash))
+		_enqueue(%InfoPopup.open_warning.bind(title, "\n".join(lines)))
+		return
+	_enqueue(%InfoPopup.open.bind(title, "\n".join(lines), tr("PROPERTY_LIST_BUTTON"), func() -> void:
+		if GameState.properties.list_for_sale(uid):
+			_show_toast(tr("TOAST_PROPERTY_LISTED") % property_name), tr("BTN_CANCEL")))
 
 
 ## Rencana gaji perlu dicek (belum pernah disimpan atau gaji berubah). Diperiksa lagi saat

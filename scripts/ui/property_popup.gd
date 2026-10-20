@@ -51,14 +51,21 @@ func _market_row(d: Dictionary) -> Button:
 	button.pressed.connect(func() -> void:
 		_from_market = true
 		_show_buy(d["id"]))
+	var row := HBoxContainer.new()  # potongan ilustrasi + teks (Beranda v2)
+	row.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	row.offset_left = 12
+	row.offset_right = -16
+	row.offset_top = 10
+	row.offset_bottom = -10
+	row.add_theme_constant_override("separation", 14)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(ArtThumb.new(HomeScene.home_art(d["id"]), HomeScene.HOME_CROP, Vector2(112, 80)))
 	var box := VBoxContainer.new()
-	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	box.offset_left = 16
-	box.offset_right = -16
-	box.offset_top = 10
-	box.offset_bottom = -10
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	box.add_theme_constant_override("separation", 4)
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(box)
 	var top := HBoxContainer.new()
 	top.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var name_label := _label(tr(d["name"]), &"AssetNameLabel")
@@ -76,8 +83,8 @@ func _market_row(d: Dictionary) -> Button:
 	var sub_label := _label(sub, &"AssetSubLabel")
 	sub_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(sub_label)
-	button.add_child(box)
-	UiText.fit_to_content(button, box, 20.0)
+	button.add_child(row)
+	UiText.fit_to_content(button, row, 20.0)
 	return button
 
 

@@ -1802,3 +1802,102 @@ VEHICLE_ROW_SUB_SHARED,Biaya %s/bln · kebahagiaan dari kendaraan lain,Costs %s/
 VEHICLE_REQ_GARAGE,Garasi masih muat (%d dari %d kendaraan),Garage has room (%d of %d vehicles)
 VEHICLE_GARAGE,Garasi: %d dari %d kendaraan,Garage: %d of %d vehicles
 HOME_SCENE_MORE,%s +%d,%s +%d
+HOME_SEG_TODAY,Hari Ini,Today
+HOME_SEG_MONEY,Keuangan,Money
+HOME_SEG_LIFE,Gaya Hidup,Lifestyle
+HOME_ALERT_CRITICAL,Kondisi kritis,Critical condition
+HOME_ALERT_MARGIN,Margin call,Margin call
+HOME_ALERT_MOOD,Sedang tidak baik-baik saja,Not feeling okay
+HOME_ALERT_DREAMS,%d impian melewati tenggat,%d dream(s) past the deadline
+HOME_ALERT_DREAMS_SUB,%s: perpanjang atau lepaskan dananya.,%s: extend it or release the funds.
+HOME_ALERT_REVIEW,Tinjau,Review
+HOME_ALERT_ARREARS,%s menunggak,%s is overdue
+HOME_PROJECTS_CHIP,%d proyek sampingan berjalan,%d side project(s) running
+HOME_TARGETS_REWARD,Hadiah: kebahagiaan +%d · XP +%d,Reward: happiness +%d · XP +%d
+HOME_TARGET_PROGRESS,%s dari %s,%s of %s
+HOME_TARGETS_NONE,Target baru muncul awal bulan depan.,New targets appear next month.
+HOME_DREAMS_COUNT,%d aktif · maks. %d,%d active · max %d
+HOME_DREAMS_ADD_SHORT,Tambah impian,Add a dream
+HOME_DREAM_LATE,Lewat tenggat,Past due
+HOME_DREAM_MONTHS,%d bln lagi,%d mo left
+HOME_DREAM_PROGRESS,%s dari %s · %d%%,%s of %s · %d%%
+HOME_FLOW_TITLE,Ke Mana Gajimu Pergi,Where Your Pay Goes
+HOME_FLOW_CAPS,GAJI BERSIH BULAN INI,NET PAY THIS MONTH
+HOME_FLOW_CAPS_AVG,PENGHASILAN RATA-RATA,AVERAGE INCOME
+HOME_FLOW_PENSION,Pensiun bulanan %s,Monthly pension %s
+HOME_FLOW_GROSS,"Gaji %s
+PPh 21 −%s","Salary %s
+Income tax −%s"
+HOME_FLOW_DUTY,Kewajiban,Obligations
+HOME_FLOW_LIFESTYLE,Gaya hidup,Lifestyle
+HOME_FLOW_SAVING,Tabungan & investasi,Saving & investing
+HOME_FLOW_LEFT,Sisa ke kas,Left to cash
+HOME_FLOW_DEFICIT,"Kurang, diambil dari kas","Shortfall, paid from cash"
+HOME_FLOW_DEFICIT_SUB,Kurangi pengeluaran atau tambah penghasilan.,Cut spending or earn more.
+HOME_FLOW_ITEM_BASIC,biaya hidup,living costs
+HOME_FLOW_ITEM_VEHICLE,kendaraan,vehicles
+HOME_FLOW_ITEM_PROPERTY,properti,property
+HOME_FLOW_ITEM_DEBT,cicilan,installments
+HOME_FLOW_ITEM_INSURANCE,premi,premiums
+HOME_FLOW_ITEM_TUITION,kuliah,tuition
+HOME_FLOW_ITEM_EMERGENCY,dana darurat,emergency fund
+HOME_FLOW_ITEM_DREAMS,impian,dreams
+HOME_FLOW_ITEM_INVEST,autodebet,auto-invest
+HOME_FLOW_LIFESTYLE_SUB,Hiburan & belanja · %d%% gaji,Fun & shopping · %d%% of pay
+HOME_FLOW_LEFT_SUB,Masuk ke kas tiap awal bulan,Added to cash at the start of each month
+HOME_FLOW_RENT_SUB,Termasuk sewa properti %s,Includes property rent %s
+HOME_FLOW_DETAILS,Rincian per pos,Line items
+HOME_FLOW_HIDE,Tutup rincian,Hide items
+HOME_CREDIT_NOTE,Menentukan bunga dan persetujuan pinjaman. Bayar cicilan tepat waktu untuk menjaganya.,Decides loan rates and approval. Pay installments on time to keep it up.
+HOME_DSR,Rasio cicilan terhadap gaji,Installments vs. salary
+HOME_DSR_VALUE,%s / batas %s,%s / limit %s
+HOME_LOAN_PAID,%d%% lunas,%d%% paid
+HOME_INS_PREMIUM,Premi %s/bln,Premiums %s/mo
+HOME_INS_ACTIVE,Aktif,Active
+HOME_INS_WAITING_CHIP,Masa tunggu,Waiting period
+HOME_INS_INACTIVE,Tidak aktif,Not covered
+HOME_LIFE_TITLE,Makan & Tempat Tinggal,Food & Housing
+HOME_LIFE_NEXT_MONTH,berlaku awal bulan depan,applies next month
+HOME_MOVE_TO_RENT,Atau pindah ke tempat sewa (rumahmu menjadi kosong):,Or move to a rental (your home becomes empty):
+HOME_OWN_HOME_TITLE,Rumah sendiri · %s,Own home · %s
+HOME_OWN_HOME_SUB,"Tanpa sewa · kesehatan %+d, kebahagiaan %+d per bulan","No rent · health %+d, happiness %+d per month"
+HOME_ASSETS_ENTRY_SUB,"Hunian, garasi, dan properti: pindah, jual, atau sewakan.","Home, garage, and property: move, sell, or rent out."
+HOME_VEHICLE_COST,Biaya %s/bln,Costs %s/mo
+HOME_VEHICLE_ROW_SUB,Biaya %s/bln,Costs %s/mo
+HOME_MANAGE_VEHICLES,Kelola kendaraan,Manage vehicles
+HOME_PROPERTY_VALUE,Nilai %s,Worth %s
+HOME_MANAGE_PROPERTIES,Kelola properti,Manage property
+PROPERTY_CHIP_SELLING,Dijual,For sale
+PROPERTY_CHIP_VACANT,Cari penyewa,Finding tenant
+PROPERTY_CHIP_RENTED,Disewakan,Rented
+ASSETS_TITLE,Rumah & Kendaraan,Home & Vehicles
+ASSETS_TAB_HOME,Hunian,Housing
+ASSETS_TAB_VEHICLES,Kendaraan,Vehicles
+ASSETS_TAB_PROPERTIES,Properti,Property
+ASSETS_SUMMARY,Nilai kendaraan & properti %s · biaya %s/bln,Vehicles & property worth %s · costs %s/mo
+ASSETS_HOME_NOW,TEMPAT TINGGALMU SEKARANG,WHERE YOU LIVE NOW
+ASSETS_OWN_SUB,"Rumah sendiri, tanpa sewa","Own home, no rent"
+ASSETS_RENT_SUB,Sewa %s/bln,Rent %s/mo
+ASSETS_CURRENT,Ditempati,Current
+ASSETS_OWN_HOMES,Rumah Milikmu,Your Homes
+ASSETS_LIVE_HERE,Huni rumah ini,Move in
+ASSETS_RENTALS,Tempat Sewa,Rentals
+ASSETS_MOVE,Pindah ke sini,Move here
+ASSETS_MOVE_NOTE,Pindah ke tempat sewa membuat rumahmu kosong (PBB & perawatan tetap dibayar). Berlaku awal bulan depan.,Moving to a rental leaves your home empty (property tax & upkeep still apply). Takes effect next month.
+ASSETS_GARAGE,Garasi,Garage
+ASSETS_GARAGE_COUNT,%d dari %d kendaraan,%d of %d vehicles
+ASSETS_SHOWROOM,Buka Showroom,Open Showroom
+ASSETS_GARAGE_FULL,Garasi penuh: jual satu kendaraan dulu untuk membeli yang baru.,Garage full: sell a vehicle before buying another.
+ASSETS_ON_CREDIT,Kredit,On credit
+ASSETS_ON_KPR,KPR,Mortgage
+ASSETS_SINCE_BOUGHT,%s sejak dibeli (%s),%s since bought (%s)
+ASSETS_DETAIL,Rincian,Details
+ASSETS_SELL,Jual · %s,Sell · %s
+ASSETS_RENT_TOTAL,Sewa bersih %s/bln,Net rent %s/mo
+ASSETS_UPKEEP,PBB & perawatan %s/bln,Tax & upkeep %s/mo
+ASSETS_EMPTY_TIP,Rumah kosong tetap makan biaya. Sewakan untuk pendapatan pasif ±%s/bln.,An empty home still costs money. Rent it out for about %s/mo of passive income.
+ASSETS_EFFECTS,"kesehatan %+d, kebahagiaan %+d","health %+d, happiness %+d"
+ASSETS_SELL_TITLE,Jual %s?,Sell %s?
+ASSETS_SELL_CONFIRM,"Ya, jual sekarang","Yes, sell now"
+ASSETS_LIST_TITLE,Jual %s?,Sell %s?
+HOME_FLOW_NONE,Belum ada bulan ini,None this month

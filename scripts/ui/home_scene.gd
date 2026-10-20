@@ -17,6 +17,9 @@ const VEHICLE_ART := "res://assets/illustrations/vehicle/%s.svg"
 ## Gambar pengganti jika file khusus belum ada (mis. properti baru di data tanpa gambar).
 const HOME_FALLBACK := {"studio": "apartment", "house90": "house45", "subsidi": "house45"}
 const HOME_DEFAULT := "kos"
+## Daerah objek di kanvas 624 x 260 untuk potongan kartu (ArtThumb): rumah di kiri, kendaraan di kanan.
+const HOME_CROP := Rect2(28, 4, 362, 256)
+const VEHICLE_CROP := Rect2(356, 62, 268, 190)
 
 var _layers: Array[TextureRect] = []
 
@@ -46,6 +49,18 @@ func refresh() -> void:
 	if not ResourceLoader.exists(path):
 		path = VEHICLE_ART % vehicle_fallback_id()
 	_layers[2].texture = _texture(path)
+
+
+## Ilustrasi satu tempat tinggal (id hunian sewa atau id properti), dengan gambar pengganti.
+static func home_art(id: String) -> String:
+	var path := HOME_ART % id
+	return path if ResourceLoader.exists(path) else HOME_ART % HOME_FALLBACK.get(id, HOME_DEFAULT)
+
+
+## Ilustrasi satu model kendaraan (id di vehicles.json), dengan gambar jenisnya sebagai pengganti.
+static func vehicle_art(id: String) -> String:
+	var path := VEHICLE_ART % str(GameState.vehicles.def(id).get("art", id))
+	return path if ResourceLoader.exists(path) else VEHICLE_ART % GameState.vehicles.category_of(id)
 
 
 ## Rumah yang dihuni sendiri, atau pilihan tempat tinggal sewa.

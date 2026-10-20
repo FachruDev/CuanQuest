@@ -39,11 +39,13 @@
 		{
 			"id": "boss", "role": "Atasan", "start": 50, "work": true, "color": "#2B2147",
 			"names": ["Pak Hendra", "Bu Diana", "Pak Yusuf", "Bu Melati", "Pak Gunawan", "Bu Retno"],
+			"portraits": ["boss_m", "boss_f", "boss_m2", "boss_f2", "boss_m", "boss_f"],
 			"desc": "Atasanmu di kantor. Penilaiannya menentukan kinerja dan promosimu."
 		},
 		{
 			"id": "coworker", "role": "Rekan kerja", "start": 50, "work": true, "color": "#C7841A",
 			"names": ["Mega", "Fajar", "Tiara", "Rizky", "Putri", "Galih"],
+			"portraits": ["coworker_f", "coworker_m", "coworker_f2", "coworker_m2", "coworker_f", "coworker_m2"],
 			"desc": "Teman sekantor yang paling sering bekerja bersamamu."
 		}
 	]

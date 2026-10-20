@@ -416,7 +416,7 @@ func sell_quote(entry: Dictionary) -> Dictionary:
 	var locked := gs.month < sellable_from(entry)
 	return {"price": sale_price, "tax": tax, "fee": fee, "proceeds": proceeds, "payoff": payoff,
 		"net": proceeds - payoff, "gain": sale_price - int(entry["paid"]), "locked": locked,
-		"ok": not locked and gs.cash + proceeds >= payoff}
+		"ok": not locked and (proceeds >= payoff or gs.cash + proceeds >= payoff)}  # boleh walau kas minus
 
 
 ## Memasang properti untuk dijual: laku setelah 1-3 bulan dengan harga saat itu.
