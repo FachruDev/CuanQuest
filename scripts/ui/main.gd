@@ -11,11 +11,16 @@ const ANNUAL_POPUP := preload("res://scenes/ui/annual_popup.tscn")
 const LEVERAGE_POPUP := preload("res://scenes/ui/leverage_popup.tscn")
 const FUND_POPUP := preload("res://scenes/ui/fund_popup.tscn")
 const ACHIEVEMENT_POPUP := preload("res://scenes/ui/achievement_popup.tscn")
-const QUIET_ICON := preload("res://assets/icons/badge_retire.svg")  # masa senja & perpisahan (v2b)
+const QUIET_ICON := preload("res://assets/icons/badge_retire.svg")  # pensiun (v2b)
+const LIFE_ICON := preload("res://assets/icons/badge_life.svg")  # masa senja & perpisahan (v2b, Ikon v2)
+const AGING_ICON := preload("res://assets/icons/aging.svg")  # popup usia (v2b, Ikon v2)
+const GRADUATION_ICON := preload("res://assets/icons/badge_graduation.svg")  # popup lulus kuliah (Ikon v2)
+const VEHICLE_ICON := preload("res://assets/icons/vehicle.svg")  # konfirmasi jual kendaraan (Ikon v2)
+const PROPERTY_ICON := preload("res://assets/icons/property.svg")  # konfirmasi jual properti (Ikon v2)
 const HEART_ICON := preload("res://assets/icons/heart.svg")  # kesehatan mental (v2b langkah 4)
 const CHAPTER_ICON := preload("res://assets/icons/badge_calendar.svg")  # popup bab baru (v2b, Popup v2)
-const SELL_ICON := preload("res://assets/icons/wallet.svg")  # konfirmasi jual aset (Popup v2)
-const FUND_ICON := preload("res://assets/icons/classes/mutual_fund.svg")  # kabar dana kelolaan (Popup v2)
+const SELL_ICON := preload("res://assets/icons/wallet.svg")  # rincian neraca (Portofolio v2)
+const FUND_ICON := preload("res://assets/icons/fund.svg")  # kabar dana kelolaan (Popup v2)
 const INFO_ICON := preload("res://assets/icons/lightbulb.svg")  # penjelasan dari tab Karier (Karier v2)
 
 ## Petunjuk kontekstual saat tab dibuka pertama kali (index tab -> key teks).
@@ -107,8 +112,8 @@ func _ready() -> void:
 		_enqueue(%InfoPopup.open.bind(tr("EDU_QUIT_TITLE"), tr("EDU_QUIT_BODY"), tr("EDU_QUIT_CONFIRM"),
 			GameState.education.quit_study, tr("BTN_CANCEL"))))
 	GameState.graduated.connect(func(program: String, result: String, skill_gain: int) -> void:
-		_enqueue(_celebrating(%InfoPopup.open.bind(tr("EDU_GRADUATED_TITLE"),
-			tr("EDU_GRADUATED_BODY") % [tr(program), result, result, skill_gain]))))
+		_enqueue(_celebrating(%InfoPopup.open_rich.bind(tr("EDU_GRADUATED_TITLE"),
+			InfoBlocks.from_text(tr("EDU_GRADUATED_BODY") % [tr(program), result, result, skill_gain]), {"icon": GRADUATION_ICON}))))
 	%HomeScreen.career_requested.connect(_show_screen.bind(3))
 	%HomeScreen.insurance_requested.connect(func() -> void: _enqueue(%InsurancePopup.open))
 	%HomeScreen.loan_requested.connect(func(product_id: String) -> void:
@@ -184,7 +189,7 @@ func _ready() -> void:
 		_popup_queue.clear()
 		if result["type"] == "died":  # v2b: perpisahan yang tenang sebelum layar akhir
 			_enqueue(%InfoPopup.open_quiet.bind(tr("DEATH_POPUP_TITLE"),
-				UiText.death_text(result) + "\n\n" + tr("DEATH_POPUP_NOTE"), tr("DEATH_POPUP_OK"), QUIET_ICON))
+				UiText.death_text(result) + "\n\n" + tr("DEATH_POPUP_NOTE"), tr("DEATH_POPUP_OK"), LIFE_ICON))
 		_enqueue(func() -> void: get_tree().change_scene_to_file(END_SCENE)))
 	%ProfileScreen.text_requested.connect(func(title: String, body: String) -> void:
 		_enqueue(%TextPopup.open.bind(title, body)))
@@ -210,7 +215,7 @@ func _ready() -> void:
 		_enqueue(_celebrating(%InfoPopup.open_rich.bind(tr("RETIRE_POPUP_TITLE"), _retirement_blocks(info),
 			{"icon": QUIET_ICON}))))
 	GameState.aging_changed.connect(func(age: int) -> void:
-		_enqueue(%InfoPopup.open_rich.bind(tr("AGING_POPUP_TITLE") % age, _aging_blocks())))
+		_enqueue(%InfoPopup.open_rich.bind(tr("AGING_POPUP_TITLE") % age, _aging_blocks(), {"icon": AGING_ICON})))
 	GameState.critical_started.connect(func(info: Dictionary) -> void:
 		_enqueue(%InfoPopup.open_rich.bind(tr("CRITICAL_POPUP_TITLE"), _critical_blocks(info),
 			{"kind": "warning", "ok_text": tr("CRITICAL_POPUP_OK")})))
@@ -219,7 +224,7 @@ func _ready() -> void:
 			{"kind": "quiet", "icon": HEART_ICON})))
 	GameState.twilight_notice.connect(func(info: Dictionary) -> void:
 		_enqueue(%InfoPopup.open_rich.bind(tr("TWILIGHT_POPUP_TITLE") % int(info["age"]), _twilight_blocks(info),
-			{"kind": "quiet", "icon": QUIET_ICON})))
+			{"kind": "quiet", "icon": LIFE_ICON})))
 	for popup: ModalPopup in [%SummaryPopup, %InfoPopup, %EventPopup, %QuizPopup, %GlossaryPopup, %TextPopup,
 			%PlanPopup, %DreamPickerPopup, %DreamPopup, %TradeConfirmPopup, %InsurancePopup, %OrderPopup, %OfferPopup,
 			%LoanPopup, %VehiclePopup, %PropertyPopup, _annual_popup, _leverage_popup, _fund_popup, _achievement_popup]:
@@ -650,7 +655,7 @@ func _confirm_vehicle_sale(uid: int) -> void:
 		_enqueue(%InfoPopup.open_rich.bind(title, blocks, {"kind": "warning"}))
 		return
 	blocks.append({"note": tr("ASSETS_SELL_VEHICLE_NOTE")})
-	_enqueue(%InfoPopup.open_rich.bind(title, blocks, {"icon": SELL_ICON, "ok_text": tr("BTN_CANCEL"),
+	_enqueue(%InfoPopup.open_rich.bind(title, blocks, {"icon": VEHICLE_ICON, "ok_text": tr("BTN_CANCEL"),
 		"secondary_text": tr("ASSETS_SELL_CONFIRM"), "on_secondary": func() -> void:
 			var net: int = GameState.vehicles.sell_quote(uid)["net"]
 			if GameState.vehicles.sell(uid):
@@ -680,7 +685,7 @@ func _confirm_property_listing(uid: int) -> void:
 			else tr("VEHICLE_SELL_NO_CASH") % Fmt.rupiah(GameState.cash)})
 		_enqueue(%InfoPopup.open_rich.bind(title, blocks, {"kind": "warning"}))
 		return
-	_enqueue(%InfoPopup.open_rich.bind(title, blocks, {"icon": SELL_ICON, "ok_text": tr("BTN_CANCEL"),
+	_enqueue(%InfoPopup.open_rich.bind(title, blocks, {"icon": PROPERTY_ICON, "ok_text": tr("BTN_CANCEL"),
 		"secondary_text": tr("PROPERTY_LIST_BUTTON"), "on_secondary": func() -> void:
 			if GameState.properties.list_for_sale(uid):
 				_show_toast(tr("TOAST_PROPERTY_LISTED") % property_name)}))

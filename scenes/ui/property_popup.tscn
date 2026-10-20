@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ui/property_popup.gd" id="1_script"]
 [ext_resource type="Theme" path="res://theme/senja_theme.tres" id="2_theme"]
-[ext_resource type="Texture2D" path="res://assets/icons/nav_home.svg" id="3_icon"]
+[ext_resource type="Texture2D" path="res://assets/icons/property.svg" id="3_icon"]
 
 [node name="PropertyPopup" type="Control"]
 layout_mode = 3

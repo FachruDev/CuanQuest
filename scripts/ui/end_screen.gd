@@ -10,7 +10,7 @@ const RESULT_LOOK := {
 	"win": [Color("#1e7f5c"), &"BadgeGoldPanel", "res://assets/icons/badge_trophy.svg"],
 	"retired": [Color("#23877b"), &"BadgeTealPanel", "res://assets/icons/badge_retire.svg"],
 	"lose": [Color("#c2452d"), &"WarningBadgePanel", "res://assets/icons/badge_lose.svg"],
-	"died": [Color("#2b2147"), &"BadgeTealPanel", "res://assets/icons/badge_retire.svg"],  # v2b: tenang, bukan "kalah"
+	"died": [Color("#2b2147"), &"BadgeTealPanel", "res://assets/icons/badge_life.svg"],  # v2b: tenang, bukan "kalah"
 }
 const TREND_UP := preload("res://assets/icons/trend_up.svg")
 const TREND_DOWN := preload("res://assets/icons/trend_down.svg")

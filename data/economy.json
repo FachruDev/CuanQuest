@@ -8,17 +8,17 @@
 	"_backgrounds_comment": "Latar pendidikan (v1.5b): semua mulai tanpa pekerjaan. education = id di jobs.json education_levels; skill = keahlian awal; icon = nama ikon assets/icons/background_<icon>.svg.",
 	"backgrounds": [
 		{
-			"id": "sma", "name_key": "BG_SMA", "desc_key": "BG_SMA_DESC", "icon": "student",
+			"id": "sma", "name_key": "BG_SMA", "desc_key": "BG_SMA_DESC", "icon": "sma",
 			"start_age": 18, "education": "SMA", "skill": 15,
 			"default_food": "standard", "default_housing": "family"
 		},
 		{
-			"id": "d3", "name_key": "BG_D3", "desc_key": "BG_D3_DESC", "icon": "freelancer",
+			"id": "d3", "name_key": "BG_D3", "desc_key": "BG_D3_DESC", "icon": "d3",
 			"start_age": 21, "education": "D3", "skill": 25,
 			"default_food": "standard", "default_housing": "family"
 		},
 		{
-			"id": "s1", "name_key": "BG_S1", "desc_key": "BG_S1_DESC", "icon": "employee",
+			"id": "s1", "name_key": "BG_S1", "desc_key": "BG_S1_DESC", "icon": "s1",
 			"start_age": 22, "education": "S1", "skill": 30,
 			"default_food": "standard", "default_housing": "kos"
 		}

@@ -9,20 +9,9 @@ const CLASS_TILES := {
 	"forex": &"IconTileBlue",
 }
 const CLASS_ICON := "res://assets/icons/classes/%s.svg"
-## Kelas aset baru (v2a) memakai ikon lain sampai ikonnya dibuat (lihat docs/KEBUTUHAN_ASET.md).
-const CLASS_ICON_FALLBACKS := {
-	"commodity": "res://assets/icons/trend_line.svg", "forex": "res://assets/icons/arrow_badge.svg",
-}
 const SEASON_THRESHOLD := 0.10  # tambahan drift tahunan minimal agar satu bulan disebut "menguat"/"melemah"
-## Ikon bidang pekerjaan: assets/icons/tracks/<bidang>.svg. Sebelum aset itu dibuat, tiap bidang
-## memakai ikon lain yang berbeda agar tetap mudah dibedakan (lihat docs/KEBUTUHAN_ASET.md).
+## Ikon bidang pekerjaan: assets/icons/tracks/<bidang>.svg (Ikon v2; "general" = proyek sampingan umum).
 const TRACK_ICON := "res://assets/icons/tracks/%s.svg"
-const TRACK_ICON_FALLBACKS := {
-	"retail": "res://assets/icons/wallet.svg", "admin": "res://assets/icons/folder.svg",
-	"finance": "res://assets/icons/classes/deposit.svg", "tech": "res://assets/icons/search.svg",
-	"creative": "res://assets/icons/lightbulb.svg", "gig": "res://assets/icons/activities/side_job.svg",
-	"general": "res://assets/icons/book.svg",  # proyek sampingan umum: les privat, terjemahan (v1.5d)
-}
 const TRACK_TILES := {
 	"retail": &"IconTileCoral", "admin": &"IconTileBlue", "finance": &"IconTileGold",
 	"tech": &"IconTilePurple", "creative": &"IconTileMint", "gig": &"IconTileCoral", "general": &"IconTileTeal",
@@ -89,7 +78,7 @@ static func event_text(text: String, vars: Dictionary) -> String:
 
 static func track_icon(track: String) -> String:
 	var icon := TRACK_ICON % track
-	return icon if ResourceLoader.exists(icon) else TRACK_ICON_FALLBACKS.get(track, "res://assets/icons/wallet.svg")
+	return icon if ResourceLoader.exists(icon) else "res://assets/icons/wallet.svg"
 
 
 static func track_tile(track: String) -> StringName:
@@ -467,10 +456,7 @@ static func build_period_buttons(row: HBoxContainer, chart: PriceChart, default_
 
 ## Kotak ikon berwarna untuk satu kelas aset (tabungan, deposito, reksa dana, saham, kripto).
 static func class_tile(asset_class: String, tile_size := 48.0) -> PanelContainer:
-	var path := CLASS_ICON % asset_class
-	if not ResourceLoader.exists(path):
-		path = CLASS_ICON_FALLBACKS.get(asset_class, path)
-	return icon_tile(path, CLASS_TILES.get(asset_class, &"IconTileGold"), tile_size)
+	return icon_tile(CLASS_ICON % asset_class, CLASS_TILES.get(asset_class, &"IconTileGold"), tile_size)
 
 
 ## Teks pola musiman aset (v2a), mis. "cenderung menguat Nov-Mar, cenderung melemah Mei-Sep".
