@@ -603,17 +603,6 @@ static func fund_profile(id: String) -> String:
 	return _t("FUND_PROFILE_" + id.to_upper())
 
 
-## Perkiraan dana masa pensiun (v2b langkah 5) untuk popup pensiun & masa senja.
-static func runway_lines() -> PackedStringArray:
-	var info := GameState.life.runway_info()
-	if int(info["months"]) < 0:
-		return [_t("RUNWAY_FOREVER")]
-	var lines: PackedStringArray = [_t("RUNWAY_YEARS") % [Fmt.number(int(info["months"]) / 12.0, 1), int(info["until_age"])]]
-	if info["low"]:
-		lines.append(_t("RUNWAY_LOW"))
-	return lines
-
-
 static func aging_lines() -> PackedStringArray:
 	var fx := GameState.life.aging_effects()
 	var lines: PackedStringArray = []

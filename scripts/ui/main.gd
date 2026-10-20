@@ -13,6 +13,9 @@ const FUND_POPUP := preload("res://scenes/ui/fund_popup.tscn")
 const ACHIEVEMENT_POPUP := preload("res://scenes/ui/achievement_popup.tscn")
 const QUIET_ICON := preload("res://assets/icons/badge_retire.svg")  # masa senja & perpisahan (v2b)
 const HEART_ICON := preload("res://assets/icons/heart.svg")  # kesehatan mental (v2b langkah 4)
+const CHAPTER_ICON := preload("res://assets/icons/badge_calendar.svg")  # popup bab baru (v2b, Popup v2)
+const SELL_ICON := preload("res://assets/icons/wallet.svg")  # konfirmasi jual aset (Popup v2)
+const FUND_ICON := preload("res://assets/icons/classes/mutual_fund.svg")  # kabar dana kelolaan (Popup v2)
 
 ## Petunjuk kontekstual saat tab dibuka pertama kali (index tab -> key teks).
 const TAB_HINTS := {1: "HINT_MARKET", 2: "HINT_PORTFOLIO", 3: "HINT_ACTIVITY", 4: "HINT_PROFILE"}
@@ -192,20 +195,22 @@ func _ready() -> void:
 	_setup_leverage()
 	_setup_fund()
 	GameState.chapter_changed.connect(func(summary: Dictionary) -> void:
-		_enqueue(_celebrating(%InfoPopup.open.bind(tr("CHAPTER_POPUP_TITLE") % tr("CHAPTER_" + str(summary["to"]).to_upper()),
-			_chapter_text(summary)))))
+		_enqueue(_celebrating(%InfoPopup.open_rich.bind(tr("CHAPTER_POPUP_TITLE") % tr("CHAPTER_" + str(summary["to"]).to_upper()),
+			_chapter_blocks(summary), {"chip": _chapter_chip(summary["to"]), "icon": CHAPTER_ICON}))))
 	GameState.retirement_started.connect(func(info: Dictionary) -> void:
-		_enqueue(_celebrating(%InfoPopup.open.bind(tr("RETIRE_POPUP_TITLE"), _retirement_text(info)))))
+		_enqueue(_celebrating(%InfoPopup.open_rich.bind(tr("RETIRE_POPUP_TITLE"), _retirement_blocks(info),
+			{"icon": QUIET_ICON}))))
 	GameState.aging_changed.connect(func(age: int) -> void:
-		_enqueue(%InfoPopup.open.bind(tr("AGING_POPUP_TITLE") % age, _aging_text())))
+		_enqueue(%InfoPopup.open_rich.bind(tr("AGING_POPUP_TITLE") % age, _aging_blocks())))
 	GameState.critical_started.connect(func(info: Dictionary) -> void:
-		_enqueue(%InfoPopup.open_warning.bind(tr("CRITICAL_POPUP_TITLE"), _critical_text(info), "", Callable(),
-			tr("CRITICAL_POPUP_OK"))))
+		_enqueue(%InfoPopup.open_rich.bind(tr("CRITICAL_POPUP_TITLE"), _critical_blocks(info),
+			{"kind": "warning", "ok_text": tr("CRITICAL_POPUP_OK")})))
 	GameState.depression_started.connect(func(info: Dictionary) -> void:
-		_enqueue(%InfoPopup.open_quiet.bind(tr("DEPRESSION_POPUP_TITLE"), _depression_text(info), "", HEART_ICON)))
+		_enqueue(%InfoPopup.open_rich.bind(tr("DEPRESSION_POPUP_TITLE"), _depression_blocks(info),
+			{"kind": "quiet", "icon": HEART_ICON})))
 	GameState.twilight_notice.connect(func(info: Dictionary) -> void:
-		_enqueue(%InfoPopup.open_quiet.bind(tr("TWILIGHT_POPUP_TITLE") % int(info["age"]), _twilight_text(info), "",
-			QUIET_ICON)))
+		_enqueue(%InfoPopup.open_rich.bind(tr("TWILIGHT_POPUP_TITLE") % int(info["age"]), _twilight_blocks(info),
+			{"kind": "quiet", "icon": QUIET_ICON})))
 	for popup: ModalPopup in [%SummaryPopup, %InfoPopup, %EventPopup, %QuizPopup, %GlossaryPopup, %TextPopup,
 			%PlanPopup, %DreamPickerPopup, %DreamPopup, %TradeConfirmPopup, %InsurancePopup, %OrderPopup, %OfferPopup,
 			%LoanPopup, %VehiclePopup, %PropertyPopup, _annual_popup, _leverage_popup, _fund_popup, _achievement_popup]:
@@ -393,17 +398,18 @@ func _setup_fund() -> void:
 
 ## Kabar investor bulan ini (v2c langkah 2) dalam satu popup; peringatan & investor pergi = popup merah.
 func _on_fund_notice(notices: Array) -> void:
-	var lines: PackedStringArray = []
+	var blocks: Array = []
 	var bad := false
 	for n: Dictionary in notices:
-		lines.append(UiText.fund_notice_text(n))
-		bad = bad or UiText.fund_notice_is_bad(n)
+		var is_bad := UiText.fund_notice_is_bad(n)
+		blocks.append({"warn": UiText.fund_notice_text(n)} if is_bad else {"text": UiText.fund_notice_text(n)})
+		bad = bad or is_bad
 	if bad:
-		lines.append(tr("FUND_NOTICE_TIP"))
-		_enqueue(%InfoPopup.open_warning.bind(tr("FUND_NOTICE_TITLE"), "\n\n".join(lines), tr("PORT_FUND_OPEN"),
-			func() -> void: _enqueue(_fund_popup.open), tr("BTN_CLOSE")))
+		blocks.append({"tip": tr("FUND_NOTICE_TIP")})
+		_enqueue(%InfoPopup.open_rich.bind(tr("FUND_NOTICE_TITLE"), blocks, {"kind": "warning", "ok_text": tr("BTN_CLOSE"),
+			"secondary_text": tr("PORT_FUND_OPEN"), "on_secondary": func() -> void: _enqueue(_fund_popup.open)}))
 	else:
-		_enqueue(%InfoPopup.open.bind(tr("FUND_NOTICE_TITLE"), "\n\n".join(lines)))
+		_enqueue(%InfoPopup.open_rich.bind(tr("FUND_NOTICE_TITLE"), blocks, {"icon": FUND_ICON}))
 
 
 # --- Siklus hidup (v2b) ---------------------------------------------------------------------------
@@ -419,97 +425,121 @@ func _build_year_button() -> void:
 	%NextButton.get_parent().add_child(_year_button)
 
 
-## Ringkasan bab yang selesai + pesan bab berikutnya.
-func _chapter_text(summary: Dictionary) -> String:
+## Ringkasan bab yang selesai (kartu angka) + saran bab berikutnya, efek usia, dan titik simpan.
+func _chapter_blocks(summary: Dictionary) -> Array:
 	var start: Dictionary = summary["start"]
 	var end: Dictionary = summary["end"]
 	var ages := GameState.life.chapter_ages(summary["from"])
-	var lines: PackedStringArray = [
-		tr("CHAPTER_DONE") % [tr("CHAPTER_" + str(summary["from"]).to_upper()), ages[0], int(end["age"]) - 1],
-		tr("CHAPTER_WORTH") % [Fmt.rupiah(start["worth"]), Fmt.rupiah(end["worth"]), Fmt.rupiah(end["real_worth"])],
-		tr("CHAPTER_DREAMS") % (int(end["dreams"]) - int(start["dreams"])),
-	]
 	var job_id: String = end["job_id"]
-	lines.append(tr("CHAPTER_JOB") % (tr(GameState.career.job_def(job_id)["title"]) if job_id != "" else tr("CHAPTER_NO_JOB")))
+	var gained := float(end["worth"]) >= float(start["worth"])
+	var blocks: Array = [
+		{"lead": tr("CHAPTER_DONE") % [tr("CHAPTER_" + str(summary["from"]).to_upper()), ages[0], int(end["age"]) - 1]},
+		{"rows": [
+			[tr("CHAPTER_ROW_WORTH"), "%s → %s" % [Fmt.rupiah_short(start["worth"]), Fmt.rupiah_short(end["worth"])],
+				Palette.GAIN if gained else Palette.LOSS],
+			[tr("CHAPTER_ROW_REAL"), Fmt.rupiah_short(end["real_worth"])],
+			[tr("CHAPTER_ROW_DREAMS"), str(int(end["dreams"]) - int(start["dreams"]))],
+			[tr("CHAPTER_ROW_JOB"), tr(GameState.career.job_def(job_id)["title"]) if job_id != "" else tr("CHAPTER_NO_JOB")],
+		]},
+	]
 	var next_ages := GameState.life.chapter_ages(summary["to"])
-	var range_text := "%d-%d" % next_ages if next_ages[1] >= 0 else "%d+" % next_ages[0]
-	lines.append("")
-	lines.append(tr("CHAPTER_NEXT") % [tr("CHAPTER_" + str(summary["to"]).to_upper()), range_text,
-		tr("CHAPTER_TIP_" + str(summary["to"]).to_upper())])
+	blocks.append({"caps": tr("CHAPTER_NEXT_CAPS") % ("%d–%d" % next_ages if next_ages[1] >= 0 else "%d+" % next_ages[0])})
+	blocks.append({"tip": tr("CHAPTER_TIP_" + str(summary["to"]).to_upper())})
 	if summary.get("aging", false):  # efek usia berubah di ulang tahun yang sama (v2b langkah 2)
-		lines.append("")
-		lines.append(tr("CHAPTER_AGING"))
-		for line in UiText.aging_lines():
-			lines.append("• " + line)
-	lines.append("")
-	lines.append(tr("CHAPTER_SAVED"))
-	return "\n".join(lines)
+		blocks.append({"caps": tr("CHAPTER_AGING")})
+		blocks.append({"bullets": Array(UiText.aging_lines()), "dot": Palette.TEAL})
+	blocks.append({"note": tr("CHAPTER_SAVED"), "icon": "res://assets/icons/save.svg"})
+	return blocks
+
+
+## "Bab 2 dari 4" untuk chip di atas judul popup bab.
+func _chapter_chip(chapter: String) -> String:
+	var chapters: Array = GameState.life.data["chapters"]
+	for i in chapters.size():
+		if chapters[i]["id"] == chapter:
+			return tr("PROFILE_LIFE_CHAPTER") % [i + 1, chapters.size()]
+	return ""
+
+
+## Sampai kapan kas & investasi cukup menutup pengeluaran (v2b langkah 5) sebagai meteran: dari usia sekarang
+## menuju usia batas aman (life.json runway_warn_age).
+func _runway_block() -> Dictionary:
+	var info := GameState.life.runway_info()
+	if int(info["months"]) < 0:
+		return {"tip": tr("RUNWAY_FOREVER")}
+	var warn_age := int(GameState.life.data["retirement"]["runway_warn_age"])
+	var age := GameState.age()
+	var years := int(info["months"]) / 12.0
+	return {"meter": {"title": tr("RUNWAY_METER_TITLE") % int(info["until_age"]),
+		"value": tr("RUNWAY_METER_VALUE") % Fmt.number(years, 1), "ratio": years / maxf(1.0, warn_age - age),
+		"low": info["low"], "left": str(age), "right": tr("RUNWAY_METER_TARGET") % warn_age, "note": tr("RUNWAY_METER_NOTE")}}
 
 
 ## Peringatan status Kritis (v2b langkah 3): peluang meninggal per tahun di usia ini (atau aturan
 ## kesehatan 0 selama 3 bulan bagi yang masih muda) dan cara memulihkan diri.
-func _critical_text(info: Dictionary) -> String:
-	var lines: PackedStringArray = [tr("CRITICAL_POPUP_BODY") % int(info["health"])]
-	if float(info["chance"]) > 0.0:
-		lines.append(tr("CRITICAL_POPUP_CHANCE") % UiText.percent_short(info["chance"]))
-	else:
-		lines.append(tr("CRITICAL_POPUP_YOUNG") % int(GameState.economy["end"]["danger_months"]))
-	lines.append("")
-	lines.append(tr("CRITICAL_POPUP_TIP") % int(GameState.life.data["mortality"]["critical_exit"]))
-	return "\n".join(lines)
+func _critical_blocks(info: Dictionary) -> Array:
+	var chance := tr("CRITICAL_POPUP_CHANCE") % UiText.percent_short(info["chance"]) if float(info["chance"]) > 0.0 \
+		else tr("CRITICAL_POPUP_YOUNG") % int(GameState.economy["end"]["danger_months"])
+	return [{"lead": tr("CRITICAL_POPUP_BODY") % int(info["health"])}, {"warn": chance},
+		{"caps": tr("CRITICAL_RECOVER_CAPS")},
+		{"tip": tr("CRITICAL_POPUP_TIP") % int(GameState.life.data["mortality"]["critical_exit"])}]
 
 
-## Status Depresi dimulai (v2b langkah 4, pedoman konten sensitif): apa artinya di game, bahwa kamu
-## bisa pulih dan bantuan apa yang tersedia, penjelasan bahwa ini simulasi, dan pesan dukungan untuk
-## pemain sungguhan saat pertama kali muncul di permainan ini (tidak bisa dimatikan).
-func _depression_text(info: Dictionary) -> String:
+## Status Depresi dimulai (v2b langkah 4, pedoman konten sensitif): apa artinya di game, bahwa kamu bisa
+## pulih dan bantuan apa yang tersedia, penjelasan bahwa ini simulasi, dan kartu pesan dukungan untuk
+## pemain sungguhan saat pertama kali muncul di permainan ini (tidak bisa dimatikan); setelahnya tautan ke
+## Profil > Bantuan & Dukungan.
+func _depression_blocks(info: Dictionary) -> Array:
 	var cfg: Dictionary = GameState.mental.data
-	var lines: PackedStringArray = [
-		tr("DEPRESSION_POPUP_BODY") % [int(cfg["enter_below"]), int(cfg["enter_months"]), -int(cfg["effects"]["energy"])],
-		"", tr("DEPRESSION_POPUP_HELP") % int(cfg["exit_above"]), "", tr("DEPRESSION_POPUP_SIM")]
+	var blocks: Array = [
+		{"lead": tr("DEPRESSION_LEAD") % [int(cfg["enter_below"]), int(cfg["enter_months"])]},
+		{"caps": tr("DEPRESSION_DURING_CAPS")},
+		{"bullets": [tr("DEPRESSION_FX_ENERGY") % -int(cfg["effects"]["energy"]), tr("DEPRESSION_FX_HEALTH"),
+			tr("DEPRESSION_FX_SOCIAL")], "dot": Color("#a184e2")},
+		{"caps": tr("DEPRESSION_HELP_CAPS")},
+		{"bullets": [tr("DEPRESSION_HELP_COUNSEL"), tr("DEPRESSION_HELP_REST")], "dot": Palette.TEAL},
+		{"text": tr("DEPRESSION_RECOVER") % int(cfg["exit_above"]) + " " + tr("DEPRESSION_POPUP_SIM")},
+	]
 	if info.get("first", false):
-		lines.append("")
-		lines.append(tr("SUPPORT_MESSAGE"))
-	return "\n".join(lines)
+		blocks.append({"help": true})
+	else:
+		blocks.append({"note": tr("DEPRESSION_SUPPORT_LINK"), "icon": "res://assets/icons/heart.svg"})
+	return blocks
 
 
 ## Pemberitahuan masa senja tahunan (usia 70+): peluang tutup usia tahun ini dan saran; di usia 70
 ## sekaligus daftar efek usia.
-func _twilight_text(info: Dictionary) -> String:
-	var lines: PackedStringArray = [tr("TWILIGHT_POPUP_BODY") % UiText.percent_short(info["chance"]),
-		tr("TWILIGHT_POPUP_HEALTH"), "", tr("TWILIGHT_POPUP_TIP"), ""]
-	lines.append_array(UiText.runway_lines())  # v2b langkah 5
+func _twilight_blocks(info: Dictionary) -> Array:
+	var blocks: Array = [{"lead": tr("TWILIGHT_POPUP_BODY") % UiText.percent_short(info["chance"])},
+		{"text": tr("TWILIGHT_POPUP_HEALTH")}, {"tip": tr("TWILIGHT_POPUP_TIP")}, _runway_block()]  # v2b langkah 5
 	if info.get("aging", false):
-		lines.append("")
-		lines.append(tr("CHAPTER_AGING"))
-		for line in UiText.aging_lines():
-			lines.append("• " + line)
-	return "\n".join(lines)
+		blocks.append({"caps": tr("CHAPTER_AGING")})
+		blocks.append({"bullets": Array(UiText.aging_lines()), "dot": Palette.TEAL})
+	return blocks
 
 
 ## Popup ulang tahun saat efek penuaan berubah: daftar efek yang berlaku + saran menjaga kesehatan.
-func _aging_text() -> String:
-	var lines: PackedStringArray = [tr("AGING_POPUP_INTRO"), ""]
-	for line in UiText.aging_lines():
-		lines.append("• " + line)
-	lines.append("")
-	lines.append(tr("AGING_POPUP_TIP"))
-	return "\n".join(lines)
+func _aging_blocks() -> Array:
+	return [{"lead": tr("AGING_POPUP_INTRO")}, {"bullets": Array(UiText.aging_lines()), "dot": Palette.TEAL},
+		{"tip": tr("AGING_POPUP_TIP")}]
 
 
-func _retirement_text(info: Dictionary) -> String:
-	var lines: PackedStringArray = [tr("RETIRE_POPUP_INTRO"), "", tr("RETIRE_JHT") % Fmt.rupiah(info["jht"])]
+## Pensiun (v2b): JHT & Jaminan Pensiun sebagai ubin, meteran dana pensiun, saran.
+func _retirement_blocks(info: Dictionary) -> Array:
+	var pension: Array
 	if int(info["jp_monthly"]) > 0:
-		lines.append(tr("RETIRE_JP_MONTHLY") % [Fmt.rupiah(info["jp_monthly"]), Fmt.number(info["years"], 1)])
+		pension = [tr("RETIRE_TILE_JP"), tr("RETIRE_TILE_JP_VALUE") % Fmt.rupiah_short(info["jp_monthly"]),
+			tr("RETIRE_TILE_JP_SUB") % Fmt.number(info["years"], 1).trim_suffix(",0"), false]
 	elif int(info["jp_lump"]) > 0:
-		lines.append(tr("RETIRE_JP_LUMP") % Fmt.rupiah(info["jp_lump"]))
+		pension = [tr("RETIRE_TILE_JP"), Fmt.rupiah_short(info["jp_lump"]), tr("RETIRE_TILE_JP_LUMP"), false]
 	else:
-		lines.append(tr("RETIRE_JP_NONE"))
-	lines.append("")
-	lines.append_array(UiText.runway_lines())  # v2b langkah 5: sampai kapan dana pensiun cukup
-	lines.append("")
-	lines.append(tr("RETIRE_POPUP_TIP"))
-	return "\n".join(lines)
+		pension = [tr("RETIRE_TILE_JP"), "-", tr("RETIRE_TILE_JP_NONE"), false]
+	var blocks: Array = [{"lead": tr("RETIRE_POPUP_INTRO")},
+		{"tiles": [[tr("RETIRE_TILE_JHT"), Fmt.rupiah_short(info["jht"]), tr("RETIRE_TILE_JHT_SUB"), true], pension]},
+		_runway_block(), {"caps": tr("RETIRE_KEEP_CAPS")},
+		{"bullets": [tr("RETIRE_KEEP_SPEND"), tr("RETIRE_KEEP_WITHDRAW"), tr("RETIRE_KEEP_SELL")]},
+		{"tip": tr("RETIRE_YEAR_TIP")}]
+	return blocks
 
 
 ## Sebelum transaksi leverage pertama di permainan ini, peringatan risiko wajib disetujui (v2a langkah 4).
@@ -599,24 +629,24 @@ func _confirm_vehicle_sale(uid: int) -> void:
 		return
 	var vehicle_name := tr(vehicles.def(entry["id"])["name"])
 	var q := vehicles.sell_quote(uid)
-	var lines: PackedStringArray = [
-		"%s: %s" % [tr("VEHICLE_ROW_VALUE"), Fmt.rupiah(q["value"])],
-		"%s: %s" % [tr("VEHICLE_ROW_SELL_PRICE") % roundi(float(vehicles.data["sell_ratio"]) * 100.0), Fmt.rupiah(q["proceeds"])],
-	]
+	var rows: Array = [[tr("VEHICLE_ROW_VALUE"), Fmt.rupiah(q["value"])],
+		[tr("VEHICLE_ROW_SELL_PRICE") % roundi(float(vehicles.data["sell_ratio"]) * 100.0), Fmt.rupiah(q["proceeds"])]]
 	if int(q["payoff"]) > 0:
-		lines.append("%s: %s" % [tr("VEHICLE_ROW_PAYOFF"), Fmt.signed_rupiah(-q["payoff"])])
-	lines.append("%s: %s" % [tr("VEHICLE_ROW_NET"), Fmt.signed_rupiah(q["net"])])
+		rows.append([tr("VEHICLE_ROW_PAYOFF"), Fmt.signed_rupiah(-q["payoff"]), Palette.LOSS])
+	rows.append([tr("VEHICLE_ROW_NET"), Fmt.signed_rupiah(q["net"]), Palette.GAIN if int(q["net"]) >= 0 else Palette.LOSS])
 	var title := tr("ASSETS_SELL_TITLE") % vehicle_name
+	var blocks: Array = [{"rows": rows}]
 	if not q["ok"]:
-		lines.append("")
-		lines.append(tr("VEHICLE_SELL_NO_CASH") % Fmt.rupiah(GameState.cash))
-		_enqueue(%InfoPopup.open_warning.bind(title, "\n".join(lines)))
+		blocks.append({"warn": tr("VEHICLE_SELL_NO_CASH") % Fmt.rupiah(GameState.cash)})
+		_enqueue(%InfoPopup.open_rich.bind(title, blocks, {"kind": "warning"}))
 		return
-	_enqueue(%InfoPopup.open.bind(title, "\n".join(lines), tr("ASSETS_SELL_CONFIRM"), func() -> void:
-		var net: int = GameState.vehicles.sell_quote(uid)["net"]
-		if GameState.vehicles.sell(uid):
-			Sfx.play("coin")
-			_show_toast(tr("TOAST_VEHICLE_SOLD") % [vehicle_name, Fmt.rupiah(net)]), tr("BTN_CANCEL")))
+	blocks.append({"note": tr("ASSETS_SELL_VEHICLE_NOTE")})
+	_enqueue(%InfoPopup.open_rich.bind(title, blocks, {"icon": SELL_ICON, "ok_text": tr("BTN_CANCEL"),
+		"secondary_text": tr("ASSETS_SELL_CONFIRM"), "on_secondary": func() -> void:
+			var net: int = GameState.vehicles.sell_quote(uid)["net"]
+			if GameState.vehicles.sell(uid):
+				Sfx.play("coin")
+				_show_toast(tr("TOAST_VEHICLE_SOLD") % [vehicle_name, Fmt.rupiah(net)])}))
 
 
 ## Konfirmasi pasang iklan jual properti: harga hari ini dikurangi pajak, komisi agen, dan pelunasan KPR.
@@ -627,26 +657,24 @@ func _confirm_property_listing(uid: int) -> void:
 		return
 	var property_name := tr(properties.def(entry["id"])["name"])
 	var q := properties.sell_quote(entry)
-	var lines: PackedStringArray = [
-		"%s: %s" % [tr("PROPERTY_ROW_SELL_PRICE"), Fmt.rupiah(q["price"])],
-		"%s: %s" % [tr("PROPERTY_ROW_SELL_TAX") % Fmt.percent_plain(properties.data["sell_tax"]), Fmt.signed_rupiah(-q["tax"])],
-		"%s: %s" % [tr("PROPERTY_ROW_SELL_FEE") % Fmt.percent_plain(properties.data["sell_fee"]), Fmt.signed_rupiah(-q["fee"])],
-	]
+	var rows: Array = [[tr("PROPERTY_ROW_SELL_PRICE"), Fmt.rupiah(q["price"])],
+		[tr("PROPERTY_ROW_SELL_TAX") % Fmt.percent_plain(properties.data["sell_tax"]), Fmt.signed_rupiah(-q["tax"]), Palette.LOSS],
+		[tr("PROPERTY_ROW_SELL_FEE") % Fmt.percent_plain(properties.data["sell_fee"]), Fmt.signed_rupiah(-q["fee"]), Palette.LOSS]]
 	if int(q["payoff"]) > 0:
-		lines.append("%s: %s" % [tr("VEHICLE_ROW_PAYOFF"), Fmt.signed_rupiah(-q["payoff"])])
-	lines.append("%s: %s" % [tr("VEHICLE_ROW_NET"), Fmt.signed_rupiah(q["net"])])
-	lines.append("")
-	lines.append(tr("PROPERTY_SELL_NOTE") % [int(properties.data["sell_months"][0]), int(properties.data["sell_months"][1])])
+		rows.append([tr("VEHICLE_ROW_PAYOFF"), Fmt.signed_rupiah(-q["payoff"]), Palette.LOSS])
+	rows.append([tr("VEHICLE_ROW_NET"), Fmt.signed_rupiah(q["net"]), Palette.GAIN if int(q["net"]) >= 0 else Palette.LOSS])
 	var title := tr("ASSETS_LIST_TITLE") % property_name
+	var blocks: Array = [{"rows": rows},
+		{"note": tr("PROPERTY_SELL_NOTE") % [int(properties.data["sell_months"][0]), int(properties.data["sell_months"][1])]}]
 	if not q["ok"]:
-		lines.append("")
-		lines.append(tr("PROPERTY_SELL_LOCKED") % Fmt.game_date(properties.sellable_from(entry)) if q["locked"]
-			else tr("VEHICLE_SELL_NO_CASH") % Fmt.rupiah(GameState.cash))
-		_enqueue(%InfoPopup.open_warning.bind(title, "\n".join(lines)))
+		blocks.append({"warn": tr("PROPERTY_SELL_LOCKED") % Fmt.game_date(properties.sellable_from(entry)) if q["locked"]
+			else tr("VEHICLE_SELL_NO_CASH") % Fmt.rupiah(GameState.cash)})
+		_enqueue(%InfoPopup.open_rich.bind(title, blocks, {"kind": "warning"}))
 		return
-	_enqueue(%InfoPopup.open.bind(title, "\n".join(lines), tr("PROPERTY_LIST_BUTTON"), func() -> void:
-		if GameState.properties.list_for_sale(uid):
-			_show_toast(tr("TOAST_PROPERTY_LISTED") % property_name), tr("BTN_CANCEL")))
+	_enqueue(%InfoPopup.open_rich.bind(title, blocks, {"icon": SELL_ICON, "ok_text": tr("BTN_CANCEL"),
+		"secondary_text": tr("PROPERTY_LIST_BUTTON"), "on_secondary": func() -> void:
+			if GameState.properties.list_for_sale(uid):
+				_show_toast(tr("TOAST_PROPERTY_LISTED") % property_name)}))
 
 
 ## Rencana gaji perlu dicek (belum pernah disimpan atau gaji berubah). Diperiksa lagi saat

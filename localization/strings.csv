@@ -1511,19 +1511,10 @@ CHAPTER_TIP_PEAK,"Penghasilan biasanya di puncak. Lunasi utang, perbesar porsi i
 CHAPTER_TIP_RETIRE,"Gaji berhenti. Hidup dari JHT, Jaminan Pensiun, investasi, dan sewa; tarik investasi secukupnya (sekitar 4% per tahun) dan jaga kesehatan.","Your salary stops. Live on your old-age savings, pension, investments, and rent; withdraw modestly (about 4% a year) and look after your health."
 CHAPTER_POPUP_TITLE,Bab Baru: %s,New Chapter: %s
 CHAPTER_DONE,Bab %s selesai (usia %d-%d).,The %s chapter is over (age %d-%d).
-CHAPTER_WORTH,Kekayaan bersih: %s → %s (nilai riil %s),Net worth: %s → %s (real value %s)
-CHAPTER_DREAMS,Impian tercapai di bab ini: %d,Dreams achieved in this chapter: %d
-CHAPTER_JOB,Pekerjaan di akhir bab: %s,Job at the end of the chapter: %s
 CHAPTER_NO_JOB,belum/tidak bekerja,not working
-CHAPTER_NEXT,%s (usia %s): %s,%s (age %s): %s
-CHAPTER_SAVED,Titik simpan bab tersimpan otomatis (Profil > Simpan & Muat).,A chapter checkpoint was saved automatically (Profile > Save & Load).
+CHAPTER_SAVED,Titik simpan bab tersimpan otomatis (Profil › Atur).,A chapter checkpoint was saved automatically (Profile › Settings).
 RETIRE_POPUP_TITLE,Selamat Pensiun!,Happy Retirement!
 RETIRE_POPUP_INTRO,"Di usia 60 kamu resmi pensiun. Gaji berhenti, tetapi perjalanan hidupmu berlanjut.","At 60 you officially retire. Your salary stops, but your life's journey continues."
-RETIRE_JHT,Jaminan Hari Tua (JHT) cair: %s,Old-age savings (JHT) paid out: %s
-RETIRE_JP_MONTHLY,"Jaminan Pensiun: %s per bulan (iuran %s tahun, ikut naik dengan inflasi)","Pension: %s per month (%s years of contributions, indexed to inflation)"
-RETIRE_JP_LUMP,Jaminan Pensiun dibayar sekaligus %s karena masa iuran kurang dari 15 tahun.,Pension paid as a lump sum of %s because you contributed for less than 15 years.
-RETIRE_JP_NONE,Tidak ada Jaminan Pensiun: kamu tidak pernah bekerja di pekerjaan formal (kerja lepas tidak ikut BPJS Ketenagakerjaan).,No pension: you never worked a formal job (freelance work is not covered by BPJS Ketenagakerjaan).
-RETIRE_POPUP_TIP,"Mulai sekarang hidupmu ditopang pensiun, investasi, dan sewa. Tarik investasi secukupnya (sekitar 4% per tahun) agar tidak cepat habis. Tombol ""+1 Tahun"" kini tersedia.","From now on you live on your pension, investments, and rent. Withdraw modestly (about 4% a year) so it lasts. The ""+1 Year"" button is now available."
 NEXT_YEAR_BUTTON,+1 Tahun,+1 Year
 CAREER_RETIRED,Pensiun,Retired
 CAREER_RETIRED_INFO,Pensiun sejak %s · Jaminan Pensiun %s/bulan · JHT diterima %s,Retired since %s · pension %s/month · JHT received %s
@@ -1609,8 +1600,6 @@ INSIGHT_LIFE_PAYOUT,Asuransi jiwa memberi keluargamu %s. Perlindungan ini paling
 INSIGHT_NO_LIFE_COVER,"Kamu meninggal dunia di usia %d tanpa asuransi jiwa aktif, sehingga keluarga hanya menerima aset yang kamu tinggalkan. Asuransi jiwa berjangka melindungi keluarga selama masa produktif.","You passed away at age %d without active life insurance, so your family only received the assets you left. Term life insurance protects your family during your working years."
 INSIGHT_CRITICAL_COUNT,"Kamu pernah %d kali masuk kondisi kritis. Setiap kali kesehatan turun di bawah 20, peluang meninggal dunia naik berlipat.","You entered critical condition %d time(s). Whenever health drops below 20, the chance of passing away multiplies."
 DEPRESSION_POPUP_TITLE,Sedang Tidak Baik-Baik Saja,Not Doing Okay
-DEPRESSION_POPUP_BODY,"Kebahagiaanmu berada di bawah %d selama %d bulan. Di game ini kondisi tersebut disebut Depresi: energi bulanan berkurang %d, kesehatan turun perlahan, dan kamu sedang tidak ingin nongkrong.","Your happiness has been below %d for %d months. In this game that is called Depression: your monthly energy drops by %d, your health declines slowly, and you don't feel like hanging out."
-DEPRESSION_POPUP_HELP,"Kamu bisa pulih, dan kondisi ini tidak pernah mengakhiri permainan. Konseling di puskesmas (ditanggung BPJS), istirahat yang cukup, dan bercerita ke orang terdekat semuanya membantu. Pilihan Konseling ada di tab Karier. Kamu pulih saat kebahagiaan di atas %d.","You can recover, and this never ends the game. Counseling at the community health center (covered by BPJS), enough rest, and talking to someone close all help. Counseling is in the Career tab. You recover once your happiness is above %d."
 DEPRESSION_POPUP_SIM,"Ini penyederhanaan dalam permainan. Di dunia nyata, depresi adalah kondisi kesehatan yang bisa ditangani tenaga profesional.","This is a simplification for the game. In real life, depression is a health condition that professionals can help with."
 SUPPORT_MESSAGE,"Ini hanya simulasi. Jika kamu sendiri sedang merasa tertekan atau tidak baik-baik saja, kamu tidak sendirian. Bicarakan dengan orang yang kamu percaya, atau temui tenaga profesional seperti psikolog atau dokter di puskesmas. Layanan kesehatan jiwa Kementerian Kesehatan bisa dihubungi gratis 24 jam di 119 ekstensi 8 atau healing119.id. Dalam keadaan darurat, hubungi 119.","This is only a simulation. If you yourself are feeling overwhelmed or not okay, you are not alone. Talk to someone you trust, or see a professional such as a psychologist or a doctor. If you are in danger, contact your local emergency number or a crisis line in your country. In Indonesia: free 24-hour mental health support at 119 ext. 8 or healing119.id, and 119 for emergencies."
 SUPPORT_GAME_INFO,"Di dalam game: jika kebahagiaanmu di bawah %d selama %d bulan, kamu masuk kondisi Depresi. Kondisi ini tidak pernah mengakhiri permainan. Konseling (tab Karier), istirahat, dan bercerita ke orang terdekat membantumu pulih, dan kamu pulih saat kebahagiaan di atas %d.","In the game: if your happiness stays below %d for %d months, you enter Depression. It never ends the game. Counseling (Career tab), rest, and talking to someone close help you recover, and you recover once your happiness is above %d."
@@ -1658,15 +1647,12 @@ HISTORY_BEST,Skor warisan terbaik,Best legacy score
 HISTORY_BEST_VALUE,"%d · %s, %d th","%d · %s, age %d"
 HISTORY_SCORE,usia %d · skor %d,age %d · score %d
 RUNWAY_FOREVER,"Pendapatan pensiun dan sewa sudah menutup pengeluaran rutinmu, jadi tabungan tidak terkuras untuk kebutuhan bulanan.","Your pension and rental income already cover your regular spending, so your savings are not drained by monthly needs."
-RUNWAY_YEARS,"Dengan pengeluaran sekarang, kas dan investasimu cukup sekitar %s tahun lagi (sampai usia ±%d), belum termasuk biaya tak terduga seperti berobat.","At your current spending, your cash and investments will last about %s more years (until about age %d), not counting surprises such as medical costs."
-RUNWAY_LOW,"Agar tidak kehabisan dana di masa tua, pertimbangkan menurunkan pengeluaran (makanan, tempat tinggal, kendaraan) atau menjual aset yang tidak terpakai.","To avoid running out of money in old age, consider lowering your spending (food, housing, vehicles) or selling assets you don't use."
 STAGE_7,Tahap 7: Dana Kelolaan,Stage 7: Managed Fund
 STAGE_7_DESC,"Kelola uang investor sebagai Wakil Manajer Investasi: atur alokasi dana, terima investor, dan dapatkan fee manajemen. Buka kartu Dana Kelolaan di tab Portofolio.","Manage investors' money as an Investment Manager Representative: set the fund's allocation, accept investors, and earn a management fee. Open the Managed Fund card in the Portfolio tab."
 TOPIC_FUND,Manajemen Investasi,Investment Management
 FUND_TITLE,Dana Kelolaan,Managed Fund
 FUND_BODY,"Uang investor disimpan terpisah di bank kustodian. Kamu mengatur alokasinya, mereka menilai hasilnya.","Investors' money is held separately at a custodian bank. You set the allocation, they judge the results."
 FUND_SUBTITLE,Nilai dana %s · NAB %s,Fund value %s · NAV %s
-FUND_SUMMARY,Ringkasan,Summary
 FUND_VALUE,Nilai dana,Fund value
 FUND_NAV,NAB per unit,NAV per unit
 FUND_PROFILE,Profil dana,Fund profile
@@ -1674,8 +1660,7 @@ FUND_REPUTATION,Reputasi manajer,Manager reputation
 FUND_FEE_MONTH,Fee bulan ini,Fee this month
 FUND_FEE_TOTAL,Total fee diterima,Total fees earned
 FUND_ENERGY,Rapat dan laporan untuk investor memakai %d energi setiap bulan (bertambah 1 tiap %d investor).,Investor meetings and reports use %d energy every month (1 more for every %d investors).
-FUND_ALLOCATION,Alokasi Dana,Fund Allocation
-FUND_ALLOCATION_HINT,"Atur porsi tiap keranjang (kelipatan %d%%, total 100%%). Dana diseimbangkan ulang tiap bulan, dan biaya transaksinya dibayar dana.","Set each basket's share (steps of %d%%, 100%% in total). The fund is rebalanced every month, and the trading costs are paid by the fund."
+FUND_ALLOCATION_HINT,"Kelipatan %d%%, total harus 100%%. Dana diseimbangkan ulang tiap bulan.","Steps of %d%%, 100%% in total. The fund is rebalanced every month."
 FUND_BASKET_MONEY,Pasar Uang,Money Market
 FUND_BASKET_STOCKS,Saham,Stocks
 FUND_BASKET_GOLD,Emas,Gold
@@ -1683,23 +1668,16 @@ FUND_BASKET_COMMODITIES,Komoditas,Commodities
 FUND_BASKET_FX,Valas,Forex
 FUND_BASKET_RISK,%s · risiko %s,%s · risk %s
 FUND_BASKET_LOCKED,Belum bisa dipilih: asetnya belum terbuka untukmu.,Not available yet: its assets aren't unlocked for you.
-FUND_ALLOC_TOTAL,Total %d%% · profil %s · fee %s/tahun,Total %d%% · %s profile · fee %s/year
-FUND_ALLOC_APPLY,Terapkan Alokasi,Apply Allocation
+FUND_ALLOC_APPLY,Terapkan,Apply
 FUND_ALLOC_BREACH,Alokasi ini melanggar mandat %s: profil dana jadi lebih berisiko daripada profil mereka.,This allocation breaks the mandate of %s: the fund becomes riskier than their profile.
 FUND_PROFILE_CONSERVATIVE,Konservatif,Conservative
 FUND_PROFILE_MODERATE,Moderat,Moderate
 FUND_PROFILE_AGGRESSIVE,Agresif,Aggressive
-FUND_INVESTORS_TITLE,Investor (%d),Investors (%d)
 FUND_NO_INVESTORS,Belum ada investor. Terima tawaran di bawah untuk mulai mengelola dana.,No investors yet. Accept an offer below to start managing the fund.
-FUND_INV_VALUE,Setoran %s · nilai %s (%s),Deposited %s · value %s (%s)
-FUND_INV_META,Profil %s · sejak %s · kontrak sampai %s,%s profile · since %s · contract until %s
 FUND_INV_BREACH,Mandat dilanggar: profil dana lebih berisiko daripada profil investor ini.,Mandate breached: the fund is riskier than this investor's profile.
 FUND_RETURN_BUTTON,Kembalikan Dana,Return Funds
-FUND_RETURN_CONFIRM,Ketuk lagi untuk mengembalikan,Tap again to return
-FUND_OFFERS_TITLE,Tawaran Investor,Investor Offers
+FUND_RETURN_CONFIRM,Yakin? Ketuk lagi,Sure? Tap again
 FUND_NO_OFFERS,"Belum ada tawaran. Tawaran datang setiap beberapa bulan, dan investor besar muncul saat reputasimu naik.","No offers yet. Offers arrive every few months, and bigger investors appear as your reputation grows."
-FUND_OFFER_TERMS,Setoran %s · profil %s · target %s per tahun · batas turun %s,Deposit %s · %s profile · target %s a year · drawdown limit %s
-FUND_OFFER_UNTIL,Berlaku sampai %s,Valid until %s
 FUND_OFFER_BREACH,"Profil danamu (%s) lebih berisiko daripada profil investor ini (%s). Jika diterima, mandatnya langsung dilanggar.",Your fund profile (%s) is riskier than this investor's (%s). Accepting means breaking their mandate right away.
 FUND_ACCEPT,Terima,Accept
 FUND_DECLINE,Tolak,Decline
@@ -1748,9 +1726,7 @@ FUND_SAT_VERY_HAPPY,sangat puas,very satisfied
 FUND_SAT_HAPPY,puas,satisfied
 FUND_SAT_DOUBTFUL,ragu,doubtful
 FUND_SAT_DISAPPOINTED,kecewa,disappointed
-FUND_INV_SAT,Kepuasan %d/100 · %s,Satisfaction %d/100 · %s
 FUND_INV_WARNED,Sudah menegur: ia akan menarik dana jika keadaan tidak membaik.,Has complained: they will withdraw if things don't improve.
-FUND_INV_PERF,Imbal hasil %s per tahun (target %s) · turun %s dari puncak (batas %s),Return %s a year (target %s) · %s below peak (limit %s)
 FUND_REPUTATION_HINT,"Reputasi naik saat investor puas dan memperpanjang kontrak, dan turun saat investor pergi karena kecewa. Investor besar baru menawarkan dana saat reputasimu cukup.","Reputation rises when investors are satisfied and renew, and falls when they leave disappointed. Bigger investors only make offers once your reputation is high enough."
 FUND_PERF_TOTAL,Total fee kinerja,Total performance fees
 PORT_FUND_WARNED,%d investor kecewa: buka Kelola Dana,%d investors are unhappy: open Manage Fund
@@ -1932,3 +1908,56 @@ ACH_DETAIL_FRAME_NOTE,bingkai avatar,avatar frame
 ACH_DETAIL_NOTE,Lencana berlaku untuk semua permainan.,Badges carry over to every game.
 ACH_USE_TITLE,Pakai gelar,Use title
 ACH_USE_FRAME,Pakai bingkai,Use frame
+CHAPTER_ROW_WORTH,Kekayaan bersih,Net worth
+CHAPTER_ROW_REAL,Nilai riil (harga awal),Real value (starting prices)
+CHAPTER_ROW_DREAMS,Impian tercapai,Dreams achieved
+CHAPTER_ROW_JOB,Pekerjaan,Job
+CHAPTER_NEXT_CAPS,Bab berikutnya · usia %s,Next chapter · age %s
+RUNWAY_METER_TITLE,Dana cukup sampai usia ±%d,Money lasts until about age %d
+RUNWAY_METER_VALUE,±%s tahun,~%s years
+RUNWAY_METER_TARGET,target usia %d,target age %d
+RUNWAY_METER_NOTE,"Dengan pengeluaran sekarang, belum termasuk biaya tak terduga seperti berobat.","At your current spending, not counting surprises such as medical costs."
+CRITICAL_RECOVER_CAPS,Cara pulih,How to recover
+DEPRESSION_LEAD,"Kebahagiaanmu di bawah %d selama %d bulan. Kamu bisa pulih, dan ini tidak pernah mengakhiri permainan.","Your happiness has been below %d for %d months. You can recover, and this never ends the game."
+DEPRESSION_DURING_CAPS,Selama masa ini,During this time
+DEPRESSION_FX_ENERGY,Energi bulanan berkurang %d.,Your monthly energy drops by %d.
+DEPRESSION_FX_HEALTH,Kesehatan turun perlahan.,Your health declines slowly.
+DEPRESSION_FX_SOCIAL,Kamu sedang tidak ingin nongkrong.,You don't feel like hanging out.
+DEPRESSION_HELP_CAPS,Yang membantu,What helps
+DEPRESSION_HELP_COUNSEL,"Konseling di puskesmas (ditanggung BPJS), pilihannya ada di tab Karier.","Counseling at the community health center (covered by BPJS), found in the Career tab."
+DEPRESSION_HELP_REST,Istirahat yang cukup dan bercerita ke orang terdekat.,Getting enough rest and talking to someone close to you.
+DEPRESSION_RECOVER,Kamu pulih saat kebahagiaan di atas %d.,You recover once your happiness is above %d.
+DEPRESSION_SUPPORT_LINK,Butuh teman bicara di dunia nyata? Lihat Profil › Atur › Bantuan & Dukungan.,Need someone to talk to in real life? See Profile › Settings › Help & Support.
+SUPPORT_CARD_TITLE,Kamu tidak sendirian,You are not alone
+RETIRE_TILE_JHT,JHT cair,JHT paid out
+RETIRE_TILE_JHT_SUB,masuk ke kas sekarang,added to your cash now
+RETIRE_TILE_JP,Jaminan Pensiun,Pension
+RETIRE_TILE_JP_VALUE,%s/bln,%s/mo
+RETIRE_TILE_JP_SUB,iuran %s tahun · ikut inflasi,%s years paid in · inflation-linked
+RETIRE_TILE_JP_LUMP,dibayar sekaligus (iuran kurang dari 15 tahun),paid as a lump sum (under 15 years paid in)
+RETIRE_TILE_JP_NONE,tidak pernah kerja formal (BPJS Ketenagakerjaan),never worked a formal job (BPJS Ketenagakerjaan)
+RETIRE_KEEP_CAPS,Agar dana pensiun awet,Make your retirement money last
+RETIRE_KEEP_SPEND,"Turunkan pengeluaran: makanan, tempat tinggal, atau kendaraan.","Lower your spending: food, housing, or vehicles."
+RETIRE_KEEP_WITHDRAW,"Tarik investasi secukupnya, sekitar 4% per tahun.","Withdraw from investments modestly, about 4% a year."
+RETIRE_KEEP_SELL,Jual aset yang tidak terpakai.,Sell assets you don't use.
+RETIRE_YEAR_TIP,"Tombol ""+1 Tahun"" kini tersedia untuk melompati 12 bulan sekaligus.","The ""+1 Year"" button is now available to skip 12 months at once."
+ASSETS_SELL_VEHICLE_NOTE,"Uang hasil jual langsung masuk ke kas. Biaya rutin (bensin, servis, pajak) dan kebahagiaan dari kendaraan ini berhenti.","The money goes straight to your cash. The running costs (fuel, servicing, tax) and the happiness from this vehicle stop."
+FUND_TAB_SUMMARY,Ringkasan,Summary
+FUND_TAB_ALLOCATION,Alokasi,Allocation
+FUND_TAB_INVESTORS,Investor,Investors
+FUND_TILE_INVESTORS,%d investor,%d investors
+FUND_TILE_GROWTH,%s sejak awal,%s since launch
+FUND_TILE_FEE,fee %s/thn,fee %s/yr
+FUND_TILE_TOTAL,total %s,total %s
+FUND_ALLOC_TOTAL_SHORT,Total %d%%,Total %d%%
+FUND_FEE_CHIP,fee %s/thn,fee %s/yr
+FUND_INVESTORS_CAPS,Investor aktif · %d,Active investors · %d
+FUND_OFFERS_CAPS,Tawaran baru · %d,New offers · %d
+FUND_OFFER_SUB,%s · berlaku sampai %s,%s · valid until %s
+FUND_SAT_CHIP,%s · %d,%s · %d
+FUND_DEPOSIT,Setoran %s,Deposited %s
+FUND_CHIP_RETURN,Imbal %s/thn · target %s,Return %s/yr · target %s
+FUND_CHIP_DRAWDOWN,Turun %s · batas %s,Down %s · limit %s
+FUND_CHIP_CONTRACT,Kontrak s/d %s,Contract to %s
+FUND_CHIP_TARGET,target %s/thn,target %s/yr
+FUND_CHIP_LIMIT,batas turun %s,drawdown limit %s
