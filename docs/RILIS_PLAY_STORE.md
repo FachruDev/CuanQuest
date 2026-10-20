@@ -87,7 +87,7 @@ Perkiraan hasil: ESRB E atau E10+, PEGI 3-7 (12 jika referensi judi atau kuota k
 | **Uji tertutup akun pribadi baru** | ⬜ M7 | Minimal **12 penguji** ikut terus-menerus selama **14 hari**, lalu ajukan akses produksi (tinjauan ±7 hari). Siapkan minimal 3 minggu |
 | **Verifikasi pengembang** | ⬜ M7 | Verifikasi identitas + perangkat (aplikasi Play Console di HP Android 10+). Aturan verifikasi pengembang untuk sideload berlaku di Indonesia sejak 30 September 2026; aplikasi yang didistribusikan lewat Play otomatis terdaftar. ⚠️ Membagikan APK di luar Play ke teman bisa terdampak |
 | **Ikon adaptif** | ✅ | Pilihan A "Koin Rp": `assets/branding/icon_fg_432.png`, `icon_bg_432.png`, `icon_mono_432.png` (Android 13), `icon_192.png`, sudah dipasang di `export_presets.cfg`; boot splash `assets/branding/boot_splash.png` di latar #FDE3BF. Lihat `docs/KEBUTUHAN_ASET.md` bagian M7. |
-| **Grafis toko** | 🟡 M7 | Ikon 512x512 ✅ (`assets/branding/source/play_store_512.png`); grafis fitur 1024x500 tanpa transparansi, 2-8 screenshot HP (game: minimal 3 berukuran 1080x1920) |
+| **Grafis toko** | ✅ | Semua di `assets/branding/source/` (folder ber-`.gdignore`, tidak ikut ke game): ikon 512x512 `play_store_512.png`; `store/feature_graphic_1024x500.png` (PNG 24-bit tanpa transparansi); 8 screenshot `store/screenshot_1..8_*.png` 1080x1920 PNG 24-bit, isi game sungguhan dengan judul singkat (urutan unggah = nomor file). |
 
 ---
 

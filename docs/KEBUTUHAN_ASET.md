@@ -22,7 +22,7 @@ Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang
 | **v2b** Siklus hidup penuh | Ikon usia, lencana akhir hidup (lentera), ikon aktivitas Konseling ✅ (Ikon v2); 4 ilustrasi bab kehidupan (opsional) belum | ✅ ⬜ |
 | **v2c** Dana investor | Lencana Dana Kelolaan (brankas) ✅ (Ikon v2); 8 potret investor (opsional) belum, kartu memakai lingkaran inisial | ✅ ⬜ |
 | **Tambahan v2** Garasi & pilihan kendaraan | 8 ilustrasi kendaraan per model | ✅ |
-| **M7** Rilis Play Store | Ikon aplikasi adaptif + ikon Play Store 512 + boot splash ✅; grafis fitur 1024x500 & screenshot ⬜ | 🟡 |
+| **M7** Rilis Play Store | Ikon aplikasi adaptif + ikon Play Store 512 + boot splash + grafis fitur 1024x500 + 8 screenshot ✅ | ✅ |
 
 ## Aturan Umum
 
@@ -217,7 +217,7 @@ Tanpa merek atau logo nyata. Jika ingin satu gambar dipakai beberapa model, isi 
 | `assets/icons/dreams/<id>.svg` (12 file: phone, laptop, bali, motor, umrah, japan, business, wedding, house_dp, masters, car, early_retire) | Ikon garis per impian (nama file = id di `data/dreams.json`) | Kartu Impian di Beranda (`home_screen.gd`, cadangan `badge_star.svg`) |
 | `assets/icons/target_open.svg` | Lingkaran kosong target yang masih berjalan | Kartu Target Bulan Ini (selesai/gagal memakai `req_ok.svg`/`req_no.svg`) |
 
-## M7: Rilis Play Store 🟡 (ikon & splash ✅, grafis toko ⬜)
+## M7: Rilis Play Store ✅ (ikon, splash, dan grafis toko)
 
 Ikon aplikasi pilihan A "Koin Rp" (koin Rp di atas langit senja & bukit). Sumber SVG di `assets/branding/source/` (folder ber-`.gdignore`, tidak diimpor Godot); teks memakai kerangka huruf Lilita One/Fredoka asli sehingga SVG bisa dirender ulang. PNG dirender dari SVG tersebut.
 
@@ -229,8 +229,8 @@ Ikon aplikasi pilihan A "Koin Rp" (koin Rp di atas langit senja & bukit). Sumber
 | `icon.svg` | Ikon proyek (vektor, sama dengan ikon utama) | `project.godot` `config/icon` (editor, jendela desktop) | ✅ |
 | `assets/branding/boot_splash.png` (1080x1920, transparan) | Logo koin + "Cuan" + pita "QUEST" + tagline di tengah | `project.godot` `boot_splash/image`, latar `boot_splash/bg_color` #FDE3BF, mode Keep | ✅ |
 | `assets/branding/source/play_store_512.png` (512x512, PNG 32-bit) | Ikon di halaman Play Store (persegi penuh; Google membulatkan sendiri) | Play Console | ✅ |
-| `assets/branding/feature_graphic.png` (1024x500, JPEG/PNG 24-bit tanpa transparansi) | Grafis fitur Play Store | Halaman Play Store | ⬜ |
-| Screenshot 1080x1920 (minimal 3, maksimal 8) | Tangkapan layar game; harus menampilkan game sungguhan, tanpa klaim "dapat uang" atau peringkat "#1" | Halaman Play Store | ⬜ |
+| `assets/branding/source/store/feature_graphic_1024x500.png` (PNG 24-bit tanpa transparansi) | Grafis fitur: logo koin "Cuan QUEST" + tagline di kiri, bukit naik dengan 3 avatar anime di kanan | Halaman Play Store | ✅ |
+| `assets/branding/source/store/screenshot_1..8_*.png` (1080x1920, PNG 24-bit) | 8 tangkapan layar game sungguhan (pemain 12 tahun bermain) dengan judul singkat & bingkai HP: Beranda, detail reksa dana, kejadian penipuan, kuis, Rumah & Kendaraan, Portofolio, Karier, lencana. Tanpa klaim "dapat uang" atau peringkat | Halaman Play Store (urutan = nomor file) | ✅ |
 
 Splash sistem Android 12+ otomatis memakai lapisan depan ikon di atas warna latar boot splash (dicek di APK debug: `res/drawable/splash_icon.webp`).
 
