@@ -57,15 +57,11 @@ FOOD_LUXURY,Mewah,Luxury
 HOUSING_FAMILY,Menumpang,With Family
 HOUSING_KOS,Kos,Boarding
 HOUSING_APARTMENT,Apartemen,Apartment
-PORT_SUMMARY,Ringkasan,Summary
 PORT_INVESTED,Nilai investasi,Investment value
-PORT_COST,Total modal,Total cost
 PORT_PNL,Untung/rugi,Profit/loss
-PORT_NETWORTH_CHART,Kekayaan bersih dari waktu ke waktu,Net worth over time
 PORT_HOLDINGS,Kepemilikan,Holdings
 PORT_EMPTY,Belum ada investasi. Mulai dari tab Pasar.,No investments yet. Start from the Market tab.
 PORT_HOLDING_DETAIL,%s unit | rata-rata %s,%s units | avg %s
-PORT_LAST_REPORT,Laporan Bulan Terakhir,Last Monthly Report
 SUMMARY_TITLE,Laporan Bulanan,Monthly Report
 REPORT_EMPTY,Belum ada laporan. Tekan Lanjut untuk memulai bulan berikutnya.,No report yet. Press Next to start the next month.
 REPORT_INCOME,PEMASUKAN,INCOME
@@ -179,7 +175,6 @@ Real ads will be added before release.
 %d"
 ACT_LEVEL,Level %d,Level %d
 ACT_QUIZ_TITLE,Kuis Finansial,Financial Quiz
-ACT_QUIZ_INFO,"Kuis minggu ini: %d / %d tersisa. Benar atau salah sama-sama memakai jatah, dan jatah di-reset setiap Senin.","Quizzes this week: %d / %d left. Right or wrong, each one uses a slot. Resets every Monday."
 ACT_START_QUIZ,Mulai Kuis,Start Quiz
 ACT_TOPIC_TITLE,Soal benar per topik,Correct answers by topic
 ACT_UNLOCK_TITLE,Membuka Instrumen Baru,Unlocking Instruments
@@ -431,7 +426,6 @@ ACT_ENERGY_TITLE,Aktivitas Bulan Ini,This Month's Activities
 ACT_ENERGY_COUNT,Energi %d / %d,Energy %d / %d
 ACT_ENERGY_NOTE,Terisi ulang setiap awal bulan dan tidak bisa ditabung.,Refills every month and can't be saved up.
 ACT_FREE,Gratis,Free
-ACT_XP_DETAIL,total %d XP · %d / %d,%d XP total · %d / %d
 ACT_ITEM_USED,%d/%d kali,%d/%d times
 ACT_DONE,Selesai! %s,Done! %s
 ERR_ACTIVITY_BUSY,Selesaikan kejadian bulan ini dulu,Resolve this month's event first
@@ -448,7 +442,6 @@ ALLOC_EMPTY,Belum ada aset.,No assets yet.
 PORT_CONCENTRATION_WARNING,Peringatan: %s investasimu ada di satu aset. Pertimbangkan diversifikasi.,Warning: %s of your investments sit in one asset. Consider diversifying.
 PORT_TRANSACTIONS,Riwayat Transaksi,Transaction History
 TX_EMPTY,Belum ada transaksi.,No transactions yet.
-TX_META,%s · fee %s,%s · fee %s
 TX_BUY,Beli,Buy
 TX_SELL,Jual,Sell
 TX_FORCED,Jual paksa,Forced sale
@@ -595,7 +588,6 @@ REPORT_TRADE_FEE,Fee transaksi,Transaction fees
 REPORT_TRADE_TAX,Pajak transaksi,Transaction taxes
 REPORT_INTEREST_TAX,Pajak bunga,Interest tax
 REPORT_COSTS_TOTAL,Total pajak & biaya bulan ini %s (termasuk PPh 21).,Total taxes & fees this month: %s (including income tax).
-TX_META_TAX,%s · fee %s · pajak %s,%s · fee %s · tax %s
 HOME_NET_SALARY_LABEL,Gaji bersih,Net salary
 HOME_SALARY_TAX_NOTE,Gaji %s dipotong PPh 21 %s,Gross %s minus income tax %s
 INFO_TAX,Pajak beli %s | Pajak jual %s,Buy tax %s | Sell tax %s
@@ -659,18 +651,13 @@ BG_D3_DESC,"Usia 21, masih menumpang keluarga. Bisa melamar teller bank dan juni
 BG_S1,Sarjana (S1),Bachelor's Graduate
 BG_S1_DESC,"Usia 22, tinggal di kos. Pilihan kerja paling luas, tapi biaya hidup sudah mandiri.","Age 22, renting a room. The widest job choices, but you pay your own living costs."
 NG_BACKGROUND_CHIP,%s · Keahlian %d,%s · Skill %d
-CAREER_JOB_TITLE,Pekerjaan,Job
 CAREER_BOARD_TITLE,Lowongan Bulan Ini,This Month's Openings
-ACT_LIST_TITLE,Aktivitas,Activities
 CAREER_PER_MONTH,%s/bln,%s/mo
-CAREER_SINCE,Bekerja sejak %s (%d bulan),Working since %s (%d months)
 CAREER_UNPAID,Cuti tanpa gaji %d bulan lagi.,Unpaid leave for %d more months.
 CAREER_UNEMPLOYED,Belum bekerja,Not working
 CAREER_UNEMPLOYED_HINT,"Lamar lowongan di bawah. Hasilnya keluar awal bulan depan; jika diterima, gaji pertama langsung dibayar. Sementara itu, kerja sampingan bisa menambah uang.","Apply to openings below. Results arrive early next month; if hired, your first salary is paid right away. Meanwhile, side jobs can bring in cash."
 CAREER_SENT,Lamaran terkirim: %s. Hasilnya awal bulan depan.,Applications sent: %s. Results early next month.
 CAREER_SENT_ITEM,%s (%d%%),%s (%d%%)
-CAREER_EDUCATION,Pendidikan %s,Education %s
-CAREER_SKILL,Keahlian %d,Skill %d
 CAREER_EXPERIENCE,%s %d bln,%s %d mo
 CAREER_BOARD_HINT,"Maksimal %d lamaran per bulan, masing-masing memakai %d energi. Lowongan berganti setiap bulan.","Up to %d applications per month, each costs %d energy. Openings change every month."
 CAREER_LEVEL,Jenjang %d,Level %d
@@ -713,7 +700,6 @@ PERF_LOW,Kurang,Poor
 CAREER_PERFORMANCE,Kinerja %d · %s,Performance %d · %s
 CAREER_PERFORMANCE_INFO,"Kinerja bergerak menuju %d: keahlian dibanding syarat jabatan %+d, kesehatan & kebahagiaan %+d, ditambah pilihanmu di event kerja. Kenaikan prestasi tiap Januari: %s.","Performance moves toward %d: skill vs. job requirement %+d, health & happiness %+d, plus your choices in work events. Merit raise every January: %s."
 CAREER_MERIT_ITEM,%s%% (kinerja ≥%d),%s%% (performance ≥%d)
-CAREER_PROMOTION_NEXT,Promosi berikutnya: %s (%s),Next promotion: %s (%s)
 CAREER_PROMOTION_READY,Semua syarat terpenuhi. Tunggu tawaran promosi dari atasan dalam beberapa bulan.,All requirements met. Expect a promotion offer from your boss within a few months.
 CAREER_PROMOTION_TOP,Kamu sudah di jenjang tertinggi bidang ini. Kenaikan gaji kini datang dari prestasi tahunan.,You're at the top level of this field. Raises now come from yearly merit.
 CAREER_REQ_TENURE,Masa jabatan %d bln (kamu %d),%d mo in role (you %d)
@@ -742,7 +728,6 @@ EDU_SCHOLARSHIP,Beasiswa kampus menanggung %d%% uang kuliah.,A campus scholarshi
 EDU_LOAD,"Kuliah memakai %d energi dan kebahagiaan -%d tiap bulan. Uang kuliah diambil dari kas (atau tabungan dana darurat); jika tidak cukup, kuliah cuti sebulan.","Studying uses %d energy and -%d happiness each month. Tuition comes from cash (or your emergency savings); if it isn't enough, you take a month off."
 EDU_QUIT,Berhenti kuliah,Drop out
 EDU_PROGRAM_SUB,%d bulan · lulus menjadi %s,%d months · graduate as %s
-EDU_PROGRAM_INFO,Total ±%s (ikut inflasi) · keahlian +%d saat lulus · energi -%d & kebahagiaan -%d per bulan selama kuliah.,Total ±%s (follows inflation) · skill +%d at graduation · energy -%d & happiness -%d per month while studying.
 EDU_ENROLL,Daftar,Enroll
 EDU_ENROLL_BODY,"Lama kuliah %d bulan, uang kuliah %s per bulan (total ±%s, ikut naik bersama inflasi). Selama kuliah: energi -%d dan kebahagiaan -%d tiap bulan. Kuliah dimulai bulan depan dan bisa dihentikan kapan saja, tetapi biaya yang sudah dibayar hangus.","The program takes %d months at %s per month (total ±%s, rising with inflation). While studying: energy -%d and happiness -%d each month. It starts next month and you can drop out anytime, but tuition already paid is lost."
 EDU_ENROLL_CONFIRM,Daftar kuliah,Enroll
@@ -1181,9 +1166,7 @@ CONTRACT_PRIVATE_TUTOR_DESC,"Mengajar siswa SMA menjelang ujian, dua kali seming
 CONTRACT_TRANSLATION,Penerjemahan Dokumen,Document Translation
 CONTRACT_TRANSLATION_DESC,Menerjemahkan dokumen bisnis dari bahasa Inggris.,Translate business documents from English.
 CONTRACT_TITLE,Proyek Sampingan,Side Projects
-CONTRACT_HINT,Reputasi %d (bayaran +%d%%) · proyek aktif %d/%d. Proyek memakai energi setiap bulan sampai tenggat; dua proyek sekaligus melelahkan dan menurunkan kinerja di kantor.,Reputation %d (pay +%d%%) · active projects %d/%d. Projects use energy every month until the deadline; two at once wears you out and lowers your performance at work.
 CONTRACT_NONE,Tawaran proyek baru muncul setiap awal bulan.,New project offers appear at the start of each month.
-CONTRACT_STRATEGY_NOTE,"Teliti: peluang berhasil tinggi dan lebih sering memuaskan klien. Cepat: hemat energi, tapi rawan revisi. Bersama rekan: ringan, tapi bayaran dibagi (kamu %d%%). Gagal pertama kali berarti revisi 1 bulan.","Careful: high success chance and more often an excellent result. Fast: saves energy but often needs revisions. With a partner: light, but the pay is shared (you get %d%%). A first failure means a 1-month revision."
 CONTRACT_STRATEGY_CAREFUL,Teliti,Careful
 CONTRACT_STRATEGY_FAST,Cepat,Fast
 CONTRACT_STRATEGY_TEAM,Bersama rekan,With a partner
@@ -1192,7 +1175,6 @@ CONTRACT_SKILL,Keahlian disarankan %d (kamu %d),Suggested skill %d (you %d)
 CONTRACT_MARKET_UP,Ekonomi ramai: bayaran +%d%%,Booming economy: pay +%d%%
 CONTRACT_MARKET_DOWN,Ekonomi lesu: bayaran -%d%%,Slow economy: pay -%d%%
 CONTRACT_TOKEN,Dibayar token %s: nilainya ikut harga,Paid in %s tokens: value follows the price
-CONTRACT_ACTIVE_INFO,Sisa %d bulan (dinilai awal %s) · peluang berhasil %d%% · %d energi/bulan,%d months left (judged early %s) · success chance %d%% · %d energy/month
 CONTRACT_REVISING,Sedang revisi: klien meminta perbaikan.,In revision: the client asked for fixes.
 CONTRACT_SHORT,Energi kurang bulan ini: peluang berhasil turun.,Not enough energy this month: success chance drops.
 CONTRACT_ACCEPTED,Proyek diterima: %s. Hasilnya dinilai awal %s.,Project accepted: %s. It will be judged early %s.
@@ -1456,7 +1438,6 @@ Current price %s
 Closing fee %s
 Cash returned %s
 Profit/loss %s"
-LEV_PORTFOLIO_TITLE,Posisi Leverage,Leveraged Positions
 TOAST_LEV_OPENED,Posisi %s %dx dibuka: %s,%s %dx position opened: %s
 TOAST_LEV_MARGIN,Margin ditambah %s,Margin added: %s
 TOAST_LEV_CLOSED,Posisi ditutup: %s,Position closed: %s
@@ -1520,8 +1501,6 @@ CAREER_RETIRED,Pensiun,Retired
 CAREER_RETIRED_INFO,Pensiun sejak %s · Jaminan Pensiun %s/bulan · JHT diterima %s,Retired since %s · pension %s/month · JHT received %s
 CAREER_RETIRED_HINT,"Kamu tidak melamar kerja lagi, tetapi proyek sampingan tetap bisa diambil.","You no longer apply for jobs, but side projects are still available."
 CAREER_RETIRED_BOARD,"Kamu sudah pensiun, jadi tidak ada lowongan lagi.","You are retired, so there are no more job openings."
-CAREER_BPJS,BPJS Ketenagakerjaan: saldo JHT %s · perkiraan Jaminan Pensiun %s/bulan di usia 60,BPJS Ketenagakerjaan: JHT balance %s · estimated pension %s/month at 60
-CAREER_BPJS_EARLY,BPJS Ketenagakerjaan: saldo JHT %s · masa iuran pensiun %d tahun (Jaminan Pensiun bulanan butuh minimal 15 tahun),BPJS Ketenagakerjaan: JHT balance %s · %d years of pension contributions (a monthly pension needs at least 15 years)
 CAREER_LOG_RETIRED,Pensiun sebagai %s di %s,Retired as %s at %s
 HOME_RETIRED_TITLE,Masa Pensiun,Retirement
 HOME_RETIRED_INCOME,Jaminan Pensiun %s/bulan · pendapatan pasif %s/bulan,Pension %s/month · passive income %s/month
@@ -1689,7 +1668,6 @@ FUND_ERR_OFFER,Tawaran sudah tidak berlaku.,This offer is no longer valid.
 FUND_ERR_INVESTOR,Investor tidak ditemukan.,Investor not found.
 PORT_FUND_TITLE,Dana Kelolaan,Managed Fund
 PORT_FUND_EMPTY,Belum ada investor. Tawaran investor datang lewat kartu ini.,No investors yet. Investor offers arrive through this card.
-PORT_FUND_INVESTORS,Investor,Investors
 PORT_FUND_OFFERS,%d tawaran investor menunggu,%d investor offers waiting
 PORT_FUND_NOTE,"Uang investor disimpan terpisah, jadi tidak masuk kekayaan bersih dan neraca. Fee manajemen masuk kasmu setiap bulan.","Investors' money is kept separately, so it isn't in your net worth or balance sheet. The management fee goes into your cash every month."
 PORT_FUND_OPEN,Kelola Dana,Manage Fund
@@ -1961,3 +1939,92 @@ FUND_CHIP_DRAWDOWN,Turun %s · batas %s,Down %s · limit %s
 FUND_CHIP_CONTRACT,Kontrak s/d %s,Contract to %s
 FUND_CHIP_TARGET,target %s/thn,target %s/yr
 FUND_CHIP_LIMIT,batas turun %s,drawdown limit %s
+PORT_SEG_SUMMARY,Ringkasan,Summary
+PORT_SEG_ASSETS,Aset,Assets
+PORT_SEG_HISTORY,Riwayat,History
+PORT_LAST_MONTH_CHIP,%s bulan lalu,%s last month
+PORT_INVESTED_SUB,%d aset · modal %s,%d assets · cost %s
+PORT_PNL_SUB,%s dari modal,%s on cost
+PORT_PNL_NONE,belum ada investasi,no investments yet
+PORT_SHEET_DETAIL,Rincian neraca,Balance sheet details
+PORT_LEV_CAPS,Posisi leverage · %d,Leveraged positions · %d
+PORT_LEV_TOTAL,Ekuitas %s,Equity %s
+LEV_CHIP_LONG,Naik %dx,Long %dx
+LEV_CHIP_SHORT,Turun %dx,Short %dx
+PORT_LEV_EQUITY,Ekuitas %s · margin %s,Equity %s · margin %s
+PORT_LEV_DISTANCE,Jarak ke likuidasi,Distance to liquidation
+PORT_LEV_ROOM_DOWN,harga bisa turun %s,price can fall %s
+PORT_LEV_ROOM_UP,harga bisa naik %s,price can rise %s
+PORT_LEV_SAFE,"aman, margin menutup posisi","safe, the margin covers it"
+PORT_LEV_PRICE,Buka %s → %s,Opened %s → %s
+PORT_LEV_FIN,Biaya inap ±%s/bln,Financing ±%s/mo
+PORT_LEV_NO_FIN,Tanpa biaya inap,No financing cost
+LEV_POS_SAFE,Aman dari likuidasi: margin menutup seluruh posisi.,Safe from liquidation: the margin covers the whole position.
+LEV_POS_NO_FIN,Tanpa biaya inap (tidak ada dana pinjaman).,No financing cost (nothing is borrowed).
+PORT_FUND_CAPS,Dana kelolaan (uang investor),Managed fund (investors' money)
+PORT_FUND_HEAD,%s · %d investor,%s · %d investors
+PORT_FUND_SUB,NAB %s (%s) · %s · fee diterima %s,NAV %s (%s) · %s · fees earned %s
+PORT_REPORT_CAPS,Laporan bulan lalu · %s,Last month's report · %s
+PORT_REPORT_CAPS_MULTI,Laporan %d bulan terakhir,Report for the last %d months
+PORT_REPORT_CAPS_EMPTY,Laporan bulan lalu,Last month's report
+PORT_FLOW_INCOME,Pemasukan,Income
+PORT_FLOW_INCOME_SUB,"Gaji bersih, pensiun, sewa, fee, dan proyek","Net salary, pension, rent, fees, and projects"
+PORT_FLOW_EXPENSE,Pengeluaran,Spending
+PORT_FLOW_EXPENSE_SUB,"Makan, hunian, kendaraan, cicilan, premi, gaya hidup","Food, housing, vehicles, installments, premiums, lifestyle"
+PORT_FLOW_SAVED,Ditabung & diinvestasikan,Saved & invested
+PORT_FLOW_SAVED_SUB,"Dana darurat, autodebet, dan dana impian","Emergency fund, auto-invest, and dream funds"
+PORT_FLOW_INVEST,Hasil investasi,Investment results
+PORT_FLOW_INVEST_SUB,"Perubahan nilai, bunga, dan leverage","Value changes, interest, and leverage"
+PORT_FLOW_WORTH_SUB,Perubahan bulan lalu,Change last month
+PORT_REPORT_FULL,Lihat laporan lengkap,See the full report
+PORT_TX_FILTER_ALL,Semua,All
+PORT_TX_FILTER_BUY,Beli,Buy
+PORT_TX_FILTER_SELL,Jual,Sell
+PORT_TX_FILTER_LEV,Leverage,Leverage
+PORT_TX_AUTO_GROUP,%d aset sesuai rencana gaji,%d assets from your salary plan
+PORT_TX_FEE,fee %s,fee %s
+PORT_TX_FEE_TAX,fee %s · pajak %s,fee %s · tax %s
+PORT_TX_MORE,Tampilkan %d bulan sebelumnya,Show %d earlier months
+CAREER_SEG_WORK,Kerja,Work
+CAREER_SEG_ACTIVITIES,Aktivitas,Activities
+CAREER_SEG_LEARN,Belajar,Learn
+CAREER_PER_MONTH_SUB,per bulan,per month
+CAREER_SINCE_CHIP,Sejak %s · %d bln,Since %s · %d mo
+CAREER_PROMO_NEEDS,promosi butuh %d,promotion needs %d
+CAREER_PERF_HOW,Cara kinerja dihitung,How performance works
+CAREER_PROMO_CAPS,Promosi berikutnya,Next promotion
+CAREER_PROMO_HEAD,%s · %s/bln,%s · %s/mo
+CAREER_PROMO_PROGRESS,%d dari %d syarat,%d of %d met
+CAREER_BPJS_TITLE,BPJS Ketenagakerjaan,BPJS Ketenagakerjaan
+CAREER_BPJS_JHT,JHT %s,JHT %s
+CAREER_BPJS_JP,Masa iuran pensiun %d dari %d tahun untuk Jaminan Pensiun bulanan.,%d of %d years of contributions needed for a monthly pension.
+CAREER_BPJS_JP_READY,Perkiraan Jaminan Pensiun %s/bulan di usia 60.,Estimated pension %s/month at 60.
+CAREER_BOARD_LEFT,%d lamaran tersisa,%d applications left
+CAREER_BOARD_LOCKED,%d lowongan belum memenuhi syarat,%d openings you don't qualify for yet
+CAREER_SALARY_DIFF,Gaji %s,Pay %s
+ACT_XP_SHORT,%d / %d XP,%d / %d XP
+ACT_XP_NOTE,"XP dari kuis, aktivitas belajar, dan pencapaian · total %d XP","XP comes from quizzes, learning, and achievements · %d XP total"
+CAREER_QUIZ_LEFT,%d dari %d soal tersisa,%d of %d questions left
+CAREER_QUIZ_NOTE,"Jatah minggu ini, diisi ulang setiap Senin. Benar atau salah sama-sama memakai jatah.","This week's allowance, refilled every Monday. Right or wrong, each answer uses one."
+UNLOCK_COUNT,%d / %d terbuka,%d / %d unlocked
+UNLOCK_NEXT_CAPS,Tahap berikutnya,Next stage
+UNLOCK_ALL_DONE,Semua instrumen sudah terbuka. Selamat berinvestasi dengan bijak!,Every instrument is unlocked. Invest wisely!
+UNLOCK_SEE_ALL,Lihat semua tahap,See all stages
+CONTRACT_REPUTATION_CHIP,Reputasi %d · bayaran +%d%%,Reputation %d · pay +%d%%
+CONTRACT_ACTIVE_HINT,Proyek aktif %d dari %d. Proyek memakai energi setiap bulan sampai tenggat; dua proyek sekaligus melelahkan dan menurunkan kinerja di kantor.,Active projects: %d of %d. Projects use energy every month until the deadline; two at once is tiring and lowers your performance at work.
+CONTRACT_ACTIVE_CAPS,Sedang dikerjakan,In progress
+CONTRACT_CHANCE_CHIP,Peluang berhasil %d%%,Success chance %d%%
+CONTRACT_LEFT_CHIP,Sisa %d bln · dinilai awal %s,%d mo left · judged early %s
+CONTRACT_ENERGY_CHIP,%d energi / bulan,%d energy / month
+CONTRACT_STRATEGY_CAREFUL_DESC,peluang berhasil tinggi dan lebih sering memuaskan klien.,high success chance and clients are delighted more often.
+CONTRACT_STRATEGY_FAST_DESC,"hemat energi, tapi rawan revisi.","saves energy, but revisions are more likely."
+CONTRACT_STRATEGY_TEAM_DESC,"ringan, tapi bayaran dibagi (kamu %d%%).","lighter, but the pay is shared (you get %d%%)."
+CONTRACT_PICK_NOTE,%s: %s Gagal pertama kali berarti revisi 1 bulan.,%s: %s A first failure means a 1-month revision.
+CONTRACT_TAKE,Ambil proyek · %s,Take project · %s
+EDU_TILE_EDUCATION,Pendidikan,Education
+EDU_TILE_SKILL,Keahlian,Skill
+EDU_TILE_EXPERIENCE,Pengalaman,Experience
+EDU_MONTHS,%d bln,%d mo
+EDU_CHIP_TOTAL,Total ±%s (ikut inflasi),Total ±%s (follows inflation)
+EDU_CHIP_SKILL,Keahlian +%d saat lulus,Skill +%d at graduation
+EDU_CHIP_LOAD,Energi -%d & kebahagiaan -%d per bulan,Energy -%d & happiness -%d per month

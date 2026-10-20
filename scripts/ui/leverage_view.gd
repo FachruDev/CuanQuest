@@ -24,8 +24,13 @@ static func fill_position(box: VBoxContainer, p: Dictionary, with_name := false)
 	box.add_child(equity_label)
 	box.add_child(_label(_t("LEV_POS_PRICES") % [asset.price_text(p["entry"]), asset.price_text()], &"SmallMutedLabel"))
 	var liq := lev.liquidation_price(p)
-	box.add_child(_label(_t("LEV_POS_LIQ") % [asset.price_text(liq), Fmt.percent(liq / asset.price - 1.0)], &"SmallMutedLabel"))
-	box.add_child(_label(_t("LEV_POS_FIN") % Fmt.rupiah(lev.monthly_financing(p)), &"SmallMutedLabel"))
+	if p["side"] == Leverage.LONG and liq <= 0.0:  # margin menutup seluruh posisi: tidak bisa terlikuidasi
+		box.add_child(_label(_t("LEV_POS_SAFE"), &"SmallMutedLabel"))
+	else:
+		box.add_child(_label(_t("LEV_POS_LIQ") % [asset.price_text(liq), Fmt.percent(liq / asset.price - 1.0)], &"SmallMutedLabel"))
+	var financing := lev.monthly_financing(p)
+	box.add_child(_label(_t("LEV_POS_FIN") % Fmt.rupiah(financing) if financing >= 1.0 else _t("LEV_POS_NO_FIN"),
+		&"SmallMutedLabel"))
 	if p.get("call", false):
 		var call := _label(_t("LEV_POS_CALL") % Fmt.percent_plain(equity / float(p["margin"])), &"RowLabel")
 		call.add_theme_color_override("font_color", Palette.LOSS)

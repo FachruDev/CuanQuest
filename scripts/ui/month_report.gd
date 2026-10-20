@@ -422,6 +422,36 @@ static func _add_rumors(box: VBoxContainer, r: Dictionary) -> void:
 
 
 ## "+Rp1.250.000 (+3,10%)"
+## Laporan diringkas jadi 4 arus uang (Portofolio v2 > Riwayat): pemasukan (gaji bersih, pensiun, JHT/JP,
+## sewa, fee dana kelolaan, proyek), pengeluaran (biaya hidup, kendaraan, cicilan, premi, kuliah, gaya hidup),
+## yang ditabung & diinvestasikan (dana darurat, autodebet, dana impian), dan hasil investasi (bunga, perubahan
+## nilai, untung/rugi & biaya inap leverage). Pajak & fee transaksi tidak dipisah (sudah ada di laporan lengkap).
+static func flows(r: Dictionary) -> Dictionary:
+	var income := 0.0
+	var retirement: Dictionary = r.get("retirement", {})
+	if not retirement.is_empty():
+		income += float(retirement["jht"]) + float(retirement.get("jp_lump", 0))
+	if r.get("retired", false):
+		income += float(r.get("pension", 0))
+	elif not r.get("unemployed", false) and not r.get("unpaid_leave", false):
+		income += float(r.get("salary", 0)) - float(r.get("income_tax", 0))
+	income += float(r.get("rent_income", 0)) + float(r.get("fund_fee", 0))
+	for item: Dictionary in r.get("contracts_done", []):
+		income += float(item.get("pay", 0))
+	var expense := 0.0
+	for key: String in ["food_cost", "housing_cost", "property_cost", "vehicle_cost", "loan_paid", "insurance_premium",
+			"study_fee", "lifestyle_cost"]:
+		expense += float(r.get(key, 0))
+	var saved := float(r.get("emergency_saved", 0))
+	for item: Dictionary in r.get("autodebet", []) + r.get("dream_saved", []):
+		saved += float(item["amount"])
+	var invest := float(r.get("interest", 0.0)) + float(r.get("invest_change", 0.0))
+	var lev: Dictionary = r.get("leverage", {})
+	if not lev.is_empty():
+		invest += float(lev["pnl"]) - float(lev["financing"])
+	return {"income": income, "expense": expense, "saved": saved, "invest": invest}
+
+
 static func net_worth_change_text(r: Dictionary) -> String:
 	var before: float = r["net_worth_before"]
 	var after: float = r["net_worth_after"]

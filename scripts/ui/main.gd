@@ -16,6 +16,7 @@ const HEART_ICON := preload("res://assets/icons/heart.svg")  # kesehatan mental 
 const CHAPTER_ICON := preload("res://assets/icons/badge_calendar.svg")  # popup bab baru (v2b, Popup v2)
 const SELL_ICON := preload("res://assets/icons/wallet.svg")  # konfirmasi jual aset (Popup v2)
 const FUND_ICON := preload("res://assets/icons/classes/mutual_fund.svg")  # kabar dana kelolaan (Popup v2)
+const INFO_ICON := preload("res://assets/icons/lightbulb.svg")  # penjelasan dari tab Karier (Karier v2)
 
 ## Petunjuk kontekstual saat tab dibuka pertama kali (index tab -> key teks).
 const TAB_HINTS := {1: "HINT_MARKET", 2: "HINT_PORTFOLIO", 3: "HINT_ACTIVITY", 4: "HINT_PROFILE"}
@@ -93,6 +94,14 @@ func _ready() -> void:
 			GameState.career.resign()
 			_show_toast(tr("TOAST_RESIGNED")), tr("BTN_CANCEL"))))
 	%ActivityScreen.enroll_requested.connect(_confirm_enroll)
+	%ActivityScreen.popup_requested.connect(func(title: String, blocks: Array) -> void:  # Karier v2
+		_enqueue(%InfoPopup.open_rich.bind(title, blocks, {"kind": "quiet", "icon": INFO_ICON})))
+	%PortfolioScreen.popup_requested.connect(func(title: String, blocks: Array) -> void:  # Portofolio v2: rincian neraca
+		_enqueue(%InfoPopup.open_rich.bind(title, blocks, {"kind": "quiet", "icon": SELL_ICON})))
+	%PortfolioScreen.asset_requested.connect(_show_asset)
+	%PortfolioScreen.report_requested.connect(func() -> void:
+		if not GameState.last_report.is_empty():
+			_enqueue(%SummaryPopup.show_report.bind(GameState.last_report)))
 	%ActivityScreen.contract_accepted.connect(_hint.bind("HINT_CONTRACT"))  # proyek sampingan pertama (v1.5d)
 	%ActivityScreen.quit_study_requested.connect(func() -> void:
 		_enqueue(%InfoPopup.open.bind(tr("EDU_QUIT_TITLE"), tr("EDU_QUIT_BODY"), tr("EDU_QUIT_CONFIRM"),

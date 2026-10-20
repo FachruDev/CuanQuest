@@ -1,259 +1,51 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/screens/portfolio_screen.gd" id="1_portfolio"]
-[ext_resource type="Script" path="res://scripts/ui/price_chart.gd" id="2_chart"]
-[ext_resource type="Script" path="res://scripts/ui/allocation_chart.gd" id="3_alloc"]
-[ext_resource type="Theme" path="res://theme/senja_theme.tres" id="4_theme"]
-[ext_resource type="Texture2D" path="res://assets/icons/warning_small.svg" id="5_warn"]
+[ext_resource type="Theme" path="res://theme/senja_theme.tres" id="2_theme"]
 
-[node name="PortfolioScreen" type="ScrollContainer"]
+[node name="PortfolioScreen" type="VBoxContainer"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("4_theme")
-horizontal_scroll_mode = 0
+theme = ExtResource("2_theme")
+theme_override_constants/separation = 14
 script = ExtResource("1_portfolio")
 
-[node name="VBox" type="VBoxContainer" parent="."]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 12
-
-[node name="SummaryTitle" type="Label" parent="VBox"]
-layout_mode = 2
-theme_type_variation = &"SubSectionLabel"
-text = "PORT_SUMMARY"
-
-[node name="SummaryGrid" type="GridContainer" parent="VBox"]
-layout_mode = 2
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 10
-columns = 2
-
-[node name="CashTile" type="PanelContainer" parent="VBox/SummaryGrid"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_type_variation = &"StatTile"
-
-[node name="VBox" type="VBoxContainer" parent="VBox/SummaryGrid/CashTile"]
-layout_mode = 2
-theme_override_constants/separation = 0
-
-[node name="Name" type="Label" parent="VBox/SummaryGrid/CashTile/VBox"]
-layout_mode = 2
-theme_type_variation = &"TileCapsLabel"
-text = "LBL_CASH"
-
-[node name="CashValue" type="Label" parent="VBox/SummaryGrid/CashTile/VBox"]
+[node name="Segments" type="PanelContainer" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
-theme_type_variation = &"TileValueLabel"
+theme_type_variation = &"SegmentTrack"
 
-[node name="InvestedTile" type="PanelContainer" parent="VBox/SummaryGrid"]
+[node name="Row" type="HBoxContainer" parent="Segments"]
 layout_mode = 2
-size_flags_horizontal = 3
-theme_type_variation = &"StatTile"
-
-[node name="VBox" type="VBoxContainer" parent="VBox/SummaryGrid/InvestedTile"]
-layout_mode = 2
-theme_override_constants/separation = 0
-
-[node name="Name" type="Label" parent="VBox/SummaryGrid/InvestedTile/VBox"]
-layout_mode = 2
-theme_type_variation = &"TileCapsLabel"
-text = "PORT_INVESTED"
-
-[node name="InvestedValue" type="Label" parent="VBox/SummaryGrid/InvestedTile/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"TileValueLabel"
-
-[node name="CostTile" type="PanelContainer" parent="VBox/SummaryGrid"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_type_variation = &"StatTile"
-
-[node name="VBox" type="VBoxContainer" parent="VBox/SummaryGrid/CostTile"]
-layout_mode = 2
-theme_override_constants/separation = 0
-
-[node name="Name" type="Label" parent="VBox/SummaryGrid/CostTile/VBox"]
-layout_mode = 2
-theme_type_variation = &"TileCapsLabel"
-text = "PORT_COST"
-
-[node name="CostValue" type="Label" parent="VBox/SummaryGrid/CostTile/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"TileValueLabel"
-
-[node name="PnlTile" type="PanelContainer" parent="VBox/SummaryGrid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_type_variation = &"StatTilePositive"
-
-[node name="VBox" type="VBoxContainer" parent="VBox/SummaryGrid/PnlTile"]
-layout_mode = 2
-theme_override_constants/separation = 0
-
-[node name="PnlName" type="Label" parent="VBox/SummaryGrid/PnlTile/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"TileCapsLabel"
-text = "PORT_PNL"
-
-[node name="PnlValue" type="Label" parent="VBox/SummaryGrid/PnlTile/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"TileValueLabel"
-autowrap_mode = 3
-
-[node name="Gap1" type="Control" parent="VBox"]
-custom_minimum_size = Vector2(0, 4)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="ChartTitle" type="Label" parent="VBox"]
-layout_mode = 2
-theme_type_variation = &"SubSectionLabel"
-text = "PORT_NETWORTH_CHART"
-autowrap_mode = 3
-
-[node name="ChartCard" type="PanelContainer" parent="VBox"]
-layout_mode = 2
-theme_type_variation = &"ChartCard"
-
-[node name="VBox" type="VBoxContainer" parent="VBox/ChartCard"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="NetWorthChart" type="Control" parent="VBox/ChartCard/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 160)
-layout_mode = 2
-script = ExtResource("2_chart")
-max_points = 600
-light_style = true
-
-[node name="PeriodRow" type="HBoxContainer" parent="VBox/ChartCard/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="Gap2" type="Control" parent="VBox"]
-custom_minimum_size = Vector2(0, 4)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="AllocTitle" type="Label" parent="VBox"]
-layout_mode = 2
-theme_type_variation = &"SubSectionLabel"
-text = "PORT_ALLOCATION"
-
-[node name="AllocCard" type="PanelContainer" parent="VBox"]
-layout_mode = 2
-theme_type_variation = &"HomeCard"
-
-[node name="AllocRow" type="HBoxContainer" parent="VBox/AllocCard"]
-layout_mode = 2
-theme_override_constants/separation = 22
-
-[node name="AllocationChart" type="Control" parent="VBox/AllocCard/AllocRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(160, 160)
-layout_mode = 2
-size_flags_vertical = 4
-script = ExtResource("3_alloc")
-
-[node name="AllocLegend" type="VBoxContainer" parent="VBox/AllocCard/AllocRow"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
 theme_override_constants/separation = 6
 
-[node name="ConcentrationWarning" type="PanelContainer" parent="VBox"]
+[node name="Scroll" type="ScrollContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/scrollbar_h_separation = 12
+horizontal_scroll_mode = 0
+
+[node name="Pages" type="VBoxContainer" parent="Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Summary" type="VBoxContainer" parent="Scroll/Pages"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Assets" type="VBoxContainer" parent="Scroll/Pages"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_type_variation = &"WarningBanner"
+theme_override_constants/separation = 14
 
-[node name="HBox" type="HBoxContainer" parent="VBox/ConcentrationWarning"]
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="Icon" type="TextureRect" parent="VBox/ConcentrationWarning/HBox"]
-custom_minimum_size = Vector2(22, 20)
-layout_mode = 2
-size_flags_vertical = 4
-texture = ExtResource("5_warn")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="ConcentrationLabel" type="Label" parent="VBox/ConcentrationWarning/HBox"]
+[node name="History" type="VBoxContainer" parent="Scroll/Pages"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
-size_flags_horizontal = 3
-theme_type_variation = &"WarningLabel"
-autowrap_mode = 3
-
-[node name="Gap3" type="Control" parent="VBox"]
-custom_minimum_size = Vector2(0, 4)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="HoldingsTitle" type="Label" parent="VBox"]
-layout_mode = 2
-theme_type_variation = &"SubSectionLabel"
-text = "PORT_HOLDINGS"
-
-[node name="HoldingsList" type="VBoxContainer" parent="VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="Gap4" type="Control" parent="VBox"]
-custom_minimum_size = Vector2(0, 4)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="ReportTitle" type="Label" parent="VBox"]
-layout_mode = 2
-theme_type_variation = &"SubSectionLabel"
-text = "PORT_LAST_REPORT"
-
-[node name="ReportCard" type="PanelContainer" parent="VBox"]
-layout_mode = 2
-theme_type_variation = &"HomeCard"
-
-[node name="ReportBox" type="VBoxContainer" parent="VBox/ReportCard"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="Gap5" type="Control" parent="VBox"]
-custom_minimum_size = Vector2(0, 4)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="TxTitle" type="Label" parent="VBox"]
-layout_mode = 2
-theme_type_variation = &"SubSectionLabel"
-text = "PORT_TRANSACTIONS"
-
-[node name="TxCard" type="PanelContainer" parent="VBox"]
-layout_mode = 2
-theme_type_variation = &"HomeCard"
-
-[node name="TxList" type="VBoxContainer" parent="VBox/TxCard"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 10
-
-[node name="BottomGap" type="Control" parent="VBox"]
-custom_minimum_size = Vector2(0, 8)
-layout_mode = 2
-mouse_filter = 2
+theme_override_constants/separation = 14
