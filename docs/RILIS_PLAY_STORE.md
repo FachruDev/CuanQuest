@@ -86,8 +86,8 @@ Perkiraan hasil: ESRB E atau E10+, PEGI 3-7 (12 jika referensi judi atau kuota k
 | **Upload keystore** & Play App Signing | ⬜ M7 | Buat keystore unggah sendiri (RSA 2048, simpan di luar repo, misalnya `%USERPROFILE%\keys\`, dan cadangkan). Password keystore & kunci harus sama (aturan Godot). Godot menyimpan password di `.godot/export_credentials.cfg` (sudah diabaikan git). Tambahkan `*.keystore`, `*.jks` ke `.gitignore`. Google membuat kunci penandatanganan aplikasi sendiri |
 | **Uji tertutup akun pribadi baru** | ⬜ M7 | Minimal **12 penguji** ikut terus-menerus selama **14 hari**, lalu ajukan akses produksi (tinjauan ±7 hari). Siapkan minimal 3 minggu |
 | **Verifikasi pengembang** | ⬜ M7 | Verifikasi identitas + perangkat (aplikasi Play Console di HP Android 10+). Aturan verifikasi pengembang untuk sideload berlaku di Indonesia sejak 30 September 2026; aplikasi yang didistribusikan lewat Play otomatis terdaftar. ⚠️ Membagikan APK di luar Play ke teman bisa terdampak |
-| **Ikon adaptif** | ⬜ M7 | Latar depan & latar belakang 432x432 (isi penting di lingkaran tengah ±264 px), ikon monokrom 432x432 (opsional, Android 13), ikon utama 192x192. Lihat `docs/KEBUTUHAN_ASET.md` bagian M7 |
-| **Grafis toko** | ⬜ M7 | Ikon 512x512 PNG ≤ 1 MB, grafis fitur 1024x500 tanpa transparansi, 2-8 screenshot HP (game: minimal 3 berukuran 1080x1920) |
+| **Ikon adaptif** | ✅ | Pilihan A "Koin Rp": `assets/branding/icon_fg_432.png`, `icon_bg_432.png`, `icon_mono_432.png` (Android 13), `icon_192.png`, sudah dipasang di `export_presets.cfg`; boot splash `assets/branding/boot_splash.png` di latar #FDE3BF. Lihat `docs/KEBUTUHAN_ASET.md` bagian M7. |
+| **Grafis toko** | 🟡 M7 | Ikon 512x512 ✅ (`assets/branding/source/play_store_512.png`); grafis fitur 1024x500 tanpa transparansi, 2-8 screenshot HP (game: minimal 3 berukuran 1080x1920) |
 
 ---
 

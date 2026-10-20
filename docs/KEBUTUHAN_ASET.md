@@ -22,7 +22,7 @@ Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang
 | **v2b** Siklus hidup penuh | Ikon usia, lencana akhir hidup (lentera), ikon aktivitas Konseling ✅ (Ikon v2); 4 ilustrasi bab kehidupan (opsional) belum | ✅ ⬜ |
 | **v2c** Dana investor | Lencana Dana Kelolaan (brankas) ✅ (Ikon v2); 8 potret investor (opsional) belum, kartu memakai lingkaran inisial | ✅ ⬜ |
 | **Tambahan v2** Garasi & pilihan kendaraan | 8 ilustrasi kendaraan per model | ✅ |
-| **M7** Rilis Play Store | Ikon aplikasi adaptif, grafis & screenshot Play Store | ⬜ (rencana) |
+| **M7** Rilis Play Store | Ikon aplikasi adaptif + ikon Play Store 512 + boot splash ✅; grafis fitur 1024x500 & screenshot ⬜ | 🟡 |
 
 ## Aturan Umum
 
@@ -217,16 +217,22 @@ Tanpa merek atau logo nyata. Jika ingin satu gambar dipakai beberapa model, isi 
 | `assets/icons/dreams/<id>.svg` (12 file: phone, laptop, bali, motor, umrah, japan, business, wedding, house_dp, masters, car, early_retire) | Ikon garis per impian (nama file = id di `data/dreams.json`) | Kartu Impian di Beranda (`home_screen.gd`, cadangan `badge_star.svg`) |
 | `assets/icons/target_open.svg` | Lingkaran kosong target yang masih berjalan | Kartu Target Bulan Ini (selesai/gagal memakai `req_ok.svg`/`req_no.svg`) |
 
-## M7: Rilis Play Store ⬜ (rencana)
+## M7: Rilis Play Store 🟡 (ikon & splash ✅, grafis toko ⬜)
 
-| File | Isi | Dipakai di |
-|:--|:--|:--|
-| `assets/branding/icon_foreground.png`, `icon_background.png` (432x432) | Ikon aplikasi adaptif Android; isi penting di lingkaran tengah ±264 px (sisanya bisa terpotong bentuk ikon HP) | `export_presets.cfg` (preset Android, `launcher_icons/adaptive_*`) |
-| `assets/branding/icon_monochrome.png` (432x432, opsional) | Ikon satu warna untuk tema ikon Android 13+ | `export_presets.cfg` (`launcher_icons/adaptive_monochrome`) |
-| `assets/branding/icon_main.png` (192x192) | Ikon utama (cadangan untuk HP lama) | `export_presets.cfg` (`launcher_icons/main_192x192`); jika kosong memakai `icon.svg` |
-| `assets/branding/play_icon.png` (512x512, PNG 32-bit, ≤ 1 MB) | Ikon di halaman Play Store | Play Console |
-| `assets/branding/feature_graphic.png` (1024x500, JPEG/PNG 24-bit tanpa transparansi) | Grafis fitur Play Store | Halaman Play Store |
-| Screenshot 1080x1920 (minimal 3, maksimal 8) | Tangkapan layar game; harus menampilkan game sungguhan, tanpa klaim "dapat uang" atau peringkat "#1" | Halaman Play Store |
+Ikon aplikasi pilihan A "Koin Rp" (koin Rp di atas langit senja & bukit). Sumber SVG di `assets/branding/source/` (folder ber-`.gdignore`, tidak diimpor Godot); teks memakai kerangka huruf Lilita One/Fredoka asli sehingga SVG bisa dirender ulang. PNG dirender dari SVG tersebut.
+
+| File | Isi | Dipakai di | Status |
+|:--|:--|:--|:--|
+| `assets/branding/icon_fg_432.png`, `icon_bg_432.png` (432x432) | Ikon adaptif Android: lapisan depan (koin + kilau, transparan) & latar (langit + bukit); isi penting di lingkaran tengah ±264 px | `export_presets.cfg` (`launcher_icons/adaptive_foreground_432x432`, `adaptive_background_432x432`) | ✅ |
+| `assets/branding/icon_mono_432.png` (432x432) | Ikon satu warna (putih) untuk tema ikon Android 13+ | `export_presets.cfg` (`launcher_icons/adaptive_monochrome_432x432`) | ✅ |
+| `assets/branding/icon_192.png` (192x192) | Ikon utama bersudut bulat (HP lama) | `export_presets.cfg` (`launcher_icons/main_192x192`) | ✅ |
+| `icon.svg` | Ikon proyek (vektor, sama dengan ikon utama) | `project.godot` `config/icon` (editor, jendela desktop) | ✅ |
+| `assets/branding/boot_splash.png` (1080x1920, transparan) | Logo koin + "Cuan" + pita "QUEST" + tagline di tengah | `project.godot` `boot_splash/image`, latar `boot_splash/bg_color` #FDE3BF, mode Keep | ✅ |
+| `assets/branding/source/play_store_512.png` (512x512, PNG 32-bit) | Ikon di halaman Play Store (persegi penuh; Google membulatkan sendiri) | Play Console | ✅ |
+| `assets/branding/feature_graphic.png` (1024x500, JPEG/PNG 24-bit tanpa transparansi) | Grafis fitur Play Store | Halaman Play Store | ⬜ |
+| Screenshot 1080x1920 (minimal 3, maksimal 8) | Tangkapan layar game; harus menampilkan game sungguhan, tanpa klaim "dapat uang" atau peringkat "#1" | Halaman Play Store | ⬜ |
+
+Splash sistem Android 12+ otomatis memakai lapisan depan ikon di atas warna latar boot splash (dicek di APK debug: `res/drawable/splash_icon.webp`).
 
 ---
 

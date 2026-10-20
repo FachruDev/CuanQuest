@@ -14,6 +14,8 @@ config/name="Cuan Quest"
 run/main_scene="res://scenes/title.tscn"
 config/features=PackedStringArray("4.7", "Mobile")
 config/icon="res://icon.svg"
+boot_splash/bg_color=Color(0.99215686, 0.8901961, 0.7490196, 1)
+boot_splash/image="res://assets/branding/boot_splash.png"
 
 [autoload]
 
