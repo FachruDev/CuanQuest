@@ -120,6 +120,21 @@ static func career_log_text(entry: Dictionary) -> String:
 	return "%s · %s" % [Fmt.game_date(int(entry["month"])), text]
 
 
+## Isi satu catatan karier tanpa tanggal (garis waktu Profil v2 menampilkan tanggal terpisah).
+static func career_log_body(entry: Dictionary) -> String:
+	return career_log_text(entry).split(" · ", true, 1)[1]
+
+
+## Angka progres pencapaian: rupiah ringkas untuk kekayaan, 1 desimal untuk dana darurat, selain itu bulat.
+static func achievement_progress(d: Dictionary, value: float) -> String:
+	match d["type"]:
+		"net_worth":
+			return Fmt.rupiah_short(value)
+		"emergency_months":
+			return Fmt.number(value, 1)
+	return str(floori(value))
+
+
 ## Mengisi `box` dengan baris perjalanan karier, terbaru di atas (maks. `limit`).
 static func fill_career_log(box: VBoxContainer, limit: int) -> void:
 	for child in box.get_children():

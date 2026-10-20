@@ -10,6 +10,7 @@ const END_SCENE := "res://scenes/end_screen.tscn"
 const ANNUAL_POPUP := preload("res://scenes/ui/annual_popup.tscn")
 const LEVERAGE_POPUP := preload("res://scenes/ui/leverage_popup.tscn")
 const FUND_POPUP := preload("res://scenes/ui/fund_popup.tscn")
+const ACHIEVEMENT_POPUP := preload("res://scenes/ui/achievement_popup.tscn")
 const QUIET_ICON := preload("res://assets/icons/badge_retire.svg")  # masa senja & perpisahan (v2b)
 const HEART_ICON := preload("res://assets/icons/heart.svg")  # kesehatan mental (v2b langkah 4)
 
@@ -34,6 +35,7 @@ var _toast_tween: Tween
 var _annual_popup: ModalPopup  # laporan tahunan (v1.5d), dibuat lewat kode
 var _leverage_popup: ModalPopup  # buka posisi / tambah margin (v2a), dibuat lewat kode
 var _fund_popup: ModalPopup  # dana kelolaan investor (v2c), dibuat lewat kode
+var _achievement_popup: ModalPopup  # detail lencana pencapaian (Profil v2), dibuat lewat kode
 var _year_button: Button  # "+1 Tahun" di masa pensiun (v2b)
 
 
@@ -182,6 +184,10 @@ func _ready() -> void:
 		_enqueue(_annual_popup.open.bind(report)))
 	%ProfileScreen.annual_requested.connect(func() -> void:
 		_enqueue(_annual_popup.open.bind(GameState.annual.latest())))
+	_achievement_popup = ACHIEVEMENT_POPUP.instantiate()
+	add_child(_achievement_popup)
+	%ProfileScreen.achievement_requested.connect(func(id: String) -> void:
+		_enqueue(_achievement_popup.open.bind(id)))
 	GameState.achievements_unlocked.connect(_on_achievements_unlocked)
 	_setup_leverage()
 	_setup_fund()
@@ -202,7 +208,7 @@ func _ready() -> void:
 			QUIET_ICON)))
 	for popup: ModalPopup in [%SummaryPopup, %InfoPopup, %EventPopup, %QuizPopup, %GlossaryPopup, %TextPopup,
 			%PlanPopup, %DreamPickerPopup, %DreamPopup, %TradeConfirmPopup, %InsurancePopup, %OrderPopup, %OfferPopup,
-			%LoanPopup, %VehiclePopup, %PropertyPopup, _annual_popup, _leverage_popup, _fund_popup]:
+			%LoanPopup, %VehiclePopup, %PropertyPopup, _annual_popup, _leverage_popup, _fund_popup, _achievement_popup]:
 		popup.closed.connect(_show_next_popup)
 
 	_build_toast()

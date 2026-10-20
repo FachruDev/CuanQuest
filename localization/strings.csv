@@ -1901,3 +1901,34 @@ ASSETS_SELL_TITLE,Jual %s?,Sell %s?
 ASSETS_SELL_CONFIRM,"Ya, jual sekarang","Yes, sell now"
 ASSETS_LIST_TITLE,Jual %s?,Sell %s?
 HOME_FLOW_NONE,Belum ada bulan ini,None this month
+PROFILE_SEG_SUMMARY,Ringkasan,Summary
+PROFILE_SEG_STORY,Kisah,Story
+PROFILE_SEG_COLLECTION,Koleksi,Collection
+PROFILE_SEG_SETTINGS,Atur,Settings
+PROFILE_PLAYED,Bermain %d th %d bln,Played %d yr %d mo
+PROFILE_XP,%d / %d XP,%d / %d XP
+PROFILE_GOAL_WORTH,%s dari %s kekayaan bersih,%s of %s net worth
+PROFILE_GOAL_FREEDOM,Pendapatan pasif %s dari %s pengeluaran,Passive income %s of %s spending
+PROFILE_LIFE_CHAPTER,Bab %d dari %d,Chapter %d of %d
+PROFILE_STAT_REAL,Daya beli riil,Real purchasing power
+PROFILE_POWER_LINE,Inflasi %s · bunga tabungan %s · BI rate %s · harga naik %s sejak awal.,Inflation %s · savings interest %s · BI rate %s · prices up %s since the start.
+PROFILE_PEOPLE_SIDE,pilihan di event mengubah kedekatan,event choices change closeness
+PROFILE_RESEARCH_TRUE,%d terbukti,%d proved true
+PROFILE_RESEARCH_HIT,Riset tepat,Correct research
+PROFILE_HISTORY_BEST_SIDE,Rekor skor warisan: %d,Best legacy score: %d
+PROFILE_BADGES_TITLE,Lencana Pencapaian,Achievement Badges
+PROFILE_BADGES_SIDE,berlaku untuk semua permainan,shared across all games
+PROFILE_STYLE_CAPS,TAMPILAN PROFIL,PROFILE LOOK
+PROFILE_FRAME_CAPS,BINGKAI,FRAME
+PROFILE_TITLE_CAPS,GELAR,TITLE
+PROFILE_AUTOSAVE_SHORT,Tersimpan otomatis tiap bulan dan saat aplikasi ditutup. Slot di bawah untuk cadangan.,Saved automatically every month and when the app closes. Use the slots below for backups.
+SAVE_OVERWRITE,Timpa,Overwrite
+PROFILE_OTHER_TITLE,Lainnya,More
+ACH_DETAIL_OPEN,Terbuka %s · %s,Unlocked %s · %s
+ACH_DETAIL_LOCKED,Terkunci · %s / %s,Locked · %s / %s
+ACH_DETAIL_REWARD,HADIAH,REWARD
+ACH_DETAIL_TITLE_NOTE,gelar di bawah namamu,title under your name
+ACH_DETAIL_FRAME_NOTE,bingkai avatar,avatar frame
+ACH_DETAIL_NOTE,Lencana berlaku untuk semua permainan.,Badges carry over to every game.
+ACH_USE_TITLE,Pakai gelar,Use title
+ACH_USE_FRAME,Pakai bingkai,Use frame
