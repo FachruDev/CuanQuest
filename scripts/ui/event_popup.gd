@@ -87,7 +87,9 @@ func open(event: Dictionary) -> void:
 	var quiet: bool = event.get("quiet", false)
 	_set_quiet(quiet)
 	show()
-	if not quiet:  # event "quiet" (mis. kesehatan mental): tanpa bunyi peringatan & getar, sesuai pedoman
+	if quiet:  # event "quiet" (mis. kesehatan mental): tanpa bunyi peringatan & getar, musik diredam (pedoman)
+		Music.duck_while(self)
+	else:
 		Sfx.play("alert")
 		Sfx.vibrate()
 

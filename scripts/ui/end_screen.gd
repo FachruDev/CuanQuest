@@ -25,6 +25,7 @@ func _ready() -> void:
 	var r := GameState.end_result
 	if r.is_empty():  # dibuka langsung dari editor tanpa permainan yang selesai
 		return
+	Music.play("" if r["type"] == "died" else "end")  # akhir hidup: hening (pedoman konten sensitif prinsip 7)
 
 	var look: Array = RESULT_LOOK.get(r["type"], RESULT_LOOK["win"])
 	%ResultTitle.text = tr("END_TITLE_" + str(r["type"]).to_upper())

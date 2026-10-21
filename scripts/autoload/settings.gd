@@ -14,7 +14,11 @@ const LANGUAGES := ["id", "en"]
 ## Batas FPS: cukup untuk animasi mulus; HP berlayar 90/120 Hz tidak perlu menggambar lebih cepat.
 const MAX_FPS := 60
 
+const MUSIC_LEVELS := [0.4, 0.7, 1.0]  # pilihan volume musik: pelan, sedang, keras
+
 var sfx_enabled := true
+var music_enabled := true
+var music_volume := 0.7
 var vibration_enabled := true
 var language := "id"
 var compact_numbers := false
@@ -30,6 +34,8 @@ func _ready() -> void:
 	if config.load(PATH) == OK:
 		sfx_enabled = config.get_value("audio", "sfx", sfx_enabled)
 		vibration_enabled = config.get_value("audio", "vibration", vibration_enabled)
+		music_enabled = config.get_value("audio", "music", music_enabled)
+		music_volume = config.get_value("audio", "music_volume", music_volume)
 		language = config.get_value("display", "language", language)
 		compact_numbers = config.get_value("display", "compact_numbers", compact_numbers)
 		perf_overlay = config.get_value("display", "perf_overlay", perf_overlay)
@@ -38,6 +44,16 @@ func _ready() -> void:
 
 func set_sfx(enabled: bool) -> void:
 	sfx_enabled = enabled
+	_save()
+
+
+func set_music(enabled: bool) -> void:
+	music_enabled = enabled
+	_save()
+
+
+func set_music_volume(volume: float) -> void:
+	music_volume = volume
 	_save()
 
 
@@ -78,6 +94,8 @@ func _save() -> void:
 	var config := ConfigFile.new()
 	config.set_value("audio", "sfx", sfx_enabled)
 	config.set_value("audio", "vibration", vibration_enabled)
+	config.set_value("audio", "music", music_enabled)
+	config.set_value("audio", "music_volume", music_volume)
 	config.set_value("display", "language", language)
 	config.set_value("display", "compact_numbers", compact_numbers)
 	config.set_value("display", "perf_overlay", perf_overlay)

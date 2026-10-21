@@ -410,6 +410,10 @@ PROFILE_HISTORY_TITLE,Riwayat Permainan,Game History
 HISTORY_EMPTY,Belum ada permainan yang selesai.,No finished games yet.
 HISTORY_META,%s · %d bulan,%s · %d months
 SETTINGS_TITLE,Pengaturan,Settings
+SETTINGS_MUSIC,Musik,Music
+SETTINGS_MUSIC_LOW,Pelan,Low
+SETTINGS_MUSIC_MID,Sedang,Medium
+SETTINGS_MUSIC_HIGH,Keras,High
 SETTINGS_SFX,Efek suara,Sound effects
 SETTINGS_VIBRATION,Getar,Vibration
 SETTINGS_COMPACT,"Format angka ringkas (Rp1,25 jt)",Compact numbers (Rp1.25 jt)

@@ -3,7 +3,7 @@
 Daftar semua musik, jingle, dan efek suara yang dibutuhkan game, lengkap dengan **kapan bunyi itu muncul**, **seperti apa bunyinya**, dan **aturan teknisnya**, supaya bisa langsung dibuat atau dicari tanpa menebak-nebak. Dokumen ini pasangan dari `docs/KEBUTUHAN_ASET.md` (gambar & font).
 
 - **Terakhir diperbarui:** 21 Oktober 2026 (10 musik latar masuk `assets/audio/music/` sebagai OGG; sebelumnya: versi pertama)
-- **Kondisi sekarang:** **10 musik latar sudah ada** (OGG, total ±21 MB) tetapi **belum diputar di game**: pemutar musik, bus audio, dan sakelar musik belum dibuat. Lima efek suara (`click`, `coin`, `success`, `fail`, `alert`) masih dibuat lewat kode dari gelombang sinus di `scripts/autoload/sfx.gd`; jingle & efek suara berkas belum ada.
+- **Kondisi sekarang:** **10 musik latar sudah ada** (OGG, total ±21 MB) dan **sudah diputar di game** lewat autoload `Music` (`scripts/autoload/music.gd`): playlist per bab dengan crossfade, redam saat momen sensitif, hening saat perpisahan, berhenti di latar belakang, plus sakelar & volume musik di Profil › Atur. Lima efek suara (`click`, `coin`, `success`, `fail`, `alert`) masih dibuat lewat kode dari gelombang sinus di `scripts/autoload/sfx.gd`; jingle & efek suara berkas belum ada.
 - **Master WAV** disimpan di **luar repo**: `Documents/cuan-quest-audio-master/` (`latar/`, `jingle/`). Folder `all-music/` di proyek diabaikan git. File di `assets/audio/` adalah hasil konversi dari master itu.
 - **Tanda:** ✅ sudah ada · ⬜ dibutuhkan · 🔁 sementara memakai bunyi sintetis (game tetap jalan) · ⛔ sengaja **tanpa bunyi**
 - **Prioritas:** **P1** wajib untuk rilis pertama · **P2** disarankan · **P3** opsional (pemanis)
@@ -12,7 +12,7 @@ Daftar semua musik, jingle, dan efek suara yang dibutuhkan game, lengkap dengan 
 
 | Kelompok | Jumlah file | P1 | Status |
 |:--|:--|:--|:--|
-| Musik latar | 10 | 5 | ✅ 10/10 file (belum diputar di game) |
+| Musik latar | 10 | 5 | ✅ 10/10 file, diputar di game |
 | Jingle (musik pendek 1-4 detik) | 16 | 7 | ⬜ |
 | Efek suara antarmuka (UI) & kuis | 18 | 9 | 🔁 sebagian (klik, benar/salah) |
 | Efek suara uang, aset & aktivitas | 16 | 5 | 🔁 sebagian (koin) |
@@ -296,11 +296,16 @@ File boleh masuk satu per satu: begitu file dengan nama yang benar ada di `asset
 
 ## 12. Catatan Implementasi (untuk pengembang)
 
-Belum dikerjakan; ditulis agar file suara yang dibuat sekarang langsung cocok nanti.
+Musik latar **sudah dikerjakan** (lihat poin `Music` di bawah). Jingle, efek suara berkas, dan suasana latar belum; catatan ini ditulis agar file yang dibuat sekarang langsung cocok nanti.
 
-- **Bus audio:** `Master` → `Music`, `Sfx`, `Ambience`. Volume dan sakelar Musik & Efek Suara terpisah di Pengaturan (sekarang baru ada `Settings.sfx_enabled`).
+- **Bus audio:** `Master` → `Music`, `Sfx`, `Ambience`. Bus `Music` sudah dibuat oleh autoload `Music` saat game mulai; `Sfx` & `Ambience` menyusul. Pengaturan: `Settings.music_enabled` + `Settings.music_volume` (Pelan 0,4 / Sedang 0,7 / Keras 1,0) terpisah dari `Settings.sfx_enabled`.
 - **`Sfx.play(id)`** tetap dipakai seperti sekarang. Kode mencari `assets/audio/sfx/<id>.wav` atau `jingles/<id>.ogg`; kalau tidak ada, memakai bunyi sintetis lama (`click`, `coin`, `success`, `fail`, `alert`) sebagai cadangan. Bunyi yang punya varian (`ui_click_1..3`) dipilih acak.
-- **Autoload musik baru** (mis. `Music`) memakai `AudioStreamPlaylist` (2 lagu per bab bergantian) dan crossfade; mendengar `GameState.chapter_changed` untuk ganti bab; meredam musik saat popup `quiet`/`warning`/jingle; berhenti di `NOTIFICATION_APPLICATION_PAUSED`.
+- **Autoload `Music`** ✅ (`scripts/autoload/music.gd`): dua `AudioStreamPlayer` bergantian untuk crossfade 2,5 detik (bukan `AudioStreamPlaylist`, agar crossfade antarlagu & ujung-ke-awal bisa diatur sendiri). Tiap layar memanggil `Music.play("<tema>")`; tema yang sama tidak diulang dari awal.
+  - `title`: layar judul, Game Baru, Tutorial. `early`/`build`/`peak`/`retire`: Beranda sesuai bab (`GameState.chapter_changed`). `end`: layar akhir bangkrut/menang/pensiun.
+  - **Hening:** `Music.stop(3.0)` saat popup perpisahan muncul; layar akhir kematian tetap hening.
+  - **Redam ±9 dB** (`Music.duck_while(popup)`): event `"quiet"`, popup Depresi, Masa Senja, Kondisi Kritis. Popup `kind: "quiet"` biasa (rincian karier/neraca) tidak meredam.
+  - Berhenti sementara di `NOTIFICATION_APPLICATION_PAUSED`, lanjut di `RESUMED`.
+  - Belum: jingle bab baru di sela pergantian bab (menunggu file `jingle_chapter`).
 - **Peta pemicu yang sekarang ada di kode → ID baru:**
 
 | Lokasi sekarang | Bunyi sekarang | Ganti dengan |

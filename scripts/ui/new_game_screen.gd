@@ -31,6 +31,7 @@ var _meter_bars := {}  # id profil -> Panel
 
 
 func _ready() -> void:
+	Music.play("title")
 	_background_id = GameState.economy["default_background"]
 	_difficulty_id = GameState.economy["default_difficulty"]
 	%HeaderBackButton.pressed.connect(_go_back)

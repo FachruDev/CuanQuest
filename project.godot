@@ -24,6 +24,7 @@ GameState="*res://scripts/autoload/game_state.gd"
 AdService="*res://scripts/autoload/ad_service.gd"
 SaveManager="*res://scripts/autoload/save_manager.gd"
 Sfx="*res://scripts/autoload/sfx.gd"
+Music="*res://scripts/autoload/music.gd"
 TouchScroll="*res://scripts/autoload/touch_scroll.gd"
 
 [display]

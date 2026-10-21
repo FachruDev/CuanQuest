@@ -16,6 +16,7 @@ var _dots: Array[Panel] = []
 
 
 func _ready() -> void:
+	Music.play("title")
 	%NextButton.pressed.connect(_on_next)
 	%PrevButton.pressed.connect(func() -> void: _show_page(_page - 1))
 	%SkipButton.pressed.connect(_finish)

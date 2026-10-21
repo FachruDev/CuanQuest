@@ -14,6 +14,7 @@ const CLOSE_TIME := 0.14
 
 
 func _ready() -> void:
+	Music.play("title")
 	var has_auto := SaveManager.has_slot(SaveManager.AUTO_SLOT)
 	%SaveCard.visible = has_auto
 	%ContinueButton.visible = has_auto
