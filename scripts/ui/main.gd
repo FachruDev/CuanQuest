@@ -52,6 +52,7 @@ func _ready() -> void:
 	# Saat scene ini dijalankan langsung dari editor (F6) tanpa lewat layar judul.
 	if not GameState.is_active:
 		GameState.new_game()
+	Music.play(GameState.life.chapter if GameState.life.chapter != "" else GameState.life.chapter_for(GameState.age()))
 
 	var group := ButtonGroup.new()
 	for i in _nav_buttons.size():
@@ -187,9 +188,12 @@ func _ready() -> void:
 	# Popup yang sedang tampil (mis. laporan bulan terakhir) tetap dibaca dulu, lalu pindah ke layar akhir.
 	GameState.game_ended.connect(func(result: Dictionary) -> void:
 		_popup_queue.clear()
-		if result["type"] == "died":  # v2b: perpisahan yang tenang sebelum layar akhir
-			_enqueue(%InfoPopup.open_quiet.bind(tr("DEATH_POPUP_TITLE"),
-				UiText.death_text(result) + "\n\n" + tr("DEATH_POPUP_NOTE"), tr("DEATH_POPUP_OK"), LIFE_ICON))
+		if result["type"] == "died":  # v2b: perpisahan yang tenang sebelum layar akhir; musik memudar sampai hening
+			var farewell: Callable = %InfoPopup.open_quiet.bind(tr("DEATH_POPUP_TITLE"),
+				UiText.death_text(result) + "\n\n" + tr("DEATH_POPUP_NOTE"), tr("DEATH_POPUP_OK"), LIFE_ICON)
+			_enqueue(func() -> void:
+				Music.stop(3.0)
+				farewell.call())
 		_enqueue(func() -> void: get_tree().change_scene_to_file(END_SCENE)))
 	%ProfileScreen.text_requested.connect(func(title: String, body: String) -> void:
 		_enqueue(%TextPopup.open.bind(title, body)))
@@ -209,6 +213,7 @@ func _ready() -> void:
 	_setup_leverage()
 	_setup_fund()
 	GameState.chapter_changed.connect(func(summary: Dictionary) -> void:
+		Music.play(summary["to"])
 		_enqueue(_celebrating(%InfoPopup.open_rich.bind(tr("CHAPTER_POPUP_TITLE") % tr("CHAPTER_" + str(summary["to"]).to_upper()),
 			_chapter_blocks(summary), {"chip": _chapter_chip(summary["to"]), "icon": CHAPTER_ICON}))))
 	GameState.retirement_started.connect(func(info: Dictionary) -> void:
@@ -217,14 +222,14 @@ func _ready() -> void:
 	GameState.aging_changed.connect(func(age: int) -> void:
 		_enqueue(%InfoPopup.open_rich.bind(tr("AGING_POPUP_TITLE") % age, _aging_blocks(), {"icon": AGING_ICON})))
 	GameState.critical_started.connect(func(info: Dictionary) -> void:
-		_enqueue(%InfoPopup.open_rich.bind(tr("CRITICAL_POPUP_TITLE"), _critical_blocks(info),
-			{"kind": "warning", "ok_text": tr("CRITICAL_POPUP_OK")})))
+		_enqueue(_ducked(%InfoPopup.open_rich.bind(tr("CRITICAL_POPUP_TITLE"), _critical_blocks(info),
+			{"kind": "warning", "ok_text": tr("CRITICAL_POPUP_OK")}))))
 	GameState.depression_started.connect(func(info: Dictionary) -> void:
-		_enqueue(%InfoPopup.open_rich.bind(tr("DEPRESSION_POPUP_TITLE"), _depression_blocks(info),
-			{"kind": "quiet", "icon": HEART_ICON})))
+		_enqueue(_ducked(%InfoPopup.open_rich.bind(tr("DEPRESSION_POPUP_TITLE"), _depression_blocks(info),
+			{"kind": "quiet", "icon": HEART_ICON}))))
 	GameState.twilight_notice.connect(func(info: Dictionary) -> void:
-		_enqueue(%InfoPopup.open_rich.bind(tr("TWILIGHT_POPUP_TITLE") % int(info["age"]), _twilight_blocks(info),
-			{"kind": "quiet", "icon": LIFE_ICON})))
+		_enqueue(_ducked(%InfoPopup.open_rich.bind(tr("TWILIGHT_POPUP_TITLE") % int(info["age"]), _twilight_blocks(info),
+			{"kind": "quiet", "icon": LIFE_ICON}))))
 	for popup: ModalPopup in [%SummaryPopup, %InfoPopup, %EventPopup, %QuizPopup, %GlossaryPopup, %TextPopup,
 			%PlanPopup, %DreamPickerPopup, %DreamPopup, %TradeConfirmPopup, %InsurancePopup, %OrderPopup, %OfferPopup,
 			%LoanPopup, %VehiclePopup, %PropertyPopup, _annual_popup, _leverage_popup, _fund_popup, _achievement_popup]:
@@ -344,6 +349,13 @@ func _celebrating(show_popup: Callable) -> Callable:
 		show_popup.call()
 		Sfx.vibrate()
 		Confetti.burst(self)
+
+
+## Popup momen sensitif (depresi, masa senja, kondisi kritis): musik diredam selama popup tampil.
+func _ducked(show_popup: Callable) -> Callable:
+	return func() -> void:
+		show_popup.call()
+		Music.duck_while(%InfoPopup)
 
 
 ## Notifikasi singkat di bawah top bar (target selesai, naik level). Tidak menghalangi sentuhan.

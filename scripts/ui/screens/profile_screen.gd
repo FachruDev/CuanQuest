@@ -847,6 +847,11 @@ func _build_settings() -> void:
 
 	_title(page, tr("SETTINGS_TITLE"))
 	var settings := _card(page, &"HomeCard", 4)
+	var volume := _music_volume_row()
+	settings.add_child(_switch(tr("SETTINGS_MUSIC"), Settings.music_enabled, func(on: bool) -> void:
+		Settings.set_music(on)
+		volume.visible = on))
+	settings.add_child(volume)
 	settings.add_child(_switch(tr("SETTINGS_SFX"), Settings.sfx_enabled, Settings.set_sfx))
 	settings.add_child(_switch(tr("SETTINGS_VIBRATION"), Settings.vibration_enabled, Settings.set_vibration))
 	settings.add_child(_switch(tr("SETTINGS_COMPACT"), Settings.compact_numbers, func(on: bool) -> void:
@@ -1123,6 +1128,25 @@ func _card(page: Container, variation: StringName, separation: int) -> VBoxConta
 	card.add_child(box)
 	page.add_child(card)
 	return box
+
+
+## Pilihan volume musik (Settings.MUSIC_LEVELS: pelan / sedang / keras), disembunyikan saat musik mati.
+func _music_volume_row() -> Control:
+	var track := PanelContainer.new()
+	track.theme_type_variation = &"SegmentTrack"
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	track.add_child(row)
+	var group := ButtonGroup.new()
+	var keys := ["SETTINGS_MUSIC_LOW", "SETTINGS_MUSIC_MID", "SETTINGS_MUSIC_HIGH"]
+	for i in keys.size():
+		var level: float = Settings.MUSIC_LEVELS[i]
+		var button := _segment(tr(keys[i]), group, is_equal_approx(level, Settings.music_volume))
+		button.pressed.connect(Settings.set_music_volume.bind(level))
+		row.add_child(button)
+	var holder := _padded(track, 0, 6)
+	holder.visible = Settings.music_enabled
+	return holder
 
 
 func _segment(text: String, group: ButtonGroup, pressed: bool) -> Button:
