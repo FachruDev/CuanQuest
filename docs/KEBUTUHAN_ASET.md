@@ -31,7 +31,7 @@ Rangkuman semua aset gambar, font, dan suara per versi: yang **sudah ada**, yang
 | Ikon | **SVG** | Satu warna/flat seperti ikon yang ada. Ukuran kanvas 24x24 atau 48x48; tanpa teks (ubah jadi path), tanpa filter/blur |
 | Ilustrasi | **SVG** (utama) atau PNG 2x | Gaya "Senja Cuan": warna hangat senja, garis tebal tinta `#2B2147`, sudut membulat |
 | Font | TTF/OTF lisensi **OFL** | Saat ini Fredoka (isi) & Lilita One (judul) |
-| Efek suara / musik | WAV 16-bit / OGG | Saat ini efek suara dibuat lewat kode (`scripts/autoload/sfx.gd`); musik belum ada |
+| Efek suara / musik | WAV 16-bit / OGG | Saat ini efek suara dibuat lewat kode (`scripts/autoload/sfx.gd`); musik belum ada. Daftar lengkap & deskripsi tiap bunyi: `docs/KEBUTUHAN_SUARA.md` |
 
 - Layar dasar **720 x 1280** (portrait). Gambar PNG dibuat 2x ukuran tampil.
 - Nama file `snake_case`, tanpa spasi. Ikon yang dipilih lewat data (mis. bidang kerja) **harus** memakai id dari file data, misalnya `tracks/tech.svg` untuk bidang `tech`.
