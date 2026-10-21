@@ -60,6 +60,12 @@ Motif ini dipakai berulang: di lagu tema, diaransemen ulang di tiap bab hidup, d
 | Musik latar | **OGG Vorbis** kualitas ±96-112 kbps | 44,1 kHz | Stereo | 1,5-2,5 menit per loop | Sekitar -18 LUFS, puncak maksimal -1 dBFS |
 | Suasana latar | OGG Vorbis | 44,1 kHz | Stereo | 30-60 detik per loop | Sangat pelan, di bawah musik |
 
+**Format lain:**
+- **M4A/AAC tidak bisa dipakai**: Godot tidak bisa mengimpornya. Ubah dulu ke OGG atau WAV (Audacity bisa membuka M4A setelah memasang pustaka FFmpeg yang ditawarkannya).
+- **MP3 bisa dipakai, tapi pilihan kedua**: biasanya ada hening sangat pendek di awal dan akhir file. Akibatnya efek suara terasa sedikit telat, dan musik bisa "tersendat" di titik loop. Jika sumbernya hanya MP3 (misalnya unduhan atau hasil musik AI), boleh dipakai untuk musik/jingle pada 128-192 kbps, tapi dengarkan titik loop-nya di Godot. Lebih baik ubah sekali ke OGG.
+- Simpan **master WAV** (kualitas penuh) dari setiap lagu dan efek suara buatan sendiri, lalu ekspor OGG dari master itu. Hindari konversi berulang antarformat terkompresi (MP3 → OGG → ...), karena kualitasnya turun setiap kali.
+- Ekspor OGG dari Audacity: kualitas **3-4** (sekitar 112-128 kbps) untuk musik.
+
 **Detail penting:**
 
 - **Efek suara langsung mulai.** Potong hening di awal file (maksimal 10 ms) supaya terasa responsif saat tombol ditekan. Ekor bunyi diberi fade-out pendek agar tidak terdengar "klik" di akhir.
