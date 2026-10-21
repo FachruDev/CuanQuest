@@ -5,3 +5,6 @@
 
 # Skrip uji & tangkapan layar sementara (dibuat lalu dihapus saat pengujian)
 /_tmp/
+
+# Master audio WAV (besar) disimpan di luar repo: Documents/cuan-quest-audio-master/
+/all-music/

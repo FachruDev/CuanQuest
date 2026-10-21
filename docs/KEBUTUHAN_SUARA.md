@@ -2,8 +2,9 @@
 
 Daftar semua musik, jingle, dan efek suara yang dibutuhkan game, lengkap dengan **kapan bunyi itu muncul**, **seperti apa bunyinya**, dan **aturan teknisnya**, supaya bisa langsung dibuat atau dicari tanpa menebak-nebak. Dokumen ini pasangan dari `docs/KEBUTUHAN_ASET.md` (gambar & font).
 
-- **Terakhir diperbarui:** 21 Oktober 2026 (versi pertama)
-- **Kondisi sekarang:** game **belum punya file audio sama sekali**. Lima bunyi (`click`, `coin`, `success`, `fail`, `alert`) dibuat lewat kode dari gelombang sinus di `scripts/autoload/sfx.gd`. Musik belum ada; di Pengaturan baru ada sakelar efek suara dan getar.
+- **Terakhir diperbarui:** 21 Oktober 2026 (10 musik latar masuk `assets/audio/music/` sebagai OGG; sebelumnya: versi pertama)
+- **Kondisi sekarang:** **10 musik latar sudah ada** (OGG, total ±21 MB) tetapi **belum diputar di game**: pemutar musik, bus audio, dan sakelar musik belum dibuat. Lima efek suara (`click`, `coin`, `success`, `fail`, `alert`) masih dibuat lewat kode dari gelombang sinus di `scripts/autoload/sfx.gd`; jingle & efek suara berkas belum ada.
+- **Master WAV** disimpan di **luar repo**: `Documents/cuan-quest-audio-master/` (`latar/`, `jingle/`). Folder `all-music/` di proyek diabaikan git. File di `assets/audio/` adalah hasil konversi dari master itu.
 - **Tanda:** ✅ sudah ada · ⬜ dibutuhkan · 🔁 sementara memakai bunyi sintetis (game tetap jalan) · ⛔ sengaja **tanpa bunyi**
 - **Prioritas:** **P1** wajib untuk rilis pertama · **P2** disarankan · **P3** opsional (pemanis)
 
@@ -11,7 +12,7 @@ Daftar semua musik, jingle, dan efek suara yang dibutuhkan game, lengkap dengan 
 
 | Kelompok | Jumlah file | P1 | Status |
 |:--|:--|:--|:--|
-| Musik latar | 10 | 5 | ⬜ |
+| Musik latar | 10 | 5 | ✅ 10/10 file (belum diputar di game) |
 | Jingle (musik pendek 1-4 detik) | 16 | 7 | ⬜ |
 | Efek suara antarmuka (UI) & kuis | 18 | 9 | 🔁 sebagian (klik, benar/salah) |
 | Efek suara uang, aset & aktivitas | 16 | 5 | 🔁 sebagian (koin) |
@@ -57,7 +58,7 @@ Motif ini dipakai berulang: di lagu tema, diaransemen ulang di tiap bab hidup, d
 |:--|:--|:--|:--|:--|:--|
 | Efek suara | **WAV 16-bit** (atau OGG bila >1 detik) | 44,1 kHz | **Mono** | 0,03-1 detik | Puncak maksimal -3 dBFS, tanpa clipping |
 | Jingle | **OGG Vorbis** | 44,1 kHz | Stereo | 1-4 detik | Setara musik, boleh sedikit lebih menonjol |
-| Musik latar | **OGG Vorbis** kualitas ±96-112 kbps | 44,1 kHz | Stereo | 1,5-2,5 menit per loop | Sekitar -18 LUFS, puncak maksimal -1 dBFS |
+| Musik latar | **OGG Vorbis** kualitas ±96-112 kbps | 44,1 atau 48 kHz | Stereo | 1,5-3 menit per lagu | Sekitar -18 LUFS, puncak maksimal -1 dBFS |
 | Suasana latar | OGG Vorbis | 44,1 kHz | Stereo | 30-60 detik per loop | Sangat pelan, di bawah musik |
 
 **Format lain:**
@@ -69,7 +70,7 @@ Motif ini dipakai berulang: di lagu tema, diaransemen ulang di tiap bab hidup, d
 **Detail penting:**
 
 - **Efek suara langsung mulai.** Potong hening di awal file (maksimal 10 ms) supaya terasa responsif saat tombol ditekan. Ekor bunyi diberi fade-out pendek agar tidak terdengar "klik" di akhir.
-- **Musik harus bisa berulang mulus (seamless loop).** Ujung lagu menyambung ke awal tanpa jeda dan tanpa fade-out. Kalau lagu punya intro, catat di detik ke berapa bagian loop dimulai; Godot bisa memutar intro sekali lalu mengulang dari titik itu (pengaturan impor `loop_offset`).
+- **Musik boleh berupa lagu utuh** (dengan intro dan fade-out di akhir), seperti 10 lagu yang sudah ada. Lagu-lagu ini diputar sebagai **playlist dengan crossfade**, bukan diulang satu per satu, jadi tidak perlu dibuat seamless loop. Yang penting: potong hening di awal dan akhir. Hanya lagu yang memang diputar sendirian terus-menerus yang perlu seamless loop (ujung menyambung ke awal tanpa jeda; bila ada intro, catat detik awal bagian loop untuk pengaturan impor `loop_offset` Godot).
 - **Cek di speaker HP**, bukan hanya headphone. Speaker HP hampir tidak bisa memutar nada sangat rendah (bass di bawah ±150 Hz), jadi bunyi penting jangan hanya mengandalkan bass.
 - **Semua instrumental, tanpa vokal atau lirik.** Vokal mengganggu saat pemain membaca teks dan tidak perlu diterjemahkan.
 - **Variasi untuk bunyi yang sering muncul.** Bunyi klik dibuat 3 versi yang sedikit berbeda; game akan memilih acak supaya tidak terdengar seperti mesin.
@@ -107,7 +108,7 @@ Musik berganti mengikuti **bab hidup** pemain (`data/life.json`: `early`, `build
 | `end_theme` | Layar akhir saat **bangkrut** (dan **menang** jika pemain memilih "Selesai sekarang") | 70-80 BPM | Versi pelan dan reflektif dari lagu tema (piano + pad), tidak sedih berlebihan, berakhir dengan nada yang memberi harapan ("coba lagi"). Boleh tidak loop (sekitar 60-90 detik, lalu hening). Untuk akhir hidup karakter lihat bagian 7. | P2 |
 
 **Perilaku musik (untuk implementasi):**
-- Ganti lagu dengan **crossfade 2-3 detik**, tidak berhenti mendadak.
+- Lagu tiap bab diputar sebagai **playlist** (lagu 1 → lagu 2 → lagu 1 ...) dengan **crossfade 2-3 detik**, sehingga fade-out di akhir tiap lagu menjadi transisi. `title_theme` dan `end_theme` diulang sendiri dengan crossfade dari ujung ke awal. Ganti lagu juga dengan crossfade, tidak berhenti mendadak.
 - Saat ganti bab, lagu bab lama memudar, jingle bab baru (`jingle_chapter`) bermain, lalu lagu bab baru masuk.
 - Saat popup tenang atau momen sensitif muncul, musik **diredam** (turun sekitar 8-10 dB), lalu naik lagi setelah popup ditutup.
 - Musik berhenti saat aplikasi masuk ke latar belakang dan lanjut saat kembali.
